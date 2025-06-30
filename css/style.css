@@ -1005,3 +1005,60 @@ h1, h2, h3, h4, h5, h6 {
     min-height: 120px;
   }
 }
+
+/* --- STORE CARD MODERN --- */
+.store-card-modern {
+  border-radius: 1.25rem !important;
+  box-shadow: 0 2px 12px 0 rgba(0,0,0,0.07);
+  background: #fff;
+  padding: 1.1rem 1.2rem;
+  min-height: 110px;
+  transition: transform 0.18s cubic-bezier(.4,2,.6,1), box-shadow 0.18s cubic-bezier(.4,2,.6,1);
+  gap: 1.1rem;
+}
+.store-card-modern:hover {
+  transform: translateY(-6px) scale(1.025);
+  box-shadow: 0 8px 32px 0 rgba(0,123,255,0.13);
+  z-index: 2;
+}
+.store-card-modern img.rounded-circle {
+  width: 54px;
+  height: 54px;
+  object-fit: cover;
+  border: 2px solid #e9ecef;
+}
+.store-card-modern .fw-semibold {
+  font-size: 1.05rem;
+}
+.store-card-modern .badge {
+  font-size: 0.78rem;
+  font-weight: 500;
+  background: #f5f7fa;
+  border: 1px solid #e9ecef;
+}
+.store-card-modern .rating-stars i {
+  font-size: 1.05rem;
+  margin-right: 1px;
+}
+.store-card-modern .stats-row span {
+  font-size: 0.93em;
+  opacity: 0.85;
+}
+.store-card-modern .btn-sm {
+  font-size: 0.97em;
+  padding: 0.35em 1.1em;
+  border-radius: 1.5em;
+  margin-top: 0.2em;
+}
+@media (max-width: 768px) {
+  .store-card-modern {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.7rem;
+    padding: 1rem 0.8rem;
+  }
+  .store-card-modern img.rounded-circle {
+    width: 48px;
+    height: 48px;
+  }
+}

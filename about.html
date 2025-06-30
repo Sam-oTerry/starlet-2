@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>About Us - Starlet Properties</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .about-hero {
+      background: linear-gradient(135deg, #f8fafc 60%, #e3f0ff 100%);
+      padding: 4rem 0 2.5rem 0;
+      text-align: center;
+    }
+    .about-hero .brand-star {
+      color: var(--primary-color, #007bff);
+      font-weight: 700;
+    }
+    .about-hero .brand-let {
+      color: #222;
+      font-weight: 700;
+    }
+    .about-hero h1 {
+      font-size: 2.5rem;
+      font-weight: 800;
+      margin-bottom: 1rem;
+    }
+    .about-hero p {
+      font-size: 1.25rem;
+      color: #555;
+      max-width: 700px;
+      margin: 0 auto 1.5rem auto;
+    }
+    .about-section {
+      background: #fff;
+      border-radius: 1.25rem;
+      box-shadow: 0 2px 12px 0 rgba(0,0,0,0.07);
+      padding: 2.5rem 2rem;
+      margin-top: -2rem;
+      margin-bottom: 2.5rem;
+    }
+    .about-values {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 2rem;
+      justify-content: center;
+      margin: 2.5rem 0 1.5rem 0;
+    }
+    .about-value {
+      flex: 1 1 220px;
+      min-width: 200px;
+      background: #f8f9fa;
+      border-radius: 1rem;
+      padding: 1.5rem 1.2rem;
+      text-align: center;
+      box-shadow: 0 1px 6px rgba(0,0,0,0.04);
+    }
+    .about-value i {
+      font-size: 2.2rem;
+      color: var(--primary-color, #007bff);
+      margin-bottom: 0.7rem;
+    }
+    .about-value h5 {
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+    .about-value p {
+      color: #666;
+      font-size: 1.05em;
+    }
+    .about-team-section {
+      margin-top: 2.5rem;
+    }
+    .about-team-header {
+      font-size: 1.3rem;
+      font-weight: 600;
+      margin-bottom: 1.2rem;
+      text-align: center;
+    }
+    .team-member-card {
+      background: #f8f9fa;
+      border-radius: 1rem;
+      box-shadow: 0 1px 6px rgba(0,0,0,0.04);
+      padding: 1.5rem 1.2rem;
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+    .team-member-avatar {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid #e9ecef;
+      margin-bottom: 0.7rem;
+    }
+    .team-member-name {
+      font-weight: 700;
+      font-size: 1.1rem;
+      margin-bottom: 0.2rem;
+    }
+    .team-member-role {
+      color: #007bff;
+      font-size: 0.98em;
+      margin-bottom: 0.5rem;
+    }
+    .team-member-bio {
+      color: #555;
+      font-size: 1em;
+    }
+    @media (max-width: 768px) {
+      .about-section {
+        padding: 1.2rem 0.5rem;
+      }
+      .about-values {
+        flex-direction: column;
+        gap: 1.2rem;
+      }
+    }
+  </style>
+</head>
+<body class="bg-light">
+  <!-- Navbar (copied from index.html) -->
+  <nav class="navbar navbar-expand-lg navbar-custom">
+    <div class="container">
+      <a class="navbar-brand" href="index.html">
+        <span class="brand-star">Star</span> <span class="brand-let">Let</span>
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+          <li class="nav-item">
+            <a class="nav-link" href="index.html"><i class="bi bi-house-door"></i> Home</a>
+          </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="categoriesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="bi bi-grid"></i> Categories
+            </a>
+            <ul class="dropdown-menu" aria-labelledby="categoriesDropdown">
+              <li><h6 class="dropdown-header">Properties</h6></li>
+              <li><a class="dropdown-item" href="properties.html?type=house_sale">Houses for Sale</a></li>
+              <li><a class="dropdown-item" href="properties.html?type=house_rent">Houses for Rent</a></li>
+              <li><a class="dropdown-item" href="properties.html?type=land_sale">Land for Sale</a></li>
+              <li><a class="dropdown-item" href="properties.html?type=land_rent">Land for Rent</a></li>
+              <li><a class="dropdown-item" href="properties.html?type=commercial">Commercial Property</a></li>
+              <li><a class="dropdown-item" href="properties.html?type=vacation_short_stay">Vacation & Short Stay</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><h6 class="dropdown-header">Vehicles</h6></li>
+              <li><a class="dropdown-item" href="vehicles.html?type=cars">Cars</a></li>
+              <li><a class="dropdown-item" href="vehicles.html?type=motorcycles">Motorcycles</a></li>
+              <li><a class="dropdown-item" href="vehicles.html?type=trucks">Trucks</a></li>
+              <li><a class="dropdown-item" href="vehicles.html?type=buses">Buses</a></li>
+              <li><a class="dropdown-item" href="vehicles.html?type=heavy_machinery">Heavy Machinery</a></li>
+              <li><a class="dropdown-item" href="vehicles.html?type=bicycles_ebikes">Bicycles & E-bikes</a></li>
+              <li><a class="dropdown-item" href="vehicles.html?type=boats_watercraft">Boats & Watercraft</a></li>
+            </ul>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/web-application/pages/users/add-property.html"><i class="bi bi-tags"></i> Sell</a>
+          </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="moreDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="bi bi-three-dots"></i> More
+            </a>
+            <ul class="dropdown-menu" aria-labelledby="moreDropdown">
+              <li><a class="dropdown-item" href="properties.html"><i class="bi bi-building"></i> Properties</a></li>
+              <li><a class="dropdown-item" href="vehicles.html"><i class="bi bi-car-front"></i> Vehicles</a></li>
+              <li><a class="dropdown-item active" href="stores.html"><i class="bi bi-shop"></i> Stores</a></li>
+              <li><a class="dropdown-item" href="resources.html"><i class="bi bi-book"></i> Resources</a></li>
+              <li><a class="dropdown-item" href="about.html"><i class="bi bi-info-circle"></i> About</a></li>
+              <li><a class="dropdown-item" href="contact.html"><i class="bi bi-envelope"></i> Contact</a></li>
+            </ul>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="login.html"><i class="bi bi-box-arrow-in-right"></i> Login</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="register.html"><i class="bi bi-person-plus"></i> Sign Up</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <section class="about-hero">
+    <div class="container">
+      <h1><span class="brand-star">Star</span><span class="brand-let">let Properties</span></h1>
+      <p>Uganda's premier real estate and vehicle marketplace. We connect buyers, sellers, and trusted agents across the country, making property and vehicle transactions simple, transparent, and secure.</p>
+    </div>
+  </section>
+
+  <section class="about-section container">
+    <h2 class="mb-3">Our Mission</h2>
+    <p>To empower Ugandans with a modern, reliable, and user-friendly platform for buying, selling, and renting properties and vehicles. We strive to build trust, promote transparency, and support economic growth by connecting people with the best agents, official stores, and verified listings nationwide.</p>
+    <h2 class="mt-5 mb-3">Our Story</h2>
+    <p>Founded by a passionate team of real estate and technology professionals, Starlet Properties was created to address the challenges faced by buyers and sellers in Uganda's property and vehicle markets. Our platform leverages the latest technology and local expertise to deliver a seamless experience for all users, whether you're searching for your dream home, a new car, or a trusted agent to guide you.</p>
+    <div class="about-values">
+      <div class="about-value">
+        <i class="bi bi-patch-check-fill"></i>
+        <h5>Trust & Verification</h5>
+        <p>All official stores and agents are verified for your peace of mind. Look for the verification badge on listings and stores.</p>
+      </div>
+      <div class="about-value">
+        <i class="bi bi-shop"></i>
+        <h5>Official Stores</h5>
+        <p>Partner with Uganda's top real estate and vehicle stores for the best deals and service.</p>
+      </div>
+      <div class="about-value">
+        <i class="bi bi-people"></i>
+        <h5>Agent Tiers</h5>
+        <p>Choose from a range of agent tiers, from independent agents to official partners, to suit your needs and budget.</p>
+      </div>
+      <div class="about-value">
+        <i class="bi bi-globe2"></i>
+        <h5>Localization</h5>
+        <p>Our platform is tailored for Uganda, with local language support, regional filters, and up-to-date market data.</p>
+      </div>
+      <div class="about-value">
+        <i class="bi bi-layers"></i>
+        <h5>Diverse Listings</h5>
+        <p>Find properties and vehicles of all types, from houses and land to cars, motorcycles, and more.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="about-team-section container">
+    <div class="about-team-header">Meet Our Team</div>
+    <div class="row justify-content-center">
+      <div class="col-md-6 col-lg-3">
+        <div class="team-member-card">
+          <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="John Doe" class="team-member-avatar">
+          <div class="team-member-name">John Doe</div>
+          <div class="team-member-role">Founder & CEO</div>
+          <div class="team-member-bio">Visionary leader with 10+ years in real estate and a passion for digital transformation in Africa.</div>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-3">
+        <div class="team-member-card">
+          <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="Sarah Kintu" class="team-member-avatar">
+          <div class="team-member-name">Sarah Kintu</div>
+          <div class="team-member-role">Head of Operations</div>
+          <div class="team-member-bio">Expert in property management and customer service, ensuring smooth transactions for all users.</div>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-3">
+        <div class="team-member-card">
+          <img src="https://randomuser.me/api/portraits/men/51.jpg" alt="James Okello" class="team-member-avatar">
+          <div class="team-member-name">James Okello</div>
+          <div class="team-member-role">Lead Developer</div>
+          <div class="team-member-bio">Full-stack developer passionate about building scalable, user-friendly platforms for Africa.</div>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-3">
+        <div class="team-member-card">
+          <img src="https://randomuser.me/api/portraits/women/68.jpg" alt="Linda Namutebi" class="team-member-avatar">
+          <div class="team-member-name">Linda Namutebi</div>
+          <div class="team-member-role">Marketing & Partnerships</div>
+          <div class="team-member-bio">Connecting Starlet Properties with partners and customers across Uganda and beyond.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer (copied from index.html) -->
+  <footer class="footer mt-5">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-4 mb-4">
+          <h4>About Starlet Properties</h4>
+          <p>Uganda's premier real estate and vehicle marketplace, connecting buyers and sellers across the country.</p>
+          <div class="social-links">
+            <a href="#"><i class="fab fa-facebook"></i></a>
+            <a href="#"><i class="fab fa-twitter"></i></a>
+            <a href="#"><i class="fab fa-instagram"></i></a>
+            <a href="#"><i class="fab fa-linkedin"></i></a>
+          </div>
+        </div>
+        <div class="col-lg-2 col-md-6 mb-4">
+          <h4>Properties</h4>
+          <ul>
+            <li><a href="properties.html?type=house_sale">Houses for Sale</a></li>
+            <li><a href="properties.html?type=house_rent">Houses for Rent</a></li>
+            <li><a href="properties.html?type=land_sale">Land for Sale</a></li>
+            <li><a href="properties.html?type=land_rent">Land for Rent</a></li>
+            <li><a href="properties.html?type=commercial">Commercial Property</a></li>
+            <li><a href="properties.html?type=vacation_short_stay">Vacation & Short Stay</a></li>
+          </ul>
+        </div>
+        <div class="col-lg-2 col-md-6 mb-4">
+          <h4>Vehicles</h4>
+          <ul>
+            <li><a href="vehicles.html?type=cars">Cars</a></li>
+            <li><a href="vehicles.html?type=motorcycles">Motorcycles</a></li>
+            <li><a href="vehicles.html?type=trucks">Trucks</a></li>
+            <li><a href="vehicles.html?type=buses">Buses</a></li>
+            <li><a href="vehicles.html?type=heavy_machinery">Heavy Machinery</a></li>
+            <li><a href="vehicles.html?type=bicycles_ebikes">Bicycles & E-bikes</a></li>
+            <li><a href="vehicles.html?type=boats_watercraft">Boats & Watercraft</a></li>
+          </ul>
+        </div>
+        <div class="col-lg-2 col-md-6 mb-4">
+          <h4>Company</h4>
+          <ul>
+            <li><a href="about.html">About Us</a></li>
+            <li><a href="contact.html">Contact</a></li>
+            <li><a href="resources.html">Resources</a></li>
+            <li><a href="stores.html">Our Stores</a></li>
+            <li><a href="privacy.html">Privacy Policy</a></li>
+          </ul>
+        </div>
+        <div class="col-lg-2 col-md-6 mb-4">
+          <h4>Contact</h4>
+          <ul>
+            <li><a href="tel:+256123456789"><i class="bi bi-telephone"></i> +256 123 456 789</a></li>
+            <li><a href="mailto:info@starlet.co.ug"><i class="bi bi-envelope"></i> info@starlet.co.ug</a></li>
+            <li><a href="#"><i class="bi bi-geo-alt"></i> Kampala, Uganda</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <div class="row">
+          <div class="col-md-6">
+            <p class="mb-0">&copy; 2024 Starlet Properties. All rights reserved.</p>
+          </div>
+          <div class="col-md-6 text-md-end">
+            <a href="terms.html" class="me-3">Terms of Service</a>
+            <a href="privacy.html">Privacy Policy</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

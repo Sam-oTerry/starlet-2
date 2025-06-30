@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Privacy Policy - Starlet Properties</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .privacy-hero {
+      background: linear-gradient(135deg, #f8fafc 60%, #e3f0ff 100%);
+      padding: 3.5rem 0 2rem 0;
+      text-align: center;
+    }
+    .privacy-hero h1 {
+      font-size: 2.2rem;
+      font-weight: 800;
+      margin-bottom: 0.7rem;
+    }
+    .privacy-section {
+      background: #fff;
+      border-radius: 1.25rem;
+      box-shadow: 0 2px 12px 0 rgba(0,0,0,0.07);
+      padding: 2.5rem 2rem;
+      margin-top: -2rem;
+      margin-bottom: 2.5rem;
+      max-width: 900px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .privacy-section h2 {
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin-top: 2rem;
+      margin-bottom: 0.7rem;
+    }
+    .privacy-section p, .privacy-section ul {
+      color: #555;
+      font-size: 1.08em;
+    }
+    .privacy-section ul {
+      padding-left: 1.2em;
+    }
+    @media (max-width: 768px) {
+      .privacy-section {
+        padding: 1.2rem 0.5rem;
+      }
+    }
+  </style>
+</head>
+<body class="bg-light">
+  <!-- Navbar (copied from index.html) -->
+  <nav class="navbar navbar-expand-lg navbar-custom">
+    <div class="container">
+      <a class="navbar-brand" href="index.html">
+        <span class="brand-star">Star</span> <span class="brand-let">Let</span>
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+          <li class="nav-item">
+            <a class="nav-link" href="index.html"><i class="bi bi-house-door"></i> Home</a>
+          </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="categoriesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="bi bi-grid"></i> Categories
+            </a>
+            <ul class="dropdown-menu" aria-labelledby="categoriesDropdown">
+              <li><h6 class="dropdown-header">Properties</h6></li>
+              <li><a class="dropdown-item" href="properties.html?type=house_sale">Houses for Sale</a></li>
+              <li><a class="dropdown-item" href="properties.html?type=house_rent">Houses for Rent</a></li>
+              <li><a class="dropdown-item" href="properties.html?type=land_sale">Land for Sale</a></li>
+              <li><a class="dropdown-item" href="properties.html?type=land_rent">Land for Rent</a></li>
+              <li><a class="dropdown-item" href="properties.html?type=commercial">Commercial Property</a></li>
+              <li><a class="dropdown-item" href="properties.html?type=vacation_short_stay">Vacation & Short Stay</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><h6 class="dropdown-header">Vehicles</h6></li>
+              <li><a class="dropdown-item" href="vehicles.html?type=cars">Cars</a></li>
+              <li><a class="dropdown-item" href="vehicles.html?type=motorcycles">Motorcycles</a></li>
+              <li><a class="dropdown-item" href="vehicles.html?type=trucks">Trucks</a></li>
+              <li><a class="dropdown-item" href="vehicles.html?type=buses">Buses</a></li>
+              <li><a class="dropdown-item" href="vehicles.html?type=heavy_machinery">Heavy Machinery</a></li>
+              <li><a class="dropdown-item" href="vehicles.html?type=bicycles_ebikes">Bicycles & E-bikes</a></li>
+              <li><a class="dropdown-item" href="vehicles.html?type=boats_watercraft">Boats & Watercraft</a></li>
+            </ul>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/web-application/pages/users/add-property.html"><i class="bi bi-tags"></i> Sell</a>
+          </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="moreDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="bi bi-three-dots"></i> More
+            </a>
+            <ul class="dropdown-menu" aria-labelledby="moreDropdown">
+              <li><a class="dropdown-item" href="properties.html"><i class="bi bi-building"></i> Properties</a></li>
+              <li><a class="dropdown-item" href="vehicles.html"><i class="bi bi-car-front"></i> Vehicles</a></li>
+              <li><a class="dropdown-item" href="stores.html"><i class="bi bi-shop"></i> Stores</a></li>
+              <li><a class="dropdown-item" href="resources.html"><i class="bi bi-book"></i> Resources</a></li>
+              <li><a class="dropdown-item" href="about.html"><i class="bi bi-info-circle"></i> About</a></li>
+              <li><a class="dropdown-item" href="contact.html"><i class="bi bi-envelope"></i> Contact</a></li>
+            </ul>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="login.html"><i class="bi bi-box-arrow-in-right"></i> Login</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="register.html"><i class="bi bi-person-plus"></i> Sign Up</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <section class="privacy-hero">
+    <div class="container">
+      <h1>Privacy Policy</h1>
+      <p class="lead">Your privacy is important to us. Please read this policy to understand how we handle your information.</p>
+    </div>
+  </section>
+
+  <section class="privacy-section">
+    <h2>Starlet Properties Privacy Policy</h2>
+    <p><strong>Last Updated: June 30, 2025</strong></p>
+    <p>Starlet Properties ("we," "us," or "our") operates a real estate and vehicle marketplace in Uganda, accessible via our website, mobile apps, and related services. We are committed to safeguarding your privacy and ensuring the security of your personal information in compliance with Uganda's Data Protection and Privacy Act, 2019, and other applicable data protection principles. This Privacy Policy provides detailed information on how we collect, use, store, share, and protect your personal data when you interact with our platform—including creating accounts, posting listings, submitting reviews, managing stores, scheduling inspections, and engaging with inquiries or educational resources.</p>
+    <p>By using Starlet Properties, you consent to the practices described in this policy. If you have questions or wish to exercise your data rights, please contact our Data Protection Officer at <a href="mailto:privacy@starletproperties.ug">privacy@starletproperties.ug</a>.</p>
+
+    <h2>1. Information We Collect</h2>
+    <p>We collect various types of information to provide and improve our services. The categories below match our database collections:</p>
+    <h3>a. Users Collection</h3>
+    <ul>
+      <li><strong>Account Information:</strong>
+        <ul>
+          <li>First name and last name (required)</li>
+          <li>Email address (optional)</li>
+          <li>Phone number (Ugandan format, e.g., +256123456789, required)</li>
+          <li>Role (admin, staff, seller, buyer, agent, required)</li>
+          <li>Language preference (English or Acholi, default: English)</li>
+          <li>Password (stored as hashed value)</li>
+        </ul>
+      </li>
+      <li><strong>Verification Data (for sellers/agents):</strong>
+        <ul>
+          <li>Uploaded documents (ID card, business license, certificate of incorporation, LC1 letter)</li>
+          <li>Verification status (pending, verified, rejected, not_applicable), with timestamps and admin notes</li>
+        </ul>
+      </li>
+      <li><strong>Performance Metrics:</strong>
+        <ul>
+          <li>Task counts (e.g., listings created, deals closed)</li>
+          <li>Associated stores (references to Stores collection)</li>
+          <li>Timestamps (account creation, last update, last login)</li>
+        </ul>
+      </li>
+    </ul>
+    <h3>b. Stores Collection</h3>
+    <ul>
+      <li><strong>Store Profile:</strong>
+        <ul>
+          <li>Store name, description (English and Acholi), logo (optional), agent ID, agent tier (silver, gold, diamond), associated sellers</li>
+          <li>Official store status (boolean)</li>
+        </ul>
+      </li>
+      <li><strong>Verification Data:</strong>
+        <ul>
+          <li>Business documents, verification status, admin notes</li>
+        </ul>
+      </li>
+      <li><strong>Review Metrics:</strong>
+        <ul>
+          <li>Average rating (1–5), review count</li>
+        </ul>
+      </li>
+    </ul>
+    <h3>c. StoreReviews Collection</h3>
+    <ul>
+      <li>Store ID, user ID (nullable for guests), rating (1–5), comment (max 500 characters), moderation status, timestamps, admin/staff notes</li>
+    </ul>
+    <h3>d. StoreSubscriptions Collection</h3>
+    <ul>
+      <li>Store ID, agent ID, tier, subscription period, amount (in Ush), payment status (e.g., paid, pending), and external payment references</li>
+    </ul>
+    <h3>e. Listings Collection</h3>
+    <ul>
+      <li>Listing type (e.g., house_sale, vehicle_sale), status, user/store/agent IDs, tier & visibility</li>
+      <li>Title, description (English & Acholi), prices (asking & final), location (address, district, GPS), contact info</li>
+      <li>Media (photos, videos, tours), documents (e.g., title), admin verification notes</li>
+      <li>Specific details (houseDetails, landDetails, vehicleDetails), view count, featured status</li>
+    </ul>
+    <h3>f. Deals Collection</h3>
+    <ul>
+      <li>Buyer/seller/store/agent/broker IDs, deal type, final price, documents (e.g., sale agreements), external payment and commission notes</li>
+    </ul>
+    <h3>g. FeeSettings Collection</h3>
+    <ul>
+      <li>Subscription fees (for silver, gold, diamond), set by admin, with timestamps</li>
+    </ul>
+    <h3>h. Analytics Collection</h3>
+    <ul>
+      <li>Event types (views, search, inquiries, etc.), view types, device info, query/filter details, listing/store/user references</li>
+    </ul>
+    <h3>i. Inspections Collection</h3>
+    <ul>
+      <li>Listing/user IDs, status, payment notes, priority, proposed/confirmed times, coordinator, cancellation reasons</li>
+    </ul>
+    <h3>j. VehicleMakesModels Collection</h3>
+    <ul>
+      <li>Vehicle type, make, and related models</li>
+    </ul>
+    <h3>k. Inquiries Collection</h3>
+    <ul>
+      <li>Listing/user IDs (nullable for guests), communication channel, status, assigned staff/admin, priority, messages (text/media/docs)</li>
+    </ul>
+    <h3>l. Resources Collection</h3>
+    <ul>
+      <li>Title, content (English & Acholi), category, media (images/videos/docs)</li>
+    </ul>
+    <h3>m. Automatically Collected Data</h3>
+    <ul>
+      <li>Cookies for sessions, language preferences, analytics</li>
+      <li>Log Data like IP addresses, access timestamps, error reports</li>
+      <li>Device Info (browser, OS, device type)</li>
+    </ul>
+
+    <h2>2. How We Use Your Information</h2>
+    <p>We use your data to provide and enhance platform functionality:</p>
+    <h3>a. Account and Authentication</h3>
+    <ul>
+      <li>Register users, authenticate logins, and assign roles using secure JWT tokens and password hashing.</li>
+    </ul>
+    <h3>b. Service Operations</h3>
+    <ul>
+      <li>Manage listings, reviews, subscriptions, inquiries, inspections</li>
+      <li>Verify users and listings</li>
+      <li>Facilitate communications through app or WhatsApp</li>
+    </ul>
+    <h3>c. Personalization</h3>
+    <ul>
+      <li>Language-based content delivery (English or Acholi)</li>
+      <li>Role-based dashboards (e.g., sellers see listing stats, buyers see inquiry tools)</li>
+    </ul>
+    <h3>d. Analytics and Platform Improvement</h3>
+    <ul>
+      <li>Monitor usage to improve services and generate insights</li>
+      <li>Track listing/store performance for admin and agent reports</li>
+    </ul>
+    <h3>e. Notifications</h3>
+    <ul>
+      <li>Alerts for listing approvals, inspection updates, and message responses (via email, app, WhatsApp)</li>
+    </ul>
+    <h3>f. Security and Compliance</h3>
+    <ul>
+      <li>Detect and prevent fraud, protect accounts, and comply with legal requirements</li>
+    </ul>
+
+    <h2>3. How We Share Your Information</h2>
+    <p>We do not sell or rent your personal information. Data may be shared in these circumstances:</p>
+    <h3>a. Publicly Visible Information</h3>
+    <ul>
+      <li>Store profiles and approved listings are public</li>
+      <li>Reviews may show your name or be anonymous (guest reviews)</li>
+    </ul>
+    <h3>b. Within the Platform</h3>
+    <ul>
+      <li>Sellers/agents view inquiry or inspection contact details</li>
+      <li>Admins access documents and perform moderation</li>
+    </ul>
+    <h3>c. Service Providers (Bound by Confidentiality)</h3>
+    <ul>
+      <li>AWS S3 for secure file/media storage</li>
+      <li>Mobile money platforms for processing payments</li>
+      <li>WhatsApp API for user communication</li>
+      <li>Analytics providers for usage tracking (if enabled)</li>
+    </ul>
+    <h3>d. Legal Disclosures</h3>
+    <ul>
+      <li>In response to court orders, government demands, or compliance obligations</li>
+    </ul>
+    <h3>e. Business Transfers</h3>
+    <ul>
+      <li>In the event of acquisition or merger, your data may be securely transferred</li>
+    </ul>
+
+    <h2>4. How We Store and Protect Your Information</h2>
+    <h3>a. Storage Locations</h3>
+    <ul>
+      <li>MongoDB (for user and platform data), hosted in secure data centers</li>
+      <li>AWS S3 (for documents and media), encrypted and access-controlled</li>
+      <li>Passwords are stored using secure hashing algorithms (e.g., bcrypt)</li>
+    </ul>
+    <h3>b. Security Measures</h3>
+    <ul>
+      <li>HTTPS and TLS encryption</li>
+      <li>JWT session tokens</li>
+      <li>Role-based access control</li>
+      <li>Staff/admin activity logs</li>
+      <li>Regular security audits and monitoring</li>
+    </ul>
+    <h3>c. Retention Policy</h3>
+    <ul>
+      <li>Active Accounts: Data kept for service delivery</li>
+      <li>Listings/Deals: Kept for 5 years after closure</li>
+      <li>Verification Documents: Retained for 5 years after use or deletion</li>
+      <li>Reviews/Inquiries: Reviews retained indefinitely; inquiries archived after 1 year</li>
+      <li>Inactive Accounts: Deleted after 12 months of inactivity</li>
+      <li>Subscriptions/Payments: Retained for 7 years</li>
+      <li>Analytics: Kept for 2 years, then anonymized</li>
+      <li>Users can request earlier deletion, subject to legal exceptions</li>
+    </ul>
+
+    <h2>5. Your Rights and Choices</h2>
+    <p>Under Uganda's Data Protection and Privacy Act, 2019, you are entitled to:</p>
+    <ul>
+      <li><strong>Access:</strong> Request copies of your personal data</li>
+      <li><strong>Correction:</strong> Fix inaccuracies via account settings or support</li>
+      <li><strong>Deletion:</strong> Request account/data removal (except legal exclusions)</li>
+      <li><strong>Restriction:</strong> Limit data usage (e.g., opt out of analytics)</li>
+      <li><strong>Objection:</strong> Object to specific processing (e.g., marketing)</li>
+      <li><strong>Portability:</strong> Get your data in a readable format</li>
+      <li><strong>Language Preference:</strong> Choose English or Acholi</li>
+    </ul>
+    <p><strong>How to exercise your rights:</strong></p>
+    <ul>
+      <li>Use the app or website account tools</li>
+      <li>Or email <a href="mailto:privacy@starletproperties.ug">privacy@starletproperties.ug</a> with your full name and phone number</li>
+      <li>We will respond within 30 days and may verify your identity before proceeding</li>
+    </ul>
+
+    <h2>6. Cookies and Tracking Technologies</h2>
+    <p>We use the following cookies to support functionality:</p>
+    <ul>
+      <li><strong>Session Cookies:</strong> Maintain logins and preferences</li>
+      <li><strong>Analytics Cookies:</strong> Understand user behavior to improve service</li>
+      <li><strong>Functional Cookies:</strong> Enhance usability (e.g., remembering form entries)</li>
+    </ul>
+    <p>You can disable cookies in your browser, but this may affect app functionality. We do not use cookies for advertising or third-party tracking.</p>
+
+    <h2>7. Third-Party Services</h2>
+    <p>We integrate the following services:</p>
+    <ul>
+      <li><strong>AWS S3:</strong> Media/document storage, encrypted and access-controlled</li>
+      <li><strong>MongoDB Atlas:</strong> Secure cloud database, encrypted and monitored</li>
+      <li><strong>Mobile Money Platforms:</strong> For payments; we store only non-sensitive references</li>
+      <li><strong>WhatsApp API:</strong> For communication with users (e.g., inspection messages)</li>
+      <li><strong>Google Analytics or Firebase (if used):</strong> Usage analysis and crash reports</li>
+    </ul>
+    <p>All providers follow strict data security practices and are contractually obligated to safeguard your information.</p>
+
+    <h2>8. Changes to This Privacy Policy</h2>
+    <p>We may update this policy to reflect changes in law, technology, or our services.</p>
+    <ul>
+      <li>The "Last Updated" date will be revised</li>
+      <li>Major changes will be communicated via app or email</li>
+    </ul>
+    <p>We recommend reviewing this page periodically to stay informed about our privacy practices.</p>
+
+    <h2>9. Contact Us</h2>
+    <p>If you have any concerns or requests regarding this policy or your personal data, please reach out to:</p>
+    <ul>
+      <li><strong>Data Protection Officer (DPO)</strong></li>
+      <li>Email: <a href="mailto:privacy@starletproperties.ug">privacy@starletproperties.ug</a></li>
+      <li>Phone: +256 [Insert number]</li>
+      <li>Mailing Address: Starlet Properties, P.O. Box [Insert], Kampala/Gulu, Uganda</li>
+    </ul>
+  </section>
+
+  <!-- Footer (copied from index.html) -->
+  <footer class="footer mt-5">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-4 mb-4">
+          <h4>About Starlet Properties</h4>
+          <p>Uganda's premier real estate and vehicle marketplace, connecting buyers and sellers across the country.</p>
+          <div class="social-links">
+            <a href="#"><i class="fab fa-facebook"></i></a>
+            <a href="#"><i class="fab fa-twitter"></i></a>
+            <a href="#"><i class="fab fa-instagram"></i></a>
+            <a href="#"><i class="fab fa-linkedin"></i></a>
+          </div>
+        </div>
+        <div class="col-lg-2 col-md-6 mb-4">
+          <h4>Properties</h4>
+          <ul>
+            <li><a href="properties.html?type=house_sale">Houses for Sale</a></li>
+            <li><a href="properties.html?type=house_rent">Houses for Rent</a></li>
+            <li><a href="properties.html?type=land_sale">Land for Sale</a></li>
+            <li><a href="properties.html?type=land_rent">Land for Rent</a></li>
+            <li><a href="properties.html?type=commercial">Commercial Property</a></li>
+            <li><a href="properties.html?type=vacation_short_stay">Vacation & Short Stay</a></li>
+          </ul>
+        </div>
+        <div class="col-lg-2 col-md-6 mb-4">
+          <h4>Vehicles</h4>
+          <ul>
+            <li><a href="vehicles.html?type=cars">Cars</a></li>
+            <li><a href="vehicles.html?type=motorcycles">Motorcycles</a></li>
+            <li><a href="vehicles.html?type=trucks">Trucks</a></li>
+            <li><a href="vehicles.html?type=buses">Buses</a></li>
+            <li><a href="vehicles.html?type=heavy_machinery">Heavy Machinery</a></li>
+            <li><a href="vehicles.html?type=bicycles_ebikes">Bicycles & E-bikes</a></li>
+            <li><a href="vehicles.html?type=boats_watercraft">Boats & Watercraft</a></li>
+          </ul>
+        </div>
+        <div class="col-lg-2 col-md-6 mb-4">
+          <h4>Company</h4>
+          <ul>
+            <li><a href="about.html">About Us</a></li>
+            <li><a href="contact.html">Contact</a></li>
+            <li><a href="resources.html">Resources</a></li>
+            <li><a href="stores.html">Our Stores</a></li>
+            <li><a href="privacy.html">Privacy Policy</a></li>
+          </ul>
+        </div>
+        <div class="col-lg-2 col-md-6 mb-4">
+          <h4>Contact</h4>
+          <ul>
+            <li><a href="tel:+256123456789"><i class="bi bi-telephone"></i> +256 123 456 789</a></li>
+            <li><a href="mailto:info@starlet.co.ug"><i class="bi bi-envelope"></i> info@starlet.co.ug</a></li>
+            <li><a href="#"><i class="bi bi-geo-alt"></i> Kampala, Uganda</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <div class="row">
+          <div class="col-md-6">
+            <p class="mb-0">&copy; 2024 Starlet Properties. All rights reserved.</p>
+          </div>
+          <div class="col-md-6 text-md-end">
+            <a href="terms.html" class="me-3">Terms of Service</a>
+            <a href="privacy.html">Privacy Policy</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

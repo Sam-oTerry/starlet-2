@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Terms of Service - Starlet Properties</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .terms-hero {
+      background: linear-gradient(135deg, #f8fafc 60%, #e3f0ff 100%);
+      padding: 3.5rem 0 2rem 0;
+      text-align: center;
+    }
+    .terms-hero h1 {
+      font-size: 2.2rem;
+      font-weight: 800;
+      margin-bottom: 0.7rem;
+    }
+    .terms-section {
+      background: #fff;
+      border-radius: 1.25rem;
+      box-shadow: 0 2px 12px 0 rgba(0,0,0,0.07);
+      padding: 2.5rem 2rem;
+      margin-top: -2rem;
+      margin-bottom: 2.5rem;
+      max-width: 900px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .terms-section h2 {
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin-top: 2rem;
+      margin-bottom: 0.7rem;
+    }
+    .terms-section p, .terms-section ul {
+      color: #555;
+      font-size: 1.08em;
+    }
+    .terms-section ul {
+      padding-left: 1.2em;
+    }
+    @media (max-width: 768px) {
+      .terms-section {
+        padding: 1.2rem 0.5rem;
+      }
+    }
+  </style>
+</head>
+<body class="bg-light">
+  <!-- Navbar (copied from index.html) -->
+  <nav class="navbar navbar-expand-lg navbar-custom">
+    <div class="container">
+      <a class="navbar-brand" href="index.html">
+        <span class="brand-star">Star</span> <span class="brand-let">Let</span>
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+          <li class="nav-item">
+            <a class="nav-link" href="index.html"><i class="bi bi-house-door"></i> Home</a>
+          </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="categoriesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="bi bi-grid"></i> Categories
+            </a>
+            <ul class="dropdown-menu" aria-labelledby="categoriesDropdown">
+              <li><h6 class="dropdown-header">Properties</h6></li>
+              <li><a class="dropdown-item" href="properties.html?type=house_sale">Houses for Sale</a></li>
+              <li><a class="dropdown-item" href="properties.html?type=house_rent">Houses for Rent</a></li>
+              <li><a class="dropdown-item" href="properties.html?type=land_sale">Land for Sale</a></li>
+              <li><a class="dropdown-item" href="properties.html?type=land_rent">Land for Rent</a></li>
+              <li><a class="dropdown-item" href="properties.html?type=commercial">Commercial Property</a></li>
+              <li><a class="dropdown-item" href="properties.html?type=vacation_short_stay">Vacation & Short Stay</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><h6 class="dropdown-header">Vehicles</h6></li>
+              <li><a class="dropdown-item" href="vehicles.html?type=cars">Cars</a></li>
+              <li><a class="dropdown-item" href="vehicles.html?type=motorcycles">Motorcycles</a></li>
+              <li><a class="dropdown-item" href="vehicles.html?type=trucks">Trucks</a></li>
+              <li><a class="dropdown-item" href="vehicles.html?type=buses">Buses</a></li>
+              <li><a class="dropdown-item" href="vehicles.html?type=heavy_machinery">Heavy Machinery</a></li>
+              <li><a class="dropdown-item" href="vehicles.html?type=bicycles_ebikes">Bicycles & E-bikes</a></li>
+              <li><a class="dropdown-item" href="vehicles.html?type=boats_watercraft">Boats & Watercraft</a></li>
+            </ul>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/web-application/pages/users/add-property.html"><i class="bi bi-tags"></i> Sell</a>
+          </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="moreDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="bi bi-three-dots"></i> More
+            </a>
+            <ul class="dropdown-menu" aria-labelledby="moreDropdown">
+              <li><a class="dropdown-item" href="properties.html"><i class="bi bi-building"></i> Properties</a></li>
+              <li><a class="dropdown-item" href="vehicles.html"><i class="bi bi-car-front"></i> Vehicles</a></li>
+              <li><a class="dropdown-item" href="stores.html"><i class="bi bi-shop"></i> Stores</a></li>
+              <li><a class="dropdown-item" href="resources.html"><i class="bi bi-book"></i> Resources</a></li>
+              <li><a class="dropdown-item" href="about.html"><i class="bi bi-info-circle"></i> About</a></li>
+              <li><a class="dropdown-item" href="contact.html"><i class="bi bi-envelope"></i> Contact</a></li>
+            </ul>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="login.html"><i class="bi bi-box-arrow-in-right"></i> Login</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="register.html"><i class="bi bi-person-plus"></i> Sign Up</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <section class="terms-hero">
+    <div class="container">
+      <h1>Terms of Service</h1>
+      <p class="lead">Effective Date: June 30, 2025</p>
+    </div>
+  </section>
+
+  <section class="terms-section">
+    <h2>1. Introduction</h2>
+    <p>Welcome to Starlet Properties, your trusted platform for real estate and vehicle transactions in Uganda, accessible at starletproperties.co.ug, through our mobile apps, or related services. These Terms of Service ("Terms") govern your use of our platform, including but not limited to browsing listings, creating accounts, managing store profiles, posting reviews, subscribing to premium services, scheduling inspections, submitting inquiries, and accessing educational resources. By accessing or using Starlet Properties, you agree to be bound by these Terms and our Privacy Policy, in compliance with applicable Ugandan laws, including the Contract Act, 2010, and the Data Protection and Privacy Act, 2019.</p>
+    <p>If you do not agree with these Terms, please refrain from using our platform. For inquiries or support, contact us at <a href="mailto:support@starletproperties.co.ug">support@starletproperties.co.ug</a>.</p>
+
+    <h2>2. Platform Overview</h2>
+    <p>Starlet Properties is a leading online marketplace in Uganda, connecting buyers, sellers, and agents for real estate (e.g., houses, land, vacation rentals) and vehicles (e.g., cars, motorcycles, heavy machinery). Our platform offers:</p>
+    <ul>
+      <li>User Roles: Buyers, sellers, agents (with tiered subscriptions: Silver, Gold, Diamond, where Diamond offers priority visibility), staff, and administrators.</li>
+      <li>Store Profiles: Agent-owned or official stores to showcase listings and manage reviews.</li>
+      <li>Listings: Detailed listings with photos, videos, and verification for authenticity.</li>
+      <li>Premium Services: Subscription-based features for agents to enhance listing visibility.</li>
+      <li>Support Features: Inspection scheduling, inquiry messaging (via app or WhatsApp), and educational resources in English and Acholi.</li>
+      <li>Analytics: Tools to track listing performance and user engagement.</li>
+    </ul>
+    <p>Our mission is to provide a seamless, transparent, and secure platform for property and vehicle transactions in Uganda.</p>
+
+    <h2>3. Account Creation and Management</h2>
+    <h3>3.1. Registration</h3>
+    <p>To access certain features (e.g., posting listings, managing stores, submitting reviews), you must create an account on starletproperties.co.ug. You agree to:</p>
+    <ul>
+      <li>Provide accurate information, including your first name, last name, phone number (in Ugandan format, e.g., +256123456789), role, and language preference (English or Acholi).</li>
+      <li>For sellers and agents, submit verification documents (e.g., national ID, business license) as required, which are securely stored.</li>
+      <li>Maintain the accuracy of your account information and update it promptly if changes occur.</li>
+    </ul>
+    <h3>3.2. Account Security</h3>
+    <ul>
+      <li>Confidentiality: You are responsible for keeping your password secure and not sharing your account credentials.</li>
+      <li>Unauthorized Access: Report suspected unauthorized activity to support@starletproperties.co.ug immediately. We are not liable for losses caused by your failure to secure your account.</li>
+      <li>Role-Based Access: Your account permissions depend on your role (e.g., admins manage platform settings, agents post listings, buyers submit inquiries).</li>
+    </ul>
+    <h3>3.3. Verification</h3>
+    <p>Sellers and agents must undergo verification to ensure trust and authenticity. Verification involves submitting documents, which are reviewed by our team. Failure to comply may result in restricted account functionality.</p>
+
+    <h2>4. Using the Platform</h2>
+    <h3>4.1. Permitted Activities</h3>
+    <p>You may use Starlet Properties to:</p>
+    <ul>
+      <li>Browse and search for real estate and vehicle listings.</li>
+      <li>Create and manage accounts, store profiles, and listings.</li>
+      <li>Submit reviews for stores (subject to moderation).</li>
+      <li>Request inspections or send inquiries via app or WhatsApp.</li>
+      <li>Pay for premium services (e.g., store subscriptions, priority inspections) via external payment platforms.</li>
+      <li>Access educational resources in English or Acholi.</li>
+    </ul>
+    <h3>4.2. Prohibited Activities</h3>
+    <ul>
+      <li>Post inaccurate, misleading, or fraudulent listings, reviews, or other content.</li>
+      <li>Upload content that is defamatory, obscene, offensive, or violates Ugandan laws (e.g., Electronic Transactions Act, 2011).</li>
+      <li>Use automated tools (e.g., bots, scrapers) to extract data from starletproperties.co.ug without written permission.</li>
+      <li>Engage in activities that disrupt platform functionality, such as hacking or denial-of-service attacks.</li>
+      <li>Impersonate others or create accounts with false information.</li>
+      <li>Violate intellectual property rights or upload content without proper authorization.</li>
+    </ul>
+    <p>Violations may lead to account suspension, termination, or legal action.</p>
+    <h3>4.3. Content Guidelines</h3>
+    <ul>
+      <li>Listings: Must include accurate details (e.g., price, location, description) and comply with verification requirements. Listings expire after 3 months unless renewed.</li>
+      <li>Reviews: Must be honest, relevant, and comply with our moderation policies (e.g., no offensive language).</li>
+      <li>Inquiries: Must be respectful and relevant to listings or services.</li>
+    </ul>
+
+    <h2>5. Store Profiles and Subscriptions</h2>
+    <h3>5.1. Store Profiles</h3>
+    <ul>
+      <li>Agents may create store profiles to showcase listings and manage reviews, subject to verification (e.g., business license).</li>
+      <li>Store profiles display publicly on starletproperties.co.ug, including names, descriptions, logos, and ratings.</li>
+    </ul>
+    <h3>5.2. Subscriptions</h3>
+    <ul>
+      <li>Agent Tiers: Agents subscribe to Silver, Gold, or Diamond tiers, with Diamond offering the highest visibility and paying the highest fee. Fees are set in the feeSettings collection and paid monthly via external payment platforms (e.g., mobile money).</li>
+      <li>Official Store: The Starlet Properties official store incurs no fees.</li>
+      <li>Non-Refundable: Subscription fees are non-refundable unless required by Ugandan law.</li>
+      <li>Payment Records: We store only transaction references, not sensitive payment details.</li>
+    </ul>
+    <h3>5.3. Responsibilities</h3>
+    <ul>
+      <li>Agents are responsible for maintaining accurate store information and paying fees on time.</li>
+      <li>Failure to pay may result in store deactivation or loss of premium features.</li>
+    </ul>
+
+    <h2>6. Listings and Transactions</h2>
+    <h3>6.1. Listing Creation</h3>
+    <ul>
+      <li>Listings (real estate or vehicles) must include accurate details, media (e.g., photos, videos), and documents (e.g., titles, logbooks), subject to admin verification.</li>
+      <li>Listings are categorized (e.g., house_sale, vehicle_sale) and may be featured for Gold/Diamond agents or the official store.</li>
+      <li>Listings are approved (pending, approved, rejected) and may expire after 3 months.</li>
+    </ul>
+    <h3>6.2. Transactions</h3>
+    <ul>
+      <li>Starlet Properties facilitates deals (sales, rentals) but does not act as a payment processor. Payments are handled externally, with notes recorded in the deals collection.</li>
+      <li>Buyers and sellers are responsible for ensuring transaction accuracy and legality.</li>
+    </ul>
+    <h3>6.3. Inspections</h3>
+    <ul>
+      <li>Buyers may request inspections, with optional priority fees paid externally.</li>
+      <li>Inspection details (e.g., status, proposed times) are managed by staff and recorded securely.</li>
+    </ul>
+
+    <h2>7. Reviews and Inquiries</h2>
+    <ul>
+      <li>Reviews: Users may submit store reviews (1–5 stars, up to 500 characters in English or Acholi). Reviews are moderated, and only approved reviews are displayed publicly. Guest reviews may be anonymized.</li>
+      <li>Inquiries: Users can send inquiries via app or WhatsApp, handled by staff or admins. Messages may include text, images, or documents.</li>
+      <li>Moderation: We reserve the right to remove reviews or inquiries that violate our guidelines (e.g., offensive content, spam).</li>
+    </ul>
+
+    <h2>8. Intellectual Property</h2>
+    <ul>
+      <li>Our IP: The Starlet Properties name, logo, website design, and content (e.g., resources) are our intellectual property, protected under Ugandan law.</li>
+      <li>Your Content: You retain ownership of uploaded content (e.g., listings, reviews, photos). By uploading, you grant Starlet Properties a non-exclusive, worldwide, royalty-free license to use, display, and store this content on starletproperties.co.ug to provide our services.</li>
+      <li>Infringement: Report suspected violations to support@starletproperties.co.ug. We may remove infringing content and suspend offending accounts.</li>
+    </ul>
+
+    <h2>9. Privacy and Data Protection</h2>
+    <ul>
+      <li>Our Privacy Policy governs how we collect, use, store, and protect your data, including:</li>
+      <li>Personal information (e.g., name, phone, role).</li>
+      <li>Listing and store details (e.g., descriptions, media).</li>
+      <li>Analytics data (e.g., views, searches).</li>
+      <li>Secure storage in MongoDB and AWS S3 with encryption.</li>
+      <li>Your rights under the Data Protection and Privacy Act, 2019 (e.g., access, correction, deletion).</li>
+    </ul>
+    <p>By using our platform, you agree to the terms outlined in the Privacy Policy.</p>
+
+    <h2>10. Account Termination</h2>
+    <ul>
+      <li>By You: Delete your account via settings on starletproperties.co.ug or contact support@starletproperties.co.ug. Data retention follows the Privacy Policy.</li>
+      <li>By Us: We may suspend or terminate your account for:
+        <ul>
+          <li>Violating these Terms (e.g., fraudulent listings, non-payment).</li>
+          <li>Inactivity for 12 months (with prior notification).</li>
+          <li>Legal or security concerns.</li>
+        </ul>
+      </li>
+      <li>Consequences: Termination may result in loss of access to listings, stores, or reviews. Certain data (e.g., deal records) may be retained per legal requirements.</li>
+    </ul>
+
+    <h2>11. Limitation of Liability</h2>
+    <ul>
+      <li>As-Is Service: Starlet Properties is provided "as is" without warranties, express or implied, to the extent permitted by Ugandan law.</li>
+      <li>Not Liable: We are not responsible for:
+        <ul>
+          <li>Losses due to inaccurate or fraudulent user content.</li>
+          <li>Disputes between users (e.g., buyers and sellers).</li>
+          <li>Service interruptions due to technical issues, maintenance, or third-party services (e.g., AWS S3, payment platforms).</li>
+        </ul>
+      </li>
+      <li>Liability Cap: Our liability is limited to the total fees you paid us (e.g., subscriptions) in the 12 months prior to any claim.</li>
+    </ul>
+
+    <h2>12. Indemnification</h2>
+    <ul>
+      <li>You agree to indemnify and hold Starlet Properties, its affiliates, and employees harmless from claims, losses, or damages arising from:</li>
+      <li>Your violation of these Terms.</li>
+      <li>Your content infringing third-party rights.</li>
+      <li>Disputes related to transactions facilitated through starletproperties.co.ug.</li>
+    </ul>
+
+    <h2>13. Governing Law and Dispute Resolution</h2>
+    <ul>
+      <li>Governing Law: These Terms are governed by the laws of Uganda, including the Contract Act, 2010, and the Electronic Transactions Act, 2011.</li>
+      <li>Dispute Resolution:
+        <ul>
+          <li>Contact support@starletproperties.co.ug for informal resolution.</li>
+          <li>Unresolved disputes will be resolved through mediation or arbitration in Gulu, Uganda, per the Arbitration and Conciliation Act, 2000.</li>
+          <li>You may also pursue legal action in Ugandan courts.</li>
+        </ul>
+      </li>
+    </ul>
+
+    <h2>14. Force Majeure</h2>
+    <p>We are not liable for delays or failures in performance due to unforeseen events, such as natural disasters, power outages, or government actions.</p>
+
+    <h2>15. Language Support</h2>
+    <p>These Terms are available in English and Acholi to serve our diverse user base. To request an Acholi version, contact support@starletproperties.co.ug. All communications, including notifications and support, can be provided in your preferred language.</p>
+
+    <h2>16. Contact Us</h2>
+    <p>For questions, feedback, or to report violations, reach out to:</p>
+    <ul>
+      <li>Email: support@starletproperties.co.ug</li>
+      <li>Phone: +256-123-456-789</li>
+      <li>Address: Starlet Properties, Plot 12, Main Road, Pece, Gulu Town, Uganda</li>
+    </ul>
+    <p>We aim to respond within 7 business days. For urgent matters, call during business hours (Monday–Friday, 9:00 AM–5:00 PM EAT).</p>
+
+    <h2>17. Additional Provisions</h2>
+    <ul>
+      <li>Entire Agreement: These Terms and the Privacy Policy form the complete agreement between you and Starlet Properties.</li>
+      <li>Severability: If any provision is unenforceable, the remaining provisions remain in effect.</li>
+      <li>No Waiver: Our failure to enforce any right does not waive that right.</li>
+      <li>Assignment: You may not assign your rights under these Terms without our consent. We may assign our rights in case of a merger or acquisition.</li>
+    </ul>
+    <p>Thank you for choosing Starlet Properties. We are dedicated to providing a trusted and user-friendly platform for your real estate and vehicle needs in Uganda.</p>
+  </section>
+
+  <!-- Footer (copied from index.html) -->
+  <footer class="footer mt-5">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-4 mb-4">
+          <h4>About Starlet Properties</h4>
+          <p>Uganda's premier real estate and vehicle marketplace, connecting buyers and sellers across the country.</p>
+          <div class="social-links">
+            <a href="#"><i class="fab fa-facebook"></i></a>
+            <a href="#"><i class="fab fa-twitter"></i></a>
+            <a href="#"><i class="fab fa-instagram"></i></a>
+            <a href="#"><i class="fab fa-linkedin"></i></a>
+          </div>
+        </div>
+        <div class="col-lg-2 col-md-6 mb-4">
+          <h4>Properties</h4>
+          <ul>
+            <li><a href="properties.html?type=house_sale">Houses for Sale</a></li>
+            <li><a href="properties.html?type=house_rent">Houses for Rent</a></li>
+            <li><a href="properties.html?type=land_sale">Land for Sale</a></li>
+            <li><a href="properties.html?type=land_rent">Land for Rent</a></li>
+            <li><a href="properties.html?type=commercial">Commercial Property</a></li>
+            <li><a href="properties.html?type=vacation_short_stay">Vacation & Short Stay</a></li>
+          </ul>
+        </div>
+        <div class="col-lg-2 col-md-6 mb-4">
+          <h4>Vehicles</h4>
+          <ul>
+            <li><a href="vehicles.html?type=cars">Cars</a></li>
+            <li><a href="vehicles.html?type=motorcycles">Motorcycles</a></li>
+            <li><a href="vehicles.html?type=trucks">Trucks</a></li>
+            <li><a href="vehicles.html?type=buses">Buses</a></li>
+            <li><a href="vehicles.html?type=heavy_machinery">Heavy Machinery</a></li>
+            <li><a href="vehicles.html?type=bicycles_ebikes">Bicycles & E-bikes</a></li>
+            <li><a href="vehicles.html?type=boats_watercraft">Boats & Watercraft</a></li>
+          </ul>
+        </div>
+        <div class="col-lg-2 col-md-6 mb-4">
+          <h4>Company</h4>
+          <ul>
+            <li><a href="about.html">About Us</a></li>
+            <li><a href="contact.html">Contact</a></li>
+            <li><a href="resources.html">Resources</a></li>
+            <li><a href="stores.html">Our Stores</a></li>
+            <li><a href="privacy.html">Privacy Policy</a></li>
+          </ul>
+        </div>
+        <div class="col-lg-2 col-md-6 mb-4">
+          <h4>Contact</h4>
+          <ul>
+            <li><a href="tel:+256123456789"><i class="bi bi-telephone"></i> +256 123 456 789</a></li>
+            <li><a href="mailto:info@starlet.co.ug"><i class="bi bi-envelope"></i> info@starlet.co.ug</a></li>
+            <li><a href="#"><i class="bi bi-geo-alt"></i> Kampala, Uganda</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <div class="row">
+          <div class="col-md-6">
+            <p class="mb-0">&copy; 2024 Starlet Properties. All rights reserved.</p>
+          </div>
+          <div class="col-md-6 text-md-end">
+            <a href="terms.html" class="me-3">Terms of Service</a>
+            <a href="privacy.html">Privacy Policy</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>
