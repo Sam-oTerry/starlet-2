@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Listing Details - Starlet Properties</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .product-gallery {
+      margin-bottom: 2rem;
+      position: relative;
+    }
+    .main-image {
+      border-radius: 1rem;
+      overflow: hidden;
+      margin-bottom: 1rem;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      position: relative;
+    }
+    .main-image img {
+      width: 100%;
+      height: 400px;
+      object-fit: cover;
+      transition: opacity 0.3s ease;
+    }
+    .slider-nav {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(255,255,255,0.9);
+      border: none;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      z-index: 10;
+    }
+    .slider-nav:hover {
+      background: rgba(255,255,255,1);
+      transform: translateY(-50%) scale(1.1);
+    }
+    .slider-nav.prev {
+      left: 15px;
+    }
+    .slider-nav.next {
+      right: 15px;
+    }
+    .slider-nav:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    .slider-nav:disabled:hover {
+      transform: translateY(-50%);
+    }
+    .thumbnail-container {
+      display: flex;
+      gap: 0.5rem;
+      overflow-x: auto;
+      padding: 0.5rem 0;
+    }
+    .thumbnail {
+      width: 80px;
+      height: 60px;
+      border-radius: 0.5rem;
+      object-fit: cover;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: all 0.3s ease;
+      flex-shrink: 0;
+    }
+    .thumbnail.active {
+      border-color: var(--bs-primary);
+      transform: scale(1.05);
+    }
+    .thumbnail:hover {
+      transform: scale(1.05);
+    }
+    .slider-dots {
+      display: flex;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+    .slider-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #ddd;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    .slider-dot.active {
+      background: var(--bs-primary);
+      transform: scale(1.2);
+    }
+    .product-tabs {
+      background: white;
+      border-radius: 1rem;
+      padding: 1.5rem;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+    }
+    .nav-tabs {
+      border-bottom: 2px solid #f0f0f0;
+      margin-bottom: 1.5rem;
+    }
+    .nav-tabs .nav-link {
+      border: none;
+      color: #666;
+      font-weight: 500;
+      padding: 0.75rem 1.5rem;
+    }
+    .nav-tabs .nav-link.active {
+      color: var(--bs-primary);
+      border-bottom: 2px solid var(--bs-primary);
+      background: none;
+    }
+    .product-header {
+      background: white;
+      border-radius: 1rem;
+      padding: 2rem;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+      margin-bottom: 1.5rem;
+    }
+    .product-title {
+      font-size: 1.75rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      color: #333;
+    }
+    .product-location {
+      color: #666;
+      margin-bottom: 1rem;
+    }
+    .product-price {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--bs-primary);
+      margin-bottom: 1rem;
+    }
+    .product-meta {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+    }
+    .meta-item {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+      color: #666;
+      font-size: 0.9rem;
+    }
+    .product-actions {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+    .btn-gold {
+      background: linear-gradient(135deg, #FFD700, #FFA500);
+      border: none;
+      color: white;
+      font-weight: 600;
+    }
+    .btn-gold:hover {
+      background: linear-gradient(135deg, #FFA500, #FF8C00);
+      color: white;
+    }
+    .agent-card {
+      background: white;
+      border-radius: 1rem;
+      padding: 1.5rem;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+    }
+    .agent-header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    .agent-avatar {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      overflow: hidden;
+    }
+    .agent-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .agent-info h5 {
+      margin: 0;
+      font-weight: 600;
+    }
+    .agent-info p {
+      margin: 0;
+      color: #666;
+      font-size: 0.9rem;
+    }
+    .agent-stats {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 1.5rem;
+      padding: 1rem;
+      background: #f8f9fa;
+      border-radius: 0.5rem;
+    }
+    .stat-item {
+      text-align: center;
+    }
+    .stat-item h6 {
+      margin: 0;
+      font-weight: 700;
+      color: var(--bs-primary);
+    }
+    .stat-item p {
+      margin: 0;
+      font-size: 0.8rem;
+      color: #666;
+    }
+    .features-list {
+      list-style: none;
+      padding: 0;
+    }
+    .features-list li {
+      padding: 0.5rem 0;
+      border-bottom: 1px solid #f0f0f0;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .features-list li:last-child {
+      border-bottom: none;
+    }
+    .features-list i {
+      color: var(--bs-primary);
+    }
+    .similar-listings {
+      margin-top: 3rem;
+    }
+    .section-title {
+      font-weight: 700;
+      margin-bottom: 2rem;
+      color: #333;
+    }
+    .similar-card {
+      background: white;
+      border-radius: 1rem;
+      overflow: hidden;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+      transition: transform 0.3s;
+    }
+    .similar-card:hover {
+      transform: translateY(-5px);
+    }
+    .similar-card img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+    }
+    .similar-card-body {
+      padding: 1rem;
+    }
+    .similar-card-title {
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+    .similar-card-price {
+      color: var(--bs-primary);
+      font-weight: 600;
+    }
+    @media (max-width: 768px) {
+      .product-actions {
+        flex-direction: column;
+      }
+      .agent-stats {
+        flex-direction: column;
+        gap: 1rem;
+      }
+      .main-image img {
+        height: 250px;
+      }
+    }
+  </style>
+</head>
+<body class="bg-light">
+  <!-- Navbar (copied from index.html) -->
+  <nav class="navbar navbar-expand-lg navbar-custom">
+    <div class="container">
+      <a class="navbar-brand" href="index.html">
+        <span class="brand-star">Star</span> <span class="brand-let">Let</span>
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+          <li class="nav-item">
+            <a class="nav-link" href="index.html"><i class="bi bi-house-door"></i> Home</a>
+          </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="categoriesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="bi bi-grid"></i> Categories
+            </a>
+            <ul class="dropdown-menu" aria-labelledby="categoriesDropdown">
+              <li><h6 class="dropdown-header">Properties</h6></li>
+              <li><a class="dropdown-item" href="properties.html?type=house_sale">Houses for Sale</a></li>
+              <li><a class="dropdown-item" href="properties.html?type=house_rent">Houses for Rent</a></li>
+              <li><a class="dropdown-item" href="properties.html?type=land_sale">Land for Sale</a></li>
+              <li><a class="dropdown-item" href="properties.html?type=land_rent">Land for Rent</a></li>
+              <li><a class="dropdown-item" href="properties.html?type=commercial">Commercial Property</a></li>
+              <li><a class="dropdown-item" href="properties.html?type=vacation_short_stay">Vacation & Short Stay</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><h6 class="dropdown-header">Vehicles</h6></li>
+              <li><a class="dropdown-item" href="vehicles.html?type=cars">Cars</a></li>
+              <li><a class="dropdown-item" href="vehicles.html?type=motorcycles">Motorcycles</a></li>
+              <li><a class="dropdown-item" href="vehicles.html?type=trucks">Trucks</a></li>
+              <li><a class="dropdown-item" href="vehicles.html?type=buses">Buses</a></li>
+              <li><a class="dropdown-item" href="vehicles.html?type=heavy_machinery">Heavy Machinery</a></li>
+              <li><a class="dropdown-item" href="vehicles.html?type=bicycles_ebikes">Bicycles & E-bikes</a></li>
+              <li><a class="dropdown-item" href="vehicles.html?type=boats_watercraft">Boats & Watercraft</a></li>
+            </ul>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/web-application/pages/users/add-property.html"><i class="bi bi-tags"></i> Sell</a>
+          </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="moreDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="bi bi-three-dots"></i> More
+            </a>
+            <ul class="dropdown-menu" aria-labelledby="moreDropdown">
+              <li><a class="dropdown-item" href="properties.html"><i class="bi bi-building"></i> Properties</a></li>
+              <li><a class="dropdown-item" href="vehicles.html"><i class="bi bi-car-front"></i> Vehicles</a></li>
+              <li><a class="dropdown-item" href="stores.html"><i class="bi bi-shop"></i> Stores</a></li>
+              <li><a class="dropdown-item" href="resources.html"><i class="bi bi-book"></i> Resources</a></li>
+              <li><a class="dropdown-item" href="about.html"><i class="bi bi-info-circle"></i> About</a></li>
+              <li><a class="dropdown-item" href="contact.html"><i class="bi bi-envelope"></i> Contact</a></li>
+            </ul>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="login.html"><i class="bi bi-box-arrow-in-right"></i> Login</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="register.html"><i class="bi bi-person-plus"></i> Sign Up</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <section class="py-5">
+    <div class="container">
+      <div class="row">
+        <!-- Product Gallery -->
+        <div class="col-lg-7">
+          <div class="product-gallery">
+            <div class="main-image">
+              <img src="https://via.placeholder.com/800x600?text=Loading..." alt="Listing Main Image" id="mainImage">
+              <button class="slider-nav prev" id="prevBtn" disabled>
+                <i class="bi bi-chevron-left"></i>
+              </button>
+              <button class="slider-nav next" id="nextBtn">
+                <i class="bi bi-chevron-right"></i>
+              </button>
+            </div>
+            <div class="slider-dots" id="sliderDots"></div>
+            <div class="thumbnail-container" id="thumbnailContainer"></div>
+          </div>
+
+          <!-- Product Tabs -->
+          <div class="product-tabs">
+            <ul class="nav nav-tabs" id="productTabs" role="tablist">
+              <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="details-tab" data-bs-toggle="tab" data-bs-target="#details" type="button" role="tab">Details</button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link" id="features-tab" data-bs-toggle="tab" data-bs-target="#features" type="button" role="tab">Features</button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link" id="location-tab" data-bs-toggle="tab" data-bs-target="#location" type="button" role="tab">Location</button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link" id="contact-tab" data-bs-toggle="tab" data-bs-target="#contact" type="button" role="tab">Contact</button>
+              </li>
+            </ul>
+            <div class="tab-content" id="productTabsContent">
+              <div class="tab-pane fade show active" id="details" role="tabpanel">
+                <div id="detailsTab">Loading details...</div>
+              </div>
+              <div class="tab-pane fade" id="features" role="tabpanel">
+                <ul class="features-list" id="featuresTab"></ul>
+              </div>
+              <div class="tab-pane fade" id="location" role="tabpanel">
+                <div id="locationTab"></div>
+              </div>
+              <div class="tab-pane fade" id="contact" role="tabpanel">
+                <div id="contactTab"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Product Details -->
+        <div class="col-lg-5">
+          <div class="product-header">
+            <h1 class="product-title" id="productTitle">Loading...</h1>
+            <div class="product-location" id="productLocation">
+              <i class="bi bi-geo-alt-fill"></i> 
+            </div>
+            <div class="product-price" id="productPrice"></div>
+            <div class="product-meta" id="productMeta"></div>
+            
+            <div class="product-actions">
+              <button class="btn btn-primary btn-lg me-2">
+                <i class="bi bi-telephone"></i> Contact Agent
+              </button>
+              <button class="btn btn-outline-primary btn-lg">
+                <i class="bi bi-heart"></i> Save
+              </button>
+            </div>
+            
+            <button class="btn btn-gold btn-lg w-100 mb-4">
+              <i class="bi bi-credit-card"></i> Make Offer
+            </button>
+          </div>
+          
+          <!-- Agent Card -->
+          <div class="agent-card">
+            <div class="agent-header">
+              <div class="agent-avatar">
+                <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="Sarah Johnson" id="agentAvatar">
+              </div>
+              <div class="agent-info">
+                <h5 id="agentName">Sarah Johnson</h5>
+                <p id="agentTitle">Premium Property Agent</p>
+              </div>
+            </div>
+            
+            <div class="agent-stats">
+              <div class="stat-item">
+                <h6>142</h6>
+                <p>Properties</p>
+              </div>
+              <div class="stat-item">
+                <h6>98%</h6>
+                <p>Success Rate</p>
+              </div>
+              <div class="stat-item">
+                <h6>5</h6>
+                <p>Years</p>
+              </div>
+            </div>
+            
+            <form>
+              <div class="mb-3">
+                <label for="message" class="form-label">Send Message</label>
+                <textarea class="form-control" id="message" rows="3" placeholder="I'm interested in this property..."></textarea>
+              </div>
+              <button type="submit" class="btn btn-primary w-100">
+                <i class="bi bi-send"></i> Send Inquiry
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Similar Listings -->
+      <div class="similar-listings">
+        <h3 class="section-title">Similar Properties</h3>
+        <div class="row" id="similarListingsContainer">
+          <!-- Similar listings will be loaded here dynamically -->
+        </div>
+        <div class="text-center mt-4" id="loadMoreContainer" style="display: none;">
+          <button class="btn btn-outline-primary btn-lg" id="loadMoreBtn">
+            <i class="bi bi-arrow-down-circle"></i> Load More Similar Properties
+          </button>
+        </div>
+        <div class="text-center mt-4" id="noSimilarContainer" style="display: none;">
+          <p class="text-muted">No similar properties found.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer (copied from index.html) -->
+  <footer class="footer">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-4 mb-4">
+          <h4>About Starlet Properties</h4>
+          <p>Uganda's premier real estate and vehicle marketplace, connecting buyers and sellers across the country.</p>
+          <div class="social-links">
+            <a href="#"><i class="fab fa-facebook"></i></a>
+            <a href="#"><i class="fab fa-twitter"></i></a>
+            <a href="#"><i class="fab fa-instagram"></i></a>
+            <a href="#"><i class="fab fa-linkedin"></i></a>
+          </div>
+        </div>
+        <div class="col-lg-2 col-md-6 mb-4">
+          <h4>Properties</h4>
+          <ul>
+            <li><a href="properties.html?type=house_sale">Houses for Sale</a></li>
+            <li><a href="properties.html?type=house_rent">Houses for Rent</a></li>
+            <li><a href="properties.html?type=land_sale">Land for Sale</a></li>
+            <li><a href="properties.html?type=land_rent">Land for Rent</a></li>
+            <li><a href="properties.html?type=commercial">Commercial Property</a></li>
+            <li><a href="properties.html?type=vacation_short_stay">Vacation & Short Stay</a></li>
+          </ul>
+        </div>
+        <div class="col-lg-2 col-md-6 mb-4">
+          <h4>Vehicles</h4>
+          <ul>
+            <li><a href="vehicles.html?type=cars">Cars</a></li>
+            <li><a href="vehicles.html?type=motorcycles">Motorcycles</a></li>
+            <li><a href="vehicles.html?type=trucks">Trucks</a></li>
+            <li><a href="vehicles.html?type=buses">Buses</a></li>
+            <li><a href="vehicles.html?type=heavy_machinery">Heavy Machinery</a></li>
+            <li><a href="vehicles.html?type=bicycles_ebikes">Bicycles & E-bikes</a></li>
+            <li><a href="vehicles.html?type=boats_watercraft">Boats & Watercraft</a></li>
+          </ul>
+        </div>
+        <div class="col-lg-2 col-md-6 mb-4">
+          <h4>Company</h4>
+          <ul>
+            <li><a href="about.html">About Us</a></li>
+            <li><a href="contact.html">Contact</a></li>
+            <li><a href="resources.html">Resources</a></li>
+            <li><a href="stores.html">Our Stores</a></li>
+            <li><a href="privacy.html">Privacy Policy</a></li>
+          </ul>
+        </div>
+        <div class="col-lg-2 col-md-6 mb-4">
+          <h4>Contact</h4>
+          <ul>
+            <li><a href="tel:+256123456789"><i class="bi bi-telephone"></i> +256 123 456 789</a></li>
+            <li><a href="mailto:info@starlet.co.ug"><i class="bi bi-envelope"></i> info@starlet.co.ug</a></li>
+            <li><a href="#"><i class="bi bi-geo-alt"></i> Kampala, Uganda</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <div class="row">
+          <div class="col-md-6">
+            <p class="mb-0">&copy; 2024 Starlet Properties. All rights reserved.</p>
+          </div>
+          <div class="col-md-6 text-md-end">
+            <a href="terms.html" class="me-3">Terms of Service</a>
+            <a href="privacy.html">Privacy Policy</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Dummy data (copy from js/main.js for standalone demo)
+    const dummyListings = [
+      {id:1,type:'House for Sale',title:'3-Bedroom House in Gulu Town',location:'Gulu, Uganda',price:120000000,image:'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=400&q=80',detailsUrl:'details.html?id=1',agent:{name:'Agent John',avatar:'https://randomuser.me/api/portraits/men/32.jpg',verified:true},description:'Spacious house with modern kitchen, secure parking, and a large garden.',bedrooms:3,bathrooms:2,featured:true,officialStore:true},
+      {id:2,type:'Land for Sale',title:'2 Acres in Mbarara',location:'Mbarara, Uganda',price:80000000,image:'https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=400&q=80',detailsUrl:'details.html?id=2',agent:{name:'Green Estates',avatar:'https://randomuser.me/api/portraits/men/45.jpg',verified:false},description:'Fertile land ideal for farming or development. Accessible by road.',featured:false,officialStore:false},
+      {id:3,type:'Car',title:'Toyota Premio 2015',location:'Kampala, Uganda',price:35000000,image:'https://images.unsplash.com/photo-1511918984145-48de785d4c4e?auto=format&fit=crop&w=400&q=80',detailsUrl:'details.html?id=3',agent:{name:'AutoMart',avatar:'https://randomuser.me/api/portraits/women/65.jpg',verified:true},description:'Well-maintained, low mileage, automatic transmission, silver color.',year:2015,mileage:68000,featured:false,officialStore:true},
+      {id:4,type:'Motorcycle',title:'Bajaj Boxer 2020',location:'Arua, Uganda',price:4500000,image:'https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=400&q=80',detailsUrl:'details.html?id=4',agent:{name:'MotoHub',avatar:'https://randomuser.me/api/portraits/men/77.jpg',verified:false},description:'Reliable motorcycle, perfect for city and upcountry roads.',year:2020,mileage:12000,featured:true,officialStore:false},
+      {id:5,type:'Commercial Property',title:'Shop Space in Mbale',location:'Mbale, Uganda',price:60000000,image:'https://images.unsplash.com/photo-1460518451285-97b6aa326961?auto=format&fit=crop&w=400&q=80',detailsUrl:'details.html?id=5',agent:{name:'Biz Realty',avatar:'https://randomuser.me/api/portraits/women/12.jpg',verified:true},description:'Prime location, high foot traffic, secure and spacious.',featured:false,officialStore:false},
+      {id:6,type:'Land for Rent',title:'Plot for Farming',location:'Lira, Uganda',price:2000000,image:'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=400&q=80',detailsUrl:'details.html?id=6',agent:{name:'AgroLand',avatar:'https://randomuser.me/api/portraits/men/23.jpg',verified:false},description:'Affordable plot, ready for immediate use, water nearby.',featured:false,officialStore:false}
+    ];
+    
+    let currentImageIndex = 0;
+    let listingImages = [];
+    
+    function getQueryParam(name) {
+      const url = new URL(window.location.href);
+      return url.searchParams.get(name);
+    }
+    
+    function generateImages(listing) {
+      // Generate multiple images for the listing (using variations of the main image)
+      const baseImage = listing.image;
+      const imageVariations = [
+        baseImage,
+        baseImage.replace('w=400', 'w=800'),
+        baseImage.replace('w=400', 'w=600'),
+        baseImage.replace('w=400', 'w=500')
+      ];
+      return imageVariations;
+    }
+    
+    function updateSlider() {
+      const mainImage = document.getElementById('mainImage');
+      const prevBtn = document.getElementById('prevBtn');
+      const nextBtn = document.getElementById('nextBtn');
+      const dots = document.querySelectorAll('.slider-dot');
+      const thumbnails = document.querySelectorAll('.thumbnail');
+      
+      // Update main image with fade effect
+      mainImage.style.opacity = '0';
+      setTimeout(() => {
+        mainImage.src = listingImages[currentImageIndex];
+        mainImage.style.opacity = '1';
+      }, 150);
+      
+      // Update navigation buttons
+      prevBtn.disabled = currentImageIndex === 0;
+      nextBtn.disabled = currentImageIndex === listingImages.length - 1;
+      
+      // Update dots
+      dots.forEach((dot, index) => {
+        dot.classList.toggle('active', index === currentImageIndex);
+      });
+      
+      // Update thumbnails
+      thumbnails.forEach((thumb, index) => {
+        thumb.classList.toggle('active', index === currentImageIndex);
+      });
+    }
+    
+    function nextImage() {
+      if (currentImageIndex < listingImages.length - 1) {
+        currentImageIndex++;
+        updateSlider();
+      }
+    }
+    
+    function prevImage() {
+      if (currentImageIndex > 0) {
+        currentImageIndex--;
+        updateSlider();
+      }
+    }
+    
+    function goToImage(index) {
+      currentImageIndex = index;
+      updateSlider();
+    }
+    
+    function renderDetails() {
+      const id = parseInt(getQueryParam('id'));
+      const listing = dummyListings.find(l => l.id === id);
+      if (!listing) {
+        document.getElementById('productTitle').textContent = 'Listing not found';
+        return;
+      }
+      
+      // Generate images for the listing
+      listingImages = generateImages(listing);
+      currentImageIndex = 0;
+      
+      // Update main content
+      document.getElementById('productTitle').textContent = listing.title;
+      document.getElementById('productLocation').innerHTML = `<i class="bi bi-geo-alt-fill"></i> ${listing.location}`;
+      document.getElementById('productPrice').textContent = `USh ${listing.price.toLocaleString()}`;
+      document.getElementById('mainImage').src = listingImages[0];
+      document.getElementById('agentName').textContent = listing.agent.name;
+      document.getElementById('agentAvatar').src = listing.agent.avatar;
+      
+      // Update meta information
+      const metaHtml = [];
+      if (listing.bedrooms) metaHtml.push(`<span class="meta-item"><i class="bi bi-house-door"></i> ${listing.bedrooms} bd</span>`);
+      if (listing.bathrooms) metaHtml.push(`<span class="meta-item"><i class="bi bi-droplet"></i> ${listing.bathrooms} ba</span>`);
+      if (listing.year) metaHtml.push(`<span class="meta-item"><i class="bi bi-calendar"></i> ${listing.year}</span>`);
+      if (listing.mileage) metaHtml.push(`<span class="meta-item"><i class="bi bi-speedometer2"></i> ${listing.mileage.toLocaleString()} km</span>`);
+      document.getElementById('productMeta').innerHTML = metaHtml.join('');
+      
+      // Update tabs content
+      document.getElementById('detailsTab').innerHTML = `
+        <p>${listing.description}</p>
+        <p>This ${listing.type.toLowerCase()} is located in ${listing.location} and offers excellent value for money. The property has been well-maintained and is ready for immediate use.</p>
+      `;
+      
+      // Generate features based on listing type
+      const features = [];
+      if (listing.bedrooms) features.push('<i class="bi bi-house-door"></i> Multiple Bedrooms');
+      if (listing.bathrooms) features.push('<i class="bi bi-droplet"></i> Modern Bathrooms');
+      if (listing.year) features.push('<i class="bi bi-calendar"></i> Recent Model');
+      if (listing.mileage) features.push('<i class="bi bi-speedometer2"></i> Low Mileage');
+      features.push('<i class="bi bi-shield-check"></i> Secure Location');
+      features.push('<i class="bi bi-arrow-up-circle"></i> Good Investment');
+      document.getElementById('featuresTab').innerHTML = features.map(f => `<li>${f}</li>`).join('');
+      
+      // Update location tab
+      document.getElementById('locationTab').innerHTML = `
+        <h5>Location Details</h5>
+        <p><strong>Address:</strong> ${listing.location}</p>
+        <p><strong>Accessibility:</strong> Easy access to main roads and public transport</p>
+        <p><strong>Nearby Amenities:</strong> Schools, hospitals, shopping centers, and restaurants</p>
+        <div style="height: 200px; background: #f0f0f0; border-radius: 0.5rem; display: flex; align-items: center; justify-content: center; color: #666;">
+          <i class="bi bi-map" style="font-size: 2rem;"></i>
+          <span class="ms-2">Map will be displayed here</span>
+        </div>
+      `;
+      
+      // Update contact tab
+      document.getElementById('contactTab').innerHTML = `
+        <h5>Contact Information</h5>
+        <p><strong>Agent:</strong> ${listing.agent.name}</p>
+        <p><strong>Phone:</strong> <a href="tel:+256123456789">+256 123 456 789</a></p>
+        <p><strong>Email:</strong> <a href="mailto:agent@starlet.co.ug">agent@starlet.co.ug</a></p>
+        <p><strong>Office Hours:</strong> Monday - Friday, 8:00 AM - 6:00 PM</p>
+        <button class="btn btn-primary mt-3">
+          <i class="bi bi-telephone"></i> Call Now
+        </button>
+      `;
+      
+      // Generate thumbnails
+      const thumbnailContainer = document.getElementById('thumbnailContainer');
+      thumbnailContainer.innerHTML = '';
+      listingImages.forEach((image, index) => {
+        const thumbnail = document.createElement('img');
+        thumbnail.src = image;
+        thumbnail.alt = `Image ${index + 1}`;
+        thumbnail.className = `thumbnail ${index === 0 ? 'active' : ''}`;
+        thumbnail.onclick = () => goToImage(index);
+        thumbnailContainer.appendChild(thumbnail);
+      });
+      
+      // Generate slider dots
+      const sliderDots = document.getElementById('sliderDots');
+      sliderDots.innerHTML = '';
+      listingImages.forEach((_, index) => {
+        const dot = document.createElement('div');
+        dot.className = `slider-dot ${index === 0 ? 'active' : ''}`;
+        dot.onclick = () => goToImage(index);
+        sliderDots.appendChild(dot);
+      });
+      
+      // Add event listeners for navigation buttons
+      document.getElementById('nextBtn').onclick = nextImage;
+      document.getElementById('prevBtn').onclick = prevImage;
+      
+      // Add keyboard navigation
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowLeft') prevImage();
+        if (e.key === 'ArrowRight') nextImage();
+      });
+      
+      // Initialize slider
+      updateSlider();
+      
+      // Load similar listings
+      loadSimilarListings(listing);
+    }
+    function loadSimilarListings(currentListing) {
+      const similarListings = dummyListings.filter(l => l.id !== currentListing.id && l.type === currentListing.type).slice(0, 3);
+      const container = document.getElementById('similarListingsContainer');
+      if (similarListings.length === 0) {
+        document.getElementById('noSimilarContainer').style.display = 'block';
+        return;
+      }
+      container.innerHTML = similarListings.map(listing => `
+        <div class="col-lg-4 col-md-6 mb-4">
+          <div class="similar-card">
+            <img src="${listing.image}" alt="${listing.title}">
+            <div class="similar-card-body">
+              <h6 class="similar-card-title">${listing.title}</h6>
+              <p class="similar-card-price">USh ${listing.price.toLocaleString()}</p>
+              <p class="text-muted small">${listing.location}</p>
+              <a href="${listing.detailsUrl}" class="btn btn-outline-primary btn-sm">View Details</a>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+    renderDetails();
+  </script>
+</body>
+</html> 

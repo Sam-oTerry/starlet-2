@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Starlet Properties - Uganda's Premier Real Estate & Vehicle Marketplace</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    
+    <style>
+        :root {
+            --primary-color: #0d6efd;
+            --secondary-color: #6c757d;
+            --success-color: #198754;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+            --info-color: #0dcaf0;
+            --light-color: #f8f9fa;
+            --dark-color: #212529;
+            --accent-gold: #ffd700;
+            --accent-cyan: #00ffff;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            color: var(--dark-color);
+            background-color: var(--light-color);
+        }
+
+        /* Header */
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+        }
+
+        .navbar-brand .star {
+            color: var(--accent-gold);
+        }
+
+        .navbar-brand .let {
+            color: var(--accent-cyan);
+        }
+
+        .navbar-nav .nav-link {
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .navbar-nav .nav-link:hover {
+            color: var(--accent-cyan) !important;
+        }
+
+        .navbar-nav .nav-link.active {
+            color: var(--accent-gold) !important;
+            font-weight: 600;
+        }
+
+        /* Hero Section */
+        .hero-section {
+            background: linear-gradient(135deg, var(--light-color), rgba(13, 110, 253, 0.05));
+            padding: 4rem 0;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .hero-title {
+            font-weight: 700;
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .hero-subtitle {
+            font-size: 1.1rem;
+            color: var(--secondary-color);
+            margin-bottom: 2rem;
+        }
+
+        .highlight {
+            color: var(--primary-color);
+        }
+
+        /* Search Form */
+        .search-container {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            margin-top: 2rem;
+        }
+
+        .search-tabs {
+            display: flex;
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid var(--light-color);
+        }
+
+        .search-tab {
+            background: none;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            color: var(--secondary-color);
+            transition: all 0.3s ease;
+        }
+
+        .search-tab.active {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--primary-color);
+        }
+
+        .search-tab:hover {
+            color: var(--primary-color);
+        }
+
+        .search-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr auto;
+            gap: 1rem;
+            align-items: end;
+        }
+
+        .price-range {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .price-range input {
+            flex: 1;
+        }
+
+        /* Cards */
+        .listing-card {
+            transition: all 0.3s ease;
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            border-radius: 10px;
+            overflow: hidden;
+            background: white;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            height: 100%;
+        }
+
+        .listing-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 24px rgba(13, 110, 253, 0.15);
+        }
+
+        .card-img-wrapper {
+            position: relative;
+            overflow: hidden;
+            padding-top: 66.67%;
+            background: var(--light-color);
+        }
+
+        .card-img-top {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .listing-card:hover .card-img-top {
+            transform: scale(1.05);
+        }
+
+        .type-badge {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            z-index: 2;
+        }
+
+        .price-tag {
+            position: absolute;
+            bottom: 12px;
+            left: 12px;
+            background: rgba(33, 37, 41, 0.9);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Agent Tiers */
+        .tier-card {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            height: 100%;
+        }
+
+        .tier-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .tier-card.featured {
+            border-color: var(--accent-gold);
+            position: relative;
+        }
+
+        .tier-header {
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            border-radius: 10px;
+            position: relative;
+        }
+
+        .tier-header.silver {
+            background: linear-gradient(135deg, #c0c0c0, #e5e5e5);
+        }
+
+        .tier-header.gold {
+            background: linear-gradient(135deg, var(--accent-gold), #ffed4e);
+        }
+
+        .tier-header.diamond {
+            background: linear-gradient(135deg, #b9f2ff, #e0f7fa);
+        }
+
+        .tier-header i {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .tier-header h3 {
+            margin: 0;
+            font-weight: 700;
+        }
+
+        .popular {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            background: var(--danger-color);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .tier-content ul {
+            list-style: none;
+            padding: 0;
+            margin-bottom: 1.5rem;
+        }
+
+        .tier-content li {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--light-color);
+        }
+
+        .tier-content li:last-child {
+            border-bottom: none;
+        }
+
+        /* Statistics */
+        .statistics-section {
+            background: linear-gradient(135deg, var(--dark-color), #343a40);
+            color: white;
+            padding: 3rem 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .statistics-section::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(0, 255, 255, 0.1), rgba(255, 215, 0, 0.1));
+            z-index: 0;
+        }
+
+        .stat-item {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+            padding: 1.5rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .stat-item:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--accent-gold);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        /* Section Headers */
+        .section-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .section-header h2 {
+            font-weight: 700;
+            color: var(--dark-color);
+            margin-bottom: 1rem;
+            position: relative;
+            display: inline-block;
+        }
+
+        .section-header h2::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            bottom: -10px;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-color), var(--accent-cyan));
+            border-radius: 2px;
+        }
+
+        .section-header p {
+            color: var(--secondary-color);
+            font-size: 1.1rem;
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--dark-color);
+            color: white;
+            padding: 4rem 0 2rem;
+            position: relative;
+        }
+
+        .footer::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent-gold), var(--accent-cyan));
+        }
+
+        .footer h4 {
+            color: var(--accent-gold);
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+            position: relative;
+            display: inline-block;
+        }
+
+        .footer h4::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: -8px;
+            width: 40px;
+            height: 2px;
+            background: var(--accent-cyan);
+        }
+
+        .footer a {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .footer a:hover {
+            color: var(--accent-cyan);
+            padding-left: 5px;
+        }
+
+        .footer ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .footer ul li {
+            margin-bottom: 0.75rem;
+        }
+
+        .social-links a {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            text-align: center;
+            line-height: 40px;
+            margin-right: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .social-links a:hover {
+            background: var(--primary-color);
+            transform: translateY(-3px);
+        }
+
+        .footer-bottom {
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 2rem;
+            margin-top: 2rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2rem;
+            }
+            
+            .search-row {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            
+            .tier-card {
+                margin-bottom: 2rem;
+            }
+            
+            .stat-item {
+                margin-bottom: 1.5rem;
+            }
+        }
+
+        /* Animation */
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+
+        .floating {
+            animation: float 6s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-custom">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">
+                <span class="brand-star">Star</span> <span class="brand-let">Let</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="index.html"><i class="bi bi-house-door"></i> Home</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="categoriesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-grid"></i> Categories
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="categoriesDropdown">
+                            <li><h6 class="dropdown-header">Properties</h6></li>
+                            <li><a class="dropdown-item" href="properties.html?type=house_sale">Houses for Sale</a></li>
+                            <li><a class="dropdown-item" href="properties.html?type=house_rent">Houses for Rent</a></li>
+                            <li><a class="dropdown-item" href="properties.html?type=land_sale">Land for Sale</a></li>
+                            <li><a class="dropdown-item" href="properties.html?type=land_rent">Land for Rent</a></li>
+                            <li><a class="dropdown-item" href="properties.html?type=commercial">Commercial Property</a></li>
+                            <li><a class="dropdown-item" href="properties.html?type=vacation_short_stay">Vacation & Short Stay</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><h6 class="dropdown-header">Vehicles</h6></li>
+                            <li><a class="dropdown-item" href="vehicles.html?type=cars">Cars</a></li>
+                            <li><a class="dropdown-item" href="vehicles.html?type=motorcycles">Motorcycles</a></li>
+                            <li><a class="dropdown-item" href="vehicles.html?type=trucks">Trucks</a></li>
+                            <li><a class="dropdown-item" href="vehicles.html?type=buses">Buses</a></li>
+                            <li><a class="dropdown-item" href="vehicles.html?type=heavy_machinery">Heavy Machinery</a></li>
+                            <li><a class="dropdown-item" href="vehicles.html?type=bicycles_ebikes">Bicycles & E-bikes</a></li>
+                            <li><a class="dropdown-item" href="vehicles.html?type=boats_watercraft">Boats & Watercraft</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/web-application/pages/users/add-property.html"><i class="bi bi-tags"></i> Sell</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="moreDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-three-dots"></i> More
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="moreDropdown">
+                            <li><a class="dropdown-item" href="properties.html"><i class="bi bi-building"></i> Properties</a></li>
+                            <li><a class="dropdown-item" href="vehicles.html"><i class="bi bi-car-front"></i> Vehicles</a></li>
+                            <li><a class="dropdown-item" href="stores.html"><i class="bi bi-shop"></i> Stores</a></li>
+                            <li><a class="dropdown-item" href="resources.html"><i class="bi bi-book"></i> Resources</a></li>
+                            <li><a class="dropdown-item" href="about.html"><i class="bi bi-info-circle"></i> About</a></li>
+                            <li><a class="dropdown-item" href="contact.html"><i class="bi bi-envelope"></i> Contact</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="login.html"><i class="bi bi-box-arrow-in-right"></i> Login</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="register.html"><i class="bi bi-person-plus"></i> Sign Up</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container">
+            <h2 class="hero-title">Discover Premium Properties &amp; Vehicles</h2>
+            <p class="hero-subtitle">Your trusted marketplace for high-quality real estate and automobiles</p>
+            <form class="hero-search-bar" style="margin-bottom: 2rem;">
+                <select class="form-select" id="locationDropdown" style="max-width: 160px;">
+                    <option value="all">All Locations</option>
+                    <option value="kampala">Kampala</option>
+                    <option value="gulu">Gulu</option>
+                    <option value="mbarara">Mbarara</option>
+                    <option value="arua">Arua</option>
+                    <option value="mbale">Mbale</option>
+                </select>
+                <input type="text" class="form-control" placeholder="Search properties, vehicles...">
+                <button type="submit" class="btn btn-search"><i class="bi bi-search"></i> Search</button>
+            </form>
+        </div>
+    </section>
+
+    <!-- Featured Listings Section -->
+    <section class="py-5">
+        <div class="container">
+            <div class="section-header">
+                <h2>Featured Listings</h2>
+                <p>Handpicked premium properties and vehicles</p>
+            </div>
+            <div class="row" id="featured-listings">
+                <!-- Cards will be injected here by JS -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Agent Tiers -->
+    <section class="py-5 bg-light">
+        <div class="container">
+            <div class="section-header">
+                <h2>Our Agent Tiers</h2>
+                <p>Choose the level of service that fits your needs</p>
+            </div>
+            
+            <div class="row">
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="tier-card">
+                        <div class="tier-header silver">
+                            <i class="fas fa-medal"></i>
+                            <h3>Silver</h3>
+                        </div>
+                        <div class="tier-content">
+                            <ul>
+                                <li>Basic listing features</li>
+                                <li>Standard visibility</li>
+                                <li>Email support</li>
+                                <li>Monthly subscription</li>
+                            </ul>
+                            <a href="register.html?tier=silver" class="btn btn-outline-primary">Get Started</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="tier-card featured">
+                        <div class="tier-header gold">
+                            <i class="fas fa-crown"></i>
+                            <h3>Gold</h3>
+                            <span class="popular">Popular</span>
+                        </div>
+                        <div class="tier-content">
+                            <ul>
+                                <li>Enhanced listing features</li>
+                                <li>Priority visibility</li>
+                                <li>Featured listings</li>
+                                <li>Priority support</li>
+                                <li>Analytics dashboard</li>
+                            </ul>
+                            <a href="register.html?tier=gold" class="btn btn-primary">Get Started</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="tier-card">
+                        <div class="tier-header diamond">
+                            <i class="fas fa-gem"></i>
+                            <h3>Diamond</h3>
+                        </div>
+                        <div class="tier-content">
+                            <ul>
+                                <li>Premium listing features</li>
+                                <li>Highest visibility</li>
+                                <li>Featured listings</li>
+                                <li>24/7 support</li>
+                                <li>Advanced analytics</li>
+                                <li>Priority verification</li>
+                            </ul>
+                            <a href="register.html?tier=diamond" class="btn btn-outline-primary">Get Started</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Statistics -->
+    <section class="statistics-section">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="stat-item">
+                        <div class="stat-number" data-target="1500">0</div>
+                        <div class="stat-label">Properties Listed</div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="stat-item">
+                        <div class="stat-number" data-target="500">0</div>
+                        <div class="stat-label">Vehicles Available</div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="stat-item">
+                        <div class="stat-number" data-target="200">0</div>
+                        <div class="stat-label">Verified Agents</div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="stat-item">
+                        <div class="stat-number" data-target="50">0</div>
+                        <div class="stat-label">Successful Deals</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4 mb-4">
+                    <h4>About Starlet Properties</h4>
+                    <p>Uganda's premier real estate and vehicle marketplace, connecting buyers and sellers across the country.</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                    </div>
+                </div>
+                
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h4>Properties</h4>
+                    <ul>
+                        <li><a href="properties.html?type=house_sale">Houses for Sale</a></li>
+                        <li><a href="properties.html?type=house_rent">Houses for Rent</a></li>
+                        <li><a href="properties.html?type=land_sale">Land for Sale</a></li>
+                        <li><a href="properties.html?type=land_rent">Land for Rent</a></li>
+                        <li><a href="properties.html?type=commercial">Commercial Property</a></li>
+                        <li><a href="properties.html?type=vacation_short_stay">Vacation & Short Stay</a></li>
+                    </ul>
+                </div>
+                
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h4>Vehicles</h4>
+                    <ul>
+                        <li><a href="vehicles.html?type=cars">Cars</a></li>
+                        <li><a href="vehicles.html?type=motorcycles">Motorcycles</a></li>
+                        <li><a href="vehicles.html?type=trucks">Trucks</a></li>
+                        <li><a href="vehicles.html?type=buses">Buses</a></li>
+                        <li><a href="vehicles.html?type=heavy_machinery">Heavy Machinery</a></li>
+                        <li><a href="vehicles.html?type=bicycles_ebikes">Bicycles & E-bikes</a></li>
+                        <li><a href="vehicles.html?type=boats_watercraft">Boats & Watercraft</a></li>
+                    </ul>
+                </div>
+                
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h4>Company</h4>
+                    <ul>
+                        <li><a href="about.html">About Us</a></li>
+                        <li><a href="contact.html">Contact</a></li>
+                        <li><a href="resources.html">Resources</a></li>
+                        <li><a href="stores.html">Our Stores</a></li>
+                        <li><a href="privacy.html">Privacy Policy</a></li>
+                    </ul>
+                </div>
+                
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h4>Contact</h4>
+                    <ul>
+                        <li><a href="tel:+256123456789"><i class="bi bi-telephone"></i> +256 123 456 789</a></li>
+                        <li><a href="mailto:info@starlet.co.ug"><i class="bi bi-envelope"></i> info@starlet.co.ug</a></li>
+                        <li><a href="#"><i class="bi bi-geo-alt"></i> Kampala, Uganda</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p class="mb-0">&copy; 2024 Starlet Properties. All rights reserved.</p>
+                    </div>
+                    <div class="col-md-6 text-md-end">
+                        <a href="terms.html" class="me-3">Terms of Service</a>
+                        <a href="privacy.html">Privacy Policy</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Custom Scripts -->
+    <script src="js/main.js"></script>
+    <script src="js/search.js"></script>
+</body>
+</html> 
