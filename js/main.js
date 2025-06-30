@@ -505,6 +505,9 @@ const dummyListings = [
     featured: false,
     officialStore: false
   },
+  // ...
+  // Add 24 more diverse listings here, mixing property and vehicle types, locations, agents, and features
+  // ...
 ];
 
 function renderFeaturedListings() {

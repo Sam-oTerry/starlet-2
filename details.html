@@ -567,7 +567,20 @@
       {id:3,type:'Car',title:'Toyota Premio 2015',location:'Kampala, Uganda',price:35000000,image:'https://images.unsplash.com/photo-1511918984145-48de785d4c4e?auto=format&fit=crop&w=400&q=80',detailsUrl:'details.html?id=3',agent:{name:'AutoMart',avatar:'https://randomuser.me/api/portraits/women/65.jpg',verified:true},description:'Well-maintained, low mileage, automatic transmission, silver color.',year:2015,mileage:68000,featured:false,officialStore:true},
       {id:4,type:'Motorcycle',title:'Bajaj Boxer 2020',location:'Arua, Uganda',price:4500000,image:'https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=400&q=80',detailsUrl:'details.html?id=4',agent:{name:'MotoHub',avatar:'https://randomuser.me/api/portraits/men/77.jpg',verified:false},description:'Reliable motorcycle, perfect for city and upcountry roads.',year:2020,mileage:12000,featured:true,officialStore:false},
       {id:5,type:'Commercial Property',title:'Shop Space in Mbale',location:'Mbale, Uganda',price:60000000,image:'https://images.unsplash.com/photo-1460518451285-97b6aa326961?auto=format&fit=crop&w=400&q=80',detailsUrl:'details.html?id=5',agent:{name:'Biz Realty',avatar:'https://randomuser.me/api/portraits/women/12.jpg',verified:true},description:'Prime location, high foot traffic, secure and spacious.',featured:false,officialStore:false},
-      {id:6,type:'Land for Rent',title:'Plot for Farming',location:'Lira, Uganda',price:2000000,image:'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=400&q=80',detailsUrl:'details.html?id=6',agent:{name:'AgroLand',avatar:'https://randomuser.me/api/portraits/men/23.jpg',verified:false},description:'Affordable plot, ready for immediate use, water nearby.',featured:false,officialStore:false}
+      {id:6,type:'Land for Rent',title:'Plot for Farming',location:'Lira, Uganda',price:2000000,image:'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=400&q=80',detailsUrl:'details.html?id=6',agent:{name:'AgroLand',avatar:'https://randomuser.me/api/portraits/men/23.jpg',verified:false},description:'Affordable plot, ready for immediate use, water nearby.',featured:false,officialStore:false},
+      {id:7,type:'House for Rent',title:'Modern 2-Bedroom Apartment',location:'Entebbe, Uganda',price:1800000,image:'https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=400&q=80',detailsUrl:'details.html?id=7',agent:{name:'Green Estates',avatar:'https://randomuser.me/api/portraits/men/45.jpg',verified:false},description:'Modern apartment with lake view, 2 bedrooms, 2 bathrooms, and 24/7 security.',bedrooms:2,bathrooms:2,featured:true,officialStore:false},
+      {id:8,type:'Truck',title:'Isuzu Elf 2018',location:'Jinja, Uganda',price:65000000,image:'https://images.unsplash.com/photo-1503736334956-4c8f8e92946d?auto=format&fit=crop&w=400&q=80',detailsUrl:'details.html?id=8',agent:{name:'AutoMart',avatar:'https://randomuser.me/api/portraits/men/32.jpg',verified:true},description:'Durable Isuzu Elf truck, diesel, 2018 model, low mileage.',year:2018,mileage:42000,featured:false,officialStore:true},
+      {id:9,type:'House for Sale',title:'4-Bedroom Mansion in Kololo',location:'Kampala, Uganda',price:950000000,image:'https://images.unsplash.com/photo-1507089947368-19c1da9775ae?auto=format&fit=crop&w=400&q=80',detailsUrl:'details.html?id=9',agent:{name:'Biz Realty',avatar:'https://randomuser.me/api/portraits/women/12.jpg',verified:true},description:'Luxury mansion with swimming pool, 4 bedrooms, 5 bathrooms, and a large garden.',bedrooms:4,bathrooms:5,featured:true,officialStore:false},
+      {id:10,type:'Bicycle',title:'Mountain Bike 2022',location:'Gulu, Uganda',price:800000,image:'https://images.unsplash.com/photo-1518655048521-f130df041f66?auto=format&fit=crop&w=400&q=80',detailsUrl:'details.html?id=10',agent:{name:'MotoHub',avatar:'https://randomuser.me/api/portraits/men/77.jpg',verified:false},description:'Brand new mountain bike, 21-speed, perfect for city and off-road.',year:2022,mileage:0,featured:false,officialStore:false}
+    ];
+    
+    // Dummy store data for agent/store linking
+    const storeListings = [
+      { id: 1, name: 'AutoMart', avatar: 'https://randomuser.me/api/portraits/men/32.jpg' },
+      { id: 2, name: 'Green Estates', avatar: 'https://randomuser.me/api/portraits/men/45.jpg' },
+      { id: 3, name: 'Biz Realty', avatar: 'https://randomuser.me/api/portraits/women/12.jpg' },
+      { id: 4, name: 'MotoHub', avatar: 'https://randomuser.me/api/portraits/men/77.jpg' },
+      { id: 5, name: 'AgroLand', avatar: 'https://randomuser.me/api/portraits/men/23.jpg' }
     ];
     
     let currentImageIndex = 0;
@@ -655,8 +668,16 @@
       document.getElementById('productLocation').innerHTML = `<i class="bi bi-geo-alt-fill"></i> ${listing.location}`;
       document.getElementById('productPrice').textContent = `USh ${listing.price.toLocaleString()}`;
       document.getElementById('mainImage').src = listingImages[0];
-      document.getElementById('agentName').textContent = listing.agent.name;
-      document.getElementById('agentAvatar').src = listing.agent.avatar;
+      // Find store by agent name
+      const store = storeListings.find(s => s.name === listing.agent.name);
+      const agentNameEl = document.getElementById('agentName');
+      const agentAvatarEl = document.getElementById('agentAvatar');
+      agentNameEl.textContent = listing.agent.name;
+      agentAvatarEl.src = listing.agent.avatar;
+      if (store) {
+        agentNameEl.innerHTML = `<a href="store-details.html?id=${store.id}" class="text-decoration-none text-dark fw-bold">${listing.agent.name}</a>`;
+        agentAvatarEl.outerHTML = `<a href="store-details.html?id=${store.id}"><img src="${listing.agent.avatar}" alt="${listing.agent.name}" id="agentAvatar" class="rounded-circle"></a>`;
+      }
       
       // Update meta information
       const metaHtml = [];
