@@ -395,6 +395,18 @@ window.StarletProperties = {
     throttle
 };
 
+// Firebase Auth state observer and global user
+let currentUser = null;
+if (window.firebase && firebase.auth) {
+  firebase.auth().onAuthStateChanged(function(user) {
+    currentUser = user;
+    window.currentUser = user;
+    // Optionally, update UI for logged-in state here
+    // e.g., show/hide login/signup buttons
+    renderFeaturedListings(); // re-render listings to show save/message buttons
+  });
+}
+
 // Replace renderFeaturedListings with Firestore-powered version
 async function renderFeaturedListings() {
   const container = document.getElementById('featured-listings');
@@ -412,8 +424,15 @@ async function renderFeaturedListings() {
       return;
     }
     container.innerHTML = '';
+    let savedIds = new Set();
+    if (window.currentUser) {
+      // Fetch saved listings for the user
+      const savedSnap = await db.collection('users').doc(window.currentUser.uid).collection('savedListings').get();
+      savedIds = new Set(savedSnap.docs.map(doc => doc.id));
+    }
     querySnap.forEach(doc => {
       const listing = doc.data();
+      const isSaved = savedIds.has(doc.id);
       const card = document.createElement('div');
       card.className = 'col-md-4 col-lg-3 mb-4';
       card.innerHTML = `
@@ -424,6 +443,11 @@ async function renderFeaturedListings() {
             <span class="position-absolute bottom-0 end-0 m-2 px-3 py-1 badge bg-primary bg-opacity-90 text-white rounded-pill fs-6 shadow price-badge">USh ${listing.price ? listing.price.toLocaleString() : ''}</span>
             ${listing.featured ? '<span class=\'position-absolute top-0 end-0 m-2 px-2 py-1 badge bg-warning text-dark rounded-pill fs-6 shadow-sm\'>Featured</span>' : ''}
             ${listing.officialStore ? '<span class=\'position-absolute top-0 end-0 m-2 px-2 py-1 badge bg-info text-white rounded-pill fs-6 shadow-sm\' style=\'right: 90px !important;\'><i class=\'bi bi-patch-check\'></i> Official Store</span>' : ''}
+            ${window.currentUser ? `
+              <button class="btn btn-light btn-sm position-absolute top-0 end-0 m-2 save-btn" data-id="${doc.id}" title="${isSaved ? 'Remove from saved' : 'Save listing'}">
+                <i class="${isSaved ? 'bi bi-heart-fill text-danger' : 'bi bi-heart'}"></i>
+              </button>
+            ` : ''}
           </div>
           <div class="card-body d-flex flex-column p-3">
             <h5 class="card-title fw-bold mb-1 fs-5">${listing.title || ''}</h5>
@@ -443,11 +467,35 @@ async function renderFeaturedListings() {
               <span class="small">${listing.description && listing.description.length > 60 ? listing.description.slice(0, 60) + '…' : (listing.description || '')}</span>
             </div>
             <a href="details.html?id=${doc.id}" class="btn btn-primary mt-auto w-100 rounded-pill">View Details</a>
+            ${window.currentUser ? `<a href="messaging.html?listingId=${doc.id}" class="btn btn-outline-secondary mt-2 w-100 rounded-pill"><i class="bi bi-chat-dots"></i> Message Agent</a>` : ''}
           </div>
         </div>
       `;
       container.appendChild(card);
     });
+    // Add event listeners for save buttons
+    if (window.currentUser) {
+      container.querySelectorAll('.save-btn').forEach(btn => {
+        btn.addEventListener('click', async function(e) {
+          e.preventDefault();
+          const listingId = this.getAttribute('data-id');
+          const isSaved = this.querySelector('i').classList.contains('bi-heart-fill');
+          try {
+            const userDoc = db.collection('users').doc(window.currentUser.uid).collection('savedListings').doc(listingId);
+            if (isSaved) {
+              await userDoc.delete();
+              showNotification('Removed from saved listings', 'info');
+            } else {
+              await userDoc.set({ savedAt: new Date() });
+              showNotification('Saved listing!', 'success');
+            }
+            renderFeaturedListings(); // Refresh
+          } catch (err) {
+            showNotification('Error saving listing: ' + err.message, 'danger');
+          }
+        });
+      });
+    }
   } catch (err) {
     container.innerHTML = `<div class="text-danger text-center">Error loading listings: ${err.message}</div>`;
   }

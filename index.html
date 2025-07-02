@@ -520,6 +520,9 @@
                     <li class="nav-item">
                         <a class="nav-link" href="register.html"><i class="bi bi-person-plus"></i> Sign Up</a>
                     </li>
+                    <li class="nav-item" id="nav-messaging-link" style="display:none;">
+                        <a class="nav-link" href="messaging.html"><i class="bi bi-chat-dots"></i> Messages</a>
+                    </li>
                 </ul>
             </div>
         </div>
@@ -758,6 +761,21 @@
     <!-- Custom Scripts -->
     <script src="js/main.js"></script>
     <script src="js/search.js"></script>
+    <script>
+    // Show/hide messaging link in navbar based on auth state
+    (function() {
+      function updateMessagingLink(user) {
+        var link = document.getElementById('nav-messaging-link');
+        if (!link) return;
+        link.style.display = user ? '' : 'none';
+      }
+      if (window.firebase && firebase.auth) {
+        firebase.auth().onAuthStateChanged(updateMessagingLink);
+      } else {
+        updateMessagingLink(null);
+      }
+    })();
+    </script>
 </body>
 </html> 
  
