@@ -417,7 +417,7 @@
             <div class="product-meta" id="productMeta"></div>
             
             <div class="product-actions">
-              <button class="btn btn-primary btn-lg me-2">
+              <button class="btn btn-primary btn-lg me-2" id="contactAgentBtn">
                 <i class="bi bi-telephone"></i> Contact Agent
               </button>
               <button class="btn btn-outline-primary btn-lg">
@@ -558,235 +558,267 @@
     </div>
   </footer>
 
+  <div class="modal fade" id="messageModal" tabindex="-1" aria-labelledby="messageModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="messageModalLabel">Message Agent</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label">Listing</label>
+            <input type="text" class="form-control" id="modalListingTitle" readonly>
+          </div>
+          <div class="mb-3">
+            <label for="modalMessage" class="form-label">Your Message</label>
+            <textarea class="form-control" id="modalMessage" rows="4" placeholder="I'm interested in this property..."></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-primary" id="sendMessageBtn"><i class="bi bi-send"></i> Send</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script>
-    // Dummy data (copy from js/main.js for standalone demo)
-    const dummyListings = [
-      {id:1,type:'House for Sale',title:'3-Bedroom House in Gulu Town',location:'Gulu, Uganda',price:120000000,image:'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=400&q=80',detailsUrl:'details.html?id=1',agent:{name:'Agent John',avatar:'https://randomuser.me/api/portraits/men/32.jpg',verified:true},description:'Spacious house with modern kitchen, secure parking, and a large garden.',bedrooms:3,bathrooms:2,featured:true,officialStore:true},
-      {id:2,type:'Land for Sale',title:'2 Acres in Mbarara',location:'Mbarara, Uganda',price:80000000,image:'https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=400&q=80',detailsUrl:'details.html?id=2',agent:{name:'Green Estates',avatar:'https://randomuser.me/api/portraits/men/45.jpg',verified:false},description:'Fertile land ideal for farming or development. Accessible by road.',featured:false,officialStore:false},
-      {id:3,type:'Car',title:'Toyota Premio 2015',location:'Kampala, Uganda',price:35000000,image:'https://images.unsplash.com/photo-1511918984145-48de785d4c4e?auto=format&fit=crop&w=400&q=80',detailsUrl:'details.html?id=3',agent:{name:'AutoMart',avatar:'https://randomuser.me/api/portraits/women/65.jpg',verified:true},description:'Well-maintained, low mileage, automatic transmission, silver color.',year:2015,mileage:68000,featured:false,officialStore:true},
-      {id:4,type:'Motorcycle',title:'Bajaj Boxer 2020',location:'Arua, Uganda',price:4500000,image:'https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=400&q=80',detailsUrl:'details.html?id=4',agent:{name:'MotoHub',avatar:'https://randomuser.me/api/portraits/men/77.jpg',verified:false},description:'Reliable motorcycle, perfect for city and upcountry roads.',year:2020,mileage:12000,featured:true,officialStore:false},
-      {id:5,type:'Commercial Property',title:'Shop Space in Mbale',location:'Mbale, Uganda',price:60000000,image:'https://images.unsplash.com/photo-1460518451285-97b6aa326961?auto=format&fit=crop&w=400&q=80',detailsUrl:'details.html?id=5',agent:{name:'Biz Realty',avatar:'https://randomuser.me/api/portraits/women/12.jpg',verified:true},description:'Prime location, high foot traffic, secure and spacious.',featured:false,officialStore:false},
-      {id:6,type:'Land for Rent',title:'Plot for Farming',location:'Lira, Uganda',price:2000000,image:'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=400&q=80',detailsUrl:'details.html?id=6',agent:{name:'AgroLand',avatar:'https://randomuser.me/api/portraits/men/23.jpg',verified:false},description:'Affordable plot, ready for immediate use, water nearby.',featured:false,officialStore:false},
-      {id:7,type:'House for Rent',title:'Modern 2-Bedroom Apartment',location:'Entebbe, Uganda',price:1800000,image:'https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=400&q=80',detailsUrl:'details.html?id=7',agent:{name:'Green Estates',avatar:'https://randomuser.me/api/portraits/men/45.jpg',verified:false},description:'Modern apartment with lake view, 2 bedrooms, 2 bathrooms, and 24/7 security.',bedrooms:2,bathrooms:2,featured:true,officialStore:false},
-      {id:8,type:'Truck',title:'Isuzu Elf 2018',location:'Jinja, Uganda',price:65000000,image:'https://images.unsplash.com/photo-1503736334956-4c8f8e92946d?auto=format&fit=crop&w=400&q=80',detailsUrl:'details.html?id=8',agent:{name:'AutoMart',avatar:'https://randomuser.me/api/portraits/men/32.jpg',verified:true},description:'Durable Isuzu Elf truck, diesel, 2018 model, low mileage.',year:2018,mileage:42000,featured:false,officialStore:true},
-      {id:9,type:'House for Sale',title:'4-Bedroom Mansion in Kololo',location:'Kampala, Uganda',price:950000000,image:'https://images.unsplash.com/photo-1507089947368-19c1da9775ae?auto=format&fit=crop&w=400&q=80',detailsUrl:'details.html?id=9',agent:{name:'Biz Realty',avatar:'https://randomuser.me/api/portraits/women/12.jpg',verified:true},description:'Luxury mansion with swimming pool, 4 bedrooms, 5 bathrooms, and a large garden.',bedrooms:4,bathrooms:5,featured:true,officialStore:false},
-      {id:10,type:'Bicycle',title:'Mountain Bike 2022',location:'Gulu, Uganda',price:800000,image:'https://images.unsplash.com/photo-1518655048521-f130df041f66?auto=format&fit=crop&w=400&q=80',detailsUrl:'details.html?id=10',agent:{name:'MotoHub',avatar:'https://randomuser.me/api/portraits/men/77.jpg',verified:false},description:'Brand new mountain bike, 21-speed, perfect for city and off-road.',year:2022,mileage:0,featured:false,officialStore:false}
-    ];
-    
-    // Dummy store data for agent/store linking
-    const storeListings = [
-      { id: 1, name: 'AutoMart', avatar: 'https://randomuser.me/api/portraits/men/32.jpg' },
-      { id: 2, name: 'Green Estates', avatar: 'https://randomuser.me/api/portraits/men/45.jpg' },
-      { id: 3, name: 'Biz Realty', avatar: 'https://randomuser.me/api/portraits/women/12.jpg' },
-      { id: 4, name: 'MotoHub', avatar: 'https://randomuser.me/api/portraits/men/77.jpg' },
-      { id: 5, name: 'AgroLand', avatar: 'https://randomuser.me/api/portraits/men/23.jpg' }
-    ];
-    
-    let currentImageIndex = 0;
-    let listingImages = [];
-    
+    // Firebase configuration (copied from index.html)
+    const firebaseConfig = {
+      apiKey: "AIzaSyDH1sMk2NwceMAEfvH07azxaoPXpOI1Sek",
+      authDomain: "starlet-properties-41509.firebaseapp.com",
+      projectId: "starlet-properties-41509",
+      storageBucket: "starlet-properties-41509.appspot.com",
+      messagingSenderId: "393372988481",
+      appId: "1:393372988481:web:c92584d7408296457b02c0",
+      measurementId: "G-F02K9SP07C"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
     function getQueryParam(name) {
       const url = new URL(window.location.href);
       return url.searchParams.get(name);
     }
-    
-    function generateImages(listing) {
-      // Generate multiple images for the listing (using variations of the main image)
-      const baseImage = listing.image;
-      const imageVariations = [
-        baseImage,
-        baseImage.replace('w=400', 'w=800'),
-        baseImage.replace('w=400', 'w=600'),
-        baseImage.replace('w=400', 'w=500')
-      ];
-      return imageVariations;
-    }
-    
+
+    let currentImageIndex = 0;
+    let listingImages = [];
+    let currentListingData = null;
+
     function updateSlider() {
       const mainImage = document.getElementById('mainImage');
       const prevBtn = document.getElementById('prevBtn');
       const nextBtn = document.getElementById('nextBtn');
       const dots = document.querySelectorAll('.slider-dot');
       const thumbnails = document.querySelectorAll('.thumbnail');
-      
-      // Update main image with fade effect
       mainImage.style.opacity = '0';
       setTimeout(() => {
         mainImage.src = listingImages[currentImageIndex];
         mainImage.style.opacity = '1';
       }, 150);
-      
-      // Update navigation buttons
       prevBtn.disabled = currentImageIndex === 0;
       nextBtn.disabled = currentImageIndex === listingImages.length - 1;
-      
-      // Update dots
       dots.forEach((dot, index) => {
         dot.classList.toggle('active', index === currentImageIndex);
       });
-      
-      // Update thumbnails
       thumbnails.forEach((thumb, index) => {
         thumb.classList.toggle('active', index === currentImageIndex);
       });
     }
-    
     function nextImage() {
       if (currentImageIndex < listingImages.length - 1) {
         currentImageIndex++;
         updateSlider();
       }
     }
-    
     function prevImage() {
       if (currentImageIndex > 0) {
         currentImageIndex--;
         updateSlider();
       }
     }
-    
     function goToImage(index) {
       currentImageIndex = index;
       updateSlider();
     }
-    
-    function renderDetails() {
-      const id = parseInt(getQueryParam('id'));
-      const listing = dummyListings.find(l => l.id === id);
-      if (!listing) {
+
+    async function renderDetails() {
+      const id = getQueryParam('id');
+      if (!id) {
         document.getElementById('productTitle').textContent = 'Listing not found';
         return;
       }
-      
-      // Generate images for the listing
-      listingImages = generateImages(listing);
-      currentImageIndex = 0;
-      
-      // Update main content
-      document.getElementById('productTitle').textContent = listing.title;
-      document.getElementById('productLocation').innerHTML = `<i class="bi bi-geo-alt-fill"></i> ${listing.location}`;
-      document.getElementById('productPrice').textContent = `USh ${listing.price.toLocaleString()}`;
-      document.getElementById('mainImage').src = listingImages[0];
-      // Find store by agent name
-      const store = storeListings.find(s => s.name === listing.agent.name);
-      const agentNameEl = document.getElementById('agentName');
-      const agentAvatarEl = document.getElementById('agentAvatar');
-      agentNameEl.textContent = listing.agent.name;
-      agentAvatarEl.src = listing.agent.avatar;
-      if (store) {
-        agentNameEl.innerHTML = `<a href="store-details.html?id=${store.id}" class="text-decoration-none text-dark fw-bold">${listing.agent.name}</a>`;
-        agentAvatarEl.outerHTML = `<a href="store-details.html?id=${store.id}"><img src="${listing.agent.avatar}" alt="${listing.agent.name}" id="agentAvatar" class="rounded-circle"></a>`;
+      document.getElementById('productTitle').textContent = 'Loading...';
+      try {
+        const doc = await db.collection('listings').doc(id).get();
+        if (!doc.exists) {
+          document.getElementById('productTitle').textContent = 'Listing not found';
+          return;
+        }
+        const listing = doc.data();
+        currentListingData = { id: doc.id, ...listing };
+        // Images
+        const baseImage = listing.image || 'https://via.placeholder.com/800x600?text=No+Image';
+        listingImages = [baseImage];
+        if (listing.media && Array.isArray(listing.media) && listing.media.length > 0) {
+          listingImages = [baseImage, ...listing.media.filter(m => m !== baseImage)];
+        }
+        currentImageIndex = 0;
+        // Main content
+        document.getElementById('productTitle').textContent = listing.title || '';
+        document.getElementById('productLocation').innerHTML = `<i class="bi bi-geo-alt-fill"></i> ${listing.location && listing.location.district ? listing.location.district : ''} ${listing.location && listing.location.town ? ', ' + listing.location.town : ''}`;
+        document.getElementById('productPrice').textContent = listing.askingPrice ? `USh ${listing.askingPrice.toLocaleString()}` : '';
+        document.getElementById('mainImage').src = listingImages[0];
+        // Agent info
+        const agent = listing.agent || { name: 'Agent', avatar: 'https://randomuser.me/api/portraits/lego/1.jpg', verified: false };
+        document.getElementById('agentName').textContent = agent.name;
+        document.getElementById('agentAvatar').src = agent.avatar;
+        document.getElementById('agentTitle').textContent = listing.agentTier ? `${listing.agentTier.charAt(0).toUpperCase() + listing.agentTier.slice(1)} Tier Agent` : 'Property Agent';
+        // Meta
+        const metaHtml = [];
+        if (listing.houseDetails && listing.houseDetails.bedrooms) metaHtml.push(`<span class="meta-item"><i class="bi bi-house-door"></i> ${listing.houseDetails.bedrooms} bd</span>`);
+        if (listing.houseDetails && listing.houseDetails.bathrooms) metaHtml.push(`<span class="meta-item"><i class="bi bi-droplet"></i> ${listing.houseDetails.bathrooms} ba</span>`);
+        if (listing.carDetails && listing.carDetails.year) metaHtml.push(`<span class="meta-item"><i class="bi bi-calendar"></i> ${listing.carDetails.year}</span>`);
+        if (listing.carDetails && listing.carDetails.mileage) metaHtml.push(`<span class="meta-item"><i class="bi bi-speedometer2"></i> ${listing.carDetails.mileage.toLocaleString()} km</span>`);
+        document.getElementById('productMeta').innerHTML = metaHtml.join('');
+        // Tabs
+        document.getElementById('detailsTab').innerHTML = `
+          <p>${listing.description || ''}</p>
+          <p>This ${listing.listingType || ''} is located in ${listing.location && listing.location.district ? listing.location.district : ''}${listing.location && listing.location.town ? ', ' + listing.location.town : ''} and offers excellent value for money.</p>
+        `;
+        // Features
+        const features = [];
+        if (listing.houseDetails && listing.houseDetails.bedrooms) features.push('<i class="bi bi-house-door"></i> Multiple Bedrooms');
+        if (listing.houseDetails && listing.houseDetails.bathrooms) features.push('<i class="bi bi-droplet"></i> Modern Bathrooms');
+        if (listing.carDetails && listing.carDetails.year) features.push('<i class="bi bi-calendar"></i> Recent Model');
+        if (listing.carDetails && listing.carDetails.mileage) features.push('<i class="bi bi-speedometer2"></i> Low Mileage');
+        features.push('<i class="bi bi-shield-check"></i> Secure Location');
+        features.push('<i class="bi bi-arrow-up-circle"></i> Good Investment');
+        document.getElementById('featuresTab').innerHTML = features.map(f => `<li>${f}</li>`).join('');
+        // Location tab
+        document.getElementById('locationTab').innerHTML = `
+          <h5>Location Details</h5>
+          <p><strong>District:</strong> ${listing.location && listing.location.district ? listing.location.district : ''}</p>
+          <p><strong>Town:</strong> ${listing.location && listing.location.town ? listing.location.town : ''}</p>
+          <p><strong>Accessibility:</strong> Easy access to main roads and public transport</p>
+          <p><strong>Nearby Amenities:</strong> Schools, hospitals, shopping centers, and restaurants</p>
+          <div style="height: 200px; background: #f0f0f0; border-radius: 0.5rem; display: flex; align-items: center; justify-content: center; color: #666;">
+            <i class="bi bi-map" style="font-size: 2rem;"></i>
+            <span class="ms-2">Map will be displayed here</span>
+          </div>
+        `;
+        // Contact tab
+        document.getElementById('contactTab').innerHTML = `
+          <h5>Contact Information</h5>
+          <p><strong>Agent:</strong> ${agent.name}</p>
+          <p><strong>Phone:</strong> <a href="tel:${listing.contactInfo || '+256123456789'}">${listing.contactInfo || '+256123456789'}</a></p>
+          <p><strong>Email:</strong> <a href="mailto:agent@starlet.co.ug">agent@starlet.co.ug</a></p>
+          <p><strong>Office Hours:</strong> Monday - Friday, 8:00 AM - 6:00 PM</p>
+          <button class="btn btn-primary mt-3">
+            <i class="bi bi-telephone"></i> Call Now
+          </button>
+        `;
+        // Thumbnails
+        const thumbnailContainer = document.getElementById('thumbnailContainer');
+        thumbnailContainer.innerHTML = '';
+        listingImages.forEach((image, index) => {
+          const thumbnail = document.createElement('img');
+          thumbnail.src = image;
+          thumbnail.alt = `Image ${index + 1}`;
+          thumbnail.className = `thumbnail ${index === 0 ? 'active' : ''}`;
+          thumbnail.onclick = () => goToImage(index);
+          thumbnailContainer.appendChild(thumbnail);
+        });
+        // Slider dots
+        const sliderDots = document.getElementById('sliderDots');
+        sliderDots.innerHTML = '';
+        listingImages.forEach((_, index) => {
+          const dot = document.createElement('div');
+          dot.className = `slider-dot ${index === 0 ? 'active' : ''}`;
+          dot.onclick = () => goToImage(index);
+          sliderDots.appendChild(dot);
+        });
+        // Navigation buttons
+        document.getElementById('nextBtn').onclick = nextImage;
+        document.getElementById('prevBtn').onclick = prevImage;
+        document.addEventListener('keydown', (e) => {
+          if (e.key === 'ArrowLeft') prevImage();
+          if (e.key === 'ArrowRight') nextImage();
+        });
+        updateSlider();
+        // Load similar listings
+        loadSimilarListings(listing);
+      } catch (err) {
+        document.getElementById('productTitle').textContent = 'Error loading listing';
       }
-      
-      // Update meta information
-      const metaHtml = [];
-      if (listing.bedrooms) metaHtml.push(`<span class="meta-item"><i class="bi bi-house-door"></i> ${listing.bedrooms} bd</span>`);
-      if (listing.bathrooms) metaHtml.push(`<span class="meta-item"><i class="bi bi-droplet"></i> ${listing.bathrooms} ba</span>`);
-      if (listing.year) metaHtml.push(`<span class="meta-item"><i class="bi bi-calendar"></i> ${listing.year}</span>`);
-      if (listing.mileage) metaHtml.push(`<span class="meta-item"><i class="bi bi-speedometer2"></i> ${listing.mileage.toLocaleString()} km</span>`);
-      document.getElementById('productMeta').innerHTML = metaHtml.join('');
-      
-      // Update tabs content
-      document.getElementById('detailsTab').innerHTML = `
-        <p>${listing.description}</p>
-        <p>This ${listing.type.toLowerCase()} is located in ${listing.location} and offers excellent value for money. The property has been well-maintained and is ready for immediate use.</p>
-      `;
-      
-      // Generate features based on listing type
-      const features = [];
-      if (listing.bedrooms) features.push('<i class="bi bi-house-door"></i> Multiple Bedrooms');
-      if (listing.bathrooms) features.push('<i class="bi bi-droplet"></i> Modern Bathrooms');
-      if (listing.year) features.push('<i class="bi bi-calendar"></i> Recent Model');
-      if (listing.mileage) features.push('<i class="bi bi-speedometer2"></i> Low Mileage');
-      features.push('<i class="bi bi-shield-check"></i> Secure Location');
-      features.push('<i class="bi bi-arrow-up-circle"></i> Good Investment');
-      document.getElementById('featuresTab').innerHTML = features.map(f => `<li>${f}</li>`).join('');
-      
-      // Update location tab
-      document.getElementById('locationTab').innerHTML = `
-        <h5>Location Details</h5>
-        <p><strong>Address:</strong> ${listing.location}</p>
-        <p><strong>Accessibility:</strong> Easy access to main roads and public transport</p>
-        <p><strong>Nearby Amenities:</strong> Schools, hospitals, shopping centers, and restaurants</p>
-        <div style="height: 200px; background: #f0f0f0; border-radius: 0.5rem; display: flex; align-items: center; justify-content: center; color: #666;">
-          <i class="bi bi-map" style="font-size: 2rem;"></i>
-          <span class="ms-2">Map will be displayed here</span>
-        </div>
-      `;
-      
-      // Update contact tab
-      document.getElementById('contactTab').innerHTML = `
-        <h5>Contact Information</h5>
-        <p><strong>Agent:</strong> ${listing.agent.name}</p>
-        <p><strong>Phone:</strong> <a href="tel:+256123456789">+256 123 456 789</a></p>
-        <p><strong>Email:</strong> <a href="mailto:agent@starlet.co.ug">agent@starlet.co.ug</a></p>
-        <p><strong>Office Hours:</strong> Monday - Friday, 8:00 AM - 6:00 PM</p>
-        <button class="btn btn-primary mt-3">
-          <i class="bi bi-telephone"></i> Call Now
-        </button>
-      `;
-      
-      // Generate thumbnails
-      const thumbnailContainer = document.getElementById('thumbnailContainer');
-      thumbnailContainer.innerHTML = '';
-      listingImages.forEach((image, index) => {
-        const thumbnail = document.createElement('img');
-        thumbnail.src = image;
-        thumbnail.alt = `Image ${index + 1}`;
-        thumbnail.className = `thumbnail ${index === 0 ? 'active' : ''}`;
-        thumbnail.onclick = () => goToImage(index);
-        thumbnailContainer.appendChild(thumbnail);
-      });
-      
-      // Generate slider dots
-      const sliderDots = document.getElementById('sliderDots');
-      sliderDots.innerHTML = '';
-      listingImages.forEach((_, index) => {
-        const dot = document.createElement('div');
-        dot.className = `slider-dot ${index === 0 ? 'active' : ''}`;
-        dot.onclick = () => goToImage(index);
-        sliderDots.appendChild(dot);
-      });
-      
-      // Add event listeners for navigation buttons
-      document.getElementById('nextBtn').onclick = nextImage;
-      document.getElementById('prevBtn').onclick = prevImage;
-      
-      // Add keyboard navigation
-      document.addEventListener('keydown', (e) => {
-        if (e.key === 'ArrowLeft') prevImage();
-        if (e.key === 'ArrowRight') nextImage();
-      });
-      
-      // Initialize slider
-      updateSlider();
-      
-      // Load similar listings
-      loadSimilarListings(listing);
     }
-    function loadSimilarListings(currentListing) {
-      const similarListings = dummyListings.filter(l => l.id !== currentListing.id && l.type === currentListing.type).slice(0, 3);
+    async function loadSimilarListings(currentListing) {
+      // Find up to 3 similar listings (same listingType, not current)
       const container = document.getElementById('similarListingsContainer');
-      if (similarListings.length === 0) {
-        document.getElementById('noSimilarContainer').style.display = 'block';
-        return;
-      }
-      container.innerHTML = similarListings.map(listing => `
-        <div class="col-lg-4 col-md-6 mb-4">
-          <div class="similar-card">
-            <img src="${listing.image}" alt="${listing.title}">
-            <div class="similar-card-body">
-              <h6 class="similar-card-title">${listing.title}</h6>
-              <p class="similar-card-price">USh ${listing.price.toLocaleString()}</p>
-              <p class="text-muted small">${listing.location}</p>
-              <a href="${listing.detailsUrl}" class="btn btn-outline-primary btn-sm">View Details</a>
+      container.innerHTML = '<div class="text-center w-100 py-4">Loading similar listings...</div>';
+      try {
+        const querySnap = await db.collection('listings')
+          .where('listingType', '==', currentListing.listingType)
+          .limit(4).get();
+        const similar = [];
+        querySnap.forEach(doc => {
+          if (doc.id !== getQueryParam('id')) similar.push({ id: doc.id, ...doc.data() });
+        });
+        if (similar.length === 0) {
+          document.getElementById('noSimilarContainer').style.display = 'block';
+          container.innerHTML = '';
+          return;
+        }
+        document.getElementById('noSimilarContainer').style.display = 'none';
+        container.innerHTML = similar.map(listing => `
+          <div class="col-lg-4 col-md-6 mb-4">
+            <div class="similar-card">
+              <img src="${listing.image || ''}" alt="${listing.title || ''}">
+              <div class="similar-card-body">
+                <h6 class="similar-card-title">${listing.title || ''}</h6>
+                <p class="similar-card-price">USh ${listing.askingPrice ? listing.askingPrice.toLocaleString() : ''}</p>
+                <p class="text-muted small">${listing.location && listing.location.district ? listing.location.district : ''}${listing.location && listing.location.town ? ', ' + listing.location.town : ''}</p>
+                <a href="details.html?id=${listing.id}" class="btn btn-outline-primary btn-sm">View Details</a>
+              </div>
             </div>
           </div>
-        </div>
-      `).join('');
+        `).join('');
+      } catch (err) {
+        container.innerHTML = `<div class="text-danger text-center">Error loading similar listings</div>`;
+      }
     }
     renderDetails();
+
+    // Modal logic
+    const contactAgentBtn = document.getElementById('contactAgentBtn');
+    const messageModal = new bootstrap.Modal(document.getElementById('messageModal'));
+    contactAgentBtn.addEventListener('click', function() {
+      if (currentListingData) {
+        document.getElementById('modalListingTitle').value = currentListingData.title || '';
+        document.getElementById('modalMessage').value = `Hello, I'm interested in your listing: ${currentListingData.title}`;
+      }
+      messageModal.show();
+    });
+    document.getElementById('sendMessageBtn').addEventListener('click', function() {
+      const message = document.getElementById('modalMessage').value;
+      if (!message.trim()) {
+        alert('Please enter a message.');
+        return;
+      }
+      // For now, just log the message and listing reference
+      console.log('Send message:', {
+        listingId: currentListingData ? currentListingData.id : null,
+        listingTitle: currentListingData ? currentListingData.title : null,
+        message
+      });
+      messageModal.hide();
+      alert('Your message has been sent! (Demo only)');
+    });
   </script>
 </body>
 </html> 

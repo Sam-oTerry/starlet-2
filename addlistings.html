@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Add Listing - Starlet Properties</title>
+  <link href="../css/style.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <style>
+    body { font-family: 'Inter', Arial, sans-serif; background: linear-gradient(135deg, var(--light-color) 0%, #e3f0ff 100%); min-height: 100vh; margin: 0; color: var(--dark-color); }
+    .dashboard-wrapper { display: flex; min-height: 100vh; width: 100vw; background: none; }
+    .sidebar { background: rgba(255,255,255,0.85); backdrop-filter: blur(8px); border-right: 1.5px solid #e3eaf5; min-width: 220px; max-width: 240px; padding: 2.5rem 1.2rem 1.2rem 1.2rem; display: flex; flex-direction: column; gap: 1.5rem; z-index: 2; }
+    .sidebar .nav-link { color: var(--primary-color); font-weight: 500; font-size: 1.08rem; border-radius: 10px; padding: 0.7em 1.1em; margin-bottom: 0.2em; display: flex; align-items: center; gap: 0.7em; transition: background 0.2s, color 0.2s; }
+    .sidebar .nav-link.active, .sidebar .nav-link:hover { background: linear-gradient(90deg, var(--primary-color), var(--accent-cyan)); color: #fff; }
+    .sidebar .sidebar-brand { font-size: 1.5rem; font-weight: 700; margin-bottom: 2.5rem; text-align: left; }
+    .sidebar .brand-star { color: var(--accent-gold); }
+    .sidebar .brand-let { color: var(--accent-cyan); }
+    .main-content { flex: 1 1 auto; padding: 2.5rem 2.5rem 1.5rem 2.5rem; background: none; min-width: 0; position: relative; z-index: 1; display: flex; flex-direction: column; gap: 2rem; }
+    .dashboard-header { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1.5rem; }
+    .welcome { font-size: 1.5rem; font-weight: 700; color: var(--primary-color); margin-bottom: 0.5rem; }
+    .profile-summary { display: flex; align-items: center; gap: 1rem; background: rgba(255,255,255,0.7); border-radius: 12px; padding: 0.7rem 1.2rem; box-shadow: 0 2px 8px #0d6efd11; }
+    .profile-avatar { width: 48px; height: 48px; border-radius: 50%; overflow: hidden; background: #eee; display: flex; align-items: center; justify-content: center; }
+    .profile-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .profile-info { display: flex; flex-direction: column; gap: 0.1rem; }
+    .profile-info .name { font-weight: 600; color: var(--primary-color); }
+    .profile-info .role { font-size: 0.97em; color: var(--secondary-color); }
+    .add-listing-form { background: rgba(255,255,255,0.85); border-radius: 16px; box-shadow: 0 4px 18px #0d6efd11; padding: 2.5rem 2rem; max-width: 900px; margin: 0 auto; }
+    .add-listing-form h5 { font-weight: 700; color: var(--primary-color); margin-bottom: 1.5rem; }
+    .form-label { font-weight: 500; color: var(--primary-color); }
+    .form-section-title { font-size: 1.1rem; font-weight: 600; color: var(--primary-color); margin-top: 2rem; margin-bottom: 1rem; }
+    .form-control, .form-select { border-radius: 10px; border: 2px solid var(--light-color); padding: 0.75rem 1rem; transition: all 0.3s ease; font-size: 0.95rem; }
+    .form-control:focus, .form-select:focus { border-color: var(--primary-color); box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25); }
+    .btn-primary { background: linear-gradient(135deg, var(--primary-color), #0056b3); border-color: var(--primary-color); }
+    .btn-primary:hover { background: linear-gradient(135deg, #0056b3, var(--primary-color)); transform: translateY(-2px); box-shadow: 0 8px 25px rgba(13, 110, 253, 0.3); }
+    .form-row { display: flex; gap: 1.5rem; flex-wrap: wrap; }
+    .form-row > .col { flex: 1 1 220px; min-width: 220px; }
+    @media (max-width: 900px) { .dashboard-wrapper { flex-direction: column; } .sidebar { flex-direction: row; min-width: 0; max-width: 100vw; width: 100vw; border-right: none; border-bottom: 1.5px solid #e3eaf5; padding: 1rem 0.5rem; gap: 0.5rem; justify-content: space-between; align-items: center; } .sidebar .sidebar-brand { margin-bottom: 0; } .main-content { padding: 1.2rem 0.5rem; } .add-listing-form { padding: 1.2rem 0.5rem; } }
+    @media (max-width: 600px) { .add-listing-form { padding: 1rem 0.2rem; } .form-row { flex-direction: column; gap: 0.7rem; } }
+  </style>
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-custom">
+    <div class="container">
+      <a class="navbar-brand" href="../index.html">
+        <span class="brand-star">Star</span> <span class="brand-let">Let</span>
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+          <li class="nav-item">
+            <a class="nav-link" href="../index.html"><i class="bi bi-house-door"></i> Home</a>
+          </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="categoriesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="bi bi-grid"></i> Categories
+            </a>
+            <ul class="dropdown-menu" aria-labelledby="categoriesDropdown">
+              <li><a class="dropdown-item" href="../properties.html"><i class="bi bi-building"></i> Properties</a></li>
+              <li><a class="dropdown-item" href="../vehicles.html"><i class="bi bi-car-front"></i> Vehicles</a></li>
+              <li><a class="dropdown-item" href="../stores.html"><i class="bi bi-shop"></i> Stores</a></li>
+              <li><a class="dropdown-item" href="../resources.html"><i class="bi bi-book"></i> Resources</a></li>
+              <li><a class="dropdown-item" href="../about.html"><i class="bi bi-info-circle"></i> About</a></li>
+              <li><a class="dropdown-item" href="../contact.html"><i class="bi bi-envelope"></i> Contact</a></li>
+            </ul>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="../login.html"><i class="bi bi-box-arrow-in-right"></i> Login</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="../register.html"><i class="bi bi-person-plus"></i> Sign Up</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+  <div class="dashboard-wrapper">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-brand"><span class="brand-star">Star</span><span class="brand-let">Let</span></div>
+      <nav class="nav flex-column">
+        <a class="nav-link" href="dashboard.html"><i class="bi bi-speedometer2"></i> Dashboard</a>
+        <a class="nav-link" href="mylistings.html"><i class="bi bi-list-ul"></i> My Listings</a>
+        <a class="nav-link active" href="#"><i class="bi bi-plus-circle"></i> Add Listing</a>
+        <a class="nav-link" href="#"><i class="bi bi-chat-dots"></i> Messages</a>
+        <a class="nav-link" href="#"><i class="bi bi-shop"></i> Store Profile</a>
+        <a class="nav-link" href="#"><i class="bi bi-gear"></i> Settings</a>
+        <a class="nav-link" href="#"><i class="bi bi-box-arrow-right"></i> Logout</a>
+      </nav>
+    </aside>
+    <!-- Main Content -->
+    <main class="main-content">
+      <div class="dashboard-header">
+        <div>
+          <div class="welcome">Add Listing</div>
+          <div class="text-muted">Add a new property or vehicle listing below.</div>
+        </div>
+        <div class="profile-summary">
+          <div class="profile-avatar">
+            <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="John Doe" />
+          </div>
+          <div class="profile-info">
+            <span class="name">John Doe</span>
+            <span class="role">Agent</span>
+          </div>
+        </div>
+      </div>
+      <!-- Add Listing Form -->
+      <form class="add-listing-form mt-4" id="addListingForm">
+        <h5>Add New Listing</h5>
+        <div class="form-row">
+          <div class="col mb-3">
+            <label for="listingType" class="form-label">Listing Type</label>
+            <select class="form-select" id="listingType" required>
+              <option value="">Select Type</option>
+              <option value="property">Property</option>
+              <option value="vehicle">Vehicle</option>
+            </select>
+          </div>
+          <div class="col mb-3 property-fields">
+            <label for="propertyType" class="form-label">Property Type</label>
+            <select class="form-select" id="propertyType">
+              <option value="">Select Property Type</option>
+              <option value="residential">Residential</option>
+              <option value="apartment">Apartment</option>
+              <option value="commercial">Commercial</option>
+              <option value="land">Land</option>
+              <option value="vacation">Vacation/Short Stay</option>
+            </select>
+          </div>
+          <div class="col mb-3 vehicle-fields d-none">
+            <label for="vehicleType" class="form-label">Vehicle Type</label>
+            <select class="form-select" id="vehicleType"></select>
+          </div>
+        </div>
+        <div class="form-row vehicle-fields d-none">
+          <div class="col mb-3 d-none" id="vehicleTypeGroup">
+            <label for="vehicleType" class="form-label">Vehicle Type</label>
+            <select class="form-select" id="vehicleType"></select>
+          </div>
+        </div>
+        <div class="form-row vehicle-fields d-none">
+          <div class="col mb-3 d-none" id="vehicleSubCategoryGroup">
+            <label for="vehicleSubCategory" class="form-label">Sub Category</label>
+            <select class="form-select" id="vehicleSubCategory"></select>
+          </div>
+        </div>
+        <div class="form-row vehicle-fields d-none">
+          <div class="col mb-3 d-none" id="vehicleMakeGroup">
+            <label for="vehicleMake" class="form-label">Vehicle Make</label>
+            <select class="form-select" id="vehicleMake"></select>
+          </div>
+        </div>
+        <div class="form-row vehicle-fields d-none">
+          <div class="col mb-3 d-none" id="vehicleModelGroup">
+            <label for="vehicleModel" class="form-label">Vehicle Model</label>
+            <select class="form-select" id="vehicleModel"></select>
+          </div>
+        </div>
+        <div class="form-row vehicle-fields d-none">
+          <div class="col mb-3 d-none" id="yearGroup">
+            <label for="year" class="form-label">Year</label>
+            <select class="form-select" id="year"></select>
+          </div>
+        </div>
+        <div class="form-row vehicle-fields d-none">
+          <div class="col mb-3 d-none" id="transmissionGroup">
+            <label for="transmission" class="form-label">Transmission</label>
+            <select class="form-select" id="transmission"></select>
+          </div>
+        </div>
+        <div class="form-row vehicle-fields d-none">
+          <div class="col mb-3 d-none" id="fuelTypeGroup">
+            <label for="fuelType" class="form-label">Fuel Type</label>
+            <select class="form-select" id="fuelType"></select>
+          </div>
+        </div>
+        <div class="form-row vehicle-fields d-none">
+          <div class="col mb-3 d-none" id="colorGroup">
+            <label for="color" class="form-label">Color</label>
+            <select class="form-select" id="color"></select>
+          </div>
+        </div>
+        <div class="form-row vehicle-fields d-none">
+          <div class="col mb-3 d-none" id="vehicleFeaturesGroup">
+            <label for="vehicleFeatures" class="form-label">Features</label>
+            <select class="form-select" id="vehicleFeatures" multiple></select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="col mb-3">
+            <label for="title" class="form-label">Title</label>
+            <input type="text" class="form-control" id="title" placeholder="e.g. 3-Bedroom House in Gulu Town, 2018 Toyota Hilux" required>
+          </div>
+          <div class="col mb-3">
+            <label for="askingPrice" class="form-label">Asking Price (UGX)</label>
+            <input type="number" class="form-control" id="askingPrice" placeholder="e.g. 120000000" required>
+          </div>
+        </div>
+        <div class="mb-3">
+          <label for="description" class="form-label">Description</label>
+          <textarea class="form-control" id="description" rows="3" placeholder="Enter a detailed description..." required></textarea>
+        </div>
+        <div class="form-section-title">Location</div>
+        <div class="form-row">
+          <div class="col mb-3">
+            <label for="district" class="form-label">District</label>
+            <input type="text" class="form-control" id="district" placeholder="e.g. Gulu" required>
+          </div>
+          <div class="col mb-3">
+            <label for="town" class="form-label">Town</label>
+            <input type="text" class="form-control" id="town" placeholder="e.g. Gulu Town">
+          </div>
+          <div class="col mb-3">
+            <label for="area" class="form-label">Area</label>
+            <input type="text" class="form-control" id="area" placeholder="e.g. Pece, Layibi">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="col mb-3">
+            <label for="address" class="form-label">Address</label>
+            <input type="text" class="form-control" id="address" placeholder="Street address (optional)">
+          </div>
+          <div class="col mb-3">
+            <label for="subCounty" class="form-label">Sub-County</label>
+            <input type="text" class="form-control" id="subCounty" placeholder="e.g. Gulu Subcounty">
+          </div>
+          <div class="col mb-3">
+            <label for="nearbyLandmarks" class="form-label">Nearby Landmarks</label>
+            <input type="text" class="form-control" id="nearbyLandmarks" placeholder="e.g. Main road, trading center">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="col mb-3">
+            <label for="latitude" class="form-label">Latitude</label>
+            <input type="number" step="any" class="form-control" id="latitude" placeholder="Latitude (optional)">
+          </div>
+          <div class="col mb-3">
+            <label for="longitude" class="form-label">Longitude</label>
+            <input type="number" step="any" class="form-control" id="longitude" placeholder="Longitude (optional)">
+          </div>
+        </div>
+        <div class="form-section-title">Contact</div>
+        <div class="form-row">
+          <div class="col mb-3">
+            <label for="contactInfo" class="form-label">Contact Phone</label>
+            <input type="text" class="form-control" id="contactInfo" placeholder="e.g. +256700000001" required>
+          </div>
+        </div>
+        <div class="form-section-title">Media & Documents</div>
+        <div class="form-row">
+          <div class="col mb-3">
+            <label for="media" class="form-label">Photos/Videos</label>
+            <input type="file" class="form-control" id="media" multiple accept="image/*,video/*">
+          </div>
+          <div class="col mb-3">
+            <label for="documents" class="form-label">Documents</label>
+            <input type="file" class="form-control" id="documents" multiple accept="application/pdf,image/*">
+          </div>
+        </div>
+        <div class="form-section-title property-fields">Property Details</div>
+        <div class="form-row property-fields">
+          <div class="col mb-3">
+            <label for="bedrooms" class="form-label">Bedrooms</label>
+            <select class="form-select" id="bedrooms">
+              <option value="">Select</option>
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="4">4</option>
+              <option value="5">5+</option>
+            </select>
+          </div>
+          <div class="col mb-3">
+            <label for="bathrooms" class="form-label">Bathrooms</label>
+            <select class="form-select" id="bathrooms">
+              <option value="">Select</option>
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="4">4</option>
+              <option value="5">5+</option>
+            </select>
+          </div>
+          <div class="col mb-3">
+            <label for="totalArea" class="form-label">Total Area (sqm)</label>
+            <input type="number" class="form-control" id="totalArea" placeholder="e.g. 120">
+          </div>
+        </div>
+        <div class="form-row property-fields">
+          <div class="col mb-3">
+            <label for="plotSize" class="form-label">Plot Size (acres)</label>
+            <input type="number" class="form-control" id="plotSize" placeholder="e.g. 0.5">
+          </div>
+          <div class="col mb-3">
+            <label for="amenities" class="form-label">Amenities/Features</label>
+            <input type="text" class="form-control" id="amenities" placeholder="e.g. Security Gate, Garden, Parking">
+          </div>
+        </div>
+        <div class="form-section-title vehicle-fields d-none">Vehicle Details</div>
+        <div class="form-row vehicle-fields d-none">
+          <div class="col mb-3">
+            <label for="mileage" class="form-label">Mileage (km)</label>
+            <input type="number" class="form-control" id="mileage" placeholder="e.g. 50000">
+          </div>
+          <div class="col mb-3">
+            <label for="condition" class="form-label">Condition</label>
+            <select class="form-select" id="condition">
+              <option value="">Select Condition</option>
+              <option value="New">New</option>
+              <option value="Used">Used</option>
+              <option value="Reconditioned">Reconditioned</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Submit Listing</button>
+      </form>
+    </main>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyDH1sMk2NwceMAEfvH07azxaoPXpOI1Sek",
+      authDomain: "starlet-properties-41509.firebaseapp.com",
+      projectId: "starlet-properties-41509",
+      storageBucket: "starlet-properties-41509.appspot.com",
+      messagingSenderId: "393372988481",
+      appId: "1:393372988481:web:c92584d7408296457b02c0",
+      measurementId: "G-F02K9SP07C"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    // Dynamic field toggling for property/vehicle
+    const listingType = document.getElementById('listingType');
+    const propertyFields = document.querySelectorAll('.property-fields');
+    const vehicleFields = document.querySelectorAll('.vehicle-fields');
+    function toggleFields() {
+      const value = listingType.value;
+      if (value === 'vehicle') {
+        propertyFields.forEach(f => f.classList.add('d-none'));
+        vehicleFields.forEach(f => f.classList.remove('d-none'));
+      } else if (value === 'property') {
+        propertyFields.forEach(f => f.classList.remove('d-none'));
+        vehicleFields.forEach(f => f.classList.add('d-none'));
+      } else {
+        propertyFields.forEach(f => f.classList.add('d-none'));
+        vehicleFields.forEach(f => f.classList.add('d-none'));
+      }
+    }
+    listingType.addEventListener('change', toggleFields);
+    window.addEventListener('DOMContentLoaded', toggleFields);
+
+    // --- VEHICLE DROPDOWNS (for vehicleMakesModels structure) ---
+    function hideAllVehicleGroups() {
+      [
+        'vehicleSubCategoryGroup', 'vehicleMakeGroup', 'vehicleModelGroup', 'yearGroup',
+        'transmissionGroup', 'fuelTypeGroup', 'colorGroup', 'vehicleFeaturesGroup'
+      ].forEach(id => document.getElementById(id).classList.add('d-none'));
+    }
+    async function loadVehicleTypes() {
+      hideAllVehicleGroups();
+      document.getElementById('vehicleTypeGroup').classList.remove('d-none');
+      const typeSelect = document.getElementById('vehicleType');
+      typeSelect.innerHTML = '<option>Loading...</option>';
+      const makesSnap = await db.collection('vehicleMakesModels').get();
+      const typeSet = new Set();
+      makesSnap.forEach(doc => {
+        const models = doc.data().models || [];
+        models.forEach(modelObj => {
+          if (modelObj.subCategory) typeSet.add(modelObj.subCategory);
+        });
+      });
+      typeSelect.innerHTML = '<option value="">Select Vehicle Type</option>';
+      Array.from(typeSet).sort().forEach(type => {
+        typeSelect.innerHTML += `<option value="${type}">${type}</option>`;
+      });
+    }
+    async function loadVehicleSubCategories() {
+      hideAllVehicleGroups();
+      document.getElementById('vehicleTypeGroup').classList.remove('d-none');
+      document.getElementById('vehicleSubCategoryGroup').classList.remove('d-none');
+      const selectedType = document.getElementById('vehicleType').value;
+      const subCatSelect = document.getElementById('vehicleSubCategory');
+      subCatSelect.innerHTML = '<option>Loading...</option>';
+      const makesSnap = await db.collection('vehicleMakesModels').get();
+      const makeSet = new Set();
+      makesSnap.forEach(doc => {
+        const models = doc.data().models || [];
+        if (models.some(modelObj => modelObj.subCategory === selectedType)) {
+          makeSet.add(doc.id);
+        }
+      });
+      subCatSelect.innerHTML = '<option value="">Select Make</option>';
+      Array.from(makeSet).sort().forEach(make => {
+        subCatSelect.innerHTML += `<option value="${make}">${make}</option>`;
+      });
+    }
+    async function loadVehicleMakesAndModels() {
+      hideAllVehicleGroups();
+      document.getElementById('vehicleTypeGroup').classList.remove('d-none');
+      document.getElementById('vehicleSubCategoryGroup').classList.remove('d-none');
+      document.getElementById('vehicleMakeGroup').classList.remove('d-none');
+      const selectedType = document.getElementById('vehicleType').value;
+      const selectedMake = document.getElementById('vehicleSubCategory').value;
+      const modelSelect = document.getElementById('vehicleMake');
+      modelSelect.innerHTML = '<option>Loading...</option>';
+      if (!selectedType || !selectedMake) return;
+      const makeDoc = await db.collection('vehicleMakesModels').doc(selectedMake).get();
+      const models = makeDoc.data().models || [];
+      modelSelect.innerHTML = '<option value="">Select Model</option>';
+      models.forEach(modelObj => {
+        if (modelObj.subCategory === selectedType) {
+          modelSelect.innerHTML += `<option value="${modelObj.model}">${modelObj.model}</option>`;
+        }
+      });
+    }
+    async function loadModelDetails() {
+      hideAllVehicleGroups();
+      document.getElementById('vehicleTypeGroup').classList.remove('d-none');
+      document.getElementById('vehicleSubCategoryGroup').classList.remove('d-none');
+      document.getElementById('vehicleMakeGroup').classList.remove('d-none');
+      document.getElementById('vehicleModelGroup').classList.remove('d-none');
+      const selectedMake = document.getElementById('vehicleSubCategory').value;
+      const selectedModel = document.getElementById('vehicleMake').value;
+      if (!selectedMake || !selectedModel) return;
+      const makeDoc = await db.collection('vehicleMakesModels').doc(selectedMake).get();
+      const models = makeDoc.data().models || [];
+      const data = models.find(m => m.model === selectedModel);
+      if (!data) return;
+      // Year
+      document.getElementById('yearGroup').classList.remove('d-none');
+      const yearSelect = document.getElementById('year');
+      yearSelect.innerHTML = '<option>Loading...</option>';
+      setTimeout(() => {
+        yearSelect.innerHTML = '<option value="">Select Year</option>';
+        (data.years || []).forEach(y => {
+          yearSelect.innerHTML += `<option value="${y}">${y}</option>`;
+        });
+      }, 200);
+      // Transmission
+      document.getElementById('transmissionGroup').classList.remove('d-none');
+      const transSelect = document.getElementById('transmission');
+      transSelect.innerHTML = '<option>Loading...</option>';
+      setTimeout(() => {
+        transSelect.innerHTML = '<option value="">Select Transmission</option>';
+        (data.transmissions || []).forEach(t => {
+          transSelect.innerHTML += `<option value="${t}">${t}</option>`;
+        });
+      }, 200);
+      // Fuel
+      document.getElementById('fuelTypeGroup').classList.remove('d-none');
+      const fuelSelect = document.getElementById('fuelType');
+      fuelSelect.innerHTML = '<option>Loading...</option>';
+      setTimeout(() => {
+        fuelSelect.innerHTML = '<option value="">Select Fuel Type</option>';
+        (data.fuelTypes || []).forEach(f => {
+          fuelSelect.innerHTML += `<option value="${f}">${f}</option>`;
+        });
+      }, 200);
+      // Features
+      document.getElementById('vehicleFeaturesGroup').classList.remove('d-none');
+      const featuresSelect = document.getElementById('vehicleFeatures');
+      featuresSelect.innerHTML = '';
+      setTimeout(() => {
+        (data.features || []).forEach(f => {
+          featuresSelect.innerHTML += `<option value="${f}">${f}</option>`;
+        });
+      }, 200);
+      // Color
+      document.getElementById('colorGroup').classList.remove('d-none');
+      const colorSelect = document.getElementById('color');
+      colorSelect.innerHTML = '<option>Loading...</option>';
+      setTimeout(() => {
+        colorSelect.innerHTML = '<option value="">Select Color</option>';
+        (data.colors || []).forEach(c => {
+          colorSelect.innerHTML += `<option value="${c}">${c}</option>`;
+        });
+      }, 200);
+    }
+    // Event listeners for dynamic linking
+    document.getElementById('listingType').addEventListener('change', function() {
+      if (this.value === 'vehicle') loadVehicleTypes();
+      else hideAllVehicleGroups();
+    });
+    document.getElementById('vehicleType').addEventListener('change', function() {
+      if (this.value) loadVehicleSubCategories();
+      else hideAllVehicleGroups();
+    });
+    document.getElementById('vehicleSubCategory').addEventListener('change', function() {
+      if (this.value) loadVehicleMakesAndModels();
+      else hideAllVehicleGroups();
+    });
+    document.getElementById('vehicleMake').addEventListener('change', function() {
+      if (this.value) loadModelDetails();
+      else hideAllVehicleGroups();
+    });
+    window.addEventListener('DOMContentLoaded', function() {
+      if (listingType.value === 'vehicle') loadVehicleTypes();
+      else hideAllVehicleGroups();
+    });
+
+    // Handle form submission
+    document.getElementById('addListingForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const form = e.target;
+      // Collect all visible form data
+      const data = {
+        listingType: form.listingType.value,
+        propertyType: form.propertyType?.value,
+        vehicleType: form.vehicleType?.value,
+        title: form.title.value,
+        askingPrice: form.askingPrice.value,
+        description: form.description.value,
+        district: form.district.value,
+        town: form.town.value,
+        area: form.area.value,
+        address: form.address.value,
+        subCounty: form.subCounty.value,
+        nearbyLandmarks: form.nearbyLandmarks.value,
+        latitude: form.latitude.value,
+        longitude: form.longitude.value,
+        contactInfo: form.contactInfo.value,
+        // Property fields
+        bedrooms: form.bedrooms?.value,
+        bathrooms: form.bathrooms?.value,
+        totalArea: form.totalArea?.value,
+        plotSize: form.plotSize?.value,
+        amenities: form.amenities?.value,
+        // Vehicle fields
+        vehicleMake: form.vehicleMake?.value,
+        vehicleModel: form.vehicleModel?.value,
+        year: form.year?.value,
+        mileage: form.mileage?.value,
+        color: form.color?.value,
+        transmission: form.transmission?.value,
+        fuelType: form.fuelType?.value,
+        condition: form.condition?.value,
+        vehicleFeatures: form.vehicleFeatures?.value,
+        createdAt: new Date()
+      };
+      // Remove empty fields
+      Object.keys(data).forEach(key => { if (!data[key]) delete data[key]; });
+      await db.collection('listings').add(data);
+      alert('Listing added!');
+      form.reset();
+    });
+  </script>
+</body>
+</html> 

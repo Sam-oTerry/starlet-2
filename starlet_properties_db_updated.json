@@ -1,0 +1,503 @@
+[
+  {
+    "name": "users",
+    "description": "Stores registered users (buyers, sellers, agents, staff, admin) with role-specific permissions, verification status, and agent tiers (Diamond as highest-priority, pays highest fee). Users have first and last names, can submit reviews and ratings for stores, and list real estate and vehicles across multiple categories.",
+    "fields": {
+      "_id": "ObjectId, unique identifier for the user",
+      "role": "String, enum ['admin', 'staff', 'seller', 'buyer', 'agent'], user role",
+      "permissions": "Array of Strings, specific actions allowed (e.g., ['create_listing', 'schedule_inspection', 'list_on_behalf', 'manage_store_listings', 'feature_listings', 'submit_review'])",
+      "agentTier": "String, enum ['silver', 'gold', 'diamond'], tier for agents (diamond is highest-priority with most benefits, pays highest store fee), default 'silver', not_applicable for non-agent roles",
+      "firstName": "String, user's first name, required",
+      "lastName": "String, user's last name, required",
+      "email": "String, optional, email address",
+      "phone": "String, primary contact (Ugandan phone number, e.g., +256)",
+      "passwordHash": "String, hashed password for authentication",
+      "languagePreference": "String, enum ['English', 'Acholi'], default 'English'",
+      "verificationStatus": {
+        "status": "String, enum ['pending', 'verified', 'rejected', 'not_applicable'], default 'not_applicable' for non-seller/non-agent roles",
+        "documents": [
+          {
+            "type": "String, enum ['id_card', 'business_license', 'certificate_of_incorporation', 'lc1_letter']",
+            "url": "String, AWS S3 URL",
+            "uploadedAt": "Date",
+            "verifiedBy": "ObjectId, reference to users (admin), required if verified or rejected",
+            "verifiedAt": "Date, required if verified or rejected",
+            "notes": "String, optional, reasons for rejection or comments"
+          }
+        ],
+        "verifiedAt": "Date, timestamp of verification, optional"
+      },
+      "associatedStores": "Array of ObjectId, references to stores collection, stores the user (agent or seller) is linked to, optional",
+      "createdBy": "ObjectId, reference to users (admin), for staff or agent accounts created by admin, optional",
+      "performanceMetrics": {
+        "tasksCompleted": "Number, count of tasks (listings, inspections, inquiries, reviews), default 0",
+        "listingsCreated": "Number, count of listings created (for agents/sellers), default 0",
+        "featuredListings": "Number, count of featured listings created (for gold/diamond agents), default 0",
+        "dealsClosed": "Number, count of deals closed (for agents/sellers), default 0",
+        "reviewsSubmitted": "Number, count of reviews submitted by the user, default 0"
+      },
+      "createdAt": "Date, timestamp of account creation",
+      "updatedAt": "Date, timestamp of last update",
+      "lastLogin": "Date, timestamp of last login, optional",
+      "agentRating": "Number, average rating for the agent (1–5, rounded to 1 decimal), only for users with role 'agent', default 0",
+      "agentReviewCount": "Number, total number of approved reviews for the agent, only for users with role 'agent', default 0",
+      "recentAgentReviews": "Array of Objects, latest 3–5 reviews for the agent, each with { userId, rating, comment, createdAt }, optional"
+    },
+    "indexes": [
+      { "field": "email", "type": "unique", "options": "sparse" },
+      { "field": "phone", "type": "unique" },
+      { "field": "role", "type": "index" },
+      { "field": "agentTier", "type": "index" },
+      { "field": "createdBy", "type": "index" },
+      { "field": "verificationStatus.status", "type": "index" },
+      { "field": "associatedStores", "type": "index" }
+    ]
+  },
+  {
+    "name": "stores",
+    "description": "Stores profiles for agent-owned stores and the company's official store, with verification status, branding, agent tier (Diamond as highest-priority, pays highest fee), and aggregated review metrics. Supports listings for real estate and vehicles across multiple categories.",
+    "fields": {
+      "_id": "ObjectId, unique identifier for the store",
+      "name": "String, store name (e.g., 'Agent John's Realty', 'Starlet Official Store')",
+      "description": "String, store description in English and Acholi",
+      "logo": "String, AWS S3 URL for store logo, optional",
+      "agentId": "ObjectId, reference to users (agent role), primary agent owning the store",
+      "agentTier": "String, enum ['silver', 'gold', 'diamond'], tier of the owning agent (diamond is highest-priority, pays highest fee), default 'silver'",
+      "sellers": "Array of ObjectId, references to users (seller role), sellers associated with the store, optional",
+      "isOfficial": "Boolean, true if the store is the company's official store, default false",
+      "verificationStatus": {
+        "status": "String, enum ['pending', 'verified', 'rejected', 'not_applicable'], default 'not_applicable' for official store",
+        "documents": [
+          {
+            "type": "String, enum ['business_license', 'certificate_of_incorporation', 'tax_id', 'lc1_letter']",
+            "url": "String, AWS S3 URL",
+            "uploadedAt": "Date",
+            "verifiedBy": "ObjectId, reference to users (admin), required if verified or rejected",
+            "verifiedAt": "Date, required if verified or rejected",
+            "notes": "String, optional, reasons for rejection or comments"
+          }
+        ],
+        "verifiedAt": "Date, timestamp of verification, optional"
+      },
+      "averageRating": "Number, average rating of the store (1–5, rounded to 1 decimal, e.g., 4.2), calculated from approved reviews, default 0",
+      "reviewCount": "Number, total number of approved reviews for the store, default 0",
+      "recentReviews": "Array of Objects, latest 3–5 reviews for the store, each with { userId, rating, comment, createdAt }, optional",
+      "createdAt": "Date, timestamp of store creation",
+      "updatedAt": "Date, timestamp of last update"
+    },
+    "indexes": [
+      { "field": "agentId", "type": "index" },
+      { "field": "agentTier", "type": "index" },
+      { "field": "sellers", "type": "index" },
+      { "field": "isOfficial", "type": "index" },
+      { "field": "verificationStatus.status", "type": "index" },
+      { "field": "averageRating", "type": "index" },
+      { "field": "reviewCount", "type": "index" }
+    ]
+  },
+  {
+    "name": "storeReviews",
+    "description": "Stores user reviews, ratings, and comments for agent-owned and official stores, with moderation status. Display names are derived from users.firstName and users.lastName or anonymized for guests.",
+    "fields": {
+      "_id": "ObjectId, unique identifier for the review",
+      "storeId": "ObjectId, reference to stores collection, the store being reviewed",
+      "userId": "ObjectId, reference to users collection (buyer or seller), null for guest reviews",
+      "rating": "Number, rating from 1 to 5 (whole numbers), required",
+      "comment": "String, optional, user comment in English or Acholi, max 500 characters",
+      "status": "String, enum ['pending', 'approved', 'rejected'], review moderation status, default 'pending'",
+      "moderatedBy": "ObjectId, reference to users (admin or staff), required if status is 'approved' or 'rejected'",
+      "moderatedAt": "Date, timestamp of moderation, required if status is 'approved' or 'rejected'",
+      "moderationNotes": "String, optional, reasons for rejection or comments",
+      "createdAt": "Date, timestamp of review creation",
+      "updatedAt": "Date, timestamp of last update"
+    },
+    "indexes": [
+      { "field": "storeId", "type": "index" },
+      { "field": "userId", "type": "index" },
+      { "field": "status", "type": "index" },
+      { "field": "rating", "type": "index" },
+      { "field": "createdAt", "type": "index" }
+    ]
+  },
+  {
+    "name": "storeSubscriptions",
+    "description": "Tracks monthly subscription payments for agent-owned stores, with external payment references, Diamond tier paying the highest fee for highest priority.",
+    "fields": {
+      "_id": "ObjectId, unique identifier for the subscription",
+      "storeId": "ObjectId, reference to stores collection",
+      "agentId": "ObjectId, reference to users (agent role), agent owning the store",
+      "agentTier": "String, enum ['silver', 'gold', 'diamond'], tier of the agent (diamond is highest-priority, pays highest fee)",
+      "subscriptionPeriod": {
+        "startDate": "Date, start of the subscription period",
+        "endDate": "Date, end of the subscription period (e.g., 1 month from start)"
+      },
+      "amount": "Number, subscription fee in USh, based on agentTier from feeSettings (diamond > gold > silver), 0 for official store",
+      "status": "String, enum ['pending', 'paid', 'failed', 'expired'], payment status",
+      "externalPaymentReference": "String, reference to external payment (e.g., mobile money transaction ID), optional",
+      "paidAt": "Date, timestamp of payment confirmation, optional",
+      "createdAt": "Date, timestamp of subscription creation",
+      "updatedAt": "Date, timestamp of last update"
+    },
+    "indexes": [
+      { "field": "storeId", "type": "index" },
+      { "field": "agentId", "type": "index" },
+      { "field": "agentTier", "type": "index" },
+      { "field": "status", "type": "index" },
+      { "field": "subscriptionPeriod.startDate", "type": "index" }
+    ]
+  },
+  {
+    "name": "listings",
+    "description": "Stores details of real estate (residential, commercial, land, vacation/short stay) and vehicles (cars, motorcycles, trucks, buses, heavy machinery, bicycles/e-bikes, boats/watercraft) for sale or rent, linked to agent-owned or official stores with tier-based visibility (Diamond highest-priority, pays highest fee) and view tracking.",
+    "fields": {
+      "_id": "ObjectId, unique identifier for the listing",
+      "listingType": "String, enum ['house_sale', 'house_rent', 'land_sale', 'land_rent', 'vacation_short_stay', 'vehicle_sale', 'motorcycle_sale', 'heavy_machinery_sale', 'bicycle_ebike_sale', 'boat_watercraft_sale'], type of listing",
+      "status": "String, enum ['pending', 'approved', 'rejected', 'sold', 'rented', 'expired'], listing lifecycle status",
+      "sellerId": "ObjectId, reference to users collection (seller role), the seller/landlord, optional if storeId is provided",
+      "storeId": "ObjectId, reference to stores collection, for agent-owned or official store listings",
+      "agentId": "ObjectId, reference to users (agent role), agent who created/managed listing, optional",
+      "agentTier": "String, enum ['silver', 'gold', 'diamond'], tier of the agent creating the listing (diamond is highest-priority, pays highest fee), default 'silver'",
+      "createdBy": "ObjectId, reference to users (seller, agent, or staff), who uploaded the listing",
+      "visibility": "String, enum ['standard', 'verified', 'silver', 'gold', 'diamond', 'official'], indicates visibility level (official > diamond > gold > silver > verified > standard)",
+      "externalPaymentNote": "String, optional, details of external payment arrangements for the property or vehicle",
+      "viewCount": "Number, total number of views for the listing, default 0",
+      "propertyType": "String, enum ['Residential for Sale', 'Residential for Rent', 'Commercial Property', 'Land', 'Vacation & Short Stay'], required for house_sale, house_rent, land_sale, land_rent, vacation_short_stay",
+      "title": "String, brief title (e.g., '3-Bedroom House in Gulu Town', '2018 Toyota Hilux Double Cabin')",
+      "description": "String, detailed description in English and Acholi",
+      "askingPrice": "Number, seller's asking price in USh (sale) or lease/rent price (per month for house_rent/vacation_short_stay, per year for land_rent)",
+      "finalPrice": "Number, admin-approved final price in USh, required if status is 'approved'",
+      "location": {
+        "address": "String, optional, street address if available",
+        "district": "String, e.g., Gulu",
+        "subCounty": "String",
+        "town": "String, e.g., Gulu Town, optional",
+        "area": "String, e.g., Pece, Layibi, optional",
+        "nearbyLandmarks": "String, e.g., main road, trading center, optional",
+        "gpsCoordinates": {
+          "latitude": "Number",
+          "longitude": "Number"
+        }
+      },
+      "contactInfo": "String, contact phone number (references users.phone or store contact), required",
+      "media": [
+        {
+          "type": "String, enum ['photo', 'video', 'virtualTour', 'boundaryMarkers'], multiple photos required for vehicle-related listings and recommended for real estate",
+          "url": "String, AWS S3 URL",
+          "uploadedAt": "Date"
+        }
+      ],
+      "documents": [
+        {
+          "type": "String, enum ['title', 'logbook', 'lease_agreement', 'customary_agreement', 'building_plans', 'tenancy_agreement', 'sale_agreement', 'short_stay_agreement', 'survey_diagram', 'lc1_letter', 'vehicle_sale_agreement']",
+          "url": "String, AWS S3 URL",
+          "verified": "Boolean, true if verified by staff or admin",
+          "verifiedBy": "ObjectId, reference to users (staff or admin), required if verified",
+          "verifiedAt": "Date, timestamp of verification, required if verified",
+          "verificationNotes": "String, optional, reasons for rejection or comments"
+        }
+      ],
+      "adminVerification": {
+        "status": "String, enum ['pending', 'approved', 'rejected'], admin approval status",
+        "verifiedBy": "ObjectId, reference to users (admin), required if approved or rejected",
+        "verifiedAt": "Date, timestamp of verification, required if approved or rejected",
+        "verificationNotes": "String, optional, reasons for rejection or comments"
+      },
+      "houseDetails": {
+        "description": "Subdocument for house-specific details, required if listingType is 'house_sale', 'house_rent', or 'vacation_short_stay'",
+        "subCategory": "String, enum ['Houses', 'Apartments', 'Condominiums', 'Townhouses', 'Villas', 'Single Rooms', 'Hostels', 'Serviced Apartments', 'Family Homes', 'Airbnbs', 'Cottages', 'Beach Houses', 'Lodges'], required",
+        "bedrooms": "Number, number of bedrooms, default 0 for Single Rooms",
+        "bathrooms": "Number, number of bathrooms, default 0 for Single Rooms",
+        "totalArea": "Number, size in square meters, required",
+        "plotSize": {
+          "width": "Number, plot width in feet, optional",
+          "length": "Number, plot length in feet, optional",
+          "acres": "Number, size in acres, optional",
+          "hectares": "Number, size in hectares, optional"
+        },
+        "furnishingStatus": "String, enum ['Fully Furnished', 'Semi-Furnished', 'Unfurnished'], required",
+        "condition": "String, enum ['New', 'Renovated', 'Needs Repair'], required"
+      },
+      "landDetails": {
+        "description": "Subdocument for land-specific details, required if listingType is 'land_sale' or 'land_rent'",
+        "subCategory": "String, enum ['Residential Land', 'Commercial Land', 'Agricultural Land', 'Industrial Land'], required",
+        "plotSize": {
+          "acres": "Number, size in acres, optional",
+          "hectares": "Number, size in hectares, optional",
+          "dimensions": {
+            "width": "Number, width in meters, optional",
+            "length": "Number, length in meters, optional"
+          }
+        },
+        "topography": "String, enum ['Flat', 'Sloped', 'Hilly', 'Wetland'], required",
+        "soilType": "String, enum ['Clay', 'Loam', 'Sandy', 'Unknown'], optional",
+        "currentUse": "String, enum ['Vacant', 'Farmland', 'Bush', 'Developed'], required"
+      },
+      "ownershipDetails": {
+        "description": "Subdocument for land or property ownership details, required if listingType is 'house_sale', 'land_sale', 'land_rent', or 'vacation_short_stay'",
+        "ownershipType": "String, enum ['Freehold', 'Leasehold', 'Customary', 'Private Mailo'], required",
+        "leaseYearsRemaining": "Number, remaining lease years, required if ownershipType is 'Leasehold'",
+        "titleStatus": "String, enum ['Registered', 'Unregistered', 'Processing'], required",
+        "titleNumber": "String, title number, required if titleStatus is 'Registered'",
+        "processingStage": "String, stage of title processing, required if titleStatus is 'Processing'",
+        "encumbrances": "String, description of disputes, liens, or mortgages, optional"
+      },
+      "amenities": {
+        "description": "Subdocument for amenities, required if listingType is 'house_sale', 'house_rent', 'land_sale', 'land_rent', or 'vacation_short_stay'",
+        "essentialUtilities": {
+          "electricity": "String, enum ['UMEME', 'Solar', 'Grid', 'None'], required",
+          "waterSupply": "String, enum ['Piped', 'Borehole', 'Water Tank', 'Nearby Source', 'None'], required",
+          "toiletType": "String, enum ['Flush', 'Pit Latrine', 'None'], required for house_sale, house_rent, vacation_short_stay"
+        },
+        "additionalFeatures": {
+          "security": "Array of Strings, enum ['Gate', 'Guard', 'CCTV', 'Fence', 'None'], optional",
+          "parking": "String, enum ['Garage', 'Carport', 'Open Space', 'None'], optional",
+          "internetReady": "String, enum ['Fibre', 'Airtel Wireless', 'MTN Wireless', 'None'], optional",
+          "backupPower": "String, enum ['Generator', 'Solar', 'None'], optional",
+          "kitchen": "String, enum ['Modern', 'Standard', 'Basic', 'None'], optional",
+          "tiled": "Boolean, indicates if property is tiled, optional",
+          "other": "Array of Strings, enum ['Garden', 'Balcony', 'Other'], optional"
+        },
+        "roadAccess": "String, enum ['Tarmac', 'Murram', 'Footpath', 'None'], required for land_sale, land_rent",
+        "nearbyAmenities": "Array of Strings, enum ['Schools', 'Hospitals', 'Markets', 'Public Transport', 'None'], optional"
+      },
+      "vehicleDetails": {
+        "description": "Subdocument for vehicle-specific details, required if listingType is 'vehicle_sale', 'motorcycle_sale', 'heavy_machinery_sale', 'bicycle_ebike_sale', or 'boat_watercraft_sale'",
+        "vehicleCategory": "String, enum ['Cars', 'Motorcycles', 'Trucks & Lorries', 'Buses & Vans', 'Heavy Machinery', 'Bicycles & E-bikes', 'Boats & Watercraft'], required",
+        "subCategory": "String, enum ['Sedans', 'SUVs', 'Pickups', 'Coupes', 'Hatchbacks', 'Scooters', 'Sports Bikes', 'Cruisers', 'Off-road', 'Cargo Trucks', 'Dump Trucks', 'Box Trucks', 'Passenger Vans', 'Mini Buses', 'School Buses', 'Tractors', 'Excavators', 'Loaders', 'Bicycles', 'E-bikes', 'Boats', 'Watercraft'], required",
+        "make": "String, vehicle brand (e.g., 'Toyota', 'Bajaj', 'Caterpillar'), must match vehicleMakesModels",
+        "model": "String, vehicle model (e.g., 'Hilux', 'Pulsar', 'D6'), must be valid for the make",
+        "year": "Number, year of manufacture (1900–2025)",
+        "condition": "String, enum ['New', 'Used', 'For Parts'], required",
+        "transmission": "String, enum ['Manual', 'Automatic', 'Semi-Automatic', 'None'], required, 'None' for Bicycles & E-bikes, Boats & Watercraft",
+        "fuelType": "String, enum ['Petrol', 'Diesel', 'Electric', 'Hybrid', 'None'], required, 'None' for Bicycles & non-motorized Boats",
+        "mileage": "Number, mileage in kilometers, optional, default 0, not applicable for Bicycles & non-motorized Boats",
+        "color": "String, vehicle color (e.g., 'Red', 'Black'), required"
+      },
+      "isFeatured": "Boolean, indicates if listing is premium (featured, restricted to gold/diamond agents or official store, diamond allows most featured listings)",
+      "createdAt": "Date",
+      "updatedAt": "Date",
+      "expiresAt": "Date, listing expiration (e.g., 3 months from creation)"
+    },
+    "indexes": [
+      { "field": "sellerId", "type": "index" },
+      { "field": "storeId", "type": "index" },
+      { "field": "agentId", "type": "index" },
+      { "field": "agentTier", "type": "index" },
+      { "field": "createdBy", "type": "index" },
+      { "field": "listingType", "type": "index" },
+      { "field": "status", "type": "index" },
+      { "field": "visibility", "type": "index" },
+      { "field": "viewCount", "type": "index" },
+      { "field": "adminVerification.status", "type": "index" },
+      { "field": "location.district", "type": "index" },
+      { "field": "location.town", "type": "index" },
+      { "field": "location.area", "type": "index" },
+      { "field": "location.nearbyLandmarks", "type": "index" },
+      { "field": "location.gpsCoordinates", "type": "2dsphere" },
+      { "field": "propertyType", "type": "index" },
+      { "field": "houseDetails.subCategory", "type": "index" },
+      { "field": "landDetails.subCategory", "type": "index" },
+      { "field": "amenities.additionalFeatures", "type": "index" },
+      { "field": "vehicleDetails.vehicleCategory", "type": "index" },
+      { "field": "vehicleDetails.subCategory", "type": "index" },
+      { "field": "vehicleDetails.fuelType", "type": "index" },
+      { "field": "vehicleDetails.condition", "type": "index" }
+    ]
+  },
+  {
+    "name": "deals",
+    "description": "Records completed deals for real estate (residential, commercial, land, vacation/short stay) and vehicles, with external payment and commission notes, managed by admin as sole broker, with Diamond tier as highest-priority paying highest fee.",
+    "fields": {
+      "_id": "ObjectId, unique identifier for the deal",
+      "listingId": "ObjectId, reference to listings collection",
+      "buyerId": "ObjectId, reference to users collection (buyer role)",
+      "sellerId": "ObjectId, reference to users collection (seller role), optional if storeId is provided",
+      "storeId": "ObjectId, reference to stores collection, optional, for store-based deals",
+      "agentId": "ObjectId, reference to users (agent role), agent who facilitated the deal, optional",
+      "agentTier": "String, enum ['silver', 'gold', 'diamond'], tier of the agent (diamond is highest-priority, pays highest fee), optional",
+      "brokerId": "ObjectId, reference to users (admin), as admin is sole broker",
+      "dealType": "String, enum ['sale', 'rent', 'vacation_short_stay', 'heavy_machinery_sale', 'bicycle_ebike_sale', 'boat_watercraft_sale'], matches listingType",
+      "finalPrice": "Number, agreed price in USh, should match listings.finalPrice",
+      "externalPaymentNote": "String, optional, details of external property or vehicle payment",
+      "commissionNote": "String, optional, details of external commission arrangements for seller and agent",
+      "documents": [
+        {
+          "type": "String, enum ['sale_agreement', 'rental_agreement', 'short_stay_agreement', 'vehicle_sale_agreement']",
+          "url": "String, AWS S3 URL",
+          "uploadedAt": "Date, timestamp of upload"
+        }
+      ],
+      "createdAt": "Date, timestamp of deal creation",
+      "updatedAt": "Date, timestamp of last update"
+    },
+    "indexes": [
+      { "field": "listingId", "type": "index" },
+      { "field": "buyerId", "type": "index" },
+      { "field": "sellerId", "type": "index" },
+      { "field": "storeId", "type": "index" },
+      { "field": "agentId", "type": "index" },
+      { "field": "agentTier", "type": "index" },
+      { "field": "brokerId", "type": "index" },
+      { "field": "dealType", "type": "index" }
+    ]
+  },
+  {
+    "name": "feeSettings",
+    "description": "Stores admin-defined monthly subscription fees for agent-owned stores, tiered by agent tier (Diamond pays highest fee for highest priority).",
+    "fields": {
+      "_id": "ObjectId, unique identifier for the fee setting",
+      "storeMonthlyFee": {
+        "silver": "Number, monthly subscription fee in USh for silver tier agent-owned stores (lowest fee), 0 for official store",
+        "gold": "Number, monthly subscription fee in USh for gold tier agent-owned stores (medium fee), 0 for official store",
+        "diamond": "Number, highest monthly subscription fee in USh for diamond tier agent-owned stores (highest fee for highest priority), 0 for official store"
+      },
+      "setBy": "ObjectId, reference to users (admin), admin who set the fees",
+      "setAt": "Date, timestamp of when fees were set",
+      "updatedAt": "Date, timestamp of last update"
+    },
+    "indexes": [
+      { "field": "setBy", "type": "index" }
+    ]
+  },
+  {
+    "name": "analytics",
+    "description": "Tracks app usage for admin, staff, agent-owned stores, official store, tier-specific agent activities (Diamond highest-priority, pays highest fee), listing views, store review submissions, and real estate/vehicle-specific views.",
+    "fields": {
+      "_id": "ObjectId, unique identifier for the analytics record",
+      "type": "String, enum ['view', 'search', 'inquiry', 'inspection', 'deal', 'store_view', 'agent_activity', 'official_store_view', 'silver_agent_activity', 'gold_agent_activity', 'diamond_agent_activity', 'store_subscription_activity', 'listing_view', 'store_review', 'vehicle_view', 'motorcycle_view', 'heavy_machinery_view', 'bicycle_ebike_view', 'boat_watercraft_view', 'vacation_short_stay_view'], event type",
+      "viewType": "String, enum ['listing', 'store', 'resource', 'homepage', 'other'], required for view, listing_view, vehicle_view, motorcycle_view, heavy_machinery_view, bicycle_ebike_view, boat_watercraft_view, vacation_short_stay_view",
+      "listingId": "ObjectId, reference to listings collection, required for listing_view, vehicle_view, motorcycle_view, heavy_machinery_view, bicycle_ebike_view, boat_watercraft_view, vacation_short_stay_view",
+      "storeId": "ObjectId, reference to stores collection, required for store_view and store_review types",
+      "agentId": "ObjectId, reference to users (agent role), optional, for agent-specific actions",
+      "agentTier": "String, enum ['silver', 'gold', 'diamond'], tier of the agent (diamond is highest-priority, pays highest fee), optional",
+      "userId": "ObjectId, reference to users collection, null for guest views or reviews",
+      "deviceInfo": {
+        "deviceType": "String, enum ['mobile', 'desktop', 'tablet'], optional",
+        "os": "String, e.g., 'Android', 'iOS', optional"
+      },
+      "details": {
+        "searchQuery": "String, optional, for search events",
+        "filters": "Object, optional, e.g., { district: 'Gulu', priceMax: 1000000, propertyType: 'Residential for Sale', subCategory: 'Houses', amenities: ['Borehole', 'Tiled'] }",
+        "page": "String, optional, e.g., 'listing_detail', 'store_page', 'official_store_page'",
+        "subscriptionStatus": "String, optional, subscription status for store_subscription_activity events",
+        "rating": "Number, optional, rating (1–5) for store_review events"
+      },
+      "createdAt": "Date, timestamp of analytics event"
+    },
+    "indexes": [
+      { "field": "type", "type": "index" },
+      { "field": "viewType", "type": "index" },
+      { "field": "listingId", "type": "index" },
+      { "field": "storeId", "type": "index" },
+      { "field": "agentId", "type": "index" },
+      { "field": "agentTier", "type": "index" },
+      { "field": "userId", "type": "index" },
+      { "field": "createdAt", "type": "index" },
+      { "field": "details.rating", "type": "index" }
+    ]
+  },
+  {
+    "name": "inspections",
+    "description": "Tracks inspection requests for listings (real estate and vehicles), managed by staff, with external payment notes.",
+    "fields": {
+      "_id": "ObjectId, unique identifier for the inspection",
+      "listingId": "ObjectId, reference to listings collection",
+      "userId": "ObjectId, reference to users collection (buyer role)",
+      "status": "String, enum ['pending', 'proposed', 'scheduled', 'completed', 'cancelled']",
+      "externalPaymentNote": "String, optional, details of external inspection payment",
+      "isPriority": "Boolean, indicates if inspection is premium (priority)",
+      "proposedTimes": [
+        {
+          "time": "Date, proposed inspection date and time",
+          "proposedBy": "ObjectId, reference to users (buyer or staff)",
+          "proposedAt": "Date, timestamp of proposal"
+        }
+      ],
+      "confirmedTime": "Date, final scheduled inspection time, required if status is 'scheduled'",
+      "coordinatorId": "ObjectId, reference to users (staff), assigned coordinator",
+      "cancellationReason": "String, optional, reason for cancellation",
+      "notes": "String, optional, additional details (e.g., 'Inspect boundary markers', 'Check vehicle engine')",
+      "createdAt": "Date",
+      "updatedAt": "Date"
+    },
+    "indexes": [
+      { "field": "listingId", "type": "index" },
+      { "field": "userId", "type": "index" },
+      { "field": "coordinatorId", "type": "index" },
+      { "field": "status", "type": "index" }
+    ]
+  },
+  {
+    "name": "vehicleMakesModels",
+    "description": "Stores valid makes and models for all vehicle categories (Cars, Motorcycles, Trucks & Lorries, Buses & Vans, Heavy Machinery, Bicycles & E-bikes, Boats & Watercraft), sourced from datasets like CarDekho and adapted for the Ugandan market.",
+    "fields": {
+      "_id": "ObjectId, unique identifier for the make",
+      "vehicleType": "String, enum ['Cars', 'Motorcycles', 'Trucks & Lorries', 'Buses & Vans', 'Heavy Machinery', 'Bicycles & E-bikes', 'Boats & Watercraft'], type of vehicle",
+      "make": "String, brand (e.g., 'Toyota' for Cars, 'Bajaj' for Motorcycles, 'Caterpillar' for Heavy Machinery, 'Yamaha' for Boats & Watercraft)",
+      "models": "Array of Strings, list of models for the make (e.g., ['Hilux', 'Corolla'] for Cars, ['Pulsar', 'Platina'] for Motorcycles, ['D6', '320D'] for Heavy Machinery)",
+      "createdAt": "Date, timestamp of record creation",
+      "updatedAt": "Date, timestamp of last update"
+    },
+    "indexes": [
+      { "field": "make", "type": "unique" },
+      { "field": "vehicleType", "type": "index" }
+    ]
+  },
+  {
+    "name": "inquiries",
+    "description": "Stores two-way messaging threads for user inquiries about real estate and vehicles, handled by staff or admin for high-priority cases.",
+    "fields": {
+      "_id": "ObjectId, unique identifier for the inquiry",
+      "listingId": "ObjectId, reference to listings collection, optional",
+      "userId": "ObjectId, reference to users collection (buyer or seller), null for guest inquiries",
+      "channel": "String, enum ['app', 'whatsapp'], communication channel",
+      "status": "String, enum ['open', 'responded', 'closed'], thread status",
+      "assignedTo": "ObjectId, reference to users (staff or admin), staff assigned",
+      "isHighPriority": "Boolean, indicates if inquiry requires admin attention (e.g., disputes), default false",
+      "messages": [
+        {
+          "messageId": "ObjectId, unique identifier for the message",
+          "senderId": "ObjectId, reference to users (user, staff, or admin)",
+          "messageType": "String, enum ['text', 'image', 'document'], type of message",
+          "content": "String, message text or URL (for images/documents in AWS S3)",
+          "readStatus": "Boolean, true if read by recipient",
+          "sentAt": "Date, timestamp of message"
+        }
+      ],
+      "createdAt": "Date, timestamp of inquiry creation",
+      "updatedAt": "Date, timestamp of last update"
+    },
+    "indexes": [
+      { "field": "listingId", "type": "index" },
+      { "field": "userId", "type": "index" },
+      { "field": "assignedTo", "type": "index" },
+      { "field": "status", "type": "index" },
+      { "field": "isHighPriority", "type": "index" }
+    ]
+  },
+  {
+    "name": "resources",
+    "description": "Stores educational guides and resources in English and Acholi for real estate and vehicles, managed by admin or staff.",
+    "fields": {
+      "_id": "ObjectId, unique identifier for the resource",
+      "title": "String, title of the resource (e.g., 'Guide to Buying a House in Gulu', 'Tips for Buying a Used Toyota Hilux')",
+      "content": {
+        "english": "String, content in English",
+        "acholi": "String, content in Acholi, optional"
+      },
+      "category": "String, enum ['buying', 'selling', 'legal', 'general', 'vehicles', 'real_estate'], resource category",
+      "media": [
+        {
+          "type": "String, enum ['image', 'video', 'document']",
+          "url": "String, AWS S3 URL",
+          "uploadedAt": "Date"
+        }
+      ],
+      "createdAt": "Date, timestamp of creation",
+      "updatedAt": "Date, timestamp of last update"
+    },
+    "indexes": [
+      { "field": "category", "type": "index" }
+    ]
+  }
+]

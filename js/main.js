@@ -395,158 +395,60 @@ window.StarletProperties = {
     throttle
 };
 
-// Enhanced dummy data for featured listings
-const dummyListings = [
-  {
-    id: 1,
-    type: 'House for Sale',
-    title: '3-Bedroom House in Gulu Town',
-    location: 'Gulu, Uganda',
-    price: 120000000,
-    image: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=400&q=80',
-    detailsUrl: 'details.html?id=1',
-    agent: {
-      name: 'Agent John',
-      avatar: 'https://randomuser.me/api/portraits/men/32.jpg',
-      verified: true
-    },
-    description: 'Spacious house with modern kitchen, secure parking, and a large garden.',
-    bedrooms: 3,
-    bathrooms: 2,
-    featured: true,
-    officialStore: true
-  },
-  {
-    id: 2,
-    type: 'Land for Sale',
-    title: '2 Acres in Mbarara',
-    location: 'Mbarara, Uganda',
-    price: 80000000,
-    image: 'https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=400&q=80',
-    detailsUrl: 'details.html?id=2',
-    agent: {
-      name: 'Green Estates',
-      avatar: 'https://randomuser.me/api/portraits/men/45.jpg',
-      verified: false
-    },
-    description: 'Fertile land ideal for farming or development. Accessible by road.',
-    featured: false,
-    officialStore: false
-  },
-  {
-    id: 3,
-    type: 'Car',
-    title: 'Toyota Premio 2015',
-    location: 'Kampala, Uganda',
-    price: 35000000,
-    image: 'https://images.unsplash.com/photo-1511918984145-48de785d4c4e?auto=format&fit=crop&w=400&q=80',
-    detailsUrl: 'details.html?id=3',
-    agent: {
-      name: 'AutoMart',
-      avatar: 'https://randomuser.me/api/portraits/women/65.jpg',
-      verified: true
-    },
-    description: 'Well-maintained, low mileage, automatic transmission, silver color.',
-    year: 2015,
-    mileage: 68000,
-    featured: false,
-    officialStore: true
-  },
-  {
-    id: 4,
-    type: 'Motorcycle',
-    title: 'Bajaj Boxer 2020',
-    location: 'Arua, Uganda',
-    price: 4500000,
-    image: 'https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=400&q=80',
-    detailsUrl: 'details.html?id=4',
-    agent: {
-      name: 'MotoHub',
-      avatar: 'https://randomuser.me/api/portraits/men/77.jpg',
-      verified: false
-    },
-    description: 'Reliable motorcycle, perfect for city and upcountry roads.',
-    year: 2020,
-    mileage: 12000,
-    featured: true,
-    officialStore: false
-  },
-  {
-    id: 5,
-    type: 'Commercial Property',
-    title: 'Shop Space in Mbale',
-    location: 'Mbale, Uganda',
-    price: 60000000,
-    image: 'https://images.unsplash.com/photo-1460518451285-97b6aa326961?auto=format&fit=crop&w=400&q=80',
-    detailsUrl: 'details.html?id=5',
-    agent: {
-      name: 'Biz Realty',
-      avatar: 'https://randomuser.me/api/portraits/women/12.jpg',
-      verified: true
-    },
-    description: 'Prime location, high foot traffic, secure and spacious.',
-    featured: false,
-    officialStore: false
-  },
-  {
-    id: 6,
-    type: 'Land for Rent',
-    title: 'Plot for Farming',
-    location: 'Lira, Uganda',
-    price: 2000000,
-    image: 'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=400&q=80',
-    detailsUrl: 'details.html?id=6',
-    agent: {
-      name: 'AgroLand',
-      avatar: 'https://randomuser.me/api/portraits/men/23.jpg',
-      verified: false
-    },
-    description: 'Affordable plot, ready for immediate use, water nearby.',
-    featured: false,
-    officialStore: false
-  },
-  // ...
-  // Add 24 more diverse listings here, mixing property and vehicle types, locations, agents, and features
-  // ...
-];
-
-function renderFeaturedListings() {
+// Replace renderFeaturedListings with Firestore-powered version
+async function renderFeaturedListings() {
   const container = document.getElementById('featured-listings');
   if (!container) return;
-  container.innerHTML = '';
-  dummyListings.forEach(listing => {
-    const card = document.createElement('div');
-    card.className = 'col-md-4 col-lg-3 mb-4';
-    card.innerHTML = `
-      <div class="card listing-card h-100 border-0 rounded-4 shadow-sm overflow-hidden position-relative card-modern">
-        <div class="position-relative" style="aspect-ratio: 4/3; background: #f5f5f5;">
-          <img src="${listing.image}" class="card-img-top w-100 h-100 object-fit-cover" alt="${listing.title}" style="object-fit: cover; min-height: 180px;">
-          <span class="position-absolute top-0 start-0 m-2 px-3 py-1 badge bg-dark bg-opacity-75 text-white rounded-pill fs-6 shadow-sm">${listing.type}</span>
-          <span class="position-absolute bottom-0 end-0 m-2 px-3 py-1 badge bg-primary bg-opacity-90 text-white rounded-pill fs-6 shadow price-badge">USh ${listing.price.toLocaleString()}</span>
-          ${listing.featured ? '<span class=\'position-absolute top-0 end-0 m-2 px-2 py-1 badge bg-warning text-dark rounded-pill fs-6 shadow-sm\'>Featured</span>' : ''}
-          ${listing.officialStore ? '<span class=\'position-absolute top-0 end-0 m-2 px-2 py-1 badge bg-info text-white rounded-pill fs-6 shadow-sm\' style=\'right: 90px !important;\'><i class=\'bi bi-patch-check\'></i> Official Store</span>' : ''}
+  container.innerHTML = '<div class="text-center w-100 py-4">Loading featured listings...</div>';
+  try {
+    const db = window.firebaseDB || (window.firebase && firebase.firestore());
+    if (!db) {
+      container.innerHTML = '<div class="text-danger text-center">Firestore not initialized. Please check your Firebase setup.</div>';
+      return;
+    }
+    const querySnap = await db.collection('listings').where('featured', '==', true).limit(12).get();
+    if (querySnap.empty) {
+      container.innerHTML = '<div class="text-muted text-center">No featured listings found.</div>';
+      return;
+    }
+    container.innerHTML = '';
+    querySnap.forEach(doc => {
+      const listing = doc.data();
+      const card = document.createElement('div');
+      card.className = 'col-md-4 col-lg-3 mb-4';
+      card.innerHTML = `
+        <div class="card listing-card h-100 border-0 rounded-4 shadow-sm overflow-hidden position-relative card-modern">
+          <div class="position-relative" style="aspect-ratio: 4/3; background: #f5f5f5;">
+            <img src="${listing.image || ''}" class="card-img-top w-100 h-100 object-fit-cover" alt="${listing.title || ''}" style="object-fit: cover; min-height: 180px;">
+            <span class="position-absolute top-0 start-0 m-2 px-3 py-1 badge bg-dark bg-opacity-75 text-white rounded-pill fs-6 shadow-sm">${listing.type || ''}</span>
+            <span class="position-absolute bottom-0 end-0 m-2 px-3 py-1 badge bg-primary bg-opacity-90 text-white rounded-pill fs-6 shadow price-badge">USh ${listing.price ? listing.price.toLocaleString() : ''}</span>
+            ${listing.featured ? '<span class=\'position-absolute top-0 end-0 m-2 px-2 py-1 badge bg-warning text-dark rounded-pill fs-6 shadow-sm\'>Featured</span>' : ''}
+            ${listing.officialStore ? '<span class=\'position-absolute top-0 end-0 m-2 px-2 py-1 badge bg-info text-white rounded-pill fs-6 shadow-sm\' style=\'right: 90px !important;\'><i class=\'bi bi-patch-check\'></i> Official Store</span>' : ''}
+          </div>
+          <div class="card-body d-flex flex-column p-3">
+            <h5 class="card-title fw-bold mb-1 fs-5">${listing.title || ''}</h5>
+            <div class="mb-2 text-muted small"><i class="bi bi-geo-alt"></i> ${listing.location || ''}</div>
+            <div class="d-flex align-items-center mb-2 gap-2">
+              <img src="${(listing.agent && listing.agent.avatar) || 'https://randomuser.me/api/portraits/lego/1.jpg'}" alt="${(listing.agent && listing.agent.name) || 'Agent'}" class="rounded-circle border border-2" width="32" height="32">
+              <span class="fw-semibold small">${(listing.agent && listing.agent.name) || 'Agent'}</span>
+              ${(listing.agent && listing.agent.verified) ? '<i class="bi bi-patch-check-fill text-primary ms-1" title="Verified"></i>' : ''}
+            </div>
+            <div class="mb-2 text-secondary small">
+              ${listing.bedrooms ? `<i class='bi bi-house-door'></i> ${listing.bedrooms} bd` : ''}
+              ${listing.bathrooms ? `&nbsp; <i class='bi bi-droplet'></i> ${listing.bathrooms} ba` : ''}
+              ${listing.year ? `<i class='bi bi-calendar'></i> ${listing.year}` : ''}
+              ${listing.mileage ? `&nbsp; <i class='bi bi-speedometer2'></i> ${listing.mileage.toLocaleString()} km` : ''}
+            </div>
+            <div class="mb-2 text-truncate" title="${listing.description || ''}">
+              <span class="small">${listing.description && listing.description.length > 60 ? listing.description.slice(0, 60) + '…' : (listing.description || '')}</span>
+            </div>
+            <a href="details.html?id=${doc.id}" class="btn btn-primary mt-auto w-100 rounded-pill">View Details</a>
+          </div>
         </div>
-        <div class="card-body d-flex flex-column p-3">
-          <h5 class="card-title fw-bold mb-1 fs-5">${listing.title}</h5>
-          <div class="mb-2 text-muted small"><i class="bi bi-geo-alt"></i> ${listing.location}</div>
-          <div class="d-flex align-items-center mb-2 gap-2">
-            <img src="${listing.agent.avatar}" alt="${listing.agent.name}" class="rounded-circle border border-2" width="32" height="32">
-            <span class="fw-semibold small">${listing.agent.name}</span>
-            ${listing.agent.verified ? '<i class="bi bi-patch-check-fill text-primary ms-1" title="Verified"></i>' : ''}
-          </div>
-          <div class="mb-2 text-secondary small">
-            ${listing.bedrooms ? `<i class='bi bi-house-door'></i> ${listing.bedrooms} bd` : ''}
-            ${listing.bathrooms ? `&nbsp; <i class='bi bi-droplet'></i> ${listing.bathrooms} ba` : ''}
-            ${listing.year ? `<i class='bi bi-calendar'></i> ${listing.year}` : ''}
-            ${listing.mileage ? `&nbsp; <i class='bi bi-speedometer2'></i> ${listing.mileage.toLocaleString()} km` : ''}
-          </div>
-          <div class="mb-2 text-truncate" title="${listing.description}">
-            <span class="small">${listing.description.length > 60 ? listing.description.slice(0, 60) + '…' : listing.description}</span>
-          </div>
-          <a href="${listing.detailsUrl}" class="btn btn-primary mt-auto w-100 rounded-pill">View Details</a>
-        </div>
-      </div>
-    `;
-    container.appendChild(card);
-  });
+      `;
+      container.appendChild(card);
+    });
+  } catch (err) {
+    container.innerHTML = `<div class="text-danger text-center">Error loading listings: ${err.message}</div>`;
+  }
 }

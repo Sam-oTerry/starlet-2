@@ -1,0 +1,284 @@
+{
+  "users": [
+    {
+      "_id": "user1",
+      "role": "agent",
+      "firstName": "John",
+      "lastName": "Doe",
+      "phone": "+256700000001",
+      "agentTier": "diamond",
+      "agentRating": 4.8,
+      "agentReviewCount": 2,
+      "recentAgentReviews": [
+        { "userId": "user2", "rating": 5, "comment": "Excellent agent!", "createdAt": "2024-07-01T10:00:00Z" }
+      ]
+    },
+    {
+      "_id": "user2",
+      "role": "buyer",
+      "firstName": "Jane",
+      "lastName": "Smith",
+      "phone": "+256700000002"
+    }
+  ],
+  "stores": [
+    {
+      "_id": "store1",
+      "name": "Starlet Official Store",
+      "description": "The official Starlet store for all your property needs.",
+      "agentId": "user1",
+      "agentTier": "diamond",
+      "isOfficial": true,
+      "averageRating": 4.7,
+      "reviewCount": 1,
+      "recentReviews": [
+        { "userId": "user2", "rating": 5, "comment": "Great service!", "createdAt": "2024-07-01T11:00:00Z" }
+      ]
+    }
+  ],
+  "storeReviews": [
+    {
+      "_id": "review1",
+      "storeId": "store1",
+      "userId": "user2",
+      "rating": 5,
+      "comment": "Great service!",
+      "status": "approved",
+      "createdAt": "2024-07-01T11:00:00Z"
+    }
+  ],
+  "agentReviews": [
+    {
+      "_id": "agentreview1",
+      "agentId": "user1",
+      "userId": "user2",
+      "rating": 5,
+      "comment": "Excellent agent!",
+      "status": "approved",
+      "createdAt": "2024-07-01T10:00:00Z"
+    }
+  ],
+  "storeSubscriptions": [
+    {
+      "_id": "sub1",
+      "storeId": "store1",
+      "agentId": "user1",
+      "agentTier": "diamond",
+      "subscriptionPeriod": { "startDate": "2024-07-01T00:00:00Z", "endDate": "2024-08-01T00:00:00Z" },
+      "amount": 100000,
+      "status": "paid",
+      "createdAt": "2024-07-01T12:00:00Z"
+    }
+  ],
+  "listings": [
+    {
+      "_id": "listing1",
+      "listingType": "house_sale",
+      "status": "approved",
+      "sellerId": "user1",
+      "storeId": "store1",
+      "agentId": "user1",
+      "agentTier": "diamond",
+      "createdBy": "user1",
+      "visibility": "diamond",
+      "viewCount": 10,
+      "propertyType": "Residential for Sale",
+      "title": "3-Bedroom House in Gulu Town",
+      "description": "A beautiful house in Gulu.",
+      "askingPrice": 120000000,
+      "finalPrice": 115000000,
+      "location": { "district": "Gulu", "town": "Gulu Town" },
+      "contactInfo": "+256700000001",
+      "media": [],
+      "documents": [],
+      "adminVerification": { "status": "approved" },
+      "houseDetails": { "subCategory": "Houses", "bedrooms": 3, "bathrooms": 2, "totalArea": 120, "furnishingStatus": "Fully Furnished", "condition": "New" },
+      "createdAt": "2024-07-01T13:00:00Z",
+      "featured": true,
+      "officialStore": true,
+      "image": "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=400&q=80",
+      "agent": { "name": "John Doe", "avatar": "https://randomuser.me/api/portraits/men/32.jpg", "verified": true }
+    },
+    {
+      "_id": "listing2",
+      "listingType": "vehicle_sale",
+      "status": "approved",
+      "sellerId": "user1",
+      "storeId": "store1",
+      "agentId": "user1",
+      "agentTier": "gold",
+      "createdBy": "user1",
+      "visibility": "gold",
+      "viewCount": 5,
+      "propertyType": "Car",
+      "title": "Toyota Premio 2015",
+      "description": "Well-maintained, low mileage, automatic transmission, silver color.",
+      "askingPrice": 35000000,
+      "finalPrice": 34000000,
+      "location": { "district": "Kampala", "town": "Kampala" },
+      "contactInfo": "+256700000001",
+      "media": [],
+      "documents": [],
+      "adminVerification": { "status": "approved" },
+      "carDetails": { "make": "Toyota", "model": "Premio", "year": 2015, "mileage": 68000, "transmission": "Automatic", "fuelType": "Petrol" },
+      "createdAt": "2024-07-02T10:00:00Z",
+      "featured": true,
+      "officialStore": false,
+      "image": "https://images.unsplash.com/photo-1511918984145-48de785d4c4e?auto=format&fit=crop&w=400&q=80",
+      "agent": { "name": "John Doe", "avatar": "https://randomuser.me/api/portraits/men/32.jpg", "verified": true }
+    },
+    {
+      "_id": "listing3",
+      "listingType": "land_sale",
+      "status": "approved",
+      "sellerId": "user1",
+      "storeId": "store1",
+      "agentId": "user1",
+      "agentTier": "silver",
+      "createdBy": "user1",
+      "visibility": "silver",
+      "viewCount": 2,
+      "propertyType": "Land for Sale",
+      "title": "2 Acres in Mbarara",
+      "description": "Fertile land ideal for farming or development. Accessible by road.",
+      "askingPrice": 80000000,
+      "finalPrice": 78000000,
+      "location": { "district": "Mbarara", "town": "Mbarara" },
+      "contactInfo": "+256700000001",
+      "media": [],
+      "documents": [],
+      "adminVerification": { "status": "approved" },
+      "landDetails": { "subCategory": "Land", "area": 2, "unit": "Acres", "condition": "Good" },
+      "createdAt": "2024-07-03T09:00:00Z",
+      "featured": false,
+      "officialStore": false,
+      "image": "https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=400&q=80",
+      "agent": { "name": "John Doe", "avatar": "https://randomuser.me/api/portraits/men/32.jpg", "verified": true }
+    },
+    {
+      "_id": "listing4",
+      "listingType": "vehicle_sale",
+      "status": "approved",
+      "sellerId": "user1",
+      "storeId": "store1",
+      "agentId": "user1",
+      "agentTier": "silver",
+      "createdBy": "user1",
+      "visibility": "silver",
+      "viewCount": 1,
+      "propertyType": "Motorcycle",
+      "title": "Bajaj Boxer 2020",
+      "description": "Reliable motorcycle, perfect for city and upcountry roads.",
+      "askingPrice": 4500000,
+      "finalPrice": 4400000,
+      "location": { "district": "Arua", "town": "Arua" },
+      "contactInfo": "+256700000001",
+      "media": [],
+      "documents": [],
+      "adminVerification": { "status": "approved" },
+      "carDetails": { "make": "Bajaj", "model": "Boxer", "year": 2020, "mileage": 12000, "transmission": "Manual", "fuelType": "Petrol" },
+      "createdAt": "2024-07-04T08:00:00Z",
+      "featured": false,
+      "officialStore": false,
+      "image": "https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=400&q=80",
+      "agent": { "name": "John Doe", "avatar": "https://randomuser.me/api/portraits/men/32.jpg", "verified": true }
+    },
+    {
+      "_id": "listing5",
+      "listingType": "commercial",
+      "status": "approved",
+      "sellerId": "user1",
+      "storeId": "store1",
+      "agentId": "user1",
+      "agentTier": "gold",
+      "createdBy": "user1",
+      "visibility": "gold",
+      "viewCount": 3,
+      "propertyType": "Commercial Property",
+      "title": "Shop Space in Mbale",
+      "description": "Prime location, high foot traffic, secure and spacious.",
+      "askingPrice": 60000000,
+      "finalPrice": 59000000,
+      "location": { "district": "Mbale", "town": "Mbale" },
+      "contactInfo": "+256700000001",
+      "media": [],
+      "documents": [],
+      "adminVerification": { "status": "approved" },
+      "createdAt": "2024-07-05T07:00:00Z",
+      "featured": true,
+      "officialStore": false,
+      "image": "https://images.unsplash.com/photo-1460518451285-97b6aa326961?auto=format&fit=crop&w=400&q=80",
+      "agent": { "name": "John Doe", "avatar": "https://randomuser.me/api/portraits/men/32.jpg", "verified": true }
+    }
+  ],
+  "deals": [
+    {
+      "_id": "deal1",
+      "listingId": "listing1",
+      "buyerId": "user2",
+      "sellerId": "user1",
+      "storeId": "store1",
+      "agentId": "user1",
+      "agentTier": "diamond",
+      "brokerId": "user1",
+      "dealType": "sale",
+      "finalPrice": 115000000,
+      "createdAt": "2024-07-01T14:00:00Z"
+    }
+  ],
+  "feeSettings": [
+    {
+      "_id": "fee1",
+      "storeMonthlyFee": { "silver": 50000, "gold": 75000, "diamond": 100000 },
+      "setBy": "user1",
+      "setAt": "2024-07-01T15:00:00Z"
+    }
+  ],
+  "analytics": [
+    {
+      "_id": "analytics1",
+      "type": "view",
+      "viewType": "listing",
+      "listingId": "listing1",
+      "userId": "user2",
+      "createdAt": "2024-07-01T16:00:00Z"
+    }
+  ],
+  "inspections": [
+    {
+      "_id": "inspection1",
+      "listingId": "listing1",
+      "userId": "user2",
+      "status": "completed",
+      "createdAt": "2024-07-01T17:00:00Z"
+    }
+  ],
+  "vehicleMakesModels": [
+    {
+      "_id": "make1",
+      "vehicleType": "Cars",
+      "make": "Toyota",
+      "models": ["Hilux", "Corolla"],
+      "createdAt": "2024-07-01T18:00:00Z"
+    }
+  ],
+  "inquiries": [
+    {
+      "_id": "inquiry1",
+      "listingId": "listing1",
+      "userId": "user2",
+      "channel": "app",
+      "status": "open",
+      "createdAt": "2024-07-01T19:00:00Z"
+    }
+  ],
+  "resources": [
+    {
+      "_id": "resource1",
+      "title": "Guide to Buying a House in Gulu",
+      "content": { "english": "Step-by-step guide..." },
+      "category": "real_estate",
+      "createdAt": "2024-07-01T20:00:00Z"
+    }
+  ]
+} 

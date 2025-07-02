@@ -267,7 +267,7 @@ function renderStores(listings) {
     container.innerHTML = '<div class="col-12 text-center text-muted py-5">No stores or agents found matching your criteria.</div>';
     return;
   }
-  listings.forEach(store => {
+  listings.forEach((store, idx) => {
     const card = document.createElement('div');
     card.className = 'col-md-6 col-lg-4 mb-4';
     // Star rating HTML
@@ -278,12 +278,13 @@ function renderStores(listings) {
     for (let i = 0; i < fullStars; i++) starsHtml += '<i class="bi bi-star-fill text-warning"></i>';
     if (halfStar) starsHtml += '<i class="bi bi-star-half text-warning"></i>';
     for (let i = 0; i < emptyStars; i++) starsHtml += '<i class="bi bi-star text-warning"></i>';
+    // Add fade-in-up animation with staggered delay
     card.innerHTML = `
-      <div class="store-card-modern d-flex flex-row align-items-center shadow-sm border-0 rounded-4 p-3 bg-white h-100 gap-3">
-        <div class="flex-shrink-0">
-          <img src="${store.avatar}" alt="${store.name}" class="rounded-circle border border-2" width="54" height="54">
+      <div class="store-card-modern d-flex flex-row align-items-center shadow-sm border-0 rounded-4 p-3 bg-white h-100 gap-3 fade-in-up" style="animation-delay: ${0.08 * idx}s; position: relative; overflow: visible;">
+        <div class="flex-shrink-0 position-relative" style="z-index:2;">
+          <img src="${store.avatar}" alt="${store.name}" class="rounded-circle border border-2">
         </div>
-        <div class="flex-grow-1 d-flex flex-column justify-content-between h-100">
+        <div class="flex-grow-1 d-flex flex-column justify-content-between h-100 ps-2">
           <div class="d-flex align-items-center gap-2 mb-1">
             <span class="fw-semibold text-dark small">${store.name}</span>
             ${store.verified ? '<i class="bi bi-patch-check-fill text-primary" title="Verified"></i>' : ''}
@@ -302,6 +303,7 @@ function renderStores(listings) {
             <span class="text-secondary small"><i class="bi bi-graph-up"></i> ${store.stats.success}</span>
             <span class="text-secondary small"><i class="bi bi-calendar3"></i> ${store.stats.years} yrs</span>
           </div>
+          <div class="text-muted small mb-2" style="min-height:2.2em;">${store.description}</div>
           <a href="store-details.html?id=${store.id}" class="btn btn-sm btn-primary rounded-pill mt-auto align-self-start px-3 py-1"><i class="bi bi-shop"></i> Visit Store</a>
         </div>
       </div>

@@ -1,0 +1,9 @@
+{
+  "name": "starlet-firestore-import",
+  "version": "1.0.0",
+  "main": "import_sample_data.js",
+  "license": "MIT",
+  "dependencies": {
+    "firebase-admin": "^13.4.0"
+  }
+}

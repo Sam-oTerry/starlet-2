@@ -341,7 +341,25 @@
       </div>
     </div>
   </div>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script>
+    // Firebase config (same as other pages)
+    const firebaseConfig = {
+      apiKey: "AIzaSyDH1sMk2NwceMAEfvH07azxaoPXpOI1Sek",
+      authDomain: "starlet-properties-41509.firebaseapp.com",
+      projectId: "starlet-properties-41509",
+      storageBucket: "starlet-properties-41509.appspot.com",
+      messagingSenderId: "393372988481",
+      appId: "1:393372988481:web:c92584d7408296457b02c0",
+      measurementId: "G-F02K9SP07C"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    // Show/hide forms
     const loginForm = document.getElementById('loginForm');
     const registerForm = document.getElementById('registerForm');
     const formTitle = document.getElementById('formTitle');
@@ -366,6 +384,140 @@
       toggleLink.innerHTML = 'Don\'t have an account? <a href="#" id="showRegister">Register now</a>';
       document.getElementById('showRegister').onclick = showRegister.onclick;
     }
+
+    // Show error
+    function showError(msg) {
+      let err = document.getElementById('authError');
+      if (!err) {
+        err = document.createElement('div');
+        err.id = 'authError';
+        err.className = 'alert alert-danger mt-2';
+        loginForm.parentNode.insertBefore(err, loginForm);
+      }
+      err.textContent = msg;
+    }
+    function clearError() {
+      const err = document.getElementById('authError');
+      if (err) err.remove();
+    }
+    // Show loading spinner
+    function showLoading() {
+      let spinner = document.getElementById('authSpinner');
+      if (!spinner) {
+        spinner = document.createElement('div');
+        spinner.id = 'authSpinner';
+        spinner.innerHTML = '<div class="d-flex justify-content-center my-3"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div></div>';
+        loginForm.parentNode.insertBefore(spinner, loginForm);
+      }
+    }
+    function hideLoading() {
+      const spinner = document.getElementById('authSpinner');
+      if (spinner) spinner.remove();
+    }
+
+    // Email/password login
+    loginForm.onsubmit = async function(e) {
+      e.preventDefault();
+      clearError();
+      showLoading();
+      const emailOrUsername = document.getElementById('login-username').value.trim();
+      const password = document.getElementById('login-password').value;
+      let email = emailOrUsername;
+      // If not an email, try to look up by username
+      if (!/@/.test(emailOrUsername)) {
+        // Try to find user by username in users collection
+        try {
+          const snap = await db.collection('users').where('username', '==', emailOrUsername).limit(1).get();
+          if (!snap.empty) {
+            email = snap.docs[0].data().email;
+          } else {
+            hideLoading();
+            showError('No user found with that username.');
+            return;
+          }
+        } catch (err) {
+          hideLoading();
+          showError('Error looking up username.');
+          return;
+        }
+      }
+      try {
+        await auth.signInWithEmailAndPassword(email, password);
+        window.location.href = 'index.html';
+      } catch (err) {
+        hideLoading();
+        showError(err.message);
+      }
+    };
+
+    // Email/password registration
+    registerForm.onsubmit = async function(e) {
+      e.preventDefault();
+      clearError();
+      showLoading();
+      const username = document.getElementById('register-username').value.trim();
+      const email = document.getElementById('register-email').value.trim();
+      const password = document.getElementById('register-password').value;
+      const confirm = document.getElementById('register-confirm-password').value;
+      if (password !== confirm) {
+        hideLoading();
+        showError('Passwords do not match.');
+        return;
+      }
+      try {
+        const cred = await auth.createUserWithEmailAndPassword(email, password);
+        // Set displayName
+        await cred.user.updateProfile({ displayName: username });
+        // Add user to users collection if not present
+        const userDoc = db.collection('users').doc(cred.user.uid);
+        const userSnap = await userDoc.get();
+        if (!userSnap.exists) {
+          await userDoc.set({
+            username,
+            email,
+            createdAt: new Date(),
+            role: 'user',
+            avatar: '',
+            firstName: '',
+            lastName: ''
+          });
+        }
+        window.location.href = 'index.html';
+      } catch (err) {
+        hideLoading();
+        showError(err.message);
+      }
+    };
+
+    // Google sign-in (login and register)
+    document.querySelectorAll('.btn-google').forEach(btn => {
+      btn.onclick = async function() {
+        clearError();
+        showLoading();
+        const provider = new firebase.auth.GoogleAuthProvider();
+        try {
+          const result = await auth.signInWithPopup(provider);
+          // Add user to users collection if not present
+          const userDoc = db.collection('users').doc(result.user.uid);
+          const userSnap = await userDoc.get();
+          if (!userSnap.exists) {
+            await userDoc.set({
+              username: result.user.displayName,
+              email: result.user.email,
+              createdAt: new Date(),
+              role: 'user',
+              avatar: result.user.photoURL || '',
+              firstName: '',
+              lastName: ''
+            });
+          }
+          window.location.href = 'index.html';
+        } catch (err) {
+          hideLoading();
+          showError(err.message);
+        }
+      };
+    });
   </script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
