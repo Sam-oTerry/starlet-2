@@ -222,91 +222,54 @@
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- Custom Scripts -->
+    <!-- Firebase App (the core Firebase SDK) -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <!-- Firebase Auth -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <!-- Firebase Firestore -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <!-- Firebase config and initialization (must come BEFORE main.js) -->
+    <script>
+const firebaseConfig = {
+  apiKey: "AIzaSyDH1sMk2NwceMAEfvH07azxaoPXpOI1Sek",
+  authDomain: "starlet-properties-41509.firebaseapp.com",
+  projectId: "starlet-properties-41509",
+  storageBucket: "starlet-properties-41509.firebasestorage.app",
+  messagingSenderId: "393372988481",
+  appId: "1:393372988481:web:c92584d7408296457b02c0",
+  measurementId: "G-F02K9SP07C"
+};
+if (!firebase.apps.length) {
+  firebase.initializeApp(firebaseConfig);
+}
+const db = firebase.firestore();
+    </script>
+    <!-- Custom Scripts (must come AFTER Firebase is initialized) -->
     <script src="js/main.js"></script>
     <script>
-// Dummy data (filtered from main.js dummyListings)
-const propertyListings = [
-  {
-    id: 1,
-    type: 'house_sale',
-    typeLabel: 'House for Sale',
-    title: '3-Bedroom House in Gulu Town',
-    location: 'Gulu, Uganda',
-    price: 120000000,
-    image: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=400&q=80',
-    detailsUrl: 'details.html?id=1',
-    agent: {
-      name: 'Agent John',
-      avatar: 'https://randomuser.me/api/portraits/men/32.jpg',
-      verified: true
-    },
-    description: 'Spacious house with modern kitchen, secure parking, and a large garden.',
-    bedrooms: 3,
-    bathrooms: 2,
-    featured: true,
-    officialStore: true
-  },
-  {
-    id: 2,
-    type: 'land_sale',
-    typeLabel: 'Land for Sale',
-    title: '2 Acres in Mbarara',
-    location: 'Mbarara, Uganda',
-    price: 80000000,
-    image: 'https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=400&q=80',
-    detailsUrl: 'details.html?id=2',
-    agent: {
-      name: 'Green Estates',
-      avatar: 'https://randomuser.me/api/portraits/men/45.jpg',
-      verified: false
-    },
-    description: 'Fertile land ideal for farming or development. Accessible by road.',
-    featured: false,
-    officialStore: false
-  },
-  {
-    id: 5,
-    type: 'commercial',
-    typeLabel: 'Commercial Property',
-    title: 'Shop Space in Mbale',
-    location: 'Mbale, Uganda',
-    price: 60000000,
-    image: 'https://images.unsplash.com/photo-1460518451285-97b6aa326961?auto=format&fit=crop&w=400&q=80',
-    detailsUrl: 'details.html?id=5',
-    agent: {
-      name: 'Biz Realty',
-      avatar: 'https://randomuser.me/api/portraits/women/12.jpg',
-      verified: true
-    },
-    description: 'Prime location, high foot traffic, secure and spacious.',
-    featured: false,
-    officialStore: false
-  },
-  {
-    id: 6,
-    type: 'land_rent',
-    typeLabel: 'Land for Rent',
-    title: 'Plot for Farming',
-    location: 'Lira, Uganda',
-    price: 2000000,
-    image: 'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=400&q=80',
-    detailsUrl: 'details.html?id=6',
-    agent: {
-      name: 'AgroLand',
-      avatar: 'https://randomuser.me/api/portraits/men/23.jpg',
-      verified: false
-    },
-    description: 'Affordable plot, ready for immediate use, water nearby.',
-    featured: false,
-    officialStore: false
-  }
-];
-
 // Utility: get query param
 function getQueryParam(name) {
   const url = new URL(window.location.href);
   return url.searchParams.get(name);
+}
+
+let allProperties = [];
+
+// Fetch all property listings from Firestore
+async function fetchProperties() {
+  const container = document.getElementById('properties-listings');
+  if (container) container.innerHTML = '<div class="col-12 text-center text-muted py-5">Loading properties...</div>';
+  try {
+    const snapshot = await db.collection('listings')
+      .where('listingType', '==', 'property')
+      .get();
+    allProperties = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    // On initial load, render all properties (no filter)
+    renderProperties(allProperties);
+    renderFeaturedProperties();
+  } catch (err) {
+    if (container) container.innerHTML = `<div class='col-12 text-danger text-center py-5'>Error loading properties: ${err.message}</div>`;
+  }
 }
 
 // Render property cards
@@ -323,28 +286,21 @@ function renderProperties(listings) {
     card.innerHTML = `
       <div class="card listing-card h-100 border-0 rounded-4 shadow-sm overflow-hidden position-relative card-modern">
         <div class="position-relative" style="aspect-ratio: 4/3; background: #f5f5f5;">
-          <img src="${listing.image}" class="card-img-top w-100 h-100 object-fit-cover" alt="${listing.title}" style="object-fit: cover; min-height: 180px;">
-          <span class="position-absolute top-0 start-0 m-2 px-3 py-1 badge bg-dark bg-opacity-75 text-white rounded-pill fs-6 shadow-sm">${listing.typeLabel}</span>
-          <span class="position-absolute bottom-0 end-0 m-2 px-3 py-1 badge bg-primary bg-opacity-90 text-white rounded-pill fs-6 shadow price-badge">USh ${listing.price.toLocaleString()}</span>
-          ${listing.featured ? '<span class=\'position-absolute top-0 end-0 m-2 px-2 py-1 badge bg-warning text-dark rounded-pill fs-6 shadow-sm\'>Featured</span>' : ''}
-          ${listing.officialStore ? '<span class=\'position-absolute top-0 end-0 m-2 px-2 py-1 badge bg-info text-white rounded-pill fs-6 shadow-sm\' style=\'right: 90px !important;\'><i class=\'bi bi-patch-check\'></i> Official Store</span>' : ''}
+          <img src="${listing.image || 'https://via.placeholder.com/400x300?text=No+Image'}" class="card-img-top w-100 h-100 object-fit-cover" alt="${listing.title || 'Property'}" style="object-fit: cover; min-height: 180px;">
+          <span class="position-absolute top-0 start-0 m-2 px-3 py-1 badge bg-dark bg-opacity-75 text-white rounded-pill fs-6 shadow-sm">${listing.propertyType || 'Property'}</span>
+          <span class="position-absolute bottom-0 end-0 m-2 px-3 py-1 badge bg-primary bg-opacity-90 text-white rounded-pill fs-6 shadow price-badge">USh ${listing.price ? Number(listing.price).toLocaleString() : 'N/A'}</span>
         </div>
         <div class="card-body d-flex flex-column p-3">
-          <h5 class="card-title fw-bold mb-1 fs-5">${listing.title}</h5>
-          <div class="mb-2 text-muted small"><i class="bi bi-geo-alt"></i> ${listing.location}</div>
-          <div class="d-flex align-items-center mb-2 gap-2">
-            <img src="${listing.agent.avatar}" alt="${listing.agent.name}" class="rounded-circle border border-2" width="32" height="32">
-            <span class="fw-semibold small">${listing.agent.name}</span>
-            ${listing.agent.verified ? '<i class="bi bi-patch-check-fill text-primary ms-1" title="Verified"></i>' : ''}
-          </div>
+          <h5 class="card-title fw-bold mb-1 fs-5">${listing.title || 'Untitled'}</h5>
+          <div class="mb-2 text-muted small"><i class="bi bi-geo-alt"></i> ${(listing.district || '') + (listing.town ? ', ' + listing.town : '')}</div>
           <div class="mb-2 text-secondary small">
             ${listing.bedrooms ? `<i class='bi bi-house-door'></i> ${listing.bedrooms} bd` : ''}
             ${listing.bathrooms ? `&nbsp; <i class='bi bi-droplet'></i> ${listing.bathrooms} ba` : ''}
           </div>
-          <div class="mb-2 text-truncate" title="${listing.description}">
-            <span class="small">${listing.description.length > 60 ? listing.description.slice(0, 60) + '…' : listing.description}</span>
+          <div class="mb-2 text-truncate" title="${listing.description || ''}">
+            <span class="small">${listing.description && listing.description.length > 60 ? listing.description.slice(0, 60) + '…' : (listing.description || '')}</span>
           </div>
-          <a href="${listing.detailsUrl}" class="btn btn-primary mt-auto w-100 rounded-pill">View Details</a>
+          <a href="details.html?id=${listing.id}" class="btn btn-primary mt-auto w-100 rounded-pill">View Details</a>
         </div>
       </div>
     `;
@@ -352,49 +308,12 @@ function renderProperties(listings) {
   });
 }
 
-// Filtering logic
-function filterProperties() {
-  let filtered = [...propertyListings];
-  const keyword = document.getElementById('keyword').value.trim().toLowerCase();
-  const type = document.getElementById('type').value;
-  const location = document.getElementById('location').value.trim().toLowerCase();
-  const minPrice = parseInt(document.getElementById('minPrice').value, 10) || 0;
-  const maxPrice = parseInt(document.getElementById('maxPrice').value, 10) || Infinity;
-
-  if (keyword) {
-    filtered = filtered.filter(l =>
-      l.title.toLowerCase().includes(keyword) ||
-      l.description.toLowerCase().includes(keyword)
-    );
-  }
-  if (type) filtered = filtered.filter(l => l.type === type);
-  if (location) filtered = filtered.filter(l => l.location.toLowerCase().includes(location));
-  filtered = filtered.filter(l => l.price >= minPrice && l.price <= maxPrice);
-
-  renderProperties(filtered);
-}
-
-document.getElementById('property-search-form').addEventListener('submit', function(e) {
-  e.preventDefault();
-  filterProperties();
-});
-
-document.addEventListener('DOMContentLoaded', function() {
-  // If type is in query param, set it and filter
-  const typeParam = getQueryParam('type');
-  if (typeParam) {
-    document.getElementById('type').value = typeParam;
-  }
-  filterProperties();
-  renderFeaturedProperties();
-});
-
 // Render featured properties
 function renderFeaturedProperties() {
   const container = document.getElementById('featured-properties-listings');
   if (!container) return;
   container.innerHTML = '';
-  const featured = propertyListings.filter(l => l.featured).slice(0, 3);
+  const featured = allProperties.filter(l => l.featured).slice(0, 3);
   if (!featured.length) {
     container.innerHTML = '<div class="col-12 text-center text-muted py-4">No featured properties at the moment.</div>';
     return;
@@ -405,34 +324,111 @@ function renderFeaturedProperties() {
     card.innerHTML = `
       <div class="card listing-card h-100 border-0 rounded-4 shadow-sm overflow-hidden position-relative card-modern">
         <div class="position-relative" style="aspect-ratio: 4/3; background: #f5f5f5;">
-          <img src="${listing.image}" class="card-img-top w-100 h-100 object-fit-cover" alt="${listing.title}" style="object-fit: cover; min-height: 180px;">
-          <span class="position-absolute top-0 start-0 m-2 px-3 py-1 badge bg-dark bg-opacity-75 text-white rounded-pill fs-6 shadow-sm">${listing.typeLabel}</span>
-          <span class="position-absolute bottom-0 end-0 m-2 px-3 py-1 badge bg-primary bg-opacity-90 text-white rounded-pill fs-6 shadow price-badge">USh ${listing.price.toLocaleString()}</span>
+          <img src="${listing.image || 'https://via.placeholder.com/400x300?text=No+Image'}" class="card-img-top w-100 h-100 object-fit-cover" alt="${listing.title}" style="object-fit: cover; min-height: 180px;">
+          <span class="position-absolute top-0 start-0 m-2 px-3 py-1 badge bg-dark bg-opacity-75 text-white rounded-pill fs-6 shadow-sm">${listing.typeLabel || prettifyType(listing.type)}</span>
+          <span class="position-absolute bottom-0 end-0 m-2 px-3 py-1 badge bg-primary bg-opacity-90 text-white rounded-pill fs-6 shadow price-badge">USh ${Number(listing.price).toLocaleString()}</span>
           ${listing.featured ? '<span class=\'position-absolute top-0 end-0 m-2 px-2 py-1 badge bg-warning text-dark rounded-pill fs-6 shadow-sm\'>Featured</span>' : ''}
           ${listing.officialStore ? '<span class=\'position-absolute top-0 end-0 m-2 px-2 py-1 badge bg-info text-white rounded-pill fs-6 shadow-sm\' style=\'right: 90px !important;\'><i class=\'bi bi-patch-check\'></i> Official Store</span>' : ''}
         </div>
         <div class="card-body d-flex flex-column p-3">
           <h5 class="card-title fw-bold mb-1 fs-5">${listing.title}</h5>
-          <div class="mb-2 text-muted small"><i class="bi bi-geo-alt"></i> ${listing.location}</div>
+          <div class="mb-2 text-muted small"><i class="bi bi-geo-alt"></i> ${listing.location || ''}</div>
           <div class="d-flex align-items-center mb-2 gap-2">
-            <img src="${listing.agent.avatar}" alt="${listing.agent.name}" class="rounded-circle border border-2" width="32" height="32">
-            <span class="fw-semibold small">${listing.agent.name}</span>
-            ${listing.agent.verified ? '<i class="bi bi-patch-check-fill text-primary ms-1" title="Verified"></i>' : ''}
+            <img src="${listing.agentAvatar || 'https://randomuser.me/api/portraits/lego/1.jpg'}" alt="${listing.agentName || ''}" class="rounded-circle border border-2" width="32" height="32">
+            <span class="fw-semibold small">${listing.agentName || ''}</span>
+            ${listing.agentVerified ? '<i class="bi bi-patch-check-fill text-primary ms-1" title="Verified"></i>' : ''}
           </div>
           <div class="mb-2 text-secondary small">
             ${listing.bedrooms ? `<i class='bi bi-house-door'></i> ${listing.bedrooms} bd` : ''}
             ${listing.bathrooms ? `&nbsp; <i class='bi bi-droplet'></i> ${listing.bathrooms} ba` : ''}
           </div>
-          <div class="mb-2 text-truncate" title="${listing.description}">
-            <span class="small">${listing.description.length > 60 ? listing.description.slice(0, 60) + '…' : listing.description}</span>
+          <div class="mb-2 text-truncate" title="${listing.description || ''}">
+            <span class="small">${listing.description && listing.description.length > 60 ? listing.description.slice(0, 60) + '…' : (listing.description || '')}</span>
           </div>
-          <a href="${listing.detailsUrl}" class="btn btn-primary mt-auto w-100 rounded-pill">View Details</a>
+          <a href="details.html?id=${listing.id}" class="btn btn-primary mt-auto w-100 rounded-pill">View Details</a>
         </div>
       </div>
     `;
     container.appendChild(card);
   });
 }
+
+// Helper: prettify type
+function prettifyType(type) {
+  switch(type) {
+    case 'house_sale': return 'House for Sale';
+    case 'house_rent': return 'House for Rent';
+    case 'land_sale': return 'Land for Sale';
+    case 'land_rent': return 'Land for Rent';
+    case 'commercial': return 'Commercial Property';
+    case 'vacation_short_stay': return 'Vacation & Short Stay';
+    default: return type;
+  }
+}
+
+// Map dropdown values to propertyType values in Firestore
+defaultTypeMap = {
+  'house_sale': 'house',
+  'house_rent': 'house',
+  'land_sale': 'land',
+  'land_rent': 'land',
+  'commercial': 'commercial',
+  'vacation_short_stay': 'vacation_short_stay'
+};
+
+// Filtering logic
+function filterProperties() {
+  let filtered = [...allProperties];
+  const keyword = document.getElementById('keyword').value.trim().toLowerCase();
+  const type = document.getElementById('type').value;
+  const location = document.getElementById('location').value.trim().toLowerCase();
+  const minPrice = parseInt(document.getElementById('minPrice').value, 10) || 0;
+  const maxPrice = parseInt(document.getElementById('maxPrice').value, 10) || Infinity;
+
+  if (keyword) {
+    filtered = filtered.filter(l =>
+      (l.title && l.title.toLowerCase().includes(keyword)) ||
+      (l.description && l.description.toLowerCase().includes(keyword)) ||
+      (l.district && l.district.toLowerCase().includes(keyword)) ||
+      (l.town && l.town.toLowerCase().includes(keyword))
+    );
+  }
+  // Map dropdown value to propertyType for filtering
+  if (type) {
+    const mappedType = defaultTypeMap[type] || type;
+    filtered = filtered.filter(l => l.propertyType && l.propertyType.toLowerCase() === mappedType.toLowerCase());
+  }
+  // Use district and town for location filtering
+  if (location) filtered = filtered.filter(l =>
+    (l.district && l.district.toLowerCase().includes(location)) ||
+    (l.town && l.town.toLowerCase().includes(location))
+  );
+  // Only filter by price if price exists
+  filtered = filtered.filter(l => {
+    if (l.price === undefined || l.price === null || isNaN(Number(l.price))) return true;
+    return Number(l.price) >= minPrice && Number(l.price) <= maxPrice;
+  });
+
+  renderProperties(filtered);
+}
+
+document.getElementById('property-search-form').addEventListener('submit', function(e) {
+  e.preventDefault();
+  filterProperties();
+});
+
+document.addEventListener('DOMContentLoaded', async function() {
+  // If type is in query param, set it and filter
+  const typeParam = getQueryParam('type');
+  if (typeParam) {
+    document.getElementById('type').value = typeParam;
+  }
+  await fetchProperties();
+  // Only filter if a type param is present (user came from a category link)
+  if (typeParam) {
+    filterProperties();
+  }
+});
     </script>
 </body>
 </html>

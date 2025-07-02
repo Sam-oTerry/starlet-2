@@ -6,7 +6,7 @@
   <title>Dashboard - Starlet Properties</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="/css/style.css">
   <style>
     body {
       font-family: 'Inter', Arial, sans-serif;
@@ -267,9 +267,9 @@
       <div class="sidebar-brand"><span class="brand-star">Star</span><span class="brand-let">Let</span></div>
       <nav class="nav flex-column">
         <a class="nav-link active" href="#"><i class="bi bi-speedometer2"></i> Dashboard</a>
-        <a class="nav-link" href="#"><i class="bi bi-list-ul"></i> My Listings</a>
-        <a class="nav-link" href="#"><i class="bi bi-plus-circle"></i> Add Listing</a>
-        <a class="nav-link" href="#"><i class="bi bi-chat-dots"></i> Messages</a>
+        <a class="nav-link" href="mylistings.html"><i class="bi bi-list-ul"></i> My Listings</a>
+        <a class="nav-link" href="addlistings.html"><i class="bi bi-plus-circle"></i> Add Listing</a>
+        <a class="nav-link" href="messaging.html"><i class="bi bi-chat-dots"></i> Messages</a>
         <a class="nav-link" href="#"><i class="bi bi-shop"></i> Store Profile</a>
         <a class="nav-link" href="#"><i class="bi bi-gear"></i> Settings</a>
         <a class="nav-link" href="#"><i class="bi bi-box-arrow-right"></i> Logout</a>
@@ -363,5 +363,84 @@
     </main>
   </div>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyDH1sMk2NwceMAEfvH07azxaoPXpOI1Sek",
+      authDomain: "starlet-properties-41509.firebaseapp.com",
+      projectId: "starlet-properties-41509",
+      storageBucket: "starlet-properties-41509.appspot.com",
+      messagingSenderId: "393372988481",
+      appId: "1:393372988481:web:c92584d7408296457b02c0",
+      measurementId: "G-F02K9SP07C"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    // Auth check and load user/store info
+    firebase.auth().onAuthStateChanged(async function(user) {
+      if (!user) {
+        window.location.href = 'login.html';
+        return;
+      }
+      // Update profile summary
+      document.querySelector('.profile-avatar img').src = user.photoURL || 'https://randomuser.me/api/portraits/men/32.jpg';
+      document.querySelector('.profile-avatar img').alt = user.displayName || user.email || 'User';
+      document.querySelector('.profile-info .name').textContent = user.displayName || user.email || 'User';
+      document.querySelector('.profile-info .role').textContent = 'Agent';
+      document.querySelector('.welcome').textContent = `Welcome, ${user.displayName || user.email || 'User'}!`;
+      // Load store info for this user (optional)
+      const storeSnap = await db.collection('stores').where('userId', '==', user.uid).orderBy('createdAt', 'desc').limit(1).get();
+      if (!storeSnap.empty) {
+        const store = storeSnap.docs[0].data();
+        document.querySelector('.profile-info .role').textContent = store.name ? `Store Owner (${store.name})` : 'Store Owner';
+      }
+      // Load stats and recent listings
+      loadStatsAndListings(user.uid);
+    });
+
+    async function loadStatsAndListings(userId) {
+      // Stats
+      const listingsSnap = await db.collection('listings').where('userId', '==', userId).get();
+      let active = 0, pending = 0, sold = 0, total = 0;
+      listingsSnap.forEach(doc => {
+        const d = doc.data();
+        total++;
+        if (d.status === 'Active') active++;
+        else if (d.status === 'Pending') pending++;
+        else if (d.status === 'Sold') sold++;
+      });
+      const statCards = document.querySelectorAll('.stat-card');
+      if (statCards.length >= 4) {
+        statCards[0].querySelector('.stat-value').textContent = active;
+        statCards[1].querySelector('.stat-value').textContent = pending;
+        statCards[2].querySelector('.stat-value').textContent = sold;
+        statCards[3].querySelector('.stat-value').textContent = total;
+      }
+      // Recent listings
+      const tbody = document.querySelector('.recent-table tbody');
+      tbody.innerHTML = '';
+      let count = 0;
+      listingsSnap.forEach(doc => {
+        if (count >= 5) return; // Show up to 5 recent
+        const d = doc.data();
+        tbody.innerHTML += `
+          <tr>
+            <td>${d.title || ''}</td>
+            <td>${d.status ? `<span class="badge bg-success">${d.status}</span>` : ''}</td>
+            <td>${d.date || ''}</td>
+            <td>${d.views || 0}</td>
+            <td><a href="#" class="btn btn-sm btn-outline-primary">View</a></td>
+          </tr>
+        `;
+        count++;
+      });
+      if (count === 0) {
+        tbody.innerHTML = '<tr><td colspan="5">No recent listings found.</td></tr>';
+      }
+    }
+  </script>
 </body>
-</html> 
+</html>

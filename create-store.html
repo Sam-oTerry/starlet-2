@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Agent Store - Starlet Properties</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { background: #f8f9fa; }
+        .create-store-container {
+            max-width: 600px;
+            margin: 3rem auto;
+            background: #fff;
+            border-radius: 15px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+            padding: 2.5rem 2rem;
+        }
+        .form-label { font-weight: 500; }
+        .form-control, .form-select { border-radius: 8px; }
+        .form-section-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            color: #0d6efd;
+        }
+        .btn-primary { width: 100%; }
+        .logo-preview {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar (copied from index.html) -->
+    <nav class="navbar navbar-expand-lg navbar-custom">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">
+                <span class="brand-star">Star</span> <span class="brand-let">Let</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html"><i class="bi bi-house-door"></i> Home</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="categoriesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-grid"></i> Categories
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="categoriesDropdown">
+                            <li><h6 class="dropdown-header">Properties</h6></li>
+                            <li><a class="dropdown-item" href="properties.html?type=house_sale">Houses for Sale</a></li>
+                            <li><a class="dropdown-item" href="properties.html?type=house_rent">Houses for Rent</a></li>
+                            <li><a class="dropdown-item" href="properties.html?type=land_sale">Land for Sale</a></li>
+                            <li><a class="dropdown-item" href="properties.html?type=land_rent">Land for Rent</a></li>
+                            <li><a class="dropdown-item" href="properties.html?type=commercial">Commercial Property</a></li>
+                            <li><a class="dropdown-item" href="properties.html?type=vacation_short_stay">Vacation & Short Stay</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><h6 class="dropdown-header">Vehicles</h6></li>
+                            <li><a class="dropdown-item" href="vehicles.html?type=cars">Cars</a></li>
+                            <li><a class="dropdown-item" href="vehicles.html?type=motorcycles">Motorcycles</a></li>
+                            <li><a class="dropdown-item" href="vehicles.html?type=trucks">Trucks</a></li>
+                            <li><a class="dropdown-item" href="vehicles.html?type=buses">Buses</a></li>
+                            <li><a class="dropdown-item" href="vehicles.html?type=heavy_machinery">Heavy Machinery</a></li>
+                            <li><a class="dropdown-item" href="vehicles.html?type=bicycles_ebikes">Bicycles & E-bikes</a></li>
+                            <li><a class="dropdown-item" href="vehicles.html?type=boats_watercraft">Boats & Watercraft</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/web-application/pages/users/add-property.html"><i class="bi bi-tags"></i> Sell</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="moreDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-three-dots"></i> More
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="moreDropdown">
+                            <li><a class="dropdown-item" href="properties.html"><i class="bi bi-building"></i> Properties</a></li>
+                            <li><a class="dropdown-item" href="vehicles.html"><i class="bi bi-car-front"></i> Vehicles</a></li>
+                            <li><a class="dropdown-item" href="stores.html"><i class="bi bi-shop"></i> Stores</a></li>
+                            <li><a class="dropdown-item" href="resources.html"><i class="bi bi-book"></i> Resources</a></li>
+                            <li><a class="dropdown-item" href="about.html"><i class="bi bi-info-circle"></i> About</a></li>
+                            <li><a class="dropdown-item" href="contact.html"><i class="bi bi-envelope"></i> Contact</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="login.html"><i class="bi bi-box-arrow-in-right"></i> Login</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="register.html"><i class="bi bi-person-plus"></i> Sign Up</a>
+                    </li>
+                    <li class="nav-item" id="nav-messaging-link" style="display:none;">
+                        <a class="nav-link" href="messaging.html"><i class="bi bi-chat-dots"></i> Messages</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <div class="container">
+        <div class="create-store-container">
+            <div class="form-section-title">Create Your Agent Store</div>
+            <form id="createStoreForm">
+                <div class="mb-3">
+                    <label for="storeName" class="form-label">Store Name</label>
+                    <input type="text" class="form-control" id="storeName" name="storeName" required>
+                </div>
+                <div class="mb-3">
+                    <label for="storeDescription" class="form-label">Description</label>
+                    <textarea class="form-control" id="storeDescription" name="storeDescription" rows="3" required></textarea>
+                </div>
+                <div class="mb-3">
+                    <label for="storeLogo" class="form-label">Store Logo</label>
+                    <input class="form-control" type="file" id="storeLogo" name="storeLogo" accept="image/*">
+                    <img id="logoPreview" class="logo-preview" alt="Logo Preview">
+                </div>
+                <div class="mb-3">
+                    <label for="storeContact" class="form-label">Contact Number</label>
+                    <input type="tel" class="form-control" id="storeContact" name="storeContact" required>
+                </div>
+                <div class="mb-3">
+                    <label for="storeEmail" class="form-label">Contact Email</label>
+                    <input type="email" class="form-control" id="storeEmail" name="storeEmail" required readonly>
+                </div>
+                <div class="mb-3">
+                    <label for="storeLocation" class="form-label">Location</label>
+                    <input type="text" class="form-control" id="storeLocation" name="storeLocation" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Create Store</button>
+            </form>
+        </div>
+    </div>
+    <!-- Footer (copied from index.html) -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4 mb-4">
+                    <h4>About Starlet Properties</h4>
+                    <p>Uganda's premier real estate and vehicle marketplace, connecting buyers and sellers across the country.</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h4>Properties</h4>
+                    <ul>
+                        <li><a href="properties.html?type=house_sale">Houses for Sale</a></li>
+                        <li><a href="properties.html?type=house_rent">Houses for Rent</a></li>
+                        <li><a href="properties.html?type=land_sale">Land for Sale</a></li>
+                        <li><a href="properties.html?type=land_rent">Land for Rent</a></li>
+                        <li><a href="properties.html?type=commercial">Commercial Property</a></li>
+                        <li><a href="properties.html?type=vacation_short_stay">Vacation & Short Stay</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h4>Vehicles</h4>
+                    <ul>
+                        <li><a href="vehicles.html?type=cars">Cars</a></li>
+                        <li><a href="vehicles.html?type=motorcycles">Motorcycles</a></li>
+                        <li><a href="vehicles.html?type=trucks">Trucks</a></li>
+                        <li><a href="vehicles.html?type=buses">Buses</a></li>
+                        <li><a href="vehicles.html?type=heavy_machinery">Heavy Machinery</a></li>
+                        <li><a href="vehicles.html?type=bicycles_ebikes">Bicycles & E-bikes</a></li>
+                        <li><a href="vehicles.html?type=boats_watercraft">Boats & Watercraft</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h4>Company</h4>
+                    <ul>
+                        <li><a href="about.html">About Us</a></li>
+                        <li><a href="contact.html">Contact</a></li>
+                        <li><a href="resources.html">Resources</a></li>
+                        <li><a href="stores.html">Our Stores</a></li>
+                        <li><a href="privacy.html">Privacy Policy</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h4>Contact</h4>
+                    <ul>
+                        <li><a href="tel:+256123456789"><i class="bi bi-telephone"></i> +256 123 456 789</a></li>
+                        <li><a href="mailto:info@starlet.co.ug"><i class="bi bi-envelope"></i> info@starlet.co.ug</a></li>
+                        <li><a href="#"><i class="bi bi-geo-alt"></i> Kampala, Uganda</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p class="mb-0">&copy; 2024 Starlet Properties. All rights reserved.</p>
+                    </div>
+                    <div class="col-md-6 text-md-end">
+                        <a href="terms.html" class="me-3">Terms of Service</a>
+                        <a href="privacy.html">Privacy Policy</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script>
+      // Firebase configuration (copied from index.html)
+      const firebaseConfig = {
+        apiKey: "AIzaSyDH1sMk2NwceMAEfvH07azxaoPXpOI1Sek",
+        authDomain: "starlet-properties-41509.firebaseapp.com",
+        projectId: "starlet-properties-41509",
+        storageBucket: "starlet-properties-41509.appspot.com",
+        messagingSenderId: "393372988481",
+        appId: "1:393372988481:web:c92584d7408296457b02c0",
+        measurementId: "G-F02K9SP07C"
+      };
+      firebase.initializeApp(firebaseConfig);
+      const db = firebase.firestore();
+      // Auth check: redirect to login if not logged in
+      firebase.auth().onAuthStateChanged(function(user) {
+        if (!user) {
+          window.location.href = 'login.html';
+        } else {
+          // Optionally, store user info for form submission
+          window.currentUser = user;
+        }
+      });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+    // Show/hide messaging link in navbar based on auth state
+    (function() {
+      function updateMessagingLink(user) {
+        var link = document.getElementById('nav-messaging-link');
+        if (!link) return;
+        link.style.display = user ? '' : 'none';
+      }
+      if (window.firebase && firebase.auth) {
+        firebase.auth().onAuthStateChanged(updateMessagingLink);
+      } else {
+        updateMessagingLink(null);
+      }
+    })();
+    // Logo preview
+    document.getElementById('storeLogo').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        const preview = document.getElementById('logoPreview');
+        if (file) {
+            preview.src = URL.createObjectURL(file);
+            preview.style.display = 'block';
+        } else {
+            preview.src = '';
+            preview.style.display = 'none';
+        }
+    });
+    // Set user's email and name in the form on auth
+    firebase.auth().onAuthStateChanged(function(user) {
+      if (!user) {
+        window.location.href = 'login.html';
+      } else {
+        window.currentUser = user;
+        document.getElementById('storeEmail').value = user.email || '';
+        if (user.displayName) {
+          document.getElementById('storeContact').value = user.displayName;
+        }
+      }
+    });
+    // Form submit handler: save store to Firestore and redirect
+    document.getElementById('createStoreForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const user = window.currentUser;
+        if (!user) {
+          alert('You must be logged in to create a store.');
+          return;
+        }
+        // Collect form data
+        const storeName = document.getElementById('storeName').value;
+        const storeDescription = document.getElementById('storeDescription').value;
+        const storeContact = document.getElementById('storeContact').value || (user.displayName || '');
+        const storeEmail = user.email || '';
+        const storeLocation = document.getElementById('storeLocation').value;
+        let logoUrl = '';
+        // Optionally handle logo upload (not implemented here)
+        // Save store to Firestore
+        try {
+          await db.collection('stores').add({
+            name: storeName,
+            description: storeDescription,
+            contact: storeContact,
+            email: storeEmail,
+            location: storeLocation,
+            logoUrl: logoUrl,
+            userId: user.uid,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+          });
+          window.location.href = 'dashboard.html';
+        } catch (err) {
+          alert('Error creating store: ' + err.message);
+        }
+    });
+    </script>
+</body>
+</html>

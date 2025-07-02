@@ -313,58 +313,52 @@
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- Custom Scripts -->
-    <script src="js/main.js"></script>
+    <!-- Firebase App (the core Firebase SDK) -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <!-- Firebase Auth -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <!-- Firebase Firestore -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <!-- Firebase config and initialization (must come BEFORE custom scripts) -->
     <script>
-// Dummy data (filtered from main.js dummyListings)
-const vehicleListings = [
-  {
-    id: 3,
-    type: 'car',
-    typeLabel: 'Car',
-    title: 'Toyota Premio 2015',
-    location: 'Kampala, Uganda',
-    price: 35000000,
-    image: 'https://images.unsplash.com/photo-1511918984145-48de785d4c4e?auto=format&fit=crop&w=400&q=80',
-    detailsUrl: 'details.html?id=3',
-    agent: {
-      name: 'AutoMart',
-      avatar: 'https://randomuser.me/api/portraits/women/65.jpg',
-      verified: true
-    },
-    description: 'Well-maintained, low mileage, automatic transmission, silver color.',
-    year: 2015,
-    mileage: 68000,
-    featured: false,
-    officialStore: true
-  },
-  {
-    id: 4,
-    type: 'motorcycle',
-    typeLabel: 'Motorcycle',
-    title: 'Bajaj Boxer 2020',
-    location: 'Arua, Uganda',
-    price: 4500000,
-    image: 'https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=400&q=80',
-    detailsUrl: 'details.html?id=4',
-    agent: {
-      name: 'MotoHub',
-      avatar: 'https://randomuser.me/api/portraits/men/77.jpg',
-      verified: false
-    },
-    description: 'Reliable motorcycle, perfect for city and upcountry roads.',
-    year: 2020,
-    mileage: 12000,
-    featured: true,
-    officialStore: false
-  }
-  // Add more vehicle listings as needed
-];
-
+const firebaseConfig = {
+  apiKey: "AIzaSyDH1sMk2NwceMAEfvH07azxaoPXpOI1Sek",
+  authDomain: "starlet-properties-41509.firebaseapp.com",
+  projectId: "starlet-properties-41509",
+  storageBucket: "starlet-properties-41509.firebasestorage.app",
+  messagingSenderId: "393372988481",
+  appId: "1:393372988481:web:c92584d7408296457b02c0",
+  measurementId: "G-F02K9SP07C"
+};
+if (!firebase.apps.length) {
+  firebase.initializeApp(firebaseConfig);
+}
+const db = firebase.firestore();
+    </script>
+    <!-- Custom Scripts (must come AFTER Firebase is initialized) -->
+    <script>
 // Utility: get query param
 function getQueryParam(name) {
   const url = new URL(window.location.href);
   return url.searchParams.get(name);
+}
+
+let allVehicles = [];
+
+// Fetch all vehicle listings from Firestore
+async function fetchVehicles() {
+  const container = document.getElementById('vehicles-listings');
+  if (container) container.innerHTML = '<div class="col-12 text-center text-muted py-5">Loading vehicles...';
+  try {
+    const snapshot = await db.collection('listings')
+      .where('listingType', '==', 'vehicle')
+      .get();
+    allVehicles = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    renderVehicles(allVehicles);
+    renderFeaturedVehicles();
+  } catch (err) {
+    if (container) container.innerHTML = `<div class='col-12 text-danger text-center py-5'>Error loading vehicles: ${err.message}</div>`;
+  }
 }
 
 // Render vehicle cards
@@ -381,28 +375,28 @@ function renderVehicles(listings) {
     card.innerHTML = `
       <div class="card listing-card h-100 border-0 rounded-4 shadow-sm overflow-hidden position-relative card-modern">
         <div class="position-relative" style="aspect-ratio: 4/3; background: #f5f5f5;">
-          <img src="${listing.image}" class="card-img-top w-100 h-100 object-fit-cover" alt="${listing.title}" style="object-fit: cover; min-height: 180px;">
-          <span class="position-absolute top-0 start-0 m-2 px-3 py-1 badge bg-dark bg-opacity-75 text-white rounded-pill fs-6 shadow-sm">${listing.typeLabel}</span>
-          <span class="position-absolute bottom-0 end-0 m-2 px-3 py-1 badge bg-primary bg-opacity-90 text-white rounded-pill fs-6 shadow price-badge">USh ${listing.price.toLocaleString()}</span>
+          <img src="${listing.image || 'https://via.placeholder.com/400x300?text=No+Image'}" class="card-img-top w-100 h-100 object-fit-cover" alt="${listing.title || 'Vehicle'}" style="object-fit: cover; min-height: 180px;">
+          <span class="position-absolute top-0 start-0 m-2 px-3 py-1 badge bg-dark bg-opacity-75 text-white rounded-pill fs-6 shadow-sm">${listing.typeLabel || prettifyVehicleType(listing.type)}</span>
+          <span class="position-absolute bottom-0 end-0 m-2 px-3 py-1 badge bg-primary bg-opacity-90 text-white rounded-pill fs-6 shadow price-badge">USh ${listing.price ? Number(listing.price).toLocaleString() : 'N/A'}</span>
           ${listing.featured ? '<span class=\'position-absolute top-0 end-0 m-2 px-2 py-1 badge bg-warning text-dark rounded-pill fs-6 shadow-sm\'>Featured</span>' : ''}
           ${listing.officialStore ? '<span class=\'position-absolute top-0 end-0 m-2 px-2 py-1 badge bg-info text-white rounded-pill fs-6 shadow-sm\' style=\'right: 90px !important;\'><i class=\'bi bi-patch-check\'></i> Official Store</span>' : ''}
         </div>
         <div class="card-body d-flex flex-column p-3">
-          <h5 class="card-title fw-bold mb-1 fs-5">${listing.title}</h5>
-          <div class="mb-2 text-muted small"><i class="bi bi-geo-alt"></i> ${listing.location}</div>
+          <h5 class="card-title fw-bold mb-1 fs-5">${listing.title || 'Untitled'}</h5>
+          <div class="mb-2 text-muted small"><i class="bi bi-geo-alt"></i> ${listing.location || ''}</div>
           <div class="d-flex align-items-center mb-2 gap-2">
-            <img src="${listing.agent.avatar}" alt="${listing.agent.name}" class="rounded-circle border border-2" width="32" height="32">
-            <span class="fw-semibold small">${listing.agent.name}</span>
-            ${listing.agent.verified ? '<i class="bi bi-patch-check-fill text-primary ms-1" title="Verified"></i>' : ''}
+            <img src="${listing.agentAvatar || 'https://randomuser.me/api/portraits/lego/1.jpg'}" alt="${listing.agentName || ''}" class="rounded-circle border border-2" width="32" height="32">
+            <span class="fw-semibold small">${listing.agentName || ''}</span>
+            ${listing.agentVerified ? '<i class="bi bi-patch-check-fill text-primary ms-1" title="Verified"></i>' : ''}
           </div>
           <div class="mb-2 text-secondary small">
             ${listing.year ? `<i class='bi bi-calendar'></i> ${listing.year}` : ''}
-            ${listing.mileage ? `&nbsp; <i class='bi bi-speedometer2'></i> ${listing.mileage.toLocaleString()} km` : ''}
+            ${listing.mileage ? `&nbsp; <i class='bi bi-speedometer2'></i> ${Number(listing.mileage).toLocaleString()} km` : ''}
           </div>
-          <div class="mb-2 text-truncate" title="${listing.description}">
-            <span class="small">${listing.description.length > 60 ? listing.description.slice(0, 60) + '…' : listing.description}</span>
+          <div class="mb-2 text-truncate" title="${listing.description || ''}">
+            <span class="small">${listing.description && listing.description.length > 60 ? listing.description.slice(0, 60) + '…' : (listing.description || '')}</span>
           </div>
-          <a href="${listing.detailsUrl}" class="btn btn-primary mt-auto w-100 rounded-pill">View Details</a>
+          <a href="details.html?id=${listing.id}" class="btn btn-primary mt-auto w-100 rounded-pill">View Details</a>
         </div>
       </div>
     `;
@@ -410,9 +404,23 @@ function renderVehicles(listings) {
   });
 }
 
+// Helper: prettify vehicle type
+function prettifyVehicleType(type) {
+  switch(type) {
+    case 'car': return 'Car';
+    case 'motorcycle': return 'Motorcycle';
+    case 'truck': return 'Truck';
+    case 'bus': return 'Bus';
+    case 'heavy_machinery': return 'Heavy Machinery';
+    case 'bicycle_ebike': return 'Bicycle & E-bike';
+    case 'boat_watercraft': return 'Boat & Watercraft';
+    default: return type;
+  }
+}
+
 // Filtering logic
 function filterVehicles() {
-  let filtered = [...vehicleListings];
+  let filtered = [...allVehicles];
   const keyword = document.getElementById('keyword').value.trim().toLowerCase();
   const type = document.getElementById('type').value;
   const location = document.getElementById('location').value.trim().toLowerCase();
@@ -424,13 +432,16 @@ function filterVehicles() {
 
   if (keyword) {
     filtered = filtered.filter(l =>
-      l.title.toLowerCase().includes(keyword) ||
-      l.description.toLowerCase().includes(keyword)
+      (l.title && l.title.toLowerCase().includes(keyword)) ||
+      (l.description && l.description.toLowerCase().includes(keyword))
     );
   }
   if (type) filtered = filtered.filter(l => l.type === type);
-  if (location) filtered = filtered.filter(l => l.location.toLowerCase().includes(location));
-  filtered = filtered.filter(l => l.price >= minPrice && l.price <= maxPrice);
+  if (location) filtered = filtered.filter(l => l.location && l.location.toLowerCase().includes(location));
+  filtered = filtered.filter(l => {
+    if (l.price === undefined || l.price === null || isNaN(Number(l.price))) return true;
+    return Number(l.price) >= minPrice && Number(l.price) <= maxPrice;
+  });
   filtered = filtered.filter(l => !l.year || (l.year >= minYear && l.year <= maxYear));
   filtered = filtered.filter(l => !l.mileage || l.mileage <= maxMileage);
 
@@ -442,14 +453,16 @@ document.getElementById('vehicle-search-form').addEventListener('submit', functi
   filterVehicles();
 });
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', async function() {
   // If type is in query param, set it and filter
   const typeParam = getQueryParam('type');
   if (typeParam) {
     document.getElementById('type').value = typeParam;
   }
-  filterVehicles();
-  renderFeaturedVehicles();
+  await fetchVehicles();
+  if (typeParam) {
+    filterVehicles();
+  }
 });
 
 // Render featured vehicles
@@ -457,7 +470,7 @@ function renderFeaturedVehicles() {
   const container = document.getElementById('featured-vehicles-listings');
   if (!container) return;
   container.innerHTML = '';
-  const featured = vehicleListings.filter(l => l.featured).slice(0, 3);
+  const featured = allVehicles.filter(l => l.featured).slice(0, 3);
   if (!featured.length) {
     container.innerHTML = '<div class="col-12 text-center text-muted py-4">No featured vehicles at the moment.</div>';
     return;
@@ -468,28 +481,28 @@ function renderFeaturedVehicles() {
     card.innerHTML = `
       <div class="card listing-card h-100 border-0 rounded-4 shadow-sm overflow-hidden position-relative card-modern">
         <div class="position-relative" style="aspect-ratio: 4/3; background: #f5f5f5;">
-          <img src="${listing.image}" class="card-img-top w-100 h-100 object-fit-cover" alt="${listing.title}" style="object-fit: cover; min-height: 180px;">
-          <span class="position-absolute top-0 start-0 m-2 px-3 py-1 badge bg-dark bg-opacity-75 text-white rounded-pill fs-6 shadow-sm">${listing.typeLabel}</span>
-          <span class="position-absolute bottom-0 end-0 m-2 px-3 py-1 badge bg-primary bg-opacity-90 text-white rounded-pill fs-6 shadow price-badge">USh ${listing.price.toLocaleString()}</span>
+          <img src="${listing.image || 'https://via.placeholder.com/400x300?text=No+Image'}" class="card-img-top w-100 h-100 object-fit-cover" alt="${listing.title || 'Vehicle'}" style="object-fit: cover; min-height: 180px;">
+          <span class="position-absolute top-0 start-0 m-2 px-3 py-1 badge bg-dark bg-opacity-75 text-white rounded-pill fs-6 shadow-sm">${listing.typeLabel || prettifyVehicleType(listing.type)}</span>
+          <span class="position-absolute bottom-0 end-0 m-2 px-3 py-1 badge bg-primary bg-opacity-90 text-white rounded-pill fs-6 shadow price-badge">USh ${listing.price ? Number(listing.price).toLocaleString() : 'N/A'}</span>
           ${listing.featured ? '<span class=\'position-absolute top-0 end-0 m-2 px-2 py-1 badge bg-warning text-dark rounded-pill fs-6 shadow-sm\'>Featured</span>' : ''}
           ${listing.officialStore ? '<span class=\'position-absolute top-0 end-0 m-2 px-2 py-1 badge bg-info text-white rounded-pill fs-6 shadow-sm\' style=\'right: 90px !important;\'><i class=\'bi bi-patch-check\'></i> Official Store</span>' : ''}
         </div>
         <div class="card-body d-flex flex-column p-3">
-          <h5 class="card-title fw-bold mb-1 fs-5">${listing.title}</h5>
-          <div class="mb-2 text-muted small"><i class="bi bi-geo-alt"></i> ${listing.location}</div>
+          <h5 class="card-title fw-bold mb-1 fs-5">${listing.title || 'Untitled'}</h5>
+          <div class="mb-2 text-muted small"><i class="bi bi-geo-alt"></i> ${listing.location || ''}</div>
           <div class="d-flex align-items-center mb-2 gap-2">
-            <img src="${listing.agent.avatar}" alt="${listing.agent.name}" class="rounded-circle border border-2" width="32" height="32">
-            <span class="fw-semibold small">${listing.agent.name}</span>
-            ${listing.agent.verified ? '<i class="bi bi-patch-check-fill text-primary ms-1" title="Verified"></i>' : ''}
+            <img src="${listing.agentAvatar || 'https://randomuser.me/api/portraits/lego/1.jpg'}" alt="${listing.agentName || ''}" class="rounded-circle border border-2" width="32" height="32">
+            <span class="fw-semibold small">${listing.agentName || ''}</span>
+            ${listing.agentVerified ? '<i class="bi bi-patch-check-fill text-primary ms-1" title="Verified"></i>' : ''}
           </div>
           <div class="mb-2 text-secondary small">
             ${listing.year ? `<i class='bi bi-calendar'></i> ${listing.year}` : ''}
-            ${listing.mileage ? `&nbsp; <i class='bi bi-speedometer2'></i> ${listing.mileage.toLocaleString()} km` : ''}
+            ${listing.mileage ? `&nbsp; <i class='bi bi-speedometer2'></i> ${Number(listing.mileage).toLocaleString()} km` : ''}
           </div>
-          <div class="mb-2 text-truncate" title="${listing.description}">
-            <span class="small">${listing.description.length > 60 ? listing.description.slice(0, 60) + '…' : listing.description}</span>
+          <div class="mb-2 text-truncate" title="${listing.description || ''}">
+            <span class="small">${listing.description && listing.description.length > 60 ? listing.description.slice(0, 60) + '…' : (listing.description || '')}</span>
           </div>
-          <a href="${listing.detailsUrl}" class="btn btn-primary mt-auto w-100 rounded-pill">View Details</a>
+          <a href="details.html?id=${listing.id}" class="btn btn-primary mt-auto w-100 rounded-pill">View Details</a>
         </div>
       </div>
     `;
