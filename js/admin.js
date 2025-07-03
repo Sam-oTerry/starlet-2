@@ -80,8 +80,24 @@ window.formatDate = formatDate;
 window.formatPrice = formatPrice;
 window.confirmAction = confirmAction;
 
+// Logout functionality
+function logout() {
+  if (!window.confirm('Are you sure you want to log out?')) return;
+  auth.signOut().then(() => {
+    window.location.href = '/index.html';
+  });
+}
+window.logout = logout;
+
 // Enforce admin authentication
 window.addEventListener('DOMContentLoaded', function() {
+  // Attach logout handler to all .logout-link elements
+  document.querySelectorAll('.logout-link').forEach(el => {
+    el.addEventListener('click', function(e) {
+      e.preventDefault();
+      logout();
+    });
+  });
   enforceAuth('admin').then(user => {
     // ... existing admin page logic ...
   });

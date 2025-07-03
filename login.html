@@ -446,7 +446,30 @@
       }
       try {
         await auth.signInWithEmailAndPassword(email, password);
-        window.location.href = 'index.html';
+        // Check if first time login by looking for user doc
+        const user = auth.currentUser;
+        const userDocRef = db.collection('users').doc(user.uid);
+        const userDoc = await userDocRef.get();
+        let userInfo = {
+          uid: user.uid,
+          email: user.email,
+          displayName: user.displayName || '',
+        };
+        if (userDoc.exists) {
+          const data = userDoc.data();
+          userInfo = { ...userInfo, ...data };
+        }
+        localStorage.setItem('starletUser', JSON.stringify(userInfo));
+        if (!userDoc.exists) {
+          alert('Welcome to Starlet Properties!');
+          // Optionally, create the user doc here if needed
+        }
+        // Check if admin
+        if (email.toLowerCase() === 'admin@starletproperties.ug') {
+          window.location.href = 'pages/admin/dashboard.html';
+        } else {
+          window.location.href = 'index.html';
+        }
       } catch (err) {
         hideLoading();
         showError(err.message);

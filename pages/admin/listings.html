@@ -4,8 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin - Listings | Starlet Properties</title>
+    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Custom Styles -->
     <link rel="stylesheet" href="/css/style.css">
     <style>
         :root {
@@ -453,115 +458,193 @@
         }
     </style>
 </head>
-<body>
-    <div class="d-flex">
-        <!-- Sidebar -->
-        <nav class="sidebar d-flex flex-column flex-shrink-0 p-3">
-            <a href="dashboard.html" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-decoration-none">
-                <span class="fs-4 fw-bold"><span class="brand-star">Star</span><span class="brand-let">Let</span> Admin</span>
+<body class="admin-panel">
+    <!-- Admin Sidebar -->
+    <nav class="admin-sidebar">
+        <div class="sidebar-brand mb-4"><span class="brand-star">Star</span><span class="brand-let">Let</span> Admin</div>
+        <div class="nav flex-column">
+            <a href="dashboard.html" class="nav-link"><i class="bi bi-speedometer2"></i> Dashboard</a>
+            <a href="listings.html" class="nav-link active"><i class="bi bi-list-ul"></i> Listings</a>
+            <a href="users.html" class="nav-link"><i class="bi bi-people"></i> Users</a>
+            <a href="stores.html" class="nav-link"><i class="bi bi-shop"></i> Stores</a>
+            <a href="official-store.html" class="nav-link"><i class="bi bi-patch-check"></i> Official Store</a>
+            <a href="analytics.html" class="nav-link"><i class="bi bi-bar-chart"></i> Analytics</a>
+            <a href="messages.html" class="nav-link"><i class="bi bi-chat-dots"></i> Messages</a>
+            <a href="reviews.html" class="nav-link"><i class="bi bi-star"></i> Reviews</a>
+            <a href="settings.html" class="nav-link"><i class="bi bi-gear"></i> Settings</a>
+            <a href="#" class="logout-link"><i class="bi bi-box-arrow-right"></i> Logout</a>
+        </div>
+    </nav>
+
+    <!-- Admin Navbar -->
+    <nav class="admin-navbar">
+        <div class="navbar-brand">
+            <span class="brand-star">Star</span><span class="brand-let">Let</span> Admin
+        </div>
+        <div class="profile-dropdown dropdown">
+            <a class="d-flex align-items-center text-decoration-none dropdown-toggle" href="#" id="profileDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                <span class="profile-avatar me-2">
+                    <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Admin">
+                </span>
+                <span>Admin</span>
             </a>
-            <hr>
-            <ul class="nav nav-pills flex-column mb-auto">
-                <li class="nav-item"><a href="dashboard.html" class="nav-link"><i class="bi bi-speedometer2"></i> Dashboard</a></li>
-                <li><a href="listings.html" class="nav-link active"><i class="bi bi-list-ul"></i> Listings</a></li>
-                <li><a href="users.html" class="nav-link"><i class="bi bi-people"></i> Users</a></li>
-                <li><a href="stores.html" class="nav-link"><i class="bi bi-shop"></i> Stores</a></li>
-                <li><a href="analytics.html" class="nav-link"><i class="bi bi-bar-chart"></i> Analytics</a></li>
-                <li><a href="#" class="nav-link"><i class="bi bi-gear"></i> Settings</a></li>
-                <li><a href="#" class="nav-link"><i class="bi bi-box-arrow-right"></i> Logout</a></li>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
+                <li><a class="dropdown-item" href="#">Profile</a></li>
+                <li><a class="dropdown-item" href="#">Settings</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item logout-link" href="#"><i class="bi bi-box-arrow-right"></i> Logout</a></li>
             </ul>
-        </nav>
-        <!-- Main Content -->
-        <div class="flex-grow-1">
-            <!-- Top Navbar -->
-            <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom shadow-sm">
-                <div class="container-fluid">
-                    <a class="navbar-brand fw-bold" href="dashboard.html">
-                        <span class="brand-star">Star</span><span class="brand-let">Let</span> Admin
-                    </a>
-                    <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="profileDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Admin" width="32" height="32" class="rounded-circle me-2"> Admin
-                            </a>
-                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
-                                <li><a class="dropdown-item" href="#">Profile</a></li>
-                                <li><a class="dropdown-item" href="#">Settings</a></li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" href="#">Logout</a></li>
-                            </ul>
-                        </li>
-                    </ul>
-                </div>
-            </nav>
-            <!-- Listings Content -->
-            <div class="dashboard-content">
-                <h2 class="mb-4">Manage Listings</h2>
-                <div class="card mb-4">
-                    <div class="card-body">
-                        <form class="row g-3" id="filter-form">
-                            <div class="col-md-3">
-                                <input type="text" class="form-control" id="search" placeholder="Search by title, agent, store...">
-                            </div>
-                            <div class="col-md-2">
-                                <select class="form-select" id="listingType">
-                                    <option value="">All Types</option>
-                                    <option value="property">Property</option>
-                                    <option value="vehicle">Vehicle</option>
-                                </select>
-                            </div>
-                            <div class="col-md-2">
-                                <select class="form-select" id="status">
-                                    <option value="">All Statuses</option>
-                                    <option value="pending">Pending</option>
-                                    <option value="approved">Approved</option>
-                                    <option value="rejected">Rejected</option>
-                                </select>
-                            </div>
-                            <div class="col-md-2">
-                                <button type="submit" class="btn btn-primary w-100"><i class="bi bi-funnel"></i> Filter</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-                <div class="card">
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table table-hover align-middle" id="listings-table">
-                                <thead>
-                                    <tr>
-                                        <th>Title</th>
-                                        <th>Type</th>
-                                        <th>Agent/Store</th>
-                                        <th>Status</th>
-                                        <th>Created</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <!-- Listings will be injected here by JS -->
-                                </tbody>
-                            </table>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main style="min-height: 100vh;">
+        <!-- Hero Section -->
+        <section class="hero-section">
+            <div class="container">
+                <h2 class="hero-title">Manage Listings</h2>
+                <p class="hero-subtitle">View, filter, approve, reject, and manage all property and vehicle listings</p>
+            </div>
+        </section>
+
+        <!-- Listings Content -->
+        <div class="container my-5">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <form class="row g-3" id="filter-form">
+                        <div class="col-md-3">
+                            <input type="text" class="form-control" id="search" placeholder="Search by title, agent, store...">
                         </div>
+                        <div class="col-md-2">
+                            <select class="form-select" id="listingType">
+                                <option value="">All Types</option>
+                                <option value="property">Property</option>
+                                <option value="vehicle">Vehicle</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <select class="form-select" id="status">
+                                <option value="">All Statuses</option>
+                                <option value="pending">Pending</option>
+                                <option value="approved">Approved</option>
+                                <option value="rejected">Rejected</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <button type="submit" class="btn btn-primary w-100"><i class="bi bi-funnel"></i> Filter</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="card card-modern">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle" id="listings-table">
+                            <thead>
+                                <tr>
+                                    <th>Title</th>
+                                    <th>Type</th>
+                                    <th>Agent/Store</th>
+                                    <th>Status</th>
+                                    <th>Created</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Listings will be injected here by JS -->
+                            </tbody>
+                        </table>
                     </div>
                 </div>
-                <!-- Listing Details Modal -->
-                <div class="modal fade" id="listingDetailsModal" tabindex="-1" aria-labelledby="listingDetailsModalLabel" aria-hidden="true">
-                    <div class="modal-dialog modal-lg">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="listingDetailsModalLabel">Listing Details</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body">
-                                <!-- Details will be injected by JS -->
-                            </div>
+            </div>
+            <!-- Listing Details Modal -->
+            <div class="modal fade" id="listingDetailsModal" tabindex="-1" aria-labelledby="listingDetailsModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="listingDetailsModalLabel">Listing Details</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <!-- Details will be injected by JS -->
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4 mb-4">
+                    <h4>About Starlet Properties</h4>
+                    <p>Uganda's premier real estate and vehicle marketplace, connecting buyers and sellers across the country.</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h4>Properties</h4>
+                    <ul>
+                        <li><a href="/properties.html?type=house_sale">Houses for Sale</a></li>
+                        <li><a href="/properties.html?type=house_rent">Houses for Rent</a></li>
+                        <li><a href="/properties.html?type=land_sale">Land for Sale</a></li>
+                        <li><a href="/properties.html?type=land_rent">Land for Rent</a></li>
+                        <li><a href="/properties.html?type=commercial">Commercial Property</a></li>
+                        <li><a href="/properties.html?type=vacation_short_stay">Vacation & Short Stay</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h4>Vehicles</h4>
+                    <ul>
+                        <li><a href="/vehicles.html?type=cars">Cars</a></li>
+                        <li><a href="/vehicles.html?type=motorcycles">Motorcycles</a></li>
+                        <li><a href="/vehicles.html?type=trucks">Trucks</a></li>
+                        <li><a href="/vehicles.html?type=buses">Buses</a></li>
+                        <li><a href="/vehicles.html?type=heavy_machinery">Heavy Machinery</a></li>
+                        <li><a href="/vehicles.html?type=bicycles_ebikes">Bicycles & E-bikes</a></li>
+                        <li><a href="/vehicles.html?type=boats_watercraft">Boats & Watercraft</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h4>Company</h4>
+                    <ul>
+                        <li><a href="/about.html">About Us</a></li>
+                        <li><a href="/contact.html">Contact</a></li>
+                        <li><a href="/resources.html">Resources</a></li>
+                        <li><a href="/stores.html">Our Stores</a></li>
+                        <li><a href="/privacy.html">Privacy Policy</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h4>Contact</h4>
+                    <ul>
+                        <li><a href="tel:+256123456789"><i class="bi bi-telephone"></i> +256 123 456 789</a></li>
+                        <li><a href="mailto:info@starlet.co.ug"><i class="bi bi-envelope"></i> info@starlet.co.ug</a></li>
+                        <li><a href="#"><i class="bi bi-geo-alt"></i> Kampala, Uganda</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p class="mb-0">&copy; 2024 Starlet Properties. All rights reserved.</p>
+                    </div>
+                    <div class="col-md-6 text-md-end">
+                        <a href="/terms.html" class="me-3">Terms of Service</a>
+                        <a href="/privacy.html">Privacy Policy</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>

@@ -4,47 +4,61 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin - Settings | Starlet Properties</title>
+  <!-- Bootstrap CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <!-- Google Fonts: Inter -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Custom Styles -->
   <link rel="stylesheet" href="/css/style.css">
 </head>
 <body class="admin-panel">
+  <!-- Admin Sidebar -->
   <nav class="admin-sidebar">
-    <div class="sidebar-brand"><span class="brand-star">Star</span><span class="brand-let">Let</span> Admin</div>
+    <div class="sidebar-brand mb-4"><span class="brand-star">Star</span><span class="brand-let">Let</span> Admin</div>
     <div class="nav flex-column">
-      <a class="nav-link" href="dashboard.html"><i class="bi bi-speedometer2"></i> Dashboard</a>
-      <a class="nav-link" href="listings.html"><i class="bi bi-list-ul"></i> Listings</a>
-      <a class="nav-link" href="users.html"><i class="bi bi-people"></i> Users</a>
-      <a class="nav-link" href="stores.html"><i class="bi bi-shop"></i> Stores</a>
-      <a class="nav-link" href="official-store.html"><i class="bi bi-patch-check"></i> Official Store</a>
-      <a class="nav-link" href="analytics.html"><i class="bi bi-bar-chart"></i> Analytics</a>
-      <a class="nav-link" href="messages.html"><i class="bi bi-chat-dots"></i> Messages</a>
-      <a class="nav-link" href="reviews.html"><i class="bi bi-star"></i> Reviews</a>
-      <a class="nav-link active" href="settings.html"><i class="bi bi-gear"></i> Settings</a>
-      <a class="logout-link" href="#"><i class="bi bi-box-arrow-right"></i> Logout</a>
+      <a href="dashboard.html" class="nav-link"><i class="bi bi-speedometer2"></i> Dashboard</a>
+      <a href="listings.html" class="nav-link"><i class="bi bi-list-ul"></i> Listings</a>
+      <a href="users.html" class="nav-link"><i class="bi bi-people"></i> Users</a>
+      <a href="stores.html" class="nav-link"><i class="bi bi-shop"></i> Stores</a>
+      <a href="official-store.html" class="nav-link"><i class="bi bi-patch-check"></i> Official Store</a>
+      <a href="analytics.html" class="nav-link"><i class="bi bi-bar-chart"></i> Analytics</a>
+      <a href="messages.html" class="nav-link"><i class="bi bi-chat-dots"></i> Messages</a>
+      <a href="reviews.html" class="nav-link"><i class="bi bi-star"></i> Reviews</a>
+      <a href="settings.html" class="nav-link active"><i class="bi bi-gear"></i> Settings</a>
+      <a href="#" class="logout-link"><i class="bi bi-box-arrow-right"></i> Logout</a>
     </div>
   </nav>
+  <!-- Admin Navbar -->
   <nav class="admin-navbar">
-    <a class="navbar-brand" href="dashboard.html">
+    <div class="navbar-brand">
       <span class="brand-star">Star</span> <span class="brand-let">Let</span> Admin
-    </a>
+    </div>
     <div class="profile-dropdown dropdown">
       <a class="d-flex align-items-center text-decoration-none dropdown-toggle" href="#" id="profileDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-        <span class="profile-avatar"><img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Admin"></span>
+        <span class="profile-avatar me-2"><img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Admin"></span>
         <span>Admin</span>
       </a>
       <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
         <li><a class="dropdown-item" href="#">Profile</a></li>
         <li><a class="dropdown-item" href="#">Settings</a></li>
         <li><hr class="dropdown-divider"></li>
-        <li><a class="dropdown-item" href="#">Logout</a></li>
+        <li><a class="dropdown-item logout-link" href="#"><i class="bi bi-box-arrow-right"></i> Logout</a></li>
       </ul>
     </div>
   </nav>
-  <main class="main-content">
-    <!-- Settings Content -->
-    <div class="dashboard-content">
-      <h2 class="mb-4">Admin Settings</h2>
+  <!-- Main Content -->
+  <main style="min-height: 100vh;">
+    <!-- Hero Section -->
+    <section class="hero-section">
+      <div class="container">
+        <h2 class="hero-title">Admin Settings</h2>
+        <p class="hero-subtitle">Manage your profile, platform, and fee settings</p>
+      </div>
+    </section>
+    <div class="container my-5">
+      <!-- Settings Content (Retain all original functionality) -->
       <div class="row g-4">
         <div class="col-md-6">
           <div class="card mb-4">
@@ -83,139 +97,126 @@
                   <label class="form-label">Confirm New Password</label>
                   <input type="password" class="form-control" id="confirmNewPassword" required>
                 </div>
-<body style="background: linear-gradient(135deg, var(--light-color) 0%, #e3f0ff 100%); min-height: 100vh;">
-  <div class="dashboard-wrapper">
-    <!-- Sidebar -->
-    <aside class="sidebar">
-      <div class="sidebar-brand"><span class="brand-star">Star</span><span class="brand-let">Let</span></div>
-      <nav class="nav flex-column">
-        <a class="nav-link" href="dashboard.html"><i class="bi bi-speedometer2"></i> Dashboard</a>
-        <a class="nav-link" href="listings.html"><i class="bi bi-list-ul"></i> Listings</a>
-        <a class="nav-link" href="users.html"><i class="bi bi-people"></i> Users</a>
-        <a class="nav-link" href="stores.html"><i class="bi bi-shop"></i> Stores</a>
-        <a class="nav-link" href="official-store.html"><i class="bi bi-patch-check"></i> Official Store</a>
-        <a class="nav-link" href="analytics.html"><i class="bi bi-bar-chart"></i> Analytics</a>
-        <a class="nav-link" href="messages.html"><i class="bi bi-chat-dots"></i> Messages</a>
-        <a class="nav-link" href="reviews.html"><i class="bi bi-star"></i> Reviews</a>
-        <a class="nav-link active" href="settings.html"><i class="bi bi-gear"></i> Settings</a>
-        <a class="nav-link" href="#"><i class="bi bi-box-arrow-right"></i> Logout</a>
-      </nav>
-    </aside>
-    <!-- Main Content -->
-    <main class="main-content">
-      <!-- Top Navbar -->
-      <nav class="navbar navbar-expand-lg navbar-custom">
-        <div class="container-fluid">
-          <a class="navbar-brand" href="dashboard.html">
-            <span class="brand-star">Star</span> <span class="brand-let">Let</span> Admin
-          </a>
-          <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-            <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" href="#" id="profileDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Admin" width="32" height="32" class="rounded-circle me-2"> Admin
-              </a>
-              <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
-                <li><a class="dropdown-item" href="#">Profile</a></li>
-                <li><a class="dropdown-item" href="#">Settings</a></li>
-                <li><hr class="dropdown-divider"></li>
-                <li><a class="dropdown-item" href="#">Logout</a></li>
-              </ul>
-            </li>
-          </ul>
-        </div>
-      </nav>
-      <!-- Settings Content -->
-      <div class="dashboard-content">
-        <h2 class="mb-4">Admin Settings</h2>
-        <div class="row g-4">
-          <div class="col-md-6">
-            <div class="card mb-4">
-              <div class="card-header">Profile</div>
-              <div class="card-body">
-                <form id="adminProfileForm">
-                  <div class="mb-3">
-                    <label class="form-label">Name</label>
-                    <input type="text" class="form-control" id="adminName" value="" required>
-                  </div>
-                  <div class="mb-3">
-                    <label class="form-label">Email</label>
-                    <input type="email" class="form-control" id="adminEmail" value="" required>
-                  </div>
-                  <div class="mb-3">
-                    <label class="form-label">Phone</label>
-                    <input type="text" class="form-control" id="adminPhone" value="">
-                  </div>
-                  <button type="submit" class="btn btn-primary">Update Profile</button>
-                </form>
-              </div>
-            </div>
-            <div class="card mb-4">
-              <div class="card-header">Change Password</div>
-              <div class="card-body">
-                <form id="adminPasswordForm">
-                  <div class="mb-3">
-                    <label class="form-label">Current Password</label>
-                    <input type="password" class="form-control" id="currentPassword" required>
-                  </div>
-                  <div class="mb-3">
-                    <label class="form-label">New Password</label>
-                    <input type="password" class="form-control" id="newPassword" required>
-                  </div>
-                  <div class="mb-3">
-                    <label class="form-label">Confirm New Password</label>
-                    <input type="password" class="form-control" id="confirmNewPassword" required>
-                  </div>
-                  <button type="submit" class="btn btn-primary">Change Password</button>
-                </form>
-              </div>
+                <button type="submit" class="btn btn-primary">Change Password</button>
+              </form>
             </div>
           </div>
-          <div class="col-md-6">
-            <div class="card mb-4">
-              <div class="card-header">Platform Settings</div>
-              <div class="card-body">
-                <form id="platformSettingsForm">
-                  <div class="mb-3">
-                    <label class="form-label">Platform Name</label>
-                    <input type="text" class="form-control" id="platformName" value="Starlet Properties">
-                  </div>
-                  <div class="mb-3">
-                    <label class="form-label">Support Email</label>
-                    <input type="email" class="form-control" id="supportEmail" value="info@starlet.co.ug">
-                  </div>
-                  <div class="mb-3">
-                    <label class="form-label">Support Phone</label>
-                    <input type="text" class="form-control" id="supportPhone" value="+256 123 456 789">
-                  </div>
-                  <button type="submit" class="btn btn-primary">Update Platform</button>
-                </form>
-              </div>
+        </div>
+        <div class="col-md-6">
+          <div class="card mb-4">
+            <div class="card-header">Platform Settings</div>
+            <div class="card-body">
+              <form id="platformSettingsForm">
+                <div class="mb-3">
+                  <label class="form-label">Platform Name</label>
+                  <input type="text" class="form-control" id="platformName" value="Starlet Properties">
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Support Email</label>
+                  <input type="email" class="form-control" id="supportEmail" value="info@starlet.co.ug">
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Support Phone</label>
+                  <input type="text" class="form-control" id="supportPhone" value="+256 123 456 789">
+                </div>
+                <button type="submit" class="btn btn-primary">Update Platform</button>
+              </form>
             </div>
-            <div class="card mb-4">
-              <div class="card-header">Fee Settings</div>
-              <div class="card-body">
-                <form id="feeSettingsForm">
-                  <div class="mb-3">
-                    <label class="form-label">Silver Store Monthly Fee (USh)</label>
-                    <input type="number" class="form-control" id="feeSilver" value="0">
-                  </div>
-                  <div class="mb-3">
-                    <label class="form-label">Gold Store Monthly Fee (USh)</label>
-                    <input type="number" class="form-control" id="feeGold" value="0">
-                  </div>
-                  <div class="mb-3">
-                    <label class="form-label">Diamond Store Monthly Fee (USh)</label>
-                    <input type="number" class="form-control" id="feeDiamond" value="0">
-                  </div>
-                  <button type="submit" class="btn btn-primary">Update Fees</button>
-                </form>
-              </div>
+          </div>
+          <div class="card mb-4">
+            <div class="card-header">Fee Settings</div>
+            <div class="card-body">
+              <form id="feeSettingsForm">
+                <div class="mb-3">
+                  <label class="form-label">Silver Store Monthly Fee (USh)</label>
+                  <input type="number" class="form-control" id="feeSilver" value="0">
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Gold Store Monthly Fee (USh)</label>
+                  <input type="number" class="form-control" id="feeGold" value="0">
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Diamond Store Monthly Fee (USh)</label>
+                  <input type="number" class="form-control" id="feeDiamond" value="0">
+                </div>
+                <button type="submit" class="btn btn-primary">Update Fees</button>
+              </form>
             </div>
           </div>
         </div>
       </div>
-    </main>
-  </div>
+    </div>
+  </main>
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-4 mb-4">
+          <h4>About Starlet Properties</h4>
+          <p>Uganda's premier real estate and vehicle marketplace, connecting buyers and sellers across the country.</p>
+          <div class="social-links">
+            <a href="#"><i class="fab fa-facebook"></i></a>
+            <a href="#"><i class="fab fa-twitter"></i></a>
+            <a href="#"><i class="fab fa-instagram"></i></a>
+            <a href="#"><i class="fab fa-linkedin"></i></a>
+          </div>
+        </div>
+        <div class="col-lg-2 col-md-6 mb-4">
+          <h4>Properties</h4>
+          <ul>
+            <li><a href="/properties.html?type=house_sale">Houses for Sale</a></li>
+            <li><a href="/properties.html?type=house_rent">Houses for Rent</a></li>
+            <li><a href="/properties.html?type=land_sale">Land for Sale</a></li>
+            <li><a href="/properties.html?type=land_rent">Land for Rent</a></li>
+            <li><a href="/properties.html?type=commercial">Commercial Property</a></li>
+            <li><a href="/properties.html?type=vacation_short_stay">Vacation & Short Stay</a></li>
+          </ul>
+        </div>
+        <div class="col-lg-2 col-md-6 mb-4">
+          <h4>Vehicles</h4>
+          <ul>
+            <li><a href="/vehicles.html?type=cars">Cars</a></li>
+            <li><a href="/vehicles.html?type=motorcycles">Motorcycles</a></li>
+            <li><a href="/vehicles.html?type=trucks">Trucks</a></li>
+            <li><a href="/vehicles.html?type=buses">Buses</a></li>
+            <li><a href="/vehicles.html?type=heavy_machinery">Heavy Machinery</a></li>
+            <li><a href="/vehicles.html?type=bicycles_ebikes">Bicycles & E-bikes</a></li>
+            <li><a href="/vehicles.html?type=boats_watercraft">Boats & Watercraft</a></li>
+          </ul>
+        </div>
+        <div class="col-lg-2 col-md-6 mb-4">
+          <h4>Company</h4>
+          <ul>
+            <li><a href="/about.html">About Us</a></li>
+            <li><a href="/contact.html">Contact</a></li>
+            <li><a href="/resources.html">Resources</a></li>
+            <li><a href="/stores.html">Our Stores</a></li>
+            <li><a href="/privacy.html">Privacy Policy</a></li>
+          </ul>
+        </div>
+        <div class="col-lg-2 col-md-6 mb-4">
+          <h4>Contact</h4>
+          <ul>
+            <li><a href="tel:+256123456789"><i class="bi bi-telephone"></i> +256 123 456 789</a></li>
+            <li><a href="mailto:info@starlet.co.ug"><i class="bi bi-envelope"></i> info@starlet.co.ug</a></li>
+            <li><a href="#"><i class="bi bi-geo-alt"></i> Kampala, Uganda</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <div class="row">
+          <div class="col-md-6">
+            <p class="mb-0">&copy; 2024 Starlet Properties. All rights reserved.</p>
+          </div>
+          <div class="col-md-6 text-md-end">
+            <a href="/terms.html" class="me-3">Terms of Service</a>
+            <a href="/privacy.html">Privacy Policy</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+  <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
