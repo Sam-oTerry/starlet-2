@@ -243,6 +243,39 @@
         width: 28px; height: 28px;
       }
     }
+    .input-icon-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+    .input-icon {
+      position: absolute;
+      left: 12px;
+      color: var(--primary-color);
+      z-index: 2;
+      font-size: 1.1em;
+    }
+    .input-icon + input {
+      padding-left: 2.2em;
+    }
+    .show-password-btn {
+      position: absolute;
+      right: 10px;
+      background: none;
+      border: none;
+      color: #888;
+      font-size: 1.1em;
+      cursor: pointer;
+      z-index: 2;
+      padding: 0 4px;
+      height: 100%;
+      display: flex;
+      align-items: center;
+    }
+    .show-password-btn:focus {
+      outline: none;
+      color: var(--accent-cyan);
+    }
   </style>
 </head>
 <body>
@@ -294,11 +327,18 @@
       <form id="loginForm">
         <div class="input-group">
           <label for="login-username">Username</label>
-          <input type="text" id="login-username" placeholder="Enter your username" required>
+          <div class="input-icon-wrapper">
+            <span class="input-icon"><i class="bi bi-person"></i></span>
+            <input type="text" id="login-username" placeholder="Enter your username" required>
+          </div>
         </div>
         <div class="input-group">
           <label for="login-password">Password</label>
-          <input type="password" id="login-password" placeholder="Enter your password" required>
+          <div class="input-icon-wrapper">
+            <span class="input-icon"><i class="bi bi-lock"></i></span>
+            <input type="password" id="login-password" placeholder="Enter your password" required>
+            <button type="button" id="togglePassword" tabindex="-1" class="show-password-btn" aria-label="Show password"><i class="bi bi-eye"></i></button>
+          </div>
         </div>
         <div class="options">
           <div class="remember-me">
@@ -555,6 +595,23 @@
       } catch (err) {
         hideLoading();
         showError(err.message);
+      }
+    };
+
+    // Show/hide password toggle
+    document.getElementById('togglePassword').onclick = function() {
+      const pwd = document.getElementById('login-password');
+      const icon = this.querySelector('i');
+      if (pwd.type === 'password') {
+        pwd.type = 'text';
+        icon.classList.remove('bi-eye');
+        icon.classList.add('bi-eye-slash');
+        this.setAttribute('aria-label', 'Hide password');
+      } else {
+        pwd.type = 'password';
+        icon.classList.remove('bi-eye-slash');
+        icon.classList.add('bi-eye');
+        this.setAttribute('aria-label', 'Show password');
       }
     };
   </script>
