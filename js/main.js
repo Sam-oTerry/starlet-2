@@ -404,6 +404,7 @@ if (window.firebase && firebase.auth) {
     // Optionally, update UI for logged-in state here
     // e.g., show/hide login/signup buttons
     renderFeaturedListings(); // re-render listings to show save/message buttons
+    restrictGuestFeatures();
   });
 }
 
@@ -499,4 +500,29 @@ async function renderFeaturedListings() {
   } catch (err) {
     container.innerHTML = `<div class="text-danger text-center">Error loading listings: ${err.message}</div>`;
   }
+}
+
+function isGuestUser() {
+  return firebase.auth().currentUser && firebase.auth().currentUser.isAnonymous;
+}
+
+function restrictGuestFeatures() {
+  if (!isGuestUser()) return;
+  // Hide or disable add listing buttons/links
+  document.querySelectorAll('.add-listing-btn, .add-listing-link').forEach(el => el.style.display = 'none');
+  // Hide or disable store creation
+  document.querySelectorAll('.create-store-btn, .create-store-link').forEach(el => el.style.display = 'none');
+  // Hide or disable review forms/links
+  document.querySelectorAll('.add-review-btn, .add-review-link, .review-form').forEach(el => el.style.display = 'none');
+  // Hide agent/store contact info and contact buttons
+  document.querySelectorAll('.agent-contact, .store-contact, .contact-agent-btn, .contact-store-btn').forEach(el => el.style.display = 'none');
+  // Hide or disable messaging links
+  document.querySelectorAll('.messaging-link, .messages-link').forEach(el => el.style.display = 'none');
+  // Optionally, show a tooltip or toast if guest tries to access
+  document.querySelectorAll('[data-requires-auth]').forEach(el => {
+    el.onclick = function(e) {
+      e.preventDefault();
+      alert('You must be signed in to use this feature.');
+    };
+  });
 }

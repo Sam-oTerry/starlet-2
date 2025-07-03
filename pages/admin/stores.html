@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Stores | Starlet Properties</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        body { background: #f8fafc; }
+        .sidebar {
+            min-height: 100vh;
+            background: #fff;
+            border-right: 1px solid #e3eaf5;
+            padding: 2rem 1rem 1rem 1rem;
+        }
+        .sidebar .nav-link {
+            color: #0d6efd;
+            font-weight: 500;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.7em;
+            transition: background 0.2s, color 0.2s;
+        }
+        .sidebar .nav-link.active, .sidebar .nav-link:hover {
+            background: #0d6efd;
+            color: #fff;
+        }
+        .dashboard-content { padding: 2rem; }
+        .summary-card { border-radius: 1rem; box-shadow: 0 2px 8px #0d6efd11; }
+    </style>
+</head>
+<body>
+    <div class="d-flex">
+        <!-- Sidebar -->
+        <nav class="sidebar d-flex flex-column flex-shrink-0 p-3">
+            <a href="dashboard.html" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-decoration-none">
+                <span class="fs-4 fw-bold"><span class="brand-star">Star</span><span class="brand-let">Let</span> Admin</span>
+            </a>
+            <hr>
+            <ul class="nav nav-pills flex-column mb-auto">
+                <li class="nav-item"><a href="dashboard.html" class="nav-link"><i class="bi bi-speedometer2"></i> Dashboard</a></li>
+                <li><a href="listings.html" class="nav-link"><i class="bi bi-list-ul"></i> Listings</a></li>
+                <li><a href="users.html" class="nav-link"><i class="bi bi-people"></i> Users</a></li>
+                <li><a href="stores.html" class="nav-link active"><i class="bi bi-shop"></i> Stores</a></li>
+                <li><a href="analytics.html" class="nav-link"><i class="bi bi-bar-chart"></i> Analytics</a></li>
+                <li><a href="#" class="nav-link"><i class="bi bi-gear"></i> Settings</a></li>
+                <li><a href="#" class="nav-link"><i class="bi bi-box-arrow-right"></i> Logout</a></li>
+            </ul>
+        </nav>
+        <!-- Main Content -->
+        <div class="flex-grow-1">
+            <!-- Top Navbar -->
+            <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom shadow-sm">
+                <div class="container-fluid">
+                    <a class="navbar-brand fw-bold" href="dashboard.html">
+                        <span class="brand-star">Star</span><span class="brand-let">Let</span> Admin
+                    </a>
+                    <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="profileDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Admin" width="32" height="32" class="rounded-circle me-2"> Admin
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
+                                <li><a class="dropdown-item" href="#">Profile</a></li>
+                                <li><a class="dropdown-item" href="#">Settings</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="#">Logout</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+            <!-- Stores Content -->
+            <div class="dashboard-content">
+                <h2 class="mb-4">Manage Stores</h2>
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <form class="row g-3" id="filter-form">
+                            <div class="col-md-3">
+                                <input type="text" class="form-control" id="search" placeholder="Search by name, description...">
+                            </div>
+                            <div class="col-md-2">
+                                <select class="form-select" id="agentTier">
+                                    <option value="">All Agent Tiers</option>
+                                    <option value="silver">Silver</option>
+                                    <option value="gold">Gold</option>
+                                    <option value="diamond">Diamond</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <select class="form-select" id="verificationStatus">
+                                    <option value="">All Verification Statuses</option>
+                                    <option value="pending">Pending</option>
+                                    <option value="verified">Verified</option>
+                                    <option value="rejected">Rejected</option>
+                                    <option value="not_applicable">Not Applicable</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <select class="form-select" id="isOfficial">
+                                    <option value="">All Official Statuses</option>
+                                    <option value="true">Official</option>
+                                    <option value="false">Not Official</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <select class="form-select" id="status">
+                                    <option value="">All Statuses</option>
+                                    <option value="pending">Pending</option>
+                                    <option value="verified">Verified</option>
+                                    <option value="rejected">Rejected</option>
+                                </select>
+                            </div>
+                            <div class="col-md-1">
+                                <button type="submit" class="btn btn-primary w-100"><i class="bi bi-funnel"></i> Filter</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle" id="stores-table">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Agent Tier</th>
+                                        <th>Official</th>
+                                        <th>Verification Status</th>
+                                        <th>Average Rating</th>
+                                        <th>Review Count</th>
+                                        <th>Created</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Stores will be injected here by JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <!-- Store Details Modal -->
+                <div class="modal fade" id="storeDetailsModal" tabindex="-1" aria-labelledby="storeDetailsModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="storeDetailsModalLabel">Store Details</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <!-- Details will be injected by JS -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="../../js/admin.js"></script>
+    <script>
+    // --- Admin Stores Management (Schema-Driven) ---
+    let allStores = [];
+    const db = firebase.firestore();
+    const auth = firebase.auth();
+
+    const agentTierOptions = ['silver', 'gold', 'diamond'];
+    const verificationStatusOptions = ['pending', 'verified', 'rejected', 'not_applicable'];
+
+    requireAdminUser().then(() => {
+      fetchAndRenderStores();
+    });
+
+    // Fetch and render stores
+    async function fetchAndRenderStores(filters = {}) {
+      const tbody = document.querySelector('#stores-table tbody');
+      showLoading(tbody, 'Loading stores...');
+      try {
+        let ref = db.collection('stores');
+        if (filters.agentTier) ref = ref.where('agentTier', '==', filters.agentTier);
+        if (filters.verificationStatus) ref = ref.where('verificationStatus.status', '==', filters.verificationStatus);
+        if (filters.isOfficial !== undefined && filters.isOfficial !== '') ref = ref.where('isOfficial', '==', filters.isOfficial === 'true');
+        if (filters.status) ref = ref.where('verificationStatus.status', '==', filters.status);
+        const snapshot = await ref.orderBy('createdAt', 'desc').limit(100).get();
+        let stores = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        // Client-side filter for keyword
+        if (filters.keyword) {
+          const kw = filters.keyword.toLowerCase();
+          stores = stores.filter(s =>
+            (s.name && s.name.toLowerCase().includes(kw)) ||
+            (s.description && s.description.toLowerCase().includes(kw))
+          );
+        }
+        allStores = stores;
+        renderStoresTable(stores);
+      } catch (err) {
+        showError(tbody, err.message || 'Error loading stores');
+      }
+    }
+
+    // Render stores table
+    function renderStoresTable(stores) {
+      const tbody = document.querySelector('#stores-table tbody');
+      tbody.innerHTML = '';
+      if (!stores.length) {
+        tbody.innerHTML = `<tr><td colspan="8" class="text-center text-muted">No stores found.</td></tr>`;
+        return;
+      }
+      stores.forEach(s => {
+        tbody.innerHTML += `
+          <tr>
+            <td><img src="${s.logo || 'https://via.placeholder.com/40'}" alt="logo" width="40" height="40" class="rounded me-2">${s.name || ''}</td>
+            <td>${s.agentTier || ''}</td>
+            <td>${s.isOfficial ? '<span class="badge bg-info">Official</span>' : ''}</td>
+            <td>${s.verificationStatus ? s.verificationStatus.status : ''}</td>
+            <td>${s.averageRating !== undefined ? s.averageRating : ''}</td>
+            <td>${s.reviewCount !== undefined ? s.reviewCount : ''}</td>
+            <td>${formatDate(s.createdAt)}</td>
+            <td>
+              <button class="btn btn-sm btn-outline-primary me-1" onclick="showStoreDetails('${s.id}')"><i class="bi bi-eye"></i></button>
+              ${s.verificationStatus && s.verificationStatus.status==='pending'?`<button class="btn btn-sm btn-success me-1" onclick="approveStore('${s.id}')"><i class="bi bi-check-lg"></i></button>`:''}
+              ${s.verificationStatus && s.verificationStatus.status!=='rejected'?`<button class="btn btn-sm btn-danger me-1" onclick="rejectStore('${s.id}')"><i class="bi bi-x-lg"></i></button>`:''}
+              <button class="btn btn-sm btn-outline-info me-1" onclick="toggleOfficial('${s.id}')"><i class="bi bi-patch-check"></i></button>
+              <button class="btn btn-sm btn-outline-danger" onclick="deleteStore('${s.id}')"><i class="bi bi-trash"></i></button>
+            </td>
+          </tr>
+        `;
+      });
+    }
+
+    // Filter form
+    const filterForm = document.getElementById('filter-form');
+    filterForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const keyword = document.getElementById('search').value.trim();
+      const agentTier = document.getElementById('agentTier') ? document.getElementById('agentTier').value : '';
+      const verificationStatus = document.getElementById('verificationStatus') ? document.getElementById('verificationStatus').value : '';
+      const isOfficial = document.getElementById('isOfficial') ? document.getElementById('isOfficial').value : '';
+      const status = document.getElementById('status') ? document.getElementById('status').value : '';
+      fetchAndRenderStores({ keyword, agentTier, verificationStatus, isOfficial, status });
+    });
+
+    // Approve store
+    async function approveStore(id) {
+      if (!confirmAction('Approve this store?')) return;
+      await db.collection('stores').doc(id).update({ 'verificationStatus.status': 'verified' });
+      showToast('Store approved');
+      fetchAndRenderStores();
+    }
+    // Reject store
+    async function rejectStore(id) {
+      if (!confirmAction('Reject this store?')) return;
+      await db.collection('stores').doc(id).update({ 'verificationStatus.status': 'rejected' });
+      showToast('Store rejected');
+      fetchAndRenderStores();
+    }
+    // Delete store
+    async function deleteStore(id) {
+      if (!confirmAction('Delete this store? This cannot be undone.')) return;
+      await db.collection('stores').doc(id).delete();
+      showToast('Store deleted');
+      fetchAndRenderStores();
+    }
+    // Toggle official status
+    async function toggleOfficial(id) {
+      const store = allStores.find(s => s.id === id);
+      if (!store) return;
+      await db.collection('stores').doc(id).update({ isOfficial: !store.isOfficial });
+      showToast(`Store marked as ${!store.isOfficial ? 'official' : 'not official'}`);
+      fetchAndRenderStores();
+    }
+    // Show store details modal (with agent info, reviews, verification)
+    async function showStoreDetails(id) {
+      const store = allStores.find(s => s.id === id);
+      const modalBody = document.querySelector('#storeDetailsModal .modal-body');
+      if (!store) {
+        modalBody.innerHTML = '<div class="text-danger">Store not found.</div>';
+        return;
+      }
+      let reviews = '';
+      if (store.recentReviews && store.recentReviews.length) {
+        reviews = `<div><b>Recent Reviews:</b><ul>${store.recentReviews.map(r=>`<li>${r.rating}★ - ${r.comment || ''} <span class='text-muted small'>${formatDate(r.createdAt)}</span></li>`).join('')}</ul></div>`;
+      }
+      let verification = '';
+      if (store.verificationStatus) {
+        verification = `<div class='mt-2'><b>Verification Status:</b> ${store.verificationStatus.status}
+          ${(store.verificationStatus.documents||[]).map(doc=>`<div class='border rounded p-2 my-1'><b>Type:</b> ${doc.type}<br><b>Status:</b> ${store.verificationStatus.status}<br><b>Notes:</b> ${doc.notes||''}</div>`).join('')}
+        </div>`;
+      }
+      // Fetch agent info
+      let agentInfo = '';
+      if (store.agentId) {
+        const agentDoc = await db.collection('users').doc(store.agentId).get();
+        if (agentDoc.exists) {
+          const agent = agentDoc.data();
+          agentInfo = `<div class='mt-2'><b>Agent:</b> ${agent.firstName || ''} ${agent.lastName || ''} (${agent.agentTier || ''})</div>`;
+        }
+      }
+      modalBody.innerHTML = `
+        <h5><img src="${store.logo || 'https://via.placeholder.com/40'}" alt="logo" width="40" height="40" class="rounded me-2">${store.name || ''}</h5>
+        <div><b>Description:</b> ${store.description || ''}</div>
+        <div><b>Agent Tier:</b> ${store.agentTier || ''}</div>
+        <div><b>Official:</b> ${store.isOfficial ? 'Yes' : 'No'}</div>
+        <div><b>Average Rating:</b> ${store.averageRating !== undefined ? store.averageRating : ''} (${store.reviewCount || 0} reviews)</div>
+        <div><b>Created:</b> ${formatDate(store.createdAt)}</div>
+        ${agentInfo}
+        ${reviews}
+        ${verification}
+      `;
+      const modal = new bootstrap.Modal(document.getElementById('storeDetailsModal'));
+      modal.show();
+    }
+    </script>
+</body>
+</html>

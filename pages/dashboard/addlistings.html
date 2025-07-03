@@ -7,7 +7,6 @@
   <link href="/css/style.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.4.1/dist/tailwind.min.css" rel="stylesheet">
   <style>
     body { font-family: 'Inter', Arial, sans-serif; background: linear-gradient(135deg, var(--light-color) 0%, #e3f0ff 100%); min-height: 100vh; margin: 0; color: var(--dark-color); }
     .dashboard-wrapper { display: flex; min-height: 100vh; width: 100vw; background: none; }
@@ -279,11 +278,21 @@
                           <option>Flush</option><option>Pit Latrine</option><option>None</option>
                         </select>
                       </div>
+                      <!-- Security as checkboxes -->
                       <div class="col-md-4">
-                        <label class="form-label">Security</label>
-                        <select id="amenitySecurity" multiple class="form-select">
-                          <option>Gate</option><option>Guard</option><option>CCTV</option><option>Fence</option><option>None</option>
-                        </select>
+                        <label class="form-label">Security</label><br>
+                        <div id="amenitySecurityCheckboxes" class="form-check">
+                          <input class="form-check-input" type="checkbox" value="Gate" id="securityGate">
+                          <label class="form-check-label me-2" for="securityGate">Gate</label>
+                          <input class="form-check-input" type="checkbox" value="Guard" id="securityGuard">
+                          <label class="form-check-label me-2" for="securityGuard">Guard</label>
+                          <input class="form-check-input" type="checkbox" value="CCTV" id="securityCCTV">
+                          <label class="form-check-label me-2" for="securityCCTV">CCTV</label>
+                          <input class="form-check-input" type="checkbox" value="Fence" id="securityFence">
+                          <label class="form-check-label me-2" for="securityFence">Fence</label>
+                          <input class="form-check-input" type="checkbox" value="None" id="securityNone">
+                          <label class="form-check-label" for="securityNone">None</label>
+                        </div>
                       </div>
                       <div class="col-md-4">
                         <label class="form-label">Parking</label>
@@ -319,10 +328,34 @@
                           <option>Tarmac</option><option>Murram</option><option>Footpath</option><option>None</option>
                         </select>
                       </div>
+                      <!-- Nearby Amenities as checkboxes -->
                       <div class="col-md-4">
-                        <label class="form-label">Nearby Amenities</label>
-                        <select id="amenityNearby" multiple class="form-select">
-                          <option>Schools</option><option>Hospitals</option><option>Markets</option><option>Public Transport</option><option>None</option>
+                        <label class="form-label">Nearby Amenities</label><br>
+                        <div id="amenityNearbyCheckboxes" class="form-check">
+                          <input class="form-check-input" type="checkbox" value="Schools" id="nearbySchools">
+                          <label class="form-check-label me-2" for="nearbySchools">Schools</label>
+                          <input class="form-check-input" type="checkbox" value="Hospitals" id="nearbyHospitals">
+                          <label class="form-check-label me-2" for="nearbyHospitals">Hospitals</label>
+                          <input class="form-check-input" type="checkbox" value="Markets" id="nearbyMarkets">
+                          <label class="form-check-label me-2" for="nearbyMarkets">Markets</label>
+                          <input class="form-check-input" type="checkbox" value="Public Transport" id="nearbyTransport">
+                          <label class="form-check-label me-2" for="nearbyTransport">Public Transport</label>
+                          <input class="form-check-input" type="checkbox" value="None" id="nearbyNone">
+                          <label class="form-check-label" for="nearbyNone">None</label>
+                        </div>
+                      </div>
+                    </div>
+                    <!-- Description and Price Type for Property -->
+                    <div class="row g-3 mt-3" id="propertyDescPriceRow">
+                      <div class="col-md-8">
+                        <label class="form-label">Description</label>
+                        <textarea id="propertyDescription" class="form-control" rows="2"></textarea>
+                      </div>
+                      <div class="col-md-4">
+                        <label class="form-label">Price Type</label>
+                        <select id="propertyPriceType" class="form-select">
+                          <option value="fixed">Fixed</option>
+                          <option value="negotiable">Negotiable</option>
                         </select>
                       </div>
                     </div>
@@ -332,7 +365,10 @@
                     <div class="row g-3">
                       <div class="col-md-6">
                         <label class="form-label">Vehicle Category</label>
-                        <select id="vehicleCategory" class="form-select"></select>
+                        <select id="vehicleCategory" class="form-select">
+                          <option value="">Select Category</option>
+                          <!-- JS will inject options here -->
+                        </select>
                       </div>
                       <div class="col-md-6">
                         <label class="form-label">Sub Category</label>
@@ -381,6 +417,20 @@
                         <select id="vehicleFuelType" class="form-select"></select>
                       </div>
                     </div>
+                    <!-- Description and Price Type for Vehicle -->
+                    <div class="row g-3 mt-3" id="vehicleDescPriceRow">
+                      <div class="col-md-8">
+                        <label class="form-label">Description</label>
+                        <textarea id="vehicleDescription" class="form-control" rows="2"></textarea>
+                      </div>
+                      <div class="col-md-4">
+                        <label class="form-label">Price Type</label>
+                        <select id="vehiclePriceType" class="form-select">
+                          <option value="fixed">Fixed</option>
+                          <option value="negotiable">Negotiable</option>
+                        </select>
+                      </div>
+                    </div>
                   </div>
                   <div class="mt-4">
                     <button type="submit" class="btn btn-primary px-4">Submit Listing</button>
@@ -398,395 +448,398 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyDH1sMk2NwceMAEfvH07azxaoPXpOI1Sek",
-      authDomain: "starlet-properties-41509.firebaseapp.com",
-      projectId: "starlet-properties-41509",
-      storageBucket: "starlet-properties-41509.appspot.com",
-      messagingSenderId: "393372988481",
-      appId: "1:393372988481:web:c92584d7408296457b02c0",
-      measurementId: "G-F02K9SP07C"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
+    document.addEventListener('DOMContentLoaded', async function() {
+      // Define all DOM element variables used in setFieldVisibility and elsewhere
+      const listingTypeEl = document.getElementById('listingType');
+      const propertySection = document.getElementById('propertySection');
+      const vehicleSection = document.getElementById('vehicleSection');
+      const houseDetailsSection = document.getElementById('houseDetailsSection');
+      const landDetailsSection = document.getElementById('landDetailsSection');
+      const ownershipDetailsSection = document.getElementById('ownershipDetailsSection');
+      const amenitiesSection = document.getElementById('amenitiesSection');
+      const leaseYearsField = document.getElementById('leaseYearsField');
+      const vehicleStandardFields = document.getElementById('vehicleStandardFields');
+      const vehiclePremiumFields = document.getElementById('vehiclePremiumFields');
+      const propertyTypeEl = document.getElementById('propertyType');
 
-    // Auth check and prefill contact from store
-    let currentAgent = null;
-    let currentStoreId = null;
-    firebase.auth().onAuthStateChanged(async function(user) {
-      if (!user) {
-        window.location.href = '../login.html';
-        return;
+      // Helper functions to safely get values
+      function getValue(id) {
+        const el = document.getElementById(id);
+        return el ? el.value : undefined;
       }
-      // Prefill contact from store and get agent info
-      const storeSnap = await db.collection('stores').where('userId', '==', user.uid).orderBy('createdAt', 'desc').limit(1).get();
-      if (!storeSnap.empty) {
-        const store = storeSnap.docs[0].data();
-        document.getElementById('contactInfo').value = store.contact || '';
-        currentStoreId = storeSnap.docs[0].id;
-        currentAgent = {
-          avatar: store.avatar || 'https://randomuser.me/api/portraits/men/32.jpg',
-          name: store.name || 'Agent',
-          verified: !!store.verified,
-          agentId: user.uid,
-          agentTier: store.tier || 'diamond'
-        };
-      } else {
-        // fallback if no store
-        currentAgent = {
-          avatar: 'https://randomuser.me/api/portraits/men/32.jpg',
-          name: user.displayName || 'Agent',
-          verified: false,
-          agentId: user.uid,
-          agentTier: 'diamond'
-        };
+      function getChecked(id) {
+        const el = document.getElementById(id);
+        return el ? el.checked : undefined;
       }
-    });
+      function getCheckedValues(containerId) {
+        return Array.from(document.querySelectorAll(`#${containerId} input[type=checkbox]:checked`)).map(cb => cb.value);
+      }
 
-    // Dynamic form logic for showing/hiding fields based on listingType
-    document.getElementById('listingType').addEventListener('change', function() {
-      const type = this.value;
-      // Show/hide property fields
-      document.querySelectorAll('.property-fields').forEach(el => el.style.display = (type.startsWith('house') || type === 'vacation_short_stay') ? '' : 'none');
-      // Show/hide land fields
-      document.querySelectorAll('.land-fields').forEach(el => el.style.display = (type.startsWith('land')) ? '' : 'none');
-      // Show/hide ownership fields
-      document.querySelectorAll('.ownership-fields').forEach(el => el.style.display = (['house_sale','land_sale','land_rent','vacation_short_stay'].includes(type)) ? '' : 'none');
-    });
-
-    document.getElementById('addListingForm').addEventListener('submit', async function(e) {
-      e.preventDefault();
-      const user = firebase.auth().currentUser;
-      if (!user) {
-        alert('You must be logged in to add a listing.');
-        return;
-      }
-      // Build nested objects as per schema
-      const listingType = document.getElementById('listingType').value;
-      // House details
-      let houseDetails = undefined;
-      if (listingType.startsWith('house') || listingType === 'vacation_short_stay') {
-        houseDetails = {
-          subCategory: document.getElementById('houseSubCategory').value || undefined,
-          bedrooms: Number(document.getElementById('houseBedrooms').value) || 0,
-          bathrooms: Number(document.getElementById('houseBathrooms').value) || 0,
-          totalArea: Number(document.getElementById('houseTotalArea').value) || undefined,
-          furnishingStatus: document.getElementById('houseFurnishingStatus').value || undefined,
-          condition: document.getElementById('houseCondition').value || undefined
-        };
-        Object.keys(houseDetails).forEach(k => { if (houseDetails[k] === undefined || houseDetails[k] === '') delete houseDetails[k]; });
-      }
-      // Land details
-      let landDetails = undefined;
-      if (listingType.startsWith('land')) {
-        landDetails = {
-          subCategory: document.getElementById('landSubCategory').value || undefined,
-          plotSize: {
-            acres: Number(document.getElementById('landPlotAcres').value) || undefined
-          },
-          topography: document.getElementById('landTopography').value || undefined,
-          currentUse: document.getElementById('landCurrentUse').value || undefined
-        };
-        if (!landDetails.plotSize.acres) delete landDetails.plotSize;
-        Object.keys(landDetails).forEach(k => { if (landDetails[k] === undefined || landDetails[k] === '' || (typeof landDetails[k] === 'object' && Object.keys(landDetails[k]).length === 0) ) delete landDetails[k]; });
-      }
-      // Ownership details
-      let ownershipDetails = undefined;
-      if (["house_sale","land_sale","land_rent","vacation_short_stay"].includes(listingType)) {
-        ownershipDetails = {
-          ownershipType: document.getElementById('ownershipType').value || undefined,
-          leaseYearsRemaining: Number(document.getElementById('leaseYearsRemaining').value) || undefined,
-          titleStatus: document.getElementById('titleStatus').value || undefined
-        };
-        Object.keys(ownershipDetails).forEach(k => { if (ownershipDetails[k] === undefined || ownershipDetails[k] === '') delete ownershipDetails[k]; });
-      }
-      // Location
-      const location = {
-        district: document.getElementById('district').value || undefined,
-        town: document.getElementById('town').value || undefined,
-        area: document.getElementById('area').value || undefined,
-        address: document.getElementById('address').value || undefined,
-        subCounty: document.getElementById('subCounty').value || undefined,
-        nearbyLandmarks: document.getElementById('nearbyLandmarks').value || undefined,
-        gpsCoordinates: {
-          latitude: document.getElementById('latitude').value ? Number(document.getElementById('latitude').value) : undefined,
-          longitude: document.getElementById('longitude').value ? Number(document.getElementById('longitude').value) : undefined
-        }
+      const firebaseConfig = {
+        apiKey: "AIzaSyDH1sMk2NwceMAEfvH07azxaoPXpOI1Sek",
+        authDomain: "starlet-properties-41509.firebaseapp.com",
+        projectId: "starlet-properties-41509",
+        storageBucket: "starlet-properties-41509.appspot.com",
+        messagingSenderId: "393372988481",
+        appId: "1:393372988481:web:c92584d7408296457b02c0",
+        measurementId: "G-F02K9SP07C"
       };
-      if (!location.gpsCoordinates.latitude && !location.gpsCoordinates.longitude) delete location.gpsCoordinates;
-      Object.keys(location).forEach(k => { if (location[k] === undefined || location[k] === '') delete location[k]; });
-      // Main listing object
-      const listing = {
-        listingType,
-        status: 'pending',
-        sellerId: user.uid,
-        storeId: currentStoreId || undefined,
-        agentId: currentAgent?.agentId || undefined,
-        agentTier: currentAgent?.agentTier || undefined,
-        createdBy: user.uid,
-        visibility: document.getElementById('visibility').value,
-        viewCount: 0,
-        propertyType: document.getElementById('propertyType').value || undefined,
-        title: document.getElementById('propertyTitle').value,
-        description: document.getElementById('description').value,
-        askingPrice: Number(document.getElementById('propertyAskingPrice').value),
-        finalPrice: Number(document.getElementById('finalPrice').value) || undefined,
-        location: Object.keys(location).length ? location : undefined,
-        contactInfo: document.getElementById('contactInfo').value,
-        media: [], // Stubbed
-        documents: [], // Stubbed
-        adminVerification: { status: 'pending' },
-        houseDetails,
-        landDetails,
-        ownershipDetails,
-        featured: document.getElementById('featured').checked,
-        officialStore: document.getElementById('officialStore').checked,
-        image: document.getElementById('image').value || undefined,
-        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-      };
-      Object.keys(listing).forEach(key => { if (listing[key] === undefined || listing[key] === '') delete listing[key]; });
-      await db.collection('listings').add(listing);
-      alert('Listing added! Awaiting admin approval.');
-      window.location.href = 'mylistings.html';
-    });
+      firebase.initializeApp(firebaseConfig);
+      const db = firebase.firestore();
 
-    // --- CONFIG ---
-    // Set this variable based on the logged-in user's agent tier:
-    const userAgentTier = 'Premium'; // 'Basic', 'Standard', or 'Premium'
-
-    // Mock vehicleMakesModels data (replace with Firestore fetch in production)
-    const vehicleMakesModels = [
-      {
-        vehicleType: 'Cars',
-        subCategory: ['Sedans', 'SUVs', 'Pickups'],
-        make: 'Toyota',
-        models: [
-          { model: 'Corolla', colors: ['Red', 'Black'], transmissions: ['Manual', 'Automatic'], fuelTypes: ['Petrol', 'Diesel'] },
-          { model: 'Hilux', colors: ['White', 'Silver'], transmissions: ['Manual'], fuelTypes: ['Diesel'] }
-        ]
-      },
-      {
-        vehicleType: 'Motorcycles',
-        subCategory: ['Scooters', 'Sports Bikes'],
-        make: 'Bajaj',
-        models: [
-          { model: 'Pulsar', colors: ['Blue', 'Black'], transmissions: ['Manual'], fuelTypes: ['Petrol'] }
-        ]
-      }
-    ];
-
-    // --- DYNAMIC FORM LOGIC ---
-    const listingTypeEl = document.getElementById('listingType');
-    const propertySection = document.getElementById('propertySection');
-    const vehicleSection = document.getElementById('vehicleSection');
-    const propertyTypeEl = document.getElementById('propertyType');
-    const houseDetailsSection = document.getElementById('houseDetailsSection');
-    const landDetailsSection = document.getElementById('landDetailsSection');
-    const ownershipDetailsSection = document.getElementById('ownershipDetailsSection');
-    const amenitiesSection = document.getElementById('amenitiesSection');
-    const leaseYearsField = document.getElementById('leaseYearsField');
-    const vehicleCategoryEl = document.getElementById('vehicleCategory');
-    const vehicleSubCategoryEl = document.getElementById('vehicleSubCategory');
-    const vehicleMakeEl = document.getElementById('vehicleMake');
-    const vehicleModelEl = document.getElementById('vehicleModel');
-    const vehicleStandardFields = document.getElementById('vehicleStandardFields');
-    const vehiclePremiumFields = document.getElementById('vehiclePremiumFields');
-
-    function setFieldVisibility() {
-      // Hide all sections by default
-      propertySection.classList.add('d-none');
-      vehicleSection.classList.add('d-none');
-      houseDetailsSection.classList.add('d-none');
-      landDetailsSection.classList.add('d-none');
-      ownershipDetailsSection.classList.add('d-none');
-      amenitiesSection.classList.add('d-none');
-      leaseYearsField.classList.add('d-none');
-      vehicleStandardFields.classList.add('d-none');
-      vehiclePremiumFields.classList.add('d-none');
-
-      if (listingTypeEl.value === 'property') {
-        propertySection.classList.remove('d-none');
-        // Basic: only show basic fields
-        if (userAgentTier === 'Basic') {
-          houseDetailsSection.classList.add('d-none');
-          landDetailsSection.classList.add('d-none');
-          ownershipDetailsSection.classList.add('d-none');
-          amenitiesSection.classList.add('d-none');
+      // Auth check and prefill contact from store
+      let currentAgent = null;
+      let currentStoreId = null;
+      firebase.auth().onAuthStateChanged(async function(user) {
+        if (!user) {
+          window.location.href = '../login.html';
+          return;
         }
-        // Standard: add house/land/ownership
-        if (userAgentTier === 'Standard' || userAgentTier === 'Premium') {
-          if (['house_sale','house_rent','vacation_short_stay'].includes(propertyTypeEl.value)) {
-            houseDetailsSection.classList.remove('d-none');
-            landDetailsSection.classList.add('d-none');
-          } else if (['land_sale','land_rent'].includes(propertyTypeEl.value)) {
-            landDetailsSection.classList.remove('d-none');
-            houseDetailsSection.classList.add('d-none');
+        // Prefill contact from store and get agent info
+        const storeSnap = await db.collection('stores').where('userId', '==', user.uid).orderBy('createdAt', 'desc').limit(1).get();
+        if (!storeSnap.empty) {
+          const store = storeSnap.docs[0].data();
+          const contactInfoEl = document.getElementById('contactInfo');
+          if (contactInfoEl) contactInfoEl.value = store.contact || '';
+          currentStoreId = storeSnap.docs[0].id;
+          currentAgent = {
+            avatar: store.avatar || 'https://randomuser.me/api/portraits/men/32.jpg',
+            name: store.name || 'Agent',
+            verified: !!store.verified,
+            agentId: user.uid,
+            agentTier: store.tier || 'diamond'
+          };
+        } else {
+          // fallback if no store
+          currentAgent = {
+            avatar: 'https://randomuser.me/api/portraits/men/32.jpg',
+            name: user.displayName || 'Agent',
+            verified: false,
+            agentId: user.uid,
+            agentTier: 'diamond'
+          };
+        }
+      });
+
+      // --- Section Toggle Logic for Listing Type ---
+      function toggleListingSections() {
+        const type = listingTypeEl.value;
+        if (type === 'property') {
+          propertySection.classList.remove('d-none');
+          vehicleSection.classList.add('d-none');
+        } else if (type === 'vehicle') {
+          propertySection.classList.add('d-none');
+          vehicleSection.classList.remove('d-none');
+        } else {
+          propertySection.classList.add('d-none');
+          vehicleSection.classList.add('d-none');
+        }
+      }
+      listingTypeEl.addEventListener('change', toggleListingSections);
+      // Call once on load to set initial state
+      toggleListingSections();
+
+      document.getElementById('addListingForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        let listing = {};
+        if (listingTypeEl.value === 'property') {
+          listing.listingType = getValue('propertyType');
+          listing.title = getValue('propertyTitle');
+          listing.askingPrice = Number(getValue('propertyAskingPrice'));
+          listing.location = { district: getValue('propertyDistrict') };
+          listing.description = getValue('propertyDescription');
+          listing.priceType = getValue('propertyPriceType');
+          if (userAgentTier !== 'Basic') {
+            if (["house_sale","house_rent","vacation_short_stay"].includes(getValue('propertyType'))) {
+              listing.houseDetails = {
+                subCategory: getValue('houseSubCategory'),
+                bedrooms: Number(getValue('houseBedrooms')),
+                bathrooms: Number(getValue('houseBathrooms')),
+                totalArea: Number(getValue('houseTotalArea')),
+                plotSize: {
+                  width: Number(getValue('housePlotWidth')),
+                  length: Number(getValue('housePlotLength')),
+                  acres: Number(getValue('housePlotAcres')),
+                  hectares: Number(getValue('housePlotHectares'))
+                },
+                furnishingStatus: getValue('houseFurnishingStatus'),
+                condition: getValue('houseCondition')
+              };
+            }
+            if (["land_sale","land_rent"].includes(getValue('propertyType'))) {
+              listing.landDetails = {
+                subCategory: getValue('landSubCategory'),
+                plotSize: {
+                  acres: Number(getValue('landPlotAcres')),
+                  hectares: Number(getValue('landPlotHectares')),
+                  dimensions: {
+                    width: Number(getValue('landPlotWidth')),
+                    length: Number(getValue('landPlotLength'))
+                  }
+                },
+                topography: getValue('landTopography'),
+                soilType: getValue('landSoilType'),
+                currentUse: getValue('landCurrentUse')
+              };
+            }
+            listing.ownershipDetails = {
+              ownershipType: getValue('ownershipType'),
+              titleStatus: getValue('titleStatus')
+            };
+            if (userAgentTier === 'Premium' && getValue('ownershipType') === 'Leasehold') {
+              listing.ownershipDetails.leaseYearsRemaining = Number(getValue('leaseYearsRemaining'));
+            }
+          }
+          if (userAgentTier === 'Premium') {
+            listing.amenities = {
+              essentialUtilities: {
+                electricity: getValue('amenityElectricity'),
+                waterSupply: getValue('amenityWater'),
+                toiletType: getValue('amenityToilet')
+              },
+              additionalFeatures: {
+                security: getCheckedValues('amenitySecurityCheckboxes'),
+                parking: getValue('amenityParking'),
+                internetReady: getValue('amenityInternet'),
+                backupPower: getValue('amenityBackup'),
+                kitchen: getValue('amenityKitchen'),
+                tiled: getChecked('amenityTiled')
+              },
+              roadAccess: getValue('amenityRoadAccess'),
+              nearbyAmenities: getCheckedValues('amenityNearbyCheckboxes')
+            };
+          }
+        } else if (listingTypeEl.value === 'vehicle') {
+          listing.listingType = 'vehicle';
+          listing.vehicleCategory = getValue('vehicleCategory');
+          listing.subCategory = getValue('vehicleSubCategory');
+          listing.make = getValue('vehicleMake');
+          listing.model = getValue('vehicleModel');
+          listing.title = getValue('vehicleTitle');
+          listing.askingPrice = Number(getValue('vehicleAskingPrice'));
+          listing.description = getValue('vehicleDescription');
+          listing.priceType = getValue('vehiclePriceType');
+          if (userAgentTier !== 'Basic') {
+            listing.condition = getValue('vehicleCondition');
+            listing.mileage = Number(getValue('vehicleMileage'));
+          }
+          if (userAgentTier === 'Premium') {
+            listing.color = getValue('vehicleColor');
+            listing.transmission = getValue('vehicleTransmission');
+            listing.fuelType = getValue('vehicleFuelType');
+          }
+        }
+        alert('Listing to submit (see console):\n' + JSON.stringify(listing, null, 2));
+        console.log('Listing to submit:', listing);
+        // TODO: Submit to Firestore
+      });
+
+      // --- CONFIG ---
+      // Set this variable based on the logged-in user's agent tier:
+      const userAgentTier = 'Premium'; // 'Basic', 'Standard', or 'Premium'
+
+      // --- Dynamic Vehicle Dropdowns from Firestore ---
+      let vehicleMakesModels = [];
+      const vehicleCategoryEl = document.getElementById('vehicleCategory');
+      const vehicleMakeEl = document.getElementById('vehicleMake');
+      const vehicleModelEl = document.getElementById('vehicleModel');
+
+      document.addEventListener('DOMContentLoaded', async function() {
+        await fetchVehicleMakesModels();
+        populateVehicleCategories();
+        setupVehicleDropdownListeners();
+      });
+
+      async function fetchVehicleMakesModels() {
+        try {
+          const snap = await db.collection('vehicleMakesModels').get();
+          vehicleMakesModels = snap.docs.map(doc => doc.data());
+          console.log('vehicleMakesModels:', vehicleMakesModels);
+        } catch (e) {
+          vehicleMakesModels = [];
+          console.error('Error fetching vehicleMakesModels:', e);
+        }
+      }
+
+      function populateVehicleCategories() {
+        if (!vehicleCategoryEl) return;
+        vehicleCategoryEl.length = 1;
+        const allowedCategories = [
+          'Cars', 'Motorcycles', 'Trucks & Lorries', 'Buses & Vans',
+          'Heavy Machinery', 'Bicycles & E-bikes', 'Boats & Watercraft'
+        ];
+        allowedCategories.forEach(type => {
+          const opt = document.createElement('option');
+          opt.value = type;
+          opt.textContent = type;
+          vehicleCategoryEl.appendChild(opt);
+        });
+      }
+
+      function setupVehicleDropdownListeners() {
+        if (!vehicleCategoryEl || !vehicleMakeEl || !vehicleModelEl) return;
+
+        vehicleCategoryEl.addEventListener('change', function() {
+          const selectedType = vehicleCategoryEl.value.trim();
+          const makes = vehicleMakesModels
+            .filter(item => item.vehicleType && item.vehicleType.trim().toLowerCase() === selectedType.toLowerCase())
+            .map(item => item.make)
+            .filter((v, i, a) => v && a.indexOf(v) === i);
+          vehicleMakeEl.length = 1;
+          makes.forEach(make => {
+            const opt = document.createElement('option');
+            opt.value = make;
+            opt.textContent = make;
+            vehicleMakeEl.appendChild(opt);
+          });
+          vehicleModelEl.length = 1;
+        });
+
+        vehicleMakeEl.addEventListener('change', function() {
+          const selectedType = vehicleCategoryEl.value.trim();
+          const selectedMake = vehicleMakeEl.value.trim();
+          const makeObj = vehicleMakesModels.find(
+            item =>
+              item.vehicleType &&
+              item.make &&
+              item.vehicleType.trim().toLowerCase() === selectedType.toLowerCase() &&
+              item.make.trim().toLowerCase() === selectedMake.toLowerCase()
+          );
+          vehicleModelEl.length = 1;
+          if (makeObj && Array.isArray(makeObj.models)) {
+            makeObj.models.forEach(model => {
+              const opt = document.createElement('option');
+              opt.value = model;
+              opt.textContent = model;
+              vehicleModelEl.appendChild(opt);
+            });
+          }
+        });
+      }
+
+      // --- Dynamic Property Dropdowns from Firestore ---
+      let propertyMeta = null;
+      const houseSubCategoryEl = document.getElementById('houseSubCategory');
+      const landSubCategoryEl = document.getElementById('landSubCategory');
+
+      async function fetchPropertyMeta() {
+        try {
+          // Assume a collection 'propertyMeta' with a single doc containing all enums
+          const snap = await db.collection('propertyMeta').limit(1).get();
+          if (!snap.empty) {
+            propertyMeta = snap.docs[0].data();
+            console.log('propertyMeta:', propertyMeta);
           } else {
+            console.warn('propertyMeta: No documents found');
+          }
+        } catch (e) {
+          propertyMeta = null;
+          console.error('Error fetching propertyMeta:', e);
+        }
+        populatePropertyTypeDropdown();
+      }
+
+      function populatePropertyTypeDropdown() {
+        if (propertyMeta && propertyMeta.propertyTypes) {
+          propertyTypeEl.innerHTML = '<option value="">Select Property Type</option>' + propertyMeta.propertyTypes.map(pt => `<option value="${pt.value}">${pt.label}</option>`).join('');
+        } else {
+          // fallback to hardcoded
+          propertyTypeEl.innerHTML = '<option value="">Select Property Type</option>' +
+            '<option value="house_sale">House for Sale</option>' +
+            '<option value="house_rent">House for Rent</option>' +
+            '<option value="land_sale">Land for Sale</option>' +
+            '<option value="land_rent">Land for Rent</option>' +
+            '<option value="vacation_short_stay">Vacation & Short Stay</option>';
+        }
+        houseSubCategoryEl.innerHTML = '<option value="">Select</option>';
+        landSubCategoryEl.innerHTML = '<option value="">Select</option>';
+      }
+
+      propertyTypeEl.addEventListener('change', function() {
+        const type = this.value;
+        // House subcategories
+        if (["house_sale","house_rent","vacation_short_stay"].includes(type)) {
+          if (propertyMeta && propertyMeta.houseSubCategories) {
+            houseSubCategoryEl.innerHTML = '<option value="">Select</option>' + propertyMeta.houseSubCategories.map(sc => `<option>${sc}</option>`).join('');
+          } else {
+            houseSubCategoryEl.innerHTML = '<option value="">Select</option>' +
+              '<option>Houses</option><option>Apartments</option><option>Condominiums</option><option>Townhouses</option><option>Villas</option><option>Single Rooms</option><option>Hostels</option><option>Serviced Apartments</option><option>Family Homes</option><option>Airbnbs</option><option>Cottages</option><option>Beach Houses</option><option>Lodges</option>';
+          }
+        } else {
+          houseSubCategoryEl.innerHTML = '<option value="">Select</option>';
+        }
+        // Land subcategories
+        if (["land_sale","land_rent"].includes(type)) {
+          if (propertyMeta && propertyMeta.landSubCategories) {
+            landSubCategoryEl.innerHTML = '<option value="">Select</option>' + propertyMeta.landSubCategories.map(sc => `<option>${sc}</option>`).join('');
+          } else {
+            landSubCategoryEl.innerHTML = '<option value="">Select</option>' +
+              '<option>Residential Land</option><option>Commercial Land</option><option>Agricultural Land</option><option>Industrial Land</option>';
+          }
+        } else {
+          landSubCategoryEl.innerHTML = '<option value="">Select</option>';
+        }
+      });
+
+      fetchPropertyMeta();
+
+      // --- INIT ---
+      setFieldVisibility();
+
+      // Restore setFieldVisibility function
+      function setFieldVisibility() {
+        // Hide all sections by default
+        propertySection.classList.add('d-none');
+        vehicleSection.classList.add('d-none');
+        houseDetailsSection.classList.add('d-none');
+        landDetailsSection.classList.add('d-none');
+        ownershipDetailsSection.classList.add('d-none');
+        amenitiesSection.classList.add('d-none');
+        leaseYearsField.classList.add('d-none');
+        vehicleStandardFields.classList.add('d-none');
+        vehiclePremiumFields.classList.add('d-none');
+
+        if (listingTypeEl.value === 'property') {
+          propertySection.classList.remove('d-none');
+          if (userAgentTier === 'Basic') {
             houseDetailsSection.classList.add('d-none');
             landDetailsSection.classList.add('d-none');
+            ownershipDetailsSection.classList.add('d-none');
+            amenitiesSection.classList.add('d-none');
           }
-          ownershipDetailsSection.classList.remove('d-none');
-          // Premium: show amenities
-          if (userAgentTier === 'Premium') {
-            amenitiesSection.classList.remove('d-none');
+          if (userAgentTier === 'Standard' || userAgentTier === 'Premium') {
+            if (["house_sale","house_rent","vacation_short_stay"].includes(propertyTypeEl.value)) {
+              houseDetailsSection.classList.remove('d-none');
+              landDetailsSection.classList.add('d-none');
+            } else if (["land_sale","land_rent"].includes(propertyTypeEl.value)) {
+              landDetailsSection.classList.remove('d-none');
+              houseDetailsSection.classList.add('d-none');
+            } else {
+              houseDetailsSection.classList.add('d-none');
+              landDetailsSection.classList.add('d-none');
+            }
+            ownershipDetailsSection.classList.remove('d-none');
+            if (userAgentTier === 'Premium') {
+              amenitiesSection.classList.remove('d-none');
+            }
           }
-        }
-        // Leasehold: show lease years (Premium only)
-        if (userAgentTier === 'Premium' && document.getElementById('ownershipType').value === 'Leasehold') {
-          leaseYearsField.classList.remove('d-none');
-        }
-      } else if (listingTypeEl.value === 'vehicle') {
-        vehicleSection.classList.remove('d-none');
-        // Basic: only show basic vehicle fields
-        if (userAgentTier === 'Basic') {
-          vehicleStandardFields.classList.add('d-none');
-          vehiclePremiumFields.classList.add('d-none');
-        }
-        // Standard: add condition, mileage
-        if (userAgentTier === 'Standard' || userAgentTier === 'Premium') {
-          vehicleStandardFields.classList.remove('d-none');
-          // Premium: add color, transmission, fuelType
-          if (userAgentTier === 'Premium') {
-            vehiclePremiumFields.classList.remove('d-none');
+          if (userAgentTier === 'Premium' && getValue('ownershipType') === 'Leasehold') {
+            leaseYearsField.classList.remove('d-none');
+          }
+        } else if (listingTypeEl.value === 'vehicle') {
+          vehicleSection.classList.remove('d-none');
+          if (userAgentTier === 'Basic') {
+            vehicleStandardFields.classList.add('d-none');
+            vehiclePremiumFields.classList.add('d-none');
+          }
+          if (userAgentTier === 'Standard' || userAgentTier === 'Premium') {
+            vehicleStandardFields.classList.remove('d-none');
+            if (userAgentTier === 'Premium') {
+              vehiclePremiumFields.classList.remove('d-none');
+            }
           }
         }
       }
-    }
-
-    listingTypeEl.addEventListener('change', setFieldVisibility);
-    propertyTypeEl.addEventListener('change', setFieldVisibility);
-    document.getElementById('ownershipType').addEventListener('change', setFieldVisibility);
-
-    // --- VEHICLE DYNAMIC DROPDOWNS ---
-    function populateVehicleDropdowns() {
-      // Vehicle Category
-      vehicleCategoryEl.innerHTML = '<option value="">Select</option>' + vehicleMakesModels.map(v => `<option value="${v.vehicleType}">${v.vehicleType}</option>`).join('');
-      vehicleSubCategoryEl.innerHTML = '<option value="">Select</option>';
-      vehicleMakeEl.innerHTML = '<option value="">Select</option>';
-      vehicleModelEl.innerHTML = '<option value="">Select</option>';
-    }
-    vehicleCategoryEl.addEventListener('change', function() {
-      const selected = vehicleMakesModels.find(v => v.vehicleType === this.value);
-      vehicleSubCategoryEl.innerHTML = '<option value="">Select</option>' + (selected?.subCategory || []).map(sc => `<option>${sc}</option>`).join('');
-      vehicleMakeEl.innerHTML = '<option value="">Select</option>' + (selected ? `<option>${selected.make}</option>` : '');
-      vehicleModelEl.innerHTML = '<option value="">Select</option>';
-    });
-    vehicleMakeEl.addEventListener('change', function() {
-      const selectedType = vehicleMakesModels.find(v => v.vehicleType === vehicleCategoryEl.value);
-      const selectedMake = selectedType && selectedType.make === this.value ? selectedType : null;
-      vehicleModelEl.innerHTML = '<option value="">Select</option>' + (selectedMake?.models || []).map(m => `<option>${m.model}</option>`).join('');
-    });
-    vehicleModelEl.addEventListener('change', function() {
-      // Populate color, transmission, fuelType for Premium
-      if (userAgentTier !== 'Premium') return;
-      const selectedType = vehicleMakesModels.find(v => v.vehicleType === vehicleCategoryEl.value);
-      const selectedModel = selectedType?.models.find(m => m.model === this.value);
-      document.getElementById('vehicleColor').innerHTML = (selectedModel?.colors || []).map(c => `<option>${c}</option>`).join('');
-      document.getElementById('vehicleTransmission').innerHTML = (selectedModel?.transmissions || []).map(t => `<option>${t}</option>`).join('');
-      document.getElementById('vehicleFuelType').innerHTML = (selectedModel?.fuelTypes || []).map(f => `<option>${f}</option>`).join('');
-    });
-
-    // --- INIT ---
-    populateVehicleDropdowns();
-    setFieldVisibility();
-
-    // --- FORM SUBMISSION ---
-    document.getElementById('addListingForm').addEventListener('submit', function(e) {
-      e.preventDefault();
-      let listing = {};
-      if (listingTypeEl.value === 'property') {
-        // Basic fields
-        listing.listingType = propertyTypeEl.value;
-        listing.title = document.getElementById('propertyTitle').value;
-        listing.askingPrice = Number(document.getElementById('propertyAskingPrice').value);
-        listing.location = { district: document.getElementById('propertyDistrict').value };
-        // Standard/Premium
-        if (userAgentTier !== 'Basic') {
-          if (['house_sale','house_rent','vacation_short_stay'].includes(propertyTypeEl.value)) {
-            listing.houseDetails = {
-              subCategory: document.getElementById('houseSubCategory').value,
-              bedrooms: Number(document.getElementById('houseBedrooms').value),
-              bathrooms: Number(document.getElementById('houseBathrooms').value),
-              totalArea: Number(document.getElementById('houseTotalArea').value),
-              plotSize: {
-                width: Number(document.getElementById('housePlotWidth').value),
-                length: Number(document.getElementById('housePlotLength').value),
-                acres: Number(document.getElementById('housePlotAcres').value),
-                hectares: Number(document.getElementById('housePlotHectares').value)
-              },
-              furnishingStatus: document.getElementById('houseFurnishingStatus').value,
-              condition: document.getElementById('houseCondition').value
-            };
-          }
-          if (['land_sale','land_rent'].includes(propertyTypeEl.value)) {
-            listing.landDetails = {
-              subCategory: document.getElementById('landSubCategory').value,
-              plotSize: {
-                acres: Number(document.getElementById('landPlotAcres').value),
-                hectares: Number(document.getElementById('landPlotHectares').value),
-                dimensions: {
-                  width: Number(document.getElementById('landPlotWidth').value),
-                  length: Number(document.getElementById('landPlotLength').value)
-                }
-              },
-              topography: document.getElementById('landTopography').value,
-              soilType: document.getElementById('landSoilType').value,
-              currentUse: document.getElementById('landCurrentUse').value
-            };
-          }
-          // Ownership
-          listing.ownershipDetails = {
-            ownershipType: document.getElementById('ownershipType').value,
-            titleStatus: document.getElementById('titleStatus').value
-          };
-          if (userAgentTier === 'Premium' && document.getElementById('ownershipType').value === 'Leasehold') {
-            listing.ownershipDetails.leaseYearsRemaining = Number(document.getElementById('leaseYearsRemaining').value);
-          }
-        }
-        // Premium only: amenities
-        if (userAgentTier === 'Premium') {
-          listing.amenities = {
-            essentialUtilities: {
-              electricity: document.getElementById('amenityElectricity').value,
-              waterSupply: document.getElementById('amenityWater').value,
-              toiletType: document.getElementById('amenityToilet').value
-            },
-            additionalFeatures: {
-              security: Array.from(document.getElementById('amenitySecurity').selectedOptions).map(o=>o.value),
-              parking: document.getElementById('amenityParking').value,
-              internetReady: document.getElementById('amenityInternet').value,
-              backupPower: document.getElementById('amenityBackup').value,
-              kitchen: document.getElementById('amenityKitchen').value,
-              tiled: document.getElementById('amenityTiled').checked
-            },
-            roadAccess: document.getElementById('amenityRoadAccess').value,
-            nearbyAmenities: Array.from(document.getElementById('amenityNearby').selectedOptions).map(o=>o.value)
-          };
-        }
-      } else if (listingTypeEl.value === 'vehicle') {
-        // Basic fields
-        listing.listingType = 'vehicle';
-        listing.vehicleCategory = vehicleCategoryEl.value;
-        listing.subCategory = vehicleSubCategoryEl.value;
-        listing.make = vehicleMakeEl.value;
-        listing.model = vehicleModelEl.value;
-        listing.title = document.getElementById('vehicleTitle').value;
-        listing.askingPrice = Number(document.getElementById('vehicleAskingPrice').value);
-        // Standard/Premium
-        if (userAgentTier !== 'Basic') {
-          listing.condition = document.getElementById('vehicleCondition').value;
-          listing.mileage = Number(document.getElementById('vehicleMileage').value);
-        }
-        // Premium
-        if (userAgentTier === 'Premium') {
-          listing.color = document.getElementById('vehicleColor').value;
-          listing.transmission = document.getElementById('vehicleTransmission').value;
-          listing.fuelType = document.getElementById('vehicleFuelType').value;
-        }
-      }
-      alert('Listing to submit (see console):\n' + JSON.stringify(listing, null, 2));
-      console.log('Listing to submit:', listing);
-      // TODO: Submit to Firestore
     });
   </script>
 </body>

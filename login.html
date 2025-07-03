@@ -313,6 +313,9 @@
         <button type="button" class="btn-google">
           <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google" width="22" height="22" style="margin-right: 0.5em;"> Sign in with Google
         </button>
+        <button type="button" class="btn-starlet" id="guestLoginBtn" style="background: #fff; color: var(--primary-color); border: 1.5px solid var(--primary-color); margin-bottom: 0;">
+          <i class="bi bi-person-circle me-2"></i> Continue as Guest
+        </button>
       </form>
       <form id="registerForm" style="display:none;">
         <div class="input-group">
@@ -518,6 +521,19 @@
         }
       };
     });
+
+    // Guest login (anonymous)
+    document.getElementById('guestLoginBtn').onclick = async function() {
+      clearError();
+      showLoading();
+      try {
+        await auth.signInAnonymously();
+        window.location.href = 'index.html';
+      } catch (err) {
+        hideLoading();
+        showError(err.message);
+      }
+    };
   </script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
