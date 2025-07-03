@@ -533,11 +533,19 @@ function updateNavbarForAuth(user) {
   if (!nav) return;
   // Remove any previously added custom nav items
   nav.querySelectorAll('.auth-nav-item').forEach(el => el.remove());
+  // Hide notification bell by default
+  const notifBell = document.getElementById('nav-notification-bell');
+  if (notifBell) notifBell.classList.add('d-none');
   if (!user || user.isAnonymous) return;
   // Find the first login or register nav-item to insert before
   const loginItem = nav.querySelector('a[href="login.html"]')?.closest('li');
   const registerItem = nav.querySelector('a[href="register.html"]')?.closest('li');
   const insertBefore = loginItem || registerItem || null;
+  // Notification Bell
+  if (notifBell) {
+    notifBell.classList.remove('d-none');
+    nav.insertBefore(notifBell, insertBefore);
+  }
   // Messages
   const msgLi = document.createElement('li');
   msgLi.className = 'nav-item auth-nav-item';
