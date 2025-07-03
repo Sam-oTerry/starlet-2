@@ -482,7 +482,7 @@
                         <a class="nav-link" href="saved.html"><i class="bi bi-bookmark-heart"></i> Saved Listings</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="messaging.html"><i class="bi bi-chat-dots"></i> Messages</a>
+                        <a class="nav-link" href="messaging.html" id="messagesNavLink" data-requires-auth><i class="bi bi-chat-dots"></i> Messages</a>
                     </li>
                     <li class="nav-item" id="nav-notification-bell">
                         <a class="nav-link position-relative" href="notifications.html" title="Notifications">
@@ -748,6 +748,22 @@
         updateMessagingLink(null);
       }
     })();
+    </script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      var link = document.getElementById('messagesNavLink');
+      if (link) {
+        link.addEventListener('click', function(e) {
+          if (window.firebase && firebase.auth) {
+            var user = firebase.auth().currentUser;
+            if (!user || user.isAnonymous) {
+              e.preventDefault();
+              window.location.href = 'login.html';
+            }
+          }
+        });
+      }
+    });
     </script>
 </body>
 </html> 

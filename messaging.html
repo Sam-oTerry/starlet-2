@@ -203,6 +203,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-messaging-compat.js"></script>
   <script src="js/main.js"></script>
   <script>
     // Firebase config (same as other pages)
@@ -223,6 +224,7 @@
     document.body.insertAdjacentHTML('beforeend', '<div id="authLoading" style="position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:2000;background:rgba(255,255,255,0.7);display:flex;align-items:center;justify-content:center;"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div></div>');
 
     let currentUser = null;
+    let messaging;
     auth.onAuthStateChanged(async user => {
       if (!user) {
         window.location.href = 'login.html';
@@ -234,6 +236,12 @@
         avatar: user.photoURL || 'https://randomuser.me/api/portraits/lego/2.jpg',
         email: user.email
       };
+      messaging = firebase.messaging();
+      try {
+        await Notification.requestPermission();
+        const token = await messaging.getToken({ vapidKey: 'YOUR_PUBLIC_VAPID_KEY' });
+        await db.collection('users').doc(currentUser.id).update({ fcmToken: token });
+      } catch (err) { console.warn('FCM permission denied or error', err); }
       // Add logout button to navbar
       const nav = document.querySelector('.navbar-nav');
       if (nav && !document.getElementById('logoutBtn')) {
@@ -306,6 +314,11 @@
       renderChatHeader();
       loadMessages();
       loadConversations(); // to update active state
+      // Mark all unread messages as read
+      const msgsSnap = await db.collection('conversations').doc(conv.id).collection('messages').where('read', '==', false).where('senderId', '!=', currentUser.id).get();
+      const batch = db.batch();
+      msgsSnap.forEach(doc => batch.update(doc.ref, { read: true }));
+      await batch.commit();
     }
 
     function renderChatHeader() {
@@ -319,8 +332,19 @@
         <div class="info">
           <h5>${selectedConversation.agentName || 'Agent'}</h5>
           <p>${selectedConversation.listingTitle || 'Listing'}</p>
+          <span id="typingIndicator" class="text-primary small"></span>
         </div>
       `;
+      // Listen for typing indicator
+      db.collection('conversations').doc(selectedConversation.id).onSnapshot(doc => {
+        const data = doc.data();
+        const otherId = selectedConversation.participants.find(id => id !== currentUser.id);
+        if (data && data['typing_' + otherId]) {
+          document.getElementById('typingIndicator').textContent = 'Typing...';
+        } else {
+          document.getElementById('typingIndicator').textContent = '';
+        }
+      });
     }
 
     function renderMessages(messages) {
@@ -329,12 +353,13 @@
         chat.innerHTML = '<div class="text-center text-muted py-5">No messages yet. Say hello!</div>';
         return;
       }
-      chat.innerHTML = messages.map(msg => `
+      const filtered = messages.filter(msg => msg.senderId === currentUser.id || (selectedConversation && selectedConversation.participants && selectedConversation.participants.includes(currentUser.id)));
+      chat.innerHTML = filtered.map(msg => `
         <div class="chat-message${msg.senderId === currentUser.id ? ' sent' : ''}">
           <img src="${msg.senderAvatar || 'https://randomuser.me/api/portraits/lego/2.jpg'}" class="avatar">
           <div>
             <div class="bubble">${msg.text}</div>
-            <div class="meta">${msg.senderName} • ${new Date(msg.createdAt.seconds ? msg.createdAt.seconds * 1000 : msg.createdAt).toLocaleString()}</div>
+            <div class="meta">${msg.senderName} • ${new Date(msg.createdAt.seconds ? msg.createdAt.seconds * 1000 : msg.createdAt).toLocaleString()}${msg.read ? ' <span class=\'badge bg-success\'>Read</span>' : ''}</div>
           </div>
         </div>
       `).join('');
@@ -481,6 +506,17 @@
 
     enforceAuth().then(user => {
       // ... existing messaging page logic ...
+    });
+
+    // Typing indicator logic
+    let typingTimeout;
+    document.getElementById('chatInput').addEventListener('input', function() {
+      if (!selectedConversation) return;
+      db.collection('conversations').doc(selectedConversation.id).update({ ['typing_' + currentUser.id]: true });
+      clearTimeout(typingTimeout);
+      typingTimeout = setTimeout(() => {
+        db.collection('conversations').doc(selectedConversation.id).update({ ['typing_' + currentUser.id]: false });
+      }, 2000);
     });
   </script>
 </body>
