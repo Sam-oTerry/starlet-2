@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Notifications | Starlet Properties</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/starlet-2/css/style.css">
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-custom">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">
+                <span class="brand-star">Star</span> <span class="brand-let">Let</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="index.html"><i class="bi bi-house-door"></i> Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/web-application/pages/users/add-property.html"><i class="bi bi-tags"></i> Sell</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="saved.html"><i class="bi bi-bookmark-heart"></i> Saved Listings</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="messaging.html"><i class="bi bi-chat-dots"></i> Messages</a>
+                    </li>
+                    <li class="nav-item" id="nav-notification-bell">
+                        <a class="nav-link position-relative" href="notifications.html" title="Notifications">
+                            <i class="bi bi-bell"></i>
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none" id="notification-badge">0</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="login.html"><i class="bi bi-box-arrow-in-right"></i> Login</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="register.html"><i class="bi bi-person-plus"></i> Sign Up</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+  <main class="container py-5">
+    <h2 class="mb-4"><i class="bi bi-bell"></i> Notifications</h2>
+    <div id="notifications-list" class="list-group mb-5">
+      <!-- Notifications will be loaded here -->
+    </div>
+    <div id="no-notifications" class="text-center text-muted mt-5 d-none">
+      <i class="bi bi-bell fs-1"></i>
+      <p class="mt-3">You have no notifications yet.</p>
+    </div>
+  </main>
+  <footer class="footer mt-auto">
+    <div class="container text-center py-3">
+      &copy; 2024 Starlet Properties. All rights reserved.
+    </div>
+  </footer>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script>
+    // Redirect to login if not logged in
+    firebase.auth().onAuthStateChanged(function(user) {
+      if (!user) {
+        window.location.href = 'login.html';
+      } else {
+        loadNotifications(user.uid);
+      }
+    });
+    function loadNotifications(uid) {
+      const db = firebase.firestore();
+      const notifList = document.getElementById('notifications-list');
+      const badge = document.getElementById('notification-badge');
+      notifList.innerHTML = '';
+      db.collection('users').doc(uid).collection('notifications').orderBy('createdAt', 'desc').get().then(snap => {
+        if (snap.empty) {
+          document.getElementById('no-notifications').classList.remove('d-none');
+          badge && badge.classList.add('d-none');
+          return;
+        }
+        let unreadCount = 0;
+        snap.forEach(doc => {
+          const n = doc.data();
+          const item = document.createElement('a');
+          item.className = 'list-group-item list-group-item-action flex-column align-items-start';
+          item.innerHTML = `
+            <div class="d-flex w-100 justify-content-between">
+              <h5 class="mb-1">${n.title || 'Notification'}</h5>
+              <small class="text-muted">${n.createdAt && n.createdAt.toDate ? n.createdAt.toDate().toLocaleString() : ''}</small>
+            </div>
+            <p class="mb-1">${n.body || ''}</p>
+            ${n.read === false ? '<span class="badge bg-primary">Unread</span>' : ''}
+          `;
+          if (n.read === false) unreadCount++;
+          notifList.appendChild(item);
+        });
+        document.getElementById('no-notifications').classList.add('d-none');
+        if (badge) {
+          if (unreadCount > 0) {
+            badge.textContent = unreadCount;
+            badge.classList.remove('d-none');
+          } else {
+            badge.classList.add('d-none');
+          }
+        }
+      });
+    }
+  </script>
+</body>
+</html> 

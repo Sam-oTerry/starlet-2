@@ -195,9 +195,10 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="../../js/admin.js"></script>
+  <script>enforceAuth().catch(()=>{});</script>
   <!-- Official Store JS will be added next -->
   <script>
-  enforceAuth('admin').then(user => {
+  enforceAuth().then(user => {
     // --- Add/Edit Listing Modal (full form, dynamic like addlistings.html) ---
     let vehicleMakesModels = [];
     let propertyMeta = null;

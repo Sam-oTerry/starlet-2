@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Messaging - Starlet Properties</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    body { background: #f8f9fa; }
+    .chat-container { display: flex; height: 90vh; background: #fff; border-radius: 1rem; box-shadow: 0 2px 12px rgba(0,0,0,0.07); overflow: hidden; }
+    .chat-sidebar { width: 320px; background: #f4f6fb; border-right: 1px solid #eee; overflow-y: auto; }
+    .chat-listing { padding: 1rem; border-bottom: 1px solid #eee; cursor: pointer; transition: background 0.2s; display: flex; align-items: center; gap: 1rem; }
+    .chat-listing.active, .chat-listing:hover { background: #e9ecef; }
+    .chat-listing-title { font-weight: 600; margin-bottom: 0.2rem; }
+    .chat-listing-agent { font-size: 0.95em; color: #666; }
+    .chat-main { flex: 1; display: flex; flex-direction: column; }
+    .chat-header { padding: 1rem; border-bottom: 1px solid #eee; background: #fff; display: flex; align-items: center; gap: 1rem; }
+    .chat-header .avatar { width: 48px; height: 48px; border-radius: 50%; object-fit: cover; }
+    .chat-header .info { flex: 1; }
+    .chat-header .info h5 { margin: 0; font-weight: 700; }
+    .chat-header .info p { margin: 0; color: #666; font-size: 0.98em; }
+    .chat-messages { flex: 1; padding: 1.5rem; overflow-y: auto; background: #f8f9fa; }
+    .chat-message { margin-bottom: 1.2rem; display: flex; gap: 0.7rem; }
+    .chat-message.sent { flex-direction: row-reverse; }
+    .chat-message .avatar { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; }
+    .chat-message .bubble { max-width: 70%; padding: 0.8rem 1.1rem; border-radius: 1.2rem; background: #e9ecef; color: #222; font-size: 1.05em; position: relative; }
+    .chat-message.sent .bubble { background: #0d6efd; color: #fff; }
+    .chat-message .meta { font-size: 0.85em; color: #888; margin-top: 0.2rem; }
+    .chat-input-bar { display: flex; gap: 0.5rem; padding: 1rem; border-top: 1px solid #eee; background: #fff; }
+    .chat-input-bar textarea { flex: 1; resize: none; border-radius: 1rem; border: 1px solid #ddd; padding: 0.7rem 1rem; font-size: 1.05em; }
+    .chat-input-bar button { border-radius: 1rem; }
+    @media (max-width: 900px) { .chat-container { flex-direction: column; height: auto; } .chat-sidebar { width: 100%; height: 180px; border-right: none; border-bottom: 1px solid #eee; display: flex; flex-direction: row; overflow-x: auto; overflow-y: hidden; } .chat-listing { flex: 1 0 220px; border-bottom: none; border-right: 1px solid #eee; } .chat-main { min-height: 400px; } }
+    @media (max-width: 600px) { .chat-header { flex-direction: column; align-items: flex-start; gap: 0.5rem; } .chat-messages { padding: 0.7rem; } .chat-input-bar { padding: 0.5rem; } }
+  </style>
+</head>
+<body>
+    <!-- Navbar (copied from index.html) -->
+    <nav class="navbar navbar-expand-lg navbar-custom">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">
+                <span class="brand-star">Star</span> <span class="brand-let">Let</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html"><i class="bi bi-house-door"></i> Home</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="categoriesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-grid"></i> Categories
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="categoriesDropdown">
+                            <li><h6 class="dropdown-header">Properties</h6></li>
+                            <li><a class="dropdown-item" href="properties.html?type=house_sale">Houses for Sale</a></li>
+                            <li><a class="dropdown-item" href="properties.html?type=house_rent">Houses for Rent</a></li>
+                            <li><a class="dropdown-item" href="properties.html?type=land_sale">Land for Sale</a></li>
+                            <li><a class="dropdown-item" href="properties.html?type=land_rent">Land for Rent</a></li>
+                            <li><a class="dropdown-item" href="properties.html?type=commercial">Commercial Property</a></li>
+                            <li><a class="dropdown-item" href="properties.html?type=vacation_short_stay">Vacation & Short Stay</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><h6 class="dropdown-header">Vehicles</h6></li>
+                            <li><a class="dropdown-item" href="vehicles.html?type=cars">Cars</a></li>
+                            <li><a class="dropdown-item" href="vehicles.html?type=motorcycles">Motorcycles</a></li>
+                            <li><a class="dropdown-item" href="vehicles.html?type=trucks">Trucks</a></li>
+                            <li><a class="dropdown-item" href="vehicles.html?type=buses">Buses</a></li>
+                            <li><a class="dropdown-item" href="vehicles.html?type=heavy_machinery">Heavy Machinery</a></li>
+                            <li><a class="dropdown-item" href="vehicles.html?type=bicycles_ebikes">Bicycles & E-bikes</a></li>
+                            <li><a class="dropdown-item" href="vehicles.html?type=boats_watercraft">Boats & Watercraft</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/web-application/pages/users/add-property.html"><i class="bi bi-tags"></i> Sell</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="moreDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-three-dots"></i> More
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="moreDropdown">
+                            <li><a class="dropdown-item" href="properties.html"><i class="bi bi-building"></i> Properties</a></li>
+                            <li><a class="dropdown-item" href="vehicles.html"><i class="bi bi-car-front"></i> Vehicles</a></li>
+                            <li><a class="dropdown-item" href="stores.html"><i class="bi bi-shop"></i> Stores</a></li>
+                            <li><a class="dropdown-item" href="resources.html"><i class="bi bi-book"></i> Resources</a></li>
+                            <li><a class="dropdown-item" href="about.html"><i class="bi bi-info-circle"></i> About</a></li>
+                            <li><a class="dropdown-item" href="contact.html"><i class="bi bi-envelope"></i> Contact</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="login.html"><i class="bi bi-box-arrow-in-right"></i> Login</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="register.html"><i class="bi bi-person-plus"></i> Sign Up</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <!-- End Navbar -->
+
+    <!-- Main Chat Content -->
+    <div class="container py-4" style="min-height: 70vh;">
+      <div class="chat-container mx-auto">
+        <div class="chat-sidebar" id="chatSidebar">
+          <!-- Recent conversations will be loaded here -->
+        </div>
+        <div class="chat-main">
+          <div class="chat-header" id="chatHeader">
+            <!-- Chat header info -->
+          </div>
+          <div class="chat-messages" id="chatMessages">
+            <!-- Messages will be loaded here -->
+          </div>
+          <form class="chat-input-bar" id="chatInputForm" autocomplete="off">
+            <textarea id="chatInput" rows="1" placeholder="Type your message..."></textarea>
+            <button type="submit" class="btn btn-primary"><i class="bi bi-send"></i></button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer (copied from index.html) -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4 mb-4">
+                    <h4>About Starlet Properties</h4>
+                    <p>Uganda's premier real estate and vehicle marketplace, connecting buyers and sellers across the country.</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h4>Properties</h4>
+                    <ul>
+                        <li><a href="properties.html?type=house_sale">Houses for Sale</a></li>
+                        <li><a href="properties.html?type=house_rent">Houses for Rent</a></li>
+                        <li><a href="properties.html?type=land_sale">Land for Sale</a></li>
+                        <li><a href="properties.html?type=land_rent">Land for Rent</a></li>
+                        <li><a href="properties.html?type=commercial">Commercial Property</a></li>
+                        <li><a href="properties.html?type=vacation_short_stay">Vacation & Short Stay</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h4>Vehicles</h4>
+                    <ul>
+                        <li><a href="vehicles.html?type=cars">Cars</a></li>
+                        <li><a href="vehicles.html?type=motorcycles">Motorcycles</a></li>
+                        <li><a href="vehicles.html?type=trucks">Trucks</a></li>
+                        <li><a href="vehicles.html?type=buses">Buses</a></li>
+                        <li><a href="vehicles.html?type=heavy_machinery">Heavy Machinery</a></li>
+                        <li><a href="vehicles.html?type=bicycles_ebikes">Bicycles & E-bikes</a></li>
+                        <li><a href="vehicles.html?type=boats_watercraft">Boats & Watercraft</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h4>Company</h4>
+                    <ul>
+                        <li><a href="about.html">About Us</a></li>
+                        <li><a href="contact.html">Contact</a></li>
+                        <li><a href="resources.html">Resources</a></li>
+                        <li><a href="stores.html">Our Stores</a></li>
+                        <li><a href="privacy.html">Privacy Policy</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h4>Contact</h4>
+                    <ul>
+                        <li><a href="tel:+256123456789"><i class="bi bi-telephone"></i> +256 123 456 789</a></li>
+                        <li><a href="mailto:info@starlet.co.ug"><i class="bi bi-envelope"></i> info@starlet.co.ug</a></li>
+                        <li><a href="#"><i class="bi bi-geo-alt"></i> Kampala, Uganda</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p class="mb-0">&copy; 2024 Starlet Properties. All rights reserved.</p>
+                    </div>
+                    <div class="col-md-6 text-md-end">
+                        <a href="terms.html" class="me-3">Terms of Service</a>
+                        <a href="privacy.html">Privacy Policy</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+    <!-- End Footer -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script>
+    // Firebase config (same as other pages)
+    const firebaseConfig = {
+      apiKey: "AIzaSyDH1sMk2NwceMAEfvH07azxaoPXpOI1Sek",
+      authDomain: "starlet-properties-41509.firebaseapp.com",
+      projectId: "starlet-properties-41509",
+      storageBucket: "starlet-properties-41509.appspot.com",
+      messagingSenderId: "393372988481",
+      appId: "1:393372988481:web:c92584d7408296457b02c0",
+      measurementId: "G-F02K9SP07C"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    const auth = firebase.auth();
+
+    // Show loading spinner while checking auth
+    document.body.insertAdjacentHTML('beforeend', '<div id="authLoading" style="position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:2000;background:rgba(255,255,255,0.7);display:flex;align-items:center;justify-content:center;"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div></div>');
+
+    let currentUser = null;
+    auth.onAuthStateChanged(async user => {
+      if (!user) {
+        window.location.href = 'login.html';
+        return;
+      }
+      currentUser = {
+        id: user.uid,
+        name: user.displayName || user.email || 'User',
+        avatar: user.photoURL || 'https://randomuser.me/api/portraits/lego/2.jpg',
+        email: user.email
+      };
+      // Add logout button to navbar
+      const nav = document.querySelector('.navbar-nav');
+      if (nav && !document.getElementById('logoutBtn')) {
+        const li = document.createElement('li');
+        li.className = 'nav-item';
+        li.innerHTML = '<a class="nav-link" href="#" id="logoutBtn"><i class="bi bi-box-arrow-right"></i> Logout</a>';
+        nav.appendChild(li);
+        document.getElementById('logoutBtn').onclick = function(e) {
+          e.preventDefault();
+          auth.signOut();
+        };
+      }
+      document.getElementById('authLoading').remove();
+      // Now load conversations and continue as before
+      await loadConversations();
+      const listingId = getQueryParam('listingId');
+      if (listingId) {
+        await startConversationForListing(listingId);
+      } else if (conversations.length) {
+        selectConversation(conversations[0]);
+      }
+    });
+
+    function getQueryParam(name) {
+      const url = new URL(window.location.href);
+      return url.searchParams.get(name);
+    }
+
+    let conversations = [];
+    let selectedConversation = null;
+    let unsubscribeMessages = null;
+
+    async function loadConversations() {
+      if (!currentUser) return;
+      const sidebar = document.getElementById('chatSidebar');
+      sidebar.innerHTML = '<div class="text-center w-100 py-4">Loading...</div>';
+      try {
+        const convSnap = await db.collection('conversations')
+          .where('participants', 'array-contains', currentUser.id)
+          .orderBy('lastMessageAt', 'desc')
+          .limit(20).get();
+        conversations = [];
+        convSnap.forEach(doc => {
+          conversations.push({ id: doc.id, ...doc.data() });
+        });
+        if (conversations.length === 0) {
+          sidebar.innerHTML = '<div class="text-center w-100 py-4 text-muted">No conversations yet.</div>';
+          return;
+        }
+        sidebar.innerHTML = conversations.map((conv, idx) => `
+          <div class="chat-listing${selectedConversation && selectedConversation.id === conv.id ? ' active' : ''}" data-idx="${idx}">
+            <img src="${conv.agentAvatar || 'https://randomuser.me/api/portraits/lego/1.jpg'}" class="rounded-circle" width="40" height="40" alt="Agent">
+            <div>
+              <div class="chat-listing-title">${conv.listingTitle || 'Listing'}</div>
+              <div class="chat-listing-agent">${conv.agentName || 'Agent'}</div>
+              <div class="small text-muted">${conv.lastMessage ? conv.lastMessage.slice(0, 30) : ''}</div>
+            </div>
+          </div>
+        `).join('');
+        document.querySelectorAll('.chat-listing').forEach(el => {
+          el.onclick = () => selectConversation(conversations[parseInt(el.dataset.idx)]);
+        });
+      } catch (err) {
+        sidebar.innerHTML = '<div class="text-danger text-center">Failed to load conversations.</div>';
+      }
+    }
+
+    async function selectConversation(conv) {
+      selectedConversation = conv;
+      renderChatHeader();
+      loadMessages();
+      loadConversations(); // to update active state
+    }
+
+    function renderChatHeader() {
+      const header = document.getElementById('chatHeader');
+      if (!selectedConversation) {
+        header.innerHTML = '<span class="text-muted">Select a conversation</span>';
+        return;
+      }
+      header.innerHTML = `
+        <img src="${selectedConversation.agentAvatar || 'https://randomuser.me/api/portraits/lego/1.jpg'}" class="avatar">
+        <div class="info">
+          <h5>${selectedConversation.agentName || 'Agent'}</h5>
+          <p>${selectedConversation.listingTitle || 'Listing'}</p>
+        </div>
+      `;
+    }
+
+    function renderMessages(messages) {
+      const chat = document.getElementById('chatMessages');
+      if (!messages.length) {
+        chat.innerHTML = '<div class="text-center text-muted py-5">No messages yet. Say hello!</div>';
+        return;
+      }
+      chat.innerHTML = messages.map(msg => `
+        <div class="chat-message${msg.senderId === currentUser.id ? ' sent' : ''}">
+          <img src="${msg.senderAvatar || 'https://randomuser.me/api/portraits/lego/2.jpg'}" class="avatar">
+          <div>
+            <div class="bubble">${msg.text}</div>
+            <div class="meta">${msg.senderName} • ${new Date(msg.createdAt.seconds ? msg.createdAt.seconds * 1000 : msg.createdAt).toLocaleString()}</div>
+          </div>
+        </div>
+      `).join('');
+      chat.scrollTop = chat.scrollHeight;
+    }
+
+    function listenForMessages(convId) {
+      if (unsubscribeMessages) unsubscribeMessages();
+      unsubscribeMessages = db.collection('conversations').doc(convId)
+        .collection('messages').orderBy('createdAt')
+        .onSnapshot(snap => {
+          const messages = [];
+          snap.forEach(doc => messages.push(doc.data()));
+          renderMessages(messages);
+        });
+    }
+
+    async function loadMessages() {
+      if (!selectedConversation) return;
+      listenForMessages(selectedConversation.id);
+    }
+
+    document.getElementById('chatInputForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const input = document.getElementById('chatInput');
+      const text = input.value.trim();
+      if (!text || !selectedConversation) return;
+      input.value = '';
+      const msg = {
+        text,
+        senderId: currentUser.id,
+        senderName: currentUser.name,
+        senderAvatar: currentUser.avatar,
+        createdAt: new Date()
+      };
+      try {
+        await db.collection('conversations').doc(selectedConversation.id)
+          .collection('messages').add(msg);
+        await db.collection('conversations').doc(selectedConversation.id).update({
+          lastMessage: text,
+          lastMessageAt: new Date()
+        });
+      } catch (err) {
+        alert('Failed to send message. Please try again.');
+      }
+    });
+
+    // Start a new conversation if listingId is provided
+    async function startConversationForListing(listingId) {
+      // Fetch listing info
+      const listingDoc = await db.collection('listings').doc(listingId).get();
+      if (!listingDoc.exists) return;
+      const listing = listingDoc.data();
+      let agentId = listing.agentId || (listing.agent && listing.agent.id);
+      let agentName = (listing.agent && listing.agent.name) || '';
+      let agentAvatar = (listing.agent && listing.agent.avatar) || '';
+      // Try to fetch agent info from users collection
+      if (agentId) {
+        try {
+          const agentDoc = await db.collection('users').doc(agentId).get();
+          if (agentDoc.exists) {
+            const agentData = agentDoc.data();
+            agentName = (agentData.firstName || '') + ' ' + (agentData.lastName || '');
+            agentAvatar = agentData.avatar || agentAvatar || 'https://randomuser.me/api/portraits/lego/1.jpg';
+          }
+        } catch (err) {
+          // fallback to listing.agent
+        }
+      }
+      // Find or create conversation
+      const convSnap = await db.collection('conversations')
+        .where('listingId', '==', listingId)
+        .where('participants', 'array-contains', currentUser.id)
+        .limit(1).get();
+      let convId;
+      if (!convSnap.empty) {
+        convId = convSnap.docs[0].id;
+      } else {
+        const convRef = await db.collection('conversations').add({
+          listingId,
+          listingTitle: listing.title || 'Listing',
+          agentId: agentId || '',
+          agentName: agentName || 'Agent',
+          agentAvatar: agentAvatar || '',
+          participants: [currentUser.id, agentId || 'agent'],
+          lastMessage: '',
+          lastMessageAt: new Date()
+        });
+        convId = convRef.id;
+      }
+      // Load conversations and select this one
+      await loadConversations();
+      const conv = conversations.find(c => c.id === convId);
+      if (conv) selectConversation(conv);
+    }
+
+    enforceAuth().then(user => {
+      // ... existing messaging page logic ...
+    });
+  </script>
+</body>
+</html> 
