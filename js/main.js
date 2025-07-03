@@ -534,19 +534,26 @@ function updateNavbarForAuth(user) {
   // Remove any previously added custom nav items
   nav.querySelectorAll('.auth-nav-item').forEach(el => el.remove());
   if (!user || user.isAnonymous) return;
+  // Find the first login or register nav-item to insert before
+  const loginItem = nav.querySelector('a[href="login.html"]')?.closest('li');
+  const registerItem = nav.querySelector('a[href="register.html"]')?.closest('li');
+  const insertBefore = loginItem || registerItem || null;
   // Messages
   const msgLi = document.createElement('li');
   msgLi.className = 'nav-item auth-nav-item';
   msgLi.innerHTML = '<a class="nav-link" href="messaging.html"><i class="bi bi-chat-dots"></i> Messages</a>';
-  nav.appendChild(msgLi);
+  nav.insertBefore(msgLi, insertBefore);
   // My Store
   const storeLi = document.createElement('li');
   storeLi.className = 'nav-item auth-nav-item';
   storeLi.innerHTML = '<a class="nav-link" href="stores.html"><i class="bi bi-shop"></i> My Store</a>';
-  nav.appendChild(storeLi);
+  nav.insertBefore(storeLi, insertBefore);
   // Saved Listings
   const savedLi = document.createElement('li');
   savedLi.className = 'nav-item auth-nav-item';
   savedLi.innerHTML = '<a class="nav-link" href="saved.html"><i class="bi bi-bookmark-heart"></i> Saved Listings</a>';
-  nav.appendChild(savedLi);
+  nav.insertBefore(savedLi, insertBefore);
+  // Hide the static #nav-messaging-link if present
+  const staticMsg = document.getElementById('nav-messaging-link');
+  if (staticMsg) staticMsg.style.display = 'none';
 }
