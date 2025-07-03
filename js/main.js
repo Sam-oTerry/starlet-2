@@ -557,3 +557,25 @@ function updateNavbarForAuth(user) {
   const staticMsg = document.getElementById('nav-messaging-link');
   if (staticMsg) staticMsg.style.display = 'none';
 }
+
+async function enforceAuth(requiredRole) {
+  return new Promise((resolve, reject) => {
+    firebase.auth().onAuthStateChanged(async user => {
+      if (!user || user.isAnonymous) {
+        window.location.href = 'login.html';
+        return reject('Not logged in');
+      }
+      if (requiredRole) {
+        // Check user role in Firestore
+        const userDoc = await firebase.firestore().collection('users').doc(user.uid).get();
+        if (!userDoc.exists || userDoc.data().role !== requiredRole) {
+          alert('You do not have permission to access this page.');
+          window.location.href = 'index.html';
+          return reject('Not authorized');
+        }
+      }
+      resolve(user);
+    });
+  });
+}
+window.enforceAuth = enforceAuth;

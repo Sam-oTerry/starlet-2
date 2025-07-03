@@ -78,4 +78,11 @@ window.showToast = showToast;
 window.requireAdminUser = requireAdminUser;
 window.formatDate = formatDate;
 window.formatPrice = formatPrice;
-window.confirmAction = confirmAction; 
+window.confirmAction = confirmAction;
+
+// Enforce admin authentication
+window.addEventListener('DOMContentLoaded', function() {
+  enforceAuth('admin').then(user => {
+    // ... existing admin page logic ...
+  });
+}); 

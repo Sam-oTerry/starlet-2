@@ -380,11 +380,7 @@
     const db = firebase.firestore();
 
     // Auth check and load user/store info
-    firebase.auth().onAuthStateChanged(async function(user) {
-      if (!user) {
-        window.location.href = 'login.html';
-        return;
-      }
+    enforceAuth().then(async user => {
       // Update profile summary
       document.querySelector('.profile-avatar img').src = user.photoURL || 'https://randomuser.me/api/portraits/men/32.jpg';
       document.querySelector('.profile-avatar img').alt = user.displayName || user.email || 'User';
