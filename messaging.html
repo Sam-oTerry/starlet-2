@@ -23,7 +23,19 @@
     .chat-header .info p { margin: 0; color: #666; font-size: 0.98em; }
     .chat-messages { flex: 1; padding: 1.5rem; overflow-y: auto; background: #f8f9fa; }
     .chat-message { margin-bottom: 1.2rem; display: flex; gap: 0.7rem; }
-    .chat-message.sent { flex-direction: row-reverse; }
+    .chat-message.sent {
+      flex-direction: row-reverse;
+    }
+    .chat-message.sent .bubble {
+      background: #0d6efd;
+      color: #fff;
+      text-align: right;
+    }
+    .chat-message.received .bubble {
+      background: #e9ecef;
+      color: #222;
+      text-align: left;
+    }
     .chat-message .avatar { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; }
     .chat-message .bubble { max-width: 70%; padding: 0.8rem 1.1rem; border-radius: 1.2rem; background: #e9ecef; color: #222; font-size: 1.05em; position: relative; }
     .chat-message.sent .bubble { background: #0d6efd; color: #fff; }
@@ -355,7 +367,7 @@
       }
       const filtered = messages.filter(msg => msg.senderId === currentUser.id || (selectedConversation && selectedConversation.participants && selectedConversation.participants.includes(currentUser.id)));
       chat.innerHTML = filtered.map(msg => `
-        <div class="chat-message${msg.senderId === currentUser.id ? ' sent' : ''}">
+        <div class="chat-message${msg.senderId === currentUser.id ? ' sent' : ' received'}">
           <img src="${msg.senderAvatar || 'https://randomuser.me/api/portraits/lego/2.jpg'}" class="avatar">
           <div>
             <div class="bubble">${msg.text}</div>
