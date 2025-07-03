@@ -404,6 +404,7 @@ if (window.firebase && firebase.auth) {
     // Optionally, update UI for logged-in state here
     // e.g., show/hide login/signup buttons
     renderFeaturedListings(); // re-render listings to show save/message buttons
+    updateNavbarForAuth(user);
     restrictGuestFeatures();
   });
 }
@@ -525,4 +526,27 @@ function restrictGuestFeatures() {
       alert('You must be signed in to use this feature.');
     };
   });
+}
+
+function updateNavbarForAuth(user) {
+  const nav = document.querySelector('.navbar-nav');
+  if (!nav) return;
+  // Remove any previously added custom nav items
+  nav.querySelectorAll('.auth-nav-item').forEach(el => el.remove());
+  if (!user || user.isAnonymous) return;
+  // Messages
+  const msgLi = document.createElement('li');
+  msgLi.className = 'nav-item auth-nav-item';
+  msgLi.innerHTML = '<a class="nav-link" href="messaging.html"><i class="bi bi-chat-dots"></i> Messages</a>';
+  nav.appendChild(msgLi);
+  // My Store
+  const storeLi = document.createElement('li');
+  storeLi.className = 'nav-item auth-nav-item';
+  storeLi.innerHTML = '<a class="nav-link" href="stores.html"><i class="bi bi-shop"></i> My Store</a>';
+  nav.appendChild(storeLi);
+  // Saved Listings
+  const savedLi = document.createElement('li');
+  savedLi.className = 'nav-item auth-nav-item';
+  savedLi.innerHTML = '<a class="nav-link" href="saved.html"><i class="bi bi-bookmark-heart"></i> Saved Listings</a>';
+  nav.appendChild(savedLi);
 }
