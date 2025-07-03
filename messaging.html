@@ -105,6 +105,13 @@
     <div class="container py-4" style="min-height: 70vh;">
       <div class="chat-container mx-auto">
         <div class="chat-sidebar" id="chatSidebar">
+          <div class="chat-listing" id="chatWithAdminBtn" style="background:#e9ecef;font-weight:600;cursor:pointer;">
+            <img src="https://randomuser.me/api/portraits/men/32.jpg" class="rounded-circle" width="40" height="40" alt="Admin">
+            <div>
+              <div class="chat-listing-title">Chat with Admin</div>
+              <div class="chat-listing-agent">Support & Inquiries</div>
+            </div>
+          </div>
           <!-- Recent conversations will be loaded here -->
         </div>
         <div class="chat-main">
@@ -422,6 +429,54 @@
       const conv = conversations.find(c => c.id === convId);
       if (conv) selectConversation(conv);
     }
+
+    document.getElementById('chatWithAdminBtn').onclick = async function() {
+      if (!currentUser) return;
+      // Find admin user
+      let adminId = null, adminName = 'Admin', adminAvatar = 'https://randomuser.me/api/portraits/men/32.jpg';
+      try {
+        const adminSnap = await db.collection('users').where('role', '==', 'admin').limit(1).get();
+        if (!adminSnap.empty) {
+          const adminDoc = adminSnap.docs[0];
+          adminId = adminDoc.id;
+          const adminData = adminDoc.data();
+          adminName = (adminData.firstName || '') + ' ' + (adminData.lastName || '') || 'Admin';
+          adminAvatar = adminData.avatar || adminAvatar;
+        }
+      } catch (e) {}
+      if (!adminId) {
+        alert('No admin user found.');
+        return;
+      }
+      // Find or create conversation with admin
+      let convId;
+      const convSnap = await db.collection('conversations')
+        .where('participants', 'array-contains', currentUser.id)
+        .get();
+      let found = false;
+      convSnap.forEach(doc => {
+        const data = doc.data();
+        if (data.participants.includes(adminId) && !data.listingId) {
+          convId = doc.id;
+          found = true;
+        }
+      });
+      if (!found) {
+        const convRef = await db.collection('conversations').add({
+          participants: [currentUser.id, adminId],
+          agentId: adminId,
+          agentName: adminName,
+          agentAvatar: adminAvatar,
+          listingTitle: 'Admin Inquiry',
+          lastMessage: '',
+          lastMessageAt: new Date()
+        });
+        convId = convRef.id;
+      }
+      await loadConversations();
+      const conv = conversations.find(c => c.id === convId);
+      if (conv) selectConversation(conv);
+    };
 
     enforceAuth().then(user => {
       // ... existing messaging page logic ...
