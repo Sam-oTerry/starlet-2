@@ -195,232 +195,237 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="../../js/admin.js"></script>
-  <script>enforceAuth().catch(()=>{});</script>
+  
   <!-- Official Store JS will be added next -->
   <script>
-  enforceAuth().then(user => {
-    // --- Add/Edit Listing Modal (full form, dynamic like addlistings.html) ---
-    let vehicleMakesModels = [];
-    let propertyMeta = null;
+  // Wait for admin.js to load and then use the proper admin authentication
+  document.addEventListener('DOMContentLoaded', function() {
+    if (window.enforceAuth) {
+      window.enforceAuth().then(user => {
+        // --- Add/Edit Listing Modal (full form, dynamic like addlistings.html) ---
+        let vehicleMakesModels = [];
+        let propertyMeta = null;
 
-    // Fetch vehicle makes/models and property meta on page load
-    fetchVehicleMakesModels();
-    fetchPropertyMeta();
+        // Fetch vehicle makes/models and property meta on page load
+        fetchVehicleMakesModels();
+        fetchPropertyMeta();
 
-    async function fetchVehicleMakesModels() {
-      try {
-        const snap = await db.collection('vehicleMakesModels').get();
-        vehicleMakesModels = snap.docs.map(doc => doc.data());
-      } catch (e) {
-        vehicleMakesModels = [];
-      }
-    }
-    async function fetchPropertyMeta() {
-      try {
-        const snap = await db.collection('propertyMeta').limit(1).get();
-        if (!snap.empty) propertyMeta = snap.docs[0].data();
-        else propertyMeta = null;
-      } catch (e) {
-        propertyMeta = null;
-      }
-    }
-
-    function showAddEditListingModal(listing = null) {
-      const isEdit = !!listing;
-      // Modal form HTML (property/vehicle sections, dynamic fields)
-      const formHtml = `
-        <form id='addEditListingForm'>
-          <div class='mb-3'>
-            <label class='form-label'>Listing Type</label>
-            <select id='modalListingType' class='form-select' name='listingType' required>
-              <option value=''>Select Type</option>
-              <option value='property' ${listing?.listingType && listing.listingType!=='vehicle'?'selected':''}>Property</option>
-              <option value='vehicle' ${listing?.listingType==='vehicle'?'selected':''}>Vehicle</option>
-            </select>
-          </div>
-          <div id='modalPropertySection' class='d-none'>
-            <div class='mb-3'>
-              <label class='form-label'>Property Type</label>
-              <select id='modalPropertyType' class='form-select' name='propertyType'>
-                <option value=''>Select Property Type</option>
-                <option value='house_sale'>House for Sale</option>
-                <option value='house_rent'>House for Rent</option>
-                <option value='land_sale'>Land for Sale</option>
-                <option value='land_rent'>Land for Rent</option>
-                <option value='vacation_short_stay'>Vacation & Short Stay</option>
-              </select>
-            </div>
-            <div class='mb-3'>
-              <label class='form-label'>Title</label>
-              <input id='modalPropertyTitle' name='title' type='text' class='form-control' value='${listing?.title||''}' required>
-            </div>
-            <div class='mb-3'>
-              <label class='form-label'>Asking Price (UGX)</label>
-              <input id='modalPropertyAskingPrice' name='askingPrice' type='number' class='form-control' value='${listing?.askingPrice||''}' required>
-            </div>
-            <div class='mb-3'>
-              <label class='form-label'>District</label>
-              <input id='modalPropertyDistrict' name='district' type='text' class='form-control' value='${listing?.location?.district||''}' required>
-            </div>
-            <div class='mb-3'>
-              <label class='form-label'>Description</label>
-              <textarea id='modalPropertyDescription' name='description' class='form-control' rows='2'>${listing?.description||''}</textarea>
-            </div>
-          </div>
-          <div id='modalVehicleSection' class='d-none'>
-            <div class='mb-3'>
-              <label class='form-label'>Vehicle Category</label>
-              <select id='modalVehicleCategory' class='form-select' name='vehicleCategory'>
-                <option value=''>Select Category</option>
-                <option value='Cars'>Cars</option>
-                <option value='Motorcycles'>Motorcycles</option>
-                <option value='Trucks & Lorries'>Trucks & Lorries</option>
-                <option value='Buses & Vans'>Buses & Vans</option>
-                <option value='Heavy Machinery'>Heavy Machinery</option>
-                <option value='Bicycles & E-bikes'>Bicycles & E-bikes</option>
-                <option value='Boats & Watercraft'>Boats & Watercraft</option>
-              </select>
-            </div>
-            <div class='mb-3'>
-              <label class='form-label'>Make</label>
-              <select id='modalVehicleMake' class='form-select' name='make'></select>
-            </div>
-            <div class='mb-3'>
-              <label class='form-label'>Model</label>
-              <select id='modalVehicleModel' class='form-select' name='model'></select>
-            </div>
-            <div class='mb-3'>
-              <label class='form-label'>Title</label>
-              <input id='modalVehicleTitle' name='title' type='text' class='form-control' value='${listing?.title||''}' required>
-            </div>
-            <div class='mb-3'>
-              <label class='form-label'>Asking Price (UGX)</label>
-              <input id='modalVehicleAskingPrice' name='askingPrice' type='number' class='form-control' value='${listing?.askingPrice||''}' required>
-            </div>
-            <div class='mb-3'>
-              <label class='form-label'>Description</label>
-              <textarea id='modalVehicleDescription' name='description' class='form-control' rows='2'>${listing?.description||''}</textarea>
-            </div>
-          </div>
-          <button type='submit' class='btn btn-primary'>${isEdit ? 'Save Changes' : 'Add Listing'}</button>
-        </form>
-      `;
-      document.getElementById('addEditListingFormContainer').innerHTML = formHtml;
-      const modal = new bootstrap.Modal(document.getElementById('addEditListingModal'));
-      modal.show();
-
-      // --- Dynamic Section Toggle ---
-      const modalListingType = document.getElementById('modalListingType');
-      const modalPropertySection = document.getElementById('modalPropertySection');
-      const modalVehicleSection = document.getElementById('modalVehicleSection');
-      function toggleModalSections() {
-        if (modalListingType.value === 'property') {
-          modalPropertySection.classList.remove('d-none');
-          modalVehicleSection.classList.add('d-none');
-        } else if (modalListingType.value === 'vehicle') {
-          modalPropertySection.classList.add('d-none');
-          modalVehicleSection.classList.remove('d-none');
-        } else {
-          modalPropertySection.classList.add('d-none');
-          modalVehicleSection.classList.add('d-none');
+        async function fetchVehicleMakesModels() {
+          try {
+            const snap = await db.collection('vehicleMakesModels').get();
+            vehicleMakesModels = snap.docs.map(doc => doc.data());
+          } catch (e) {
+            vehicleMakesModels = [];
+          }
         }
-      }
-      modalListingType.addEventListener('change', toggleModalSections);
-      toggleModalSections();
-
-      // --- Dynamic Vehicle Dropdowns ---
-      const modalVehicleCategory = document.getElementById('modalVehicleCategory');
-      const modalVehicleMake = document.getElementById('modalVehicleMake');
-      const modalVehicleModel = document.getElementById('modalVehicleModel');
-      function populateModalVehicleMakes() {
-        const selectedType = modalVehicleCategory.value.trim();
-        const makes = vehicleMakesModels
-          .filter(item => item.vehicleType && item.vehicleType.trim().toLowerCase() === selectedType.toLowerCase())
-          .map(item => item.make)
-          .filter((v, i, a) => v && a.indexOf(v) === i);
-        modalVehicleMake.length = 1;
-        makes.forEach(make => {
-          const opt = document.createElement('option');
-          opt.value = make;
-          opt.textContent = make;
-          modalVehicleMake.appendChild(opt);
-        });
-        modalVehicleModel.length = 1;
-      }
-      function populateModalVehicleModels() {
-        const selectedType = modalVehicleCategory.value.trim();
-        const selectedMake = modalVehicleMake.value.trim();
-        const makeObj = vehicleMakesModels.find(
-          item =>
-            item.vehicleType &&
-            item.make &&
-            item.vehicleType.trim().toLowerCase() === selectedType.toLowerCase() &&
-            item.make.trim().toLowerCase() === selectedMake.toLowerCase()
-        );
-        modalVehicleModel.length = 1;
-        if (makeObj && Array.isArray(makeObj.models)) {
-          makeObj.models.forEach(model => {
-            const opt = document.createElement('option');
-            opt.value = model;
-            opt.textContent = model;
-            modalVehicleModel.appendChild(opt);
-          });
+        async function fetchPropertyMeta() {
+          try {
+            const snap = await db.collection('propertyMeta').limit(1).get();
+            if (!snap.empty) propertyMeta = snap.docs[0].data();
+            else propertyMeta = null;
+          } catch (e) {
+            propertyMeta = null;
+          }
         }
-      }
-      modalVehicleCategory.addEventListener('change', populateModalVehicleMakes);
-      modalVehicleMake.addEventListener('change', populateModalVehicleModels);
-      if (listing && listing.listingType === 'vehicle') {
-        modalVehicleCategory.value = listing.vehicleDetails?.vehicleCategory || '';
-        populateModalVehicleMakes();
-        modalVehicleMake.value = listing.vehicleDetails?.make || '';
-        populateModalVehicleModels();
-        modalVehicleModel.value = listing.vehicleDetails?.model || '';
-      }
 
-      // --- Form Submit ---
-      document.getElementById('addEditListingForm').onsubmit = async function(e) {
-        e.preventDefault();
-        const fd = new FormData(this);
-        let data = {
-          storeId: officialStoreId,
-          isOfficial: true,
-          status: 'pending',
-          createdAt: listing?.createdAt || new Date(),
-          updatedAt: new Date()
-        };
-        if (fd.get('listingType') === 'property') {
-          data.listingType = fd.get('propertyType');
-          data.title = fd.get('title');
-          data.askingPrice = Number(fd.get('askingPrice'));
-          data.location = { district: fd.get('district') };
-          data.description = fd.get('description');
-        } else if (fd.get('listingType') === 'vehicle') {
-          data.listingType = 'vehicle';
-          data.vehicleDetails = {
-            vehicleCategory: fd.get('vehicleCategory'),
-            make: fd.get('make'),
-            model: fd.get('model')
+        function showAddEditListingModal(listing = null) {
+          const isEdit = !!listing;
+          // Modal form HTML (property/vehicle sections, dynamic fields)
+          const formHtml = `
+            <form id='addEditListingForm'>
+              <div class='mb-3'>
+                <label class='form-label'>Listing Type</label>
+                <select id='modalListingType' class='form-select' name='listingType' required>
+                  <option value=''>Select Type</option>
+                  <option value='property' ${listing?.listingType && listing.listingType!=='vehicle'?'selected':''}>Property</option>
+                  <option value='vehicle' ${listing?.listingType==='vehicle'?'selected':''}>Vehicle</option>
+                </select>
+              </div>
+              <div id='modalPropertySection' class='d-none'>
+                <div class='mb-3'>
+                  <label class='form-label'>Property Type</label>
+                  <select id='modalPropertyType' class='form-select' name='propertyType'>
+                    <option value=''>Select Property Type</option>
+                    <option value='house_sale'>House for Sale</option>
+                    <option value='house_rent'>House for Rent</option>
+                    <option value='land_sale'>Land for Sale</option>
+                    <option value='land_rent'>Land for Rent</option>
+                    <option value='vacation_short_stay'>Vacation & Short Stay</option>
+                  </select>
+                </div>
+                <div class='mb-3'>
+                  <label class='form-label'>Title</label>
+                  <input id='modalPropertyTitle' name='title' type='text' class='form-control' value='${listing?.title||''}' required>
+                </div>
+                <div class='mb-3'>
+                  <label class='form-label'>Asking Price (UGX)</label>
+                  <input id='modalPropertyAskingPrice' name='askingPrice' type='number' class='form-control' value='${listing?.askingPrice||''}' required>
+                </div>
+                <div class='mb-3'>
+                  <label class='form-label'>District</label>
+                  <input id='modalPropertyDistrict' name='district' type='text' class='form-control' value='${listing?.location?.district||''}' required>
+                </div>
+                <div class='mb-3'>
+                  <label class='form-label'>Description</label>
+                  <textarea id='modalPropertyDescription' name='description' class='form-control' rows='2'>${listing?.description||''}</textarea>
+                </div>
+              </div>
+              <div id='modalVehicleSection' class='d-none'>
+                <div class='mb-3'>
+                  <label class='form-label'>Vehicle Category</label>
+                  <select id='modalVehicleCategory' class='form-select' name='vehicleCategory'>
+                    <option value=''>Select Category</option>
+                    <option value='Cars'>Cars</option>
+                    <option value='Motorcycles'>Motorcycles</option>
+                    <option value='Trucks & Lorries'>Trucks & Lorries</option>
+                    <option value='Buses & Vans'>Buses & Vans</option>
+                    <option value='Heavy Machinery'>Heavy Machinery</option>
+                    <option value='Bicycles & E-bikes'>Bicycles & E-bikes</option>
+                    <option value='Boats & Watercraft'>Boats & Watercraft</option>
+                  </select>
+                </div>
+                <div class='mb-3'>
+                  <label class='form-label'>Make</label>
+                  <select id='modalVehicleMake' class='form-select' name='make'></select>
+                </div>
+                <div class='mb-3'>
+                  <label class='form-label'>Model</label>
+                  <select id='modalVehicleModel' class='form-select' name='model'></select>
+                </div>
+                <div class='mb-3'>
+                  <label class='form-label'>Title</label>
+                  <input id='modalVehicleTitle' name='title' type='text' class='form-control' value='${listing?.title||''}' required>
+                </div>
+                <div class='mb-3'>
+                  <label class='form-label'>Asking Price (UGX)</label>
+                  <input id='modalVehicleAskingPrice' name='askingPrice' type='number' class='form-control' value='${listing?.askingPrice||''}' required>
+                </div>
+                <div class='mb-3'>
+                  <label class='form-label'>Description</label>
+                  <textarea id='modalVehicleDescription' name='description' class='form-control' rows='2'>${listing?.description||''}</textarea>
+                </div>
+              </div>
+              <button type='submit' class='btn btn-primary'>${isEdit ? 'Save Changes' : 'Add Listing'}</button>
+            </form>
+          `;
+          document.getElementById('addEditListingFormContainer').innerHTML = formHtml;
+          const modal = new bootstrap.Modal(document.getElementById('addEditListingModal'));
+          modal.show();
+
+          // --- Dynamic Section Toggle ---
+          const modalListingType = document.getElementById('modalListingType');
+          const modalPropertySection = document.getElementById('modalPropertySection');
+          const modalVehicleSection = document.getElementById('modalVehicleSection');
+          function toggleModalSections() {
+            if (modalListingType.value === 'property') {
+              modalPropertySection.classList.remove('d-none');
+              modalVehicleSection.classList.add('d-none');
+            } else if (modalListingType.value === 'vehicle') {
+              modalPropertySection.classList.add('d-none');
+              modalVehicleSection.classList.remove('d-none');
+            } else {
+              modalPropertySection.classList.add('d-none');
+              modalVehicleSection.classList.add('d-none');
+            }
+          }
+          modalListingType.addEventListener('change', toggleModalSections);
+          toggleModalSections();
+
+          // --- Dynamic Vehicle Dropdowns ---
+          const modalVehicleCategory = document.getElementById('modalVehicleCategory');
+          const modalVehicleMake = document.getElementById('modalVehicleMake');
+          const modalVehicleModel = document.getElementById('modalVehicleModel');
+          function populateModalVehicleMakes() {
+            const selectedType = modalVehicleCategory.value.trim();
+            const makes = vehicleMakesModels
+              .filter(item => item.vehicleType && item.vehicleType.trim().toLowerCase() === selectedType.toLowerCase())
+              .map(item => item.make)
+              .filter((v, i, a) => v && a.indexOf(v) === i);
+            modalVehicleMake.length = 1;
+            makes.forEach(make => {
+              const opt = document.createElement('option');
+              opt.value = make;
+              opt.textContent = make;
+              modalVehicleMake.appendChild(opt);
+            });
+            modalVehicleModel.length = 1;
+          }
+          function populateModalVehicleModels() {
+            const selectedType = modalVehicleCategory.value.trim();
+            const selectedMake = modalVehicleMake.value.trim();
+            const makeObj = vehicleMakesModels.find(
+              item =>
+                item.vehicleType &&
+                item.make &&
+                item.vehicleType.trim().toLowerCase() === selectedType.toLowerCase() &&
+                item.make.trim().toLowerCase() === selectedMake.toLowerCase()
+            );
+            modalVehicleModel.length = 1;
+            if (makeObj && Array.isArray(makeObj.models)) {
+              makeObj.models.forEach(model => {
+                const opt = document.createElement('option');
+                opt.value = model;
+                opt.textContent = model;
+                modalVehicleModel.appendChild(opt);
+              });
+            }
+          }
+          modalVehicleCategory.addEventListener('change', populateModalVehicleMakes);
+          modalVehicleMake.addEventListener('change', populateModalVehicleModels);
+          if (listing && listing.listingType === 'vehicle') {
+            modalVehicleCategory.value = listing.vehicleDetails?.vehicleCategory || '';
+            populateModalVehicleMakes();
+            modalVehicleMake.value = listing.vehicleDetails?.make || '';
+            populateModalVehicleModels();
+            modalVehicleModel.value = listing.vehicleDetails?.model || '';
+          }
+
+          // --- Form Submit ---
+          document.getElementById('addEditListingForm').onsubmit = async function(e) {
+            e.preventDefault();
+            const fd = new FormData(this);
+            let data = {
+              storeId: officialStoreId,
+              isOfficial: true,
+              status: 'pending',
+              createdAt: listing?.createdAt || new Date(),
+              updatedAt: new Date()
+            };
+            if (fd.get('listingType') === 'property') {
+              data.listingType = fd.get('propertyType');
+              data.title = fd.get('title');
+              data.askingPrice = Number(fd.get('askingPrice'));
+              data.location = { district: fd.get('district') };
+              data.description = fd.get('description');
+            } else if (fd.get('listingType') === 'vehicle') {
+              data.listingType = 'vehicle';
+              data.vehicleDetails = {
+                vehicleCategory: fd.get('vehicleCategory'),
+                make: fd.get('make'),
+                model: fd.get('model')
+              };
+              data.title = fd.get('title');
+              data.askingPrice = Number(fd.get('askingPrice'));
+              data.description = fd.get('description');
+            }
+            if (isEdit) {
+              await db.collection('listings').doc(listing.id).update(data);
+              showToast('Listing updated');
+            } else {
+              await db.collection('listings').add(data);
+              showToast('Listing added');
+            }
+            modal.hide();
+            fetchAndRenderOfficialListings();
           };
-          data.title = fd.get('title');
-          data.askingPrice = Number(fd.get('askingPrice'));
-          data.description = fd.get('description');
         }
-        if (isEdit) {
-          await db.collection('listings').doc(listing.id).update(data);
-          showToast('Listing updated');
-        } else {
-          await db.collection('listings').add(data);
-          showToast('Listing added');
-        }
-        modal.hide();
-        fetchAndRenderOfficialListings();
-      };
-    }
 
-    // Add Listing button handler
-    const addListingBtn = document.getElementById('addListingBtn');
-    if (addListingBtn) {
-      addListingBtn.onclick = () => showAddEditListingModal();
+        // Add Listing button handler
+        const addListingBtn = document.getElementById('addListingBtn');
+        if (addListingBtn) {
+          addListingBtn.onclick = () => showAddEditListingModal();
+        }
+      });
     }
   });
   </script>
