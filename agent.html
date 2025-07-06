@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Agent Profile - Starlet Properties</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="./css/style.css">
+  <style>
+    .agent-hero {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 4rem 0;
+      position: relative;
+      overflow: hidden;
+    }
+    .agent-hero::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+      opacity: 0.3;
+    }
+    .agent-profile {
+      position: relative;
+      z-index: 2;
+    }
+    .agent-avatar-large {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      border: 4px solid white;
+      object-fit: cover;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    }
+    .agent-stats {
+      display: flex;
+      gap: 2rem;
+      margin: 2rem 0;
+      flex-wrap: wrap;
+    }
+    .stat-card {
+      background: rgba(255,255,255,0.1);
+      backdrop-filter: blur(10px);
+      border-radius: 12px;
+      padding: 1.5rem;
+      text-align: center;
+      min-width: 120px;
+    }
+    .stat-number {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+    .stat-label {
+      font-size: 0.9rem;
+      opacity: 0.9;
+    }
+    .agent-badges {
+      display: flex;
+      gap: 0.5rem;
+      margin: 1rem 0;
+      flex-wrap: wrap;
+    }
+    .badge-custom {
+      background: rgba(255,255,255,0.2);
+      color: white;
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      backdrop-filter: blur(10px);
+    }
+    .content-section {
+      padding: 3rem 0;
+    }
+    .section-title {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--primary-dark);
+      margin-bottom: 2rem;
+      position: relative;
+    }
+    .section-title::after {
+      content: '';
+      position: absolute;
+      bottom: -10px;
+      left: 0;
+      width: 60px;
+      height: 3px;
+      background: var(--primary-main);
+      border-radius: 2px;
+    }
+    .listing-card {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+      overflow: hidden;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      height: 100%;
+    }
+    .listing-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    }
+    .listing-image {
+      height: 200px;
+      background-size: cover;
+      background-position: center;
+      position: relative;
+    }
+    .listing-price {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      background: var(--primary-main);
+      color: white;
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      font-weight: 600;
+    }
+    .listing-content {
+      padding: 1.5rem;
+    }
+    .listing-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: var(--primary-dark);
+    }
+    .listing-location {
+      color: var(--neutral-medium);
+      font-size: 0.9rem;
+      margin-bottom: 1rem;
+    }
+    .listing-features {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1rem;
+      font-size: 0.85rem;
+      color: var(--neutral-medium);
+    }
+    .review-card {
+      background: white;
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      margin-bottom: 1rem;
+    }
+    .review-header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    .reviewer-avatar {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+    .reviewer-info h6 {
+      margin: 0;
+      font-weight: 600;
+    }
+    .reviewer-info small {
+      color: var(--neutral-medium);
+    }
+    .rating-stars {
+      color: #ffc107;
+      font-size: 1.1rem;
+    }
+    .contact-card {
+      background: white;
+      border-radius: 12px;
+      padding: 2rem;
+      box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+      height: 100%;
+    }
+    .contact-item {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      padding: 1rem;
+      background: #f8f9fa;
+      border-radius: 8px;
+    }
+    .contact-icon {
+      width: 40px;
+      height: 40px;
+      background: var(--primary-main);
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+    }
+    .contact-info h6 {
+      margin: 0;
+      font-weight: 600;
+    }
+    .contact-info p {
+      margin: 0;
+      color: var(--neutral-medium);
+      font-size: 0.9rem;
+    }
+    .tier-badge {
+      background: linear-gradient(45deg, #ffd700, #ffed4e);
+      color: #333;
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+    .verified-badge {
+      background: #28a745;
+      color: white;
+      padding: 0.3rem 0.8rem;
+      border-radius: 15px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+    .message-form {
+      background: white;
+      border-radius: 12px;
+      padding: 2rem;
+      box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+    }
+    .form-control, .form-select {
+      border-radius: 8px;
+      border: 1px solid #e0e0e0;
+      padding: 0.75rem 1rem;
+    }
+    .form-control:focus, .form-select:focus {
+      border-color: var(--primary-main);
+      box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+    }
+    .btn-primary {
+      background: var(--primary-main);
+      border: none;
+      border-radius: 8px;
+      padding: 0.75rem 2rem;
+      font-weight: 600;
+    }
+    .btn-primary:hover {
+      background: var(--primary-dark);
+      transform: translateY(-1px);
+    }
+    .loading-spinner {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 200px;
+    }
+    @media (max-width: 768px) {
+      .agent-stats {
+        gap: 1rem;
+      }
+      .stat-card {
+        min-width: 100px;
+        padding: 1rem;
+      }
+      .stat-number {
+        font-size: 1.5rem;
+      }
+      .agent-hero {
+        padding: 2rem 0;
+      }
+      .agent-avatar-large {
+        width: 100px;
+        height: 100px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-custom">
+    <div class="container">
+                  <a class="navbar-brand" href="./index.html">
+        <span class="brand-star">Star</span> <span class="brand-let">Let</span>
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                              <li class="nav-item">
+                        <a class="nav-link" href="./index.html"><i class="bi bi-house-door"></i> Home</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="categoriesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-grid"></i> Categories
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="categoriesDropdown">
+                            <li><h6 class="dropdown-header">Properties</h6></li>
+                            <li><a class="dropdown-item" href="./properties.html?type=house_sale">Houses for Sale</a></li>
+                            <li><a class="dropdown-item" href="./properties.html?type=house_rent">Houses for Rent</a></li>
+                            <li><a class="dropdown-item" href="./properties.html?type=land_sale">Land for Sale</a></li>
+                            <li><a class="dropdown-item" href="./properties.html?type=land_rent">Land for Rent</a></li>
+                            <li><a class="dropdown-item" href="./properties.html?type=commercial">Commercial Property</a></li>
+                            <li><a class="dropdown-item" href="./properties.html?type=vacation_short_stay">Vacation & Short Stay</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><h6 class="dropdown-header">Vehicles</h6></li>
+                            <li><a class="dropdown-item" href="./vehicles.html?type=cars">Cars</a></li>
+                            <li><a class="dropdown-item" href="./vehicles.html?type=motorcycles">Motorcycles</a></li>
+                            <li><a class="dropdown-item" href="./vehicles.html?type=trucks">Trucks</a></li>
+                            <li><a class="dropdown-item" href="./vehicles.html?type=buses">Buses</a></li>
+                            <li><a class="dropdown-item" href="./vehicles.html?type=heavy_machinery">Heavy Machinery</a></li>
+                            <li><a class="dropdown-item" href="./vehicles.html?type=bicycles_ebikes">Bicycles & E-bikes</a></li>
+                            <li><a class="dropdown-item" href="./vehicles.html?type=boats_watercraft">Boats & Watercraft</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="./pages/dashboard/addlistings.html"><i class="bi bi-tags"></i> Sell</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="moreDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-three-dots"></i> More
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="moreDropdown">
+                            <li><a class="dropdown-item" href="./properties.html"><i class="bi bi-building"></i> Properties</a></li>
+                            <li><a class="dropdown-item" href="./vehicles.html"><i class="bi bi-car-front"></i> Vehicles</a></li>
+                            <li><a class="dropdown-item" href="./stores.html"><i class="bi bi-shop"></i> Stores</a></li>
+                            <li><a class="dropdown-item" href="./resources.html"><i class="bi bi-book"></i> Resources</a></li>
+                            <li><a class="dropdown-item" href="./about.html"><i class="bi bi-info-circle"></i> About</a></li>
+                            <li><a class="dropdown-item" href="./contact.html"><i class="bi bi-envelope"></i> Contact</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="./login.html"><i class="bi bi-box-arrow-in-right"></i> Login</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="./register.html"><i class="bi bi-person-plus"></i> Sign Up</a>
+                    </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Agent Hero Section -->
+  <section class="agent-hero">
+    <div class="container">
+      <div class="agent-profile text-center">
+        <img id="agentAvatar" src="https://randomuser.me/api/portraits/men/32.jpg" alt="Agent" class="agent-avatar-large mb-3">
+        <h1 id="agentName" class="mb-2">John Doe</h1>
+        <p id="agentTitle" class="mb-3">Premium Property Agent</p>
+        
+        <div class="agent-badges">
+          <span id="tierBadge" class="tier-badge">Diamond Tier</span>
+          <span id="verifiedBadge" class="verified-badge">Verified</span>
+          <span class="badge-custom">5+ Years Experience</span>
+          <span class="badge-custom">Specialist in Residential</span>
+        </div>
+
+        <div class="agent-stats">
+          <div class="stat-card">
+            <div id="propertiesCount" class="stat-number">142</div>
+            <div class="stat-label">Properties</div>
+          </div>
+          <div class="stat-card">
+            <div id="successRate" class="stat-number">98%</div>
+            <div class="stat-label">Success Rate</div>
+          </div>
+          <div class="stat-card">
+            <div id="experienceYears" class="stat-number">5</div>
+            <div class="stat-label">Years</div>
+          </div>
+          <div class="stat-card">
+            <div id="rating" class="stat-number">4.8</div>
+            <div class="stat-label">Rating</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Main Content -->
+  <div class="container">
+    <!-- About Section -->
+    <section class="content-section">
+      <div class="row">
+        <div class="col-lg-8">
+          <h2 class="section-title">About</h2>
+          <p id="agentBio" class="lead">
+            Experienced real estate professional with over 5 years of expertise in residential and commercial properties across Uganda. 
+            Specializing in helping clients find their perfect home or investment opportunity with personalized service and market insights.
+          </p>
+          <div class="row mt-4">
+            <div class="col-md-6">
+              <h5><i class="bi bi-geo-alt text-primary"></i> Service Areas</h5>
+              <p id="serviceAreas">Kampala, Entebbe, Jinja, Mukono</p>
+            </div>
+            <div class="col-md-6">
+              <h5><i class="bi bi-award text-primary"></i> Specializations</h5>
+              <p id="specializations">Residential, Commercial, Land Development</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-4">
+          <div class="contact-card">
+            <h4 class="mb-3">Quick Contact</h4>
+            <div class="contact-item">
+              <div class="contact-icon">
+                <i class="bi bi-telephone"></i>
+              </div>
+              <div class="contact-info">
+                <h6>Phone</h6>
+                <p id="agentPhone">+256 123 456 789</p>
+              </div>
+            </div>
+            <div class="contact-item">
+              <div class="contact-icon">
+                <i class="bi bi-envelope"></i>
+              </div>
+              <div class="contact-info">
+                <h6>Email</h6>
+                <p id="agentEmail">john.doe@starlet.co.ug</p>
+              </div>
+            </div>
+            <div class="contact-item">
+              <div class="contact-icon">
+                <i class="bi bi-geo-alt"></i>
+              </div>
+              <div class="contact-info">
+                <h6>Office</h6>
+                <p id="agentOffice">Kampala Central, Uganda</p>
+              </div>
+            </div>
+            <div class="contact-item">
+              <div class="contact-icon">
+                <i class="bi bi-clock"></i>
+              </div>
+              <div class="contact-info">
+                <h6>Hours</h6>
+                <p>Mon-Fri: 8AM-6PM</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Listings Section -->
+    <section class="content-section">
+      <h2 class="section-title">Current Listings</h2>
+      <div id="listingsContainer" class="loading-spinner">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Reviews Section -->
+    <section class="content-section">
+      <div class="row">
+        <div class="col-lg-8">
+          <h2 class="section-title">Client Reviews</h2>
+          <div id="reviewsContainer" class="loading-spinner">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-4">
+          <div class="message-form">
+            <h4 class="mb-3">Send Message</h4>
+            <form id="messageForm">
+              <div class="mb-3">
+                <label for="messageName" class="form-label">Your Name</label>
+                <input type="text" class="form-control" id="messageName" required>
+              </div>
+              <div class="mb-3">
+                <label for="messageEmail" class="form-label">Email</label>
+                <input type="email" class="form-control" id="messageEmail" required>
+              </div>
+              <div class="mb-3">
+                <label for="messagePhone" class="form-label">Phone (Optional)</label>
+                <input type="tel" class="form-control" id="messagePhone">
+              </div>
+              <div class="mb-3">
+                <label for="messageSubject" class="form-label">Subject</label>
+                <select class="form-select" id="messageSubject" required>
+                  <option value="">Select a subject</option>
+                  <option value="property_inquiry">Property Inquiry</option>
+                  <option value="viewing_request">Viewing Request</option>
+                  <option value="general_question">General Question</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label for="messageContent" class="form-label">Message</label>
+                <textarea class="form-control" id="messageContent" rows="4" placeholder="Tell us about your requirements..." required></textarea>
+              </div>
+              <button type="submit" class="btn btn-primary w-100">
+                <i class="bi bi-send"></i> Send Message
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-4 mb-4">
+          <h4>About Starlet Properties</h4>
+          <p>Uganda's premier real estate and vehicle marketplace, connecting buyers and sellers across the country.</p>
+          <div class="social-links">
+            <a href="#"><i class="fab fa-facebook"></i></a>
+            <a href="#"><i class="fab fa-twitter"></i></a>
+            <a href="#"><i class="fab fa-instagram"></i></a>
+            <a href="#"><i class="fab fa-linkedin"></i></a>
+          </div>
+        </div>
+        <div class="col-lg-2 col-md-6 mb-4">
+          <h4>Properties</h4>
+          <ul>
+                                    <li><a href="./properties.html?type=house_sale">Houses for Sale</a></li>
+                        <li><a href="./properties.html?type=house_rent">Houses for Rent</a></li>
+                        <li><a href="./properties.html?type=land_sale">Land for Sale</a></li>
+                        <li><a href="./properties.html?type=land_rent">Land for Rent</a></li>
+                        <li><a href="./properties.html?type=commercial">Commercial Property</a></li>
+                        <li><a href="./properties.html?type=vacation_short_stay">Vacation & Short Stay</a></li>
+          </ul>
+        </div>
+        <div class="col-lg-2 col-md-6 mb-4">
+          <h4>Vehicles</h4>
+          <ul>
+                                    <li><a href="./vehicles.html?type=cars">Cars</a></li>
+                        <li><a href="./vehicles.html?type=motorcycles">Motorcycles</a></li>
+                        <li><a href="./vehicles.html?type=trucks">Trucks</a></li>
+                        <li><a href="./vehicles.html?type=buses">Buses</a></li>
+                        <li><a href="./vehicles.html?type=heavy_machinery">Heavy Machinery</a></li>
+                        <li><a href="./vehicles.html?type=bicycles_ebikes">Bicycles & E-bikes</a></li>
+                        <li><a href="./vehicles.html?type=boats_watercraft">Boats & Watercraft</a></li>
+          </ul>
+        </div>
+        <div class="col-lg-2 col-md-6 mb-4">
+          <h4>Company</h4>
+          <ul>
+                                    <li><a href="./about.html">About Us</a></li>
+                        <li><a href="./contact.html">Contact</a></li>
+                        <li><a href="./resources.html">Resources</a></li>
+                        <li><a href="./stores.html">Our Stores</a></li>
+                        <li><a href="./privacy.html">Privacy Policy</a></li>
+          </ul>
+        </div>
+        <div class="col-lg-2 col-md-6 mb-4">
+          <h4>Contact</h4>
+          <ul>
+            <li><a href="tel:+256123456789"><i class="bi bi-telephone"></i> +256 123 456 789</a></li>
+            <li><a href="mailto:info@starlet.co.ug"><i class="bi bi-envelope"></i> info@starlet.co.ug</a></li>
+            <li><a href="#"><i class="bi bi-geo-alt"></i> Kampala, Uganda</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <div class="row">
+          <div class="col-md-6">
+            <p class="mb-0">&copy; 2024 Starlet Properties. All rights reserved.</p>
+          </div>
+          <div class="col-md-6 text-md-end">
+                                    <a href="./terms.html" class="me-3">Terms of Service</a>
+                        <a href="./privacy.html">Privacy Policy</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script>
+    // Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyDH1sMk2NwceMAEfvH07azxaoPXpOI1Sek",
+      authDomain: "starlet-properties-41509.firebaseapp.com",
+      projectId: "starlet-properties-41509",
+      storageBucket: "starlet-properties-41509.appspot.com",
+      messagingSenderId: "393372988481",
+      appId: "1:393372988481:web:c92584d7408296457b02c0",
+      measurementId: "G-F02K9SP07C"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    const auth = firebase.auth();
+
+    let currentAgent = null;
+    let currentUser = null;
+
+    // Get agent ID from URL parameter
+    function getQueryParam(name) {
+      const url = new URL(window.location.href);
+      return url.searchParams.get(name);
+    }
+
+    // Load agent profile
+    async function loadAgentProfile(agentId) {
+      try {
+        // Try to fetch from users collection first
+        let agentDoc = await db.collection('users').doc(agentId).get();
+        if (!agentDoc.exists) {
+          // Try stores collection
+          const storeSnap = await db.collection('stores').where('userId', '==', agentId).limit(1).get();
+          if (!storeSnap.empty) {
+            const store = storeSnap.docs[0].data();
+            currentAgent = {
+              id: agentId,
+              name: store.name || 'Store Owner',
+              title: store.description || 'Property Agent',
+              avatar: store.avatar || 'https://randomuser.me/api/portraits/men/32.jpg',
+              bio: store.description || 'Experienced real estate professional.',
+              phone: store.contact || '+256 123 456 789',
+              email: store.email || 'contact@store.com',
+              office: store.location || 'Kampala, Uganda',
+              tier: store.tier || 'diamond',
+              verified: store.verified || false,
+              serviceAreas: store.serviceAreas || 'Kampala, Entebbe, Jinja',
+              specializations: store.specializations || 'Residential, Commercial',
+              propertiesCount: 0,
+              successRate: '95%',
+              experienceYears: 3,
+              rating: 4.5
+            };
+          } else {
+            throw new Error('Agent not found');
+          }
+        } else {
+          const agentData = agentDoc.data();
+          currentAgent = {
+            id: agentId,
+            name: `${agentData.firstName || ''} ${agentData.lastName || ''}`.trim() || agentData.email || 'Agent',
+            title: agentData.agentTier ? `${agentData.agentTier.charAt(0).toUpperCase() + agentData.agentTier.slice(1)} Tier Agent` : 'Property Agent',
+            avatar: agentData.avatar || agentData.photoURL || 'https://randomuser.me/api/portraits/men/32.jpg',
+            bio: agentData.bio || agentData.description || 'Experienced real estate professional.',
+            phone: agentData.phone || '+256 123 456 789',
+            email: agentData.email || 'agent@starlet.co.ug',
+            office: agentData.location || 'Kampala, Uganda',
+            tier: agentData.agentTier || 'diamond',
+            verified: agentData.verified || false,
+            serviceAreas: agentData.serviceAreas || 'Kampala, Entebbe, Jinja',
+            specializations: agentData.specializations || 'Residential, Commercial',
+            propertiesCount: agentData.performanceMetrics?.listingsCreated || 0,
+            successRate: agentData.performanceMetrics?.successRate || '95%',
+            experienceYears: agentData.experienceYears || 3,
+            rating: agentData.agentRating || 4.5
+          };
+        }
+
+        // Update UI with agent data
+        updateAgentUI();
+        
+        // Load agent's listings
+        await loadAgentListings(agentId);
+        
+        // Load agent's reviews
+        await loadAgentReviews(agentId);
+
+      } catch (error) {
+        console.error('Error loading agent profile:', error);
+        document.body.innerHTML = '<div class="container text-center py-5"><h2>Agent not found</h2><p>The agent you are looking for does not exist.</p><a href="./index.html" class="btn btn-primary">Go Home</a></div>';
+      }
+    }
+
+    // Update agent UI
+    function updateAgentUI() {
+      if (!currentAgent) return;
+
+      document.getElementById('agentAvatar').src = currentAgent.avatar;
+      document.getElementById('agentAvatar').alt = currentAgent.name;
+      document.getElementById('agentName').textContent = currentAgent.name;
+      document.getElementById('agentTitle').textContent = currentAgent.title;
+      document.getElementById('agentBio').textContent = currentAgent.bio;
+      document.getElementById('agentPhone').textContent = currentAgent.phone;
+      document.getElementById('agentEmail').textContent = currentAgent.email;
+      document.getElementById('agentOffice').textContent = currentAgent.office;
+      document.getElementById('serviceAreas').textContent = currentAgent.serviceAreas;
+      document.getElementById('specializations').textContent = currentAgent.specializations;
+      
+      // Update stats
+      document.getElementById('propertiesCount').textContent = currentAgent.propertiesCount;
+      document.getElementById('successRate').textContent = currentAgent.successRate;
+      document.getElementById('experienceYears').textContent = currentAgent.experienceYears;
+      document.getElementById('rating').textContent = currentAgent.rating;
+
+      // Update badges
+      document.getElementById('tierBadge').textContent = `${currentAgent.tier.charAt(0).toUpperCase() + currentAgent.tier.slice(1)} Tier`;
+      if (!currentAgent.verified) {
+        document.getElementById('verifiedBadge').style.display = 'none';
+      }
+    }
+
+    // Load agent's listings
+    async function loadAgentListings(agentId) {
+      try {
+        const listingsSnap = await db.collection('listings')
+          .where('createdBy', '==', agentId)
+          .where('status', '==', 'approved')
+          .orderBy('createdAt', 'desc')
+          .limit(6)
+          .get();
+
+        const listingsContainer = document.getElementById('listingsContainer');
+        
+        if (listingsSnap.empty) {
+          listingsContainer.innerHTML = '<div class="text-center text-muted py-5"><i class="bi bi-house-door" style="font-size: 3rem;"></i><h4 class="mt-3">No Listings Available</h4><p>This agent has no active listings at the moment.</p></div>';
+          return;
+        }
+
+        let listingsHTML = '<div class="row">';
+        listingsSnap.forEach(doc => {
+          const listing = doc.data();
+          const image = listing.image || 'https://via.placeholder.com/400x300?text=No+Image';
+          const price = listing.askingPrice ? `USh ${listing.askingPrice.toLocaleString()}` : 'Price on request';
+          
+          listingsHTML += `
+            <div class="col-lg-4 col-md-6 mb-4">
+              <div class="listing-card">
+                <div class="listing-image" style="background-image: url('${image}')">
+                  <div class="listing-price">${price}</div>
+                </div>
+                <div class="listing-content">
+                  <h5 class="listing-title">${listing.title || 'Property'}</h5>
+                  <p class="listing-location"><i class="bi bi-geo-alt"></i> ${listing.location || 'Location not specified'}</p>
+                  <div class="listing-features">
+                    ${listing.houseDetails?.bedrooms ? `<span><i class="bi bi-house-door"></i> ${listing.houseDetails.bedrooms} bd</span>` : ''}
+                    ${listing.houseDetails?.bathrooms ? `<span><i class="bi bi-droplet"></i> ${listing.houseDetails.bathrooms} ba</span>` : ''}
+                    ${listing.carDetails?.year ? `<span><i class="bi bi-calendar"></i> ${listing.carDetails.year}</span>` : ''}
+                    ${listing.carDetails?.mileage ? `<span><i class="bi bi-speedometer2"></i> ${listing.carDetails.mileage.toLocaleString()} km</span>` : ''}
+                  </div>
+                  <a href="./details.html?id=${doc.id}" class="btn btn-outline-primary btn-sm">View Details</a>
+                </div>
+              </div>
+            </div>
+          `;
+        });
+        listingsHTML += '</div>';
+        listingsContainer.innerHTML = listingsHTML;
+
+      } catch (error) {
+        console.error('Error loading listings:', error);
+        document.getElementById('listingsContainer').innerHTML = '<div class="text-center text-danger py-5">Failed to load listings.</div>';
+      }
+    }
+
+    // Load agent's reviews
+    async function loadAgentReviews(agentId) {
+      try {
+        const reviewsSnap = await db.collection('reviews')
+          .where('agentId', '==', agentId)
+          .orderBy('createdAt', 'desc')
+          .limit(5)
+          .get();
+
+        const reviewsContainer = document.getElementById('reviewsContainer');
+        
+        if (reviewsSnap.empty) {
+          reviewsContainer.innerHTML = '<div class="text-center text-muted py-5"><i class="bi bi-star" style="font-size: 3rem;"></i><h4 class="mt-3">No Reviews Yet</h4><p>Be the first to review this agent!</p></div>';
+          return;
+        }
+
+        let reviewsHTML = '';
+        reviewsSnap.forEach(doc => {
+          const review = doc.data();
+          const stars = '★'.repeat(review.rating) + '☆'.repeat(5 - review.rating);
+          const date = review.createdAt ? new Date(review.createdAt.seconds ? review.createdAt.seconds * 1000 : review.createdAt).toLocaleDateString() : 'Recent';
+          
+          reviewsHTML += `
+            <div class="review-card">
+              <div class="review-header">
+                <img src="${review.reviewerAvatar || 'https://randomuser.me/api/portraits/lego/1.jpg'}" alt="Reviewer" class="reviewer-avatar">
+                <div class="reviewer-info">
+                  <h6>${review.reviewerName || 'Anonymous'}</h6>
+                  <small>${date}</small>
+                </div>
+                <div class="rating-stars">${stars}</div>
+              </div>
+              <p>${review.comment || 'No comment provided.'}</p>
+            </div>
+          `;
+        });
+        reviewsContainer.innerHTML = reviewsHTML;
+
+      } catch (error) {
+        console.error('Error loading reviews:', error);
+        document.getElementById('reviewsContainer').innerHTML = '<div class="text-center text-danger py-5">Failed to load reviews.</div>';
+      }
+    }
+
+    // Handle message form submission
+    document.getElementById('messageForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      if (!currentAgent) {
+        alert('Agent information not available.');
+        return;
+      }
+
+      const formData = {
+        name: document.getElementById('messageName').value,
+        email: document.getElementById('messageEmail').value,
+        phone: document.getElementById('messagePhone').value,
+        subject: document.getElementById('messageSubject').value,
+        message: document.getElementById('messageContent').value,
+        agentId: currentAgent.id,
+        agentName: currentAgent.name,
+        createdAt: new Date(),
+        status: 'unread'
+      };
+
+      try {
+        // Save message to database
+        await db.collection('messages').add(formData);
+        
+        // Clear form
+        document.getElementById('messageForm').reset();
+        
+        // Show success message
+        alert('Message sent successfully! The agent will get back to you soon.');
+        
+      } catch (error) {
+        console.error('Error sending message:', error);
+        alert('Failed to send message. Please try again.');
+      }
+    });
+
+    // Initialize page
+    document.addEventListener('DOMContentLoaded', function() {
+      const agentId = getQueryParam('id');
+      if (!agentId) {
+        document.body.innerHTML = '<div class="container text-center py-5"><h2>Agent ID Required</h2><p>Please provide a valid agent ID in the URL.</p><a href="./index.html" class="btn btn-primary">Go Home</a></div>';
+        return;
+      }
+      
+      loadAgentProfile(agentId);
+    });
+  </script>
+</body>
+</html> 

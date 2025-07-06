@@ -799,6 +799,9 @@ h1, h2, h3, h4, h5, h6 {
     padding: 2rem;
 }
 
+/* Import responsive styles */
+@import url('responsive.css');
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .navbar-custom .navbar-brand {

@@ -12,7 +12,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/starlet-2/css/style.css">
+    <link rel="stylesheet" href="./css/style.css">
     
     <style>
         :root {
@@ -464,7 +464,7 @@
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-custom">
         <div class="container">
-            <a class="navbar-brand" href="index.html">
+            <a class="navbar-brand" href="./index.html">
                 <span class="brand-star">Star</span> <span class="brand-let">Let</span>
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -473,28 +473,28 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
                     <li class="nav-item">
-                        <a class="nav-link active" href="index.html"><i class="bi bi-house-door"></i> Home</a>
+                        <a class="nav-link active" href="./index.html"><i class="bi bi-house-door"></i> Home</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/web-application/pages/users/add-property.html"><i class="bi bi-tags"></i> Sell</a>
+                        <a class="nav-link" href="./pages/dashboard/addlistings.html"><i class="bi bi-tags"></i> Sell</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="saved.html"><i class="bi bi-bookmark-heart"></i> Saved Listings</a>
+                        <a class="nav-link" href="./saved.html"><i class="bi bi-bookmark-heart"></i> Saved Listings</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="messaging.html" id="messagesNavLink" data-requires-auth><i class="bi bi-chat-dots"></i> Messages</a>
+                        <a class="nav-link" href="./messaging.html" id="messagesNavLink" data-requires-auth><i class="bi bi-chat-dots"></i> Messages</a>
                     </li>
                     <li class="nav-item" id="nav-notification-bell">
-                        <a class="nav-link position-relative" href="notifications.html" title="Notifications">
+                        <a class="nav-link position-relative" href="./notifications.html" title="Notifications">
                             <i class="bi bi-bell"></i>
                             <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none" id="notification-badge">0</span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="login.html"><i class="bi bi-box-arrow-in-right"></i> Login</a>
+                        <a class="nav-link" href="./login.html"><i class="bi bi-box-arrow-in-right"></i> Login</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="register.html"><i class="bi bi-person-plus"></i> Sign Up</a>
+                        <a class="nav-link" href="./register.html"><i class="bi bi-person-plus"></i> Sign Up</a>
                     </li>
                 </ul>
             </div>
@@ -504,20 +504,24 @@
     <!-- Hero Section -->
     <section class="hero-section">
         <div class="container">
-            <h2 class="hero-title">Discover Premium Properties &amp; Vehicles</h2>
-            <p class="hero-subtitle">Your trusted marketplace for high-quality real estate and automobiles</p>
-            <form class="hero-search-bar" style="margin-bottom: 2rem;">
-                <select class="form-select" id="locationDropdown" style="max-width: 160px;">
-                    <option value="all">All Locations</option>
-                    <option value="kampala">Kampala</option>
-                    <option value="gulu">Gulu</option>
-                    <option value="mbarara">Mbarara</option>
-                    <option value="arua">Arua</option>
-                    <option value="mbale">Mbale</option>
-                </select>
-                <input type="text" class="form-control" placeholder="Search properties, vehicles...">
-                <button type="submit" class="btn btn-search"><i class="bi bi-search"></i> Search</button>
-            </form>
+            <div class="row justify-content-center">
+                <div class="col-lg-8 col-md-10 col-12 text-center">
+                    <h2 class="hero-title">Discover Premium Properties &amp; Vehicles</h2>
+                    <p class="hero-subtitle">Your trusted marketplace for high-quality real estate and automobiles</p>
+                    <form class="hero-search-bar" style="margin-bottom: 2rem;">
+                        <select class="form-select" id="locationDropdown" style="max-width: 160px;">
+                            <option value="all">All Locations</option>
+                            <option value="kampala">Kampala</option>
+                            <option value="gulu">Gulu</option>
+                            <option value="mbarara">Mbarara</option>
+                            <option value="arua">Arua</option>
+                            <option value="mbale">Mbale</option>
+                        </select>
+                        <input type="text" class="form-control" placeholder="Search properties, vehicles...">
+                        <button type="submit" class="btn btn-search"><i class="bi bi-search"></i> Search</button>
+                    </form>
+                </div>
+            </div>
         </div>
     </section>
 
@@ -542,8 +546,8 @@
                 <p>Choose the level of service that fits your needs</p>
             </div>
             
-            <div class="row">
-                <div class="col-lg-4 col-md-6 mb-4">
+            <div class="row justify-content-center">
+                <div class="col-lg-4 col-md-6 col-12 mb-4">
                     <div class="tier-card">
                         <div class="tier-header silver">
                             <i class="fas fa-medal"></i>
@@ -556,12 +560,12 @@
                                 <li>Email support</li>
                                 <li>Monthly subscription</li>
                             </ul>
-                            <a href="register.html?tier=silver" class="btn btn-outline-primary">Get Started</a>
+                            <a href="./register.html?tier=silver" class="btn btn-outline-primary">Get Started</a>
                         </div>
                     </div>
                 </div>
                 
-                <div class="col-lg-4 col-md-6 mb-4">
+                <div class="col-lg-4 col-md-6 col-12 mb-4">
                     <div class="tier-card featured">
                         <div class="tier-header gold">
                             <i class="fas fa-crown"></i>
@@ -576,12 +580,12 @@
                                 <li>Priority support</li>
                                 <li>Analytics dashboard</li>
                             </ul>
-                            <a href="register.html?tier=gold" class="btn btn-primary">Get Started</a>
+                            <a href="./register.html?tier=gold" class="btn btn-primary">Get Started</a>
                         </div>
                     </div>
                 </div>
                 
-                <div class="col-lg-4 col-md-6 mb-4">
+                <div class="col-lg-4 col-md-6 col-12 mb-4">
                     <div class="tier-card">
                         <div class="tier-header diamond">
                             <i class="fas fa-gem"></i>
@@ -596,7 +600,7 @@
                                 <li>Advanced analytics</li>
                                 <li>Priority verification</li>
                             </ul>
-                            <a href="register.html?tier=diamond" class="btn btn-outline-primary">Get Started</a>
+                            <a href="./register.html?tier=diamond" class="btn btn-outline-primary">Get Started</a>
                         </div>
                     </div>
                 </div>
@@ -654,36 +658,36 @@
                 <div class="col-lg-2 col-md-6 mb-4">
                     <h4>Properties</h4>
                     <ul>
-                        <li><a href="properties.html?type=house_sale">Houses for Sale</a></li>
-                        <li><a href="properties.html?type=house_rent">Houses for Rent</a></li>
-                        <li><a href="properties.html?type=land_sale">Land for Sale</a></li>
-                        <li><a href="properties.html?type=land_rent">Land for Rent</a></li>
-                        <li><a href="properties.html?type=commercial">Commercial Property</a></li>
-                        <li><a href="properties.html?type=vacation_short_stay">Vacation & Short Stay</a></li>
+                        <li><a href="./properties.html?type=house_sale">Houses for Sale</a></li>
+                        <li><a href="./properties.html?type=house_rent">Houses for Rent</a></li>
+                        <li><a href="./properties.html?type=land_sale">Land for Sale</a></li>
+                        <li><a href="./properties.html?type=land_rent">Land for Rent</a></li>
+                        <li><a href="./properties.html?type=commercial">Commercial Property</a></li>
+                        <li><a href="./properties.html?type=vacation_short_stay">Vacation & Short Stay</a></li>
                     </ul>
                 </div>
                 
                 <div class="col-lg-2 col-md-6 mb-4">
                     <h4>Vehicles</h4>
                     <ul>
-                        <li><a href="vehicles.html?type=cars">Cars</a></li>
-                        <li><a href="vehicles.html?type=motorcycles">Motorcycles</a></li>
-                        <li><a href="vehicles.html?type=trucks">Trucks</a></li>
-                        <li><a href="vehicles.html?type=buses">Buses</a></li>
-                        <li><a href="vehicles.html?type=heavy_machinery">Heavy Machinery</a></li>
-                        <li><a href="vehicles.html?type=bicycles_ebikes">Bicycles & E-bikes</a></li>
-                        <li><a href="vehicles.html?type=boats_watercraft">Boats & Watercraft</a></li>
+                        <li><a href="./vehicles.html?type=cars">Cars</a></li>
+                        <li><a href="./vehicles.html?type=motorcycles">Motorcycles</a></li>
+                        <li><a href="./vehicles.html?type=trucks">Trucks</a></li>
+                        <li><a href="./vehicles.html?type=buses">Buses</a></li>
+                        <li><a href="./vehicles.html?type=heavy_machinery">Heavy Machinery</a></li>
+                        <li><a href="./vehicles.html?type=bicycles_ebikes">Bicycles & E-bikes</a></li>
+                        <li><a href="./vehicles.html?type=boats_watercraft">Boats & Watercraft</a></li>
                     </ul>
                 </div>
                 
                 <div class="col-lg-2 col-md-6 mb-4">
                     <h4>Company</h4>
                     <ul>
-                        <li><a href="about.html">About Us</a></li>
-                        <li><a href="contact.html">Contact</a></li>
-                        <li><a href="resources.html">Resources</a></li>
-                        <li><a href="stores.html">Our Stores</a></li>
-                        <li><a href="privacy.html">Privacy Policy</a></li>
+                        <li><a href="./about.html">About Us</a></li>
+                        <li><a href="./contact.html">Contact</a></li>
+                        <li><a href="./resources.html">Resources</a></li>
+                        <li><a href="./stores.html">Our Stores</a></li>
+                        <li><a href="./privacy.html">Privacy Policy</a></li>
                     </ul>
                 </div>
                 
@@ -703,8 +707,8 @@
                         <p class="mb-0">&copy; 2024 Starlet Properties. All rights reserved.</p>
                     </div>
                     <div class="col-md-6 text-md-end">
-                        <a href="terms.html" class="me-3">Terms of Service</a>
-                        <a href="privacy.html">Privacy Policy</a>
+                        <a href="./terms.html" class="me-3">Terms of Service</a>
+                        <a href="./privacy.html">Privacy Policy</a>
                     </div>
                 </div>
             </div>
@@ -732,8 +736,8 @@
       window.firebaseDB = db; // For use in main.js if needed
     </script>
     <!-- Custom Scripts -->
-    <script src="js/main.js"></script>
-    <script src="js/search.js"></script>
+    <script src="./js/main.js"></script>
+    <script src="./js/search.js"></script>
     <script>
     // Show/hide messaging link in navbar based on auth state
     (function() {
@@ -758,7 +762,7 @@
             var user = firebase.auth().currentUser;
             if (!user || user.isAnonymous) {
               e.preventDefault();
-              window.location.href = 'login.html';
+              window.location.href = './login.html';
             }
           }
         });

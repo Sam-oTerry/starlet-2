@@ -483,7 +483,7 @@
         <div class="container">
             <div class="row">
                 <!-- Product Gallery -->
-                <div class="col-lg-7">
+                <div class="col-lg-7 col-md-12 col-12 mb-4">
                     <div class="product-gallery">
                         <div class="main-image">
                             <img src="https://via.placeholder.com/800x600?text=Loading..." alt="Listing Main Image" id="mainImage">
@@ -525,7 +525,7 @@
                 </div>
 
                 <!-- Product Details -->
-                <div class="col-lg-5">
+                <div class="col-lg-5 col-md-12 col-12">
                     <div class="product-header">
                         <h1 class="product-title" id="productTitle">Loading...</h1>
                         <div class="product-location" id="productLocation">
@@ -535,10 +535,10 @@
                         <div class="product-meta" id="productMeta"></div>
                         
                         <div class="product-actions">
-                            <button class="btn btn-primary btn-lg me-2">
+                            <button class="btn btn-primary btn-lg me-2 mb-2">
                                 <i class="bi bi-telephone"></i> Contact Agent
                             </button>
-                            <button class="btn btn-outline-primary btn-lg">
+                            <button class="btn btn-outline-primary btn-lg mb-2">
                                 <i class="bi bi-heart"></i> Save
                             </button>
                         </div>
@@ -555,21 +555,21 @@
                                 <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="Sarah Johnson">
                             </div>
                             <div class="agent-info">
-                                <h5>Sarah Johnson</h5>
+                                <h5><a href="agent.html?id=agent123" class="text-decoration-none">Sarah Johnson</a></h5>
                                 <p>Premium Property Agent</p>
                             </div>
                         </div>
                         
-                        <div class="agent-stats">
-                            <div class="stat-item">
+                        <div class="agent-stats row">
+                            <div class="col-4 stat-item">
                                 <h6>142</h6>
                                 <p>Properties</p>
                             </div>
-                            <div class="stat-item">
+                            <div class="col-4 stat-item">
                                 <h6>98%</h6>
                                 <p>Success Rate</p>
                             </div>
-                            <div class="stat-item">
+                            <div class="col-4 stat-item">
                                 <h6>5</h6>
                                 <p>Years</p>
                             </div>
@@ -580,16 +580,19 @@
                                 <label for="message" class="form-label">Send Message</label>
                                 <textarea class="form-control" id="message" rows="3" placeholder="I'm interested in this property..."></textarea>
                             </div>
-                            <button type="submit" class="btn btn-primary w-100">
+                            <button type="submit" class="btn btn-primary w-100 mb-2">
                                 <i class="bi bi-send"></i> Send Inquiry
                             </button>
+                            <a href="agent.html?id=agent123" class="btn btn-outline-secondary w-100">
+                                <i class="bi bi-person"></i> View Agent Profile
+                            </a>
                         </form>
                     </div>
                 </div>
             </div>
             
             <!-- Similar Listings -->
-            <div class="similar-listings">
+            <div class="similar-listings mt-5">
                 <h3 class="section-title">Similar Properties</h3>
                 <div class="row" id="similarListingsContainer">
                     <!-- Similar listings will be loaded here dynamically -->
@@ -610,7 +613,7 @@
     <footer class="bg text-white pt-5 pb-3">
         <div class="container">
             <div class="row">
-                <div class="col-lg-4 mb-4">
+                <div class="col-lg-4 col-md-12 col-12 mb-4">
                     <h5>About StarLet</h5>
                     <p style="opacity: 0.8;">
                         Uganda's premier marketplace for premium properties and vehicles, connecting buyers and sellers with trust and excellence.
@@ -622,7 +625,7 @@
                         <a href="#" class="text-white" style="font-size: 1.5rem;"><i class="bi bi-linkedin"></i></a>
                     </div>
                 </div>
-                <div class="col-lg-2 col-md-6 mb-4">
+                <div class="col-lg-2 col-md-6 col-12 mb-4">
                     <h5>Quick Links</h5>
                     <ul class="list-unstyled">
                         <li><a href="#"><i class="bi bi-chevron-right"></i> Home</a></li>
@@ -632,7 +635,7 @@
                         <li><a href="#"><i class="bi bi-chevron-right"></i> Dealers</a></li>
                     </ul>
                 </div>
-                <div class="col-lg-2 col-md-6 mb-4">
+                <div class="col-lg-2 col-md-6 col-12 mb-4">
                     <h5>Company</h5>
                     <ul class="list-unstyled">
                         <li><a href="#"><i class="bi bi-chevron-right"></i> About Us</a></li>
@@ -642,7 +645,7 @@
                         <li><a href="#"><i class="bi bi-chevron-right"></i> Partners</a></li>
                     </ul>
                 </div>
-                <div class="col-lg-4 mb-4">
+                <div class="col-lg-4 col-md-12 col-12 mb-4">
                     <h5>Contact Us</h5>
                     <ul class="list-unstyled">
                         <li><a href="#"><i class="bi bi-geo-alt"></i> laroo Division, gulu</a></li>

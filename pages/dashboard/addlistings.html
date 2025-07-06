@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Add Listing - Starlet Properties</title>
-  <link href="/css/style.css" rel="stylesheet">
+  <link href="../../css/style.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   <style>
@@ -43,7 +43,7 @@
   <!-- Navbar -->
   <nav class="navbar navbar-expand-lg navbar-custom">
     <div class="container">
-      <a class="navbar-brand" href="../index.html">
+      <a class="navbar-brand" href="../../index.html">
         <span class="brand-star">Star</span> <span class="brand-let">Let</span>
       </a>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -52,26 +52,26 @@
       <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
           <li class="nav-item">
-            <a class="nav-link" href="../index.html"><i class="bi bi-house-door"></i> Home</a>
+            <a class="nav-link" href="../../index.html"><i class="bi bi-house-door"></i> Home</a>
           </li>
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" id="categoriesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
               <i class="bi bi-grid"></i> Categories
             </a>
             <ul class="dropdown-menu" aria-labelledby="categoriesDropdown">
-              <li><a class="dropdown-item" href="../properties.html"><i class="bi bi-building"></i> Properties</a></li>
-              <li><a class="dropdown-item" href="../vehicles.html"><i class="bi bi-car-front"></i> Vehicles</a></li>
-              <li><a class="dropdown-item" href="../stores.html"><i class="bi bi-shop"></i> Stores</a></li>
-              <li><a class="dropdown-item" href="../resources.html"><i class="bi bi-book"></i> Resources</a></li>
-              <li><a class="dropdown-item" href="../about.html"><i class="bi bi-info-circle"></i> About</a></li>
-              <li><a class="dropdown-item" href="../contact.html"><i class="bi bi-envelope"></i> Contact</a></li>
+              <li><a class="dropdown-item" href="../../properties.html"><i class="bi bi-building"></i> Properties</a></li>
+              <li><a class="dropdown-item" href="../../vehicles.html"><i class="bi bi-car-front"></i> Vehicles</a></li>
+              <li><a class="dropdown-item" href="../../stores.html"><i class="bi bi-shop"></i> Stores</a></li>
+              <li><a class="dropdown-item" href="../../resources.html"><i class="bi bi-book"></i> Resources</a></li>
+              <li><a class="dropdown-item" href="../../about.html"><i class="bi bi-info-circle"></i> About</a></li>
+              <li><a class="dropdown-item" href="../../contact.html"><i class="bi bi-envelope"></i> Contact</a></li>
             </ul>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="../login.html"><i class="bi bi-box-arrow-in-right"></i> Login</a>
+            <a class="nav-link" href="../../login.html"><i class="bi bi-box-arrow-in-right"></i> Login</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="../register.html"><i class="bi bi-person-plus"></i> Sign Up</a>
+            <a class="nav-link" href="../../register.html"><i class="bi bi-person-plus"></i> Sign Up</a>
           </li>
         </ul>
       </div>
@@ -128,7 +128,7 @@
                   <!-- Property Section -->
                   <div id="propertySection" class="d-none">
                     <div class="row g-3">
-                      <div class="col-md-6">
+                      <div class="col-lg-6 col-md-12 col-12">
                         <label class="form-label">Property Type</label>
                         <select id="propertyType" class="form-select">
                           <option value="">Select Property Type</option>
@@ -139,57 +139,57 @@
                           <option value="vacation_short_stay">Vacation & Short Stay</option>
                         </select>
                       </div>
-                      <div class="col-md-6">
+                      <div class="col-lg-6 col-md-12 col-12">
                         <label class="form-label">Title</label>
                         <input id="propertyTitle" type="text" class="form-control" required>
                       </div>
-                      <div class="col-md-6">
+                      <div class="col-lg-6 col-md-12 col-12">
                         <label class="form-label">Asking Price (UGX)</label>
                         <input id="propertyAskingPrice" type="number" class="form-control" required>
                       </div>
-                      <div class="col-md-6">
+                      <div class="col-lg-6 col-md-12 col-12">
                         <label class="form-label">District</label>
                         <input id="propertyDistrict" type="text" class="form-control" required>
                       </div>
                     </div>
                     <!-- House Details -->
                     <div id="houseDetailsSection" class="row g-3 mt-3 d-none">
-                      <div class="col-md-6">
+                      <div class="col-lg-6 col-md-12 col-12">
                         <label class="form-label">Sub Category</label>
                         <select id="houseSubCategory" class="form-select">
                           <option value="">Select</option>
                           <option>Houses</option><option>Apartments</option><option>Condominiums</option><option>Townhouses</option><option>Villas</option><option>Single Rooms</option><option>Hostels</option><option>Serviced Apartments</option><option>Family Homes</option><option>Airbnbs</option><option>Cottages</option><option>Beach Houses</option><option>Lodges</option>
                         </select>
                       </div>
-                      <div class="col-md-3">
+                      <div class="col-lg-3 col-md-6 col-12">
                         <label class="form-label">Bedrooms</label>
                         <input id="houseBedrooms" type="number" class="form-control">
                       </div>
-                      <div class="col-md-3">
+                      <div class="col-lg-3 col-md-6 col-12">
                         <label class="form-label">Bathrooms</label>
                         <input id="houseBathrooms" type="number" class="form-control">
                       </div>
-                      <div class="col-md-6">
+                      <div class="col-lg-6 col-md-12 col-12">
                         <label class="form-label">Total Area (sqm)</label>
                         <input id="houseTotalArea" type="number" class="form-control" required>
                       </div>
-                      <div class="col-md-6">
+                      <div class="col-lg-6 col-md-12 col-12">
                         <label class="form-label">Plot Size (width, length, acres, hectares)</label>
                         <div class="row g-2">
-                          <div class="col"><input id="housePlotWidth" type="number" placeholder="Width" class="form-control"></div>
-                          <div class="col"><input id="housePlotLength" type="number" placeholder="Length" class="form-control"></div>
-                          <div class="col"><input id="housePlotAcres" type="number" placeholder="Acres" class="form-control"></div>
-                          <div class="col"><input id="housePlotHectares" type="number" placeholder="Hectares" class="form-control"></div>
+                          <div class="col-6 col-md-3"><input id="housePlotWidth" type="number" placeholder="Width" class="form-control"></div>
+                          <div class="col-6 col-md-3"><input id="housePlotLength" type="number" placeholder="Length" class="form-control"></div>
+                          <div class="col-6 col-md-3"><input id="housePlotAcres" type="number" placeholder="Acres" class="form-control"></div>
+                          <div class="col-6 col-md-3"><input id="housePlotHectares" type="number" placeholder="Hectares" class="form-control"></div>
                         </div>
                       </div>
-                      <div class="col-md-6">
+                      <div class="col-lg-6 col-md-12 col-12">
                         <label class="form-label">Furnishing Status</label>
                         <select id="houseFurnishingStatus" class="form-select">
                           <option value="">Select</option>
                           <option>Fully Furnished</option><option>Semi-Furnished</option><option>Unfurnished</option>
                         </select>
                       </div>
-                      <div class="col-md-6">
+                      <div class="col-lg-6 col-md-12 col-12">
                         <label class="form-label">Condition</label>
                         <select id="houseCondition" class="form-select">
                           <option value="">Select</option>

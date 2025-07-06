@@ -328,7 +328,7 @@
             </ul>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="/web-application/pages/users/add-property.html"><i class="bi bi-tags"></i> Sell</a>
+            <a class="nav-link" href="pages/dashboard/addlistings.html"><i class="bi bi-tags"></i> Sell</a>
           </li>
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" id="moreDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -437,7 +437,7 @@
                 <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="Sarah Johnson" id="agentAvatar">
               </div>
               <div class="agent-info">
-                <h5 id="agentName">Sarah Johnson</h5>
+                <h5 id="agentName"><a href="agent.html?id=agent123" class="text-decoration-none">Sarah Johnson</a></h5>
                 <p id="agentTitle">Premium Property Agent</p>
               </div>
             </div>
@@ -462,9 +462,12 @@
                 <label for="message" class="form-label">Send Message</label>
                 <textarea class="form-control" id="message" rows="3" placeholder="I'm interested in this property..."></textarea>
               </div>
-              <button type="submit" class="btn btn-primary w-100">
+              <button type="submit" class="btn btn-primary w-100 mb-2">
                 <i class="bi bi-send"></i> Send Inquiry
               </button>
+              <a href="agent.html?id=agent123" class="btn btn-outline-secondary w-100">
+                <i class="bi bi-person"></i> View Agent Profile
+              </a>
             </form>
           </div>
         </div>
