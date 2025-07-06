@@ -102,7 +102,7 @@
                         </ul>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="login.html"><i class="bi bi-box-arrow-in-right"></i> Login</a>
+                        <a class="nav-link" href="../auth/login.html"><i class="bi bi-box-arrow-in-right"></i> Login</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="register.html"><i class="bi bi-person-plus"></i> Sign Up</a>
@@ -239,7 +239,7 @@
     let messaging;
     auth.onAuthStateChanged(async user => {
       if (!user) {
-        window.location.href = 'login.html';
+        window.location.href = '../auth/login.html';
         return;
       }
       currentUser = {

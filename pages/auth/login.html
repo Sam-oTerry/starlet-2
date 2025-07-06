@@ -506,9 +506,9 @@
         }
         // Check if admin
         if (email.toLowerCase() === 'admin@starletproperties.ug') {
-          window.location.href = 'pages/admin/dashboard.html';
+          window.location.href = '../admin/dashboard.html';
         } else {
-        window.location.href = 'index.html';
+        window.location.href = '../../index.html';
         }
       } catch (err) {
         hideLoading();
@@ -548,7 +548,7 @@
             lastName: ''
           });
         }
-        window.location.href = 'index.html';
+        window.location.href = '../../index.html';
       } catch (err) {
         hideLoading();
         showError(err.message);
@@ -577,7 +577,7 @@
               lastName: ''
             });
           }
-          window.location.href = 'index.html';
+          window.location.href = '../../index.html';
         } catch (err) {
           hideLoading();
           showError(err.message);
@@ -591,7 +591,7 @@
       showLoading();
       try {
         await auth.signInAnonymously();
-        window.location.href = 'index.html';
+        window.location.href = '../../index.html';
       } catch (err) {
         hideLoading();
         showError(err.message);

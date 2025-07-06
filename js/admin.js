@@ -37,7 +37,7 @@ function requireAdminUser() {
   return new Promise((resolve, reject) => {
     auth.onAuthStateChanged(async user => {
       if (!user || user.isAnonymous) {
-        window.location.href = '/login.html';
+        window.location.href = '/pages/auth/login.html';
         return reject('Not logged in');
       }
       // Check custom claims or Firestore user doc for admin role

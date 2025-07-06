@@ -205,7 +205,7 @@
     document.getElementById('logoutBtn').addEventListener('click', function(e) {
       e.preventDefault();
       firebase.auth().signOut().then(() => {
-        window.location.href = '../login.html';
+        window.location.href = '../../auth/login.html';
       });
     });
   </script>

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Redirecting to Login - Starlet Properties</title>
+    <meta http-equiv="refresh" content="0; url=../auth/login.html">
+    <link rel="canonical" href="../auth/login.html">
+    <style>
+        body {
+            font-family: 'Inter', Arial, sans-serif;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e3f0ff 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            color: #333;
+        }
+        .redirect-container {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            max-width: 400px;
+        }
+        .redirect-container h1 {
+            color: #0d6efd;
+            margin-bottom: 1rem;
+        }
+        .redirect-container p {
+            margin-bottom: 1.5rem;
+            color: #666;
+        }
+        .redirect-container a {
+            color: #0d6efd;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .redirect-container a:hover {
+            text-decoration: underline;
+        }
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #0d6efd;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="redirect-container">
+        <div class="spinner"></div>
+        <h1>Redirecting...</h1>
+        <p>You are being redirected to the login page.</p>
+        <p>If you are not redirected automatically, <a href="../auth/login.html">click here</a>.</p>
+    </div>
+    
+    <script>
+        // Fallback redirect in case meta refresh doesn't work
+        setTimeout(function() {
+            window.location.href = '../auth/login.html';
+        }, 1000);
+    </script>
+</body>
+</html> 

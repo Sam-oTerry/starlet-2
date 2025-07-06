@@ -570,7 +570,7 @@ async function enforceAuth(requiredRole) {
   return new Promise((resolve, reject) => {
     firebase.auth().onAuthStateChanged(async user => {
       if (!user || user.isAnonymous) {
-        window.location.href = 'login.html';
+        window.location.href = 'pages/auth/login.html';
         return reject('Not logged in');
       }
       if (requiredRole) {
