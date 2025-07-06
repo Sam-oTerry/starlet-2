@@ -653,13 +653,13 @@
     <script>
     // --- Admin Listings Management (Enhanced Firestore Integration) ---
     let allListings = [];
-    let db, auth;
     let currentUser = null;
 
     // Initialize Firebase
     document.addEventListener('DOMContentLoaded', function() {
       // Initialize Firebase
       if (typeof firebase !== 'undefined') {
+        // Use the db and auth variables that are already declared in admin.js
         db = firebase.firestore();
         auth = firebase.auth();
         
