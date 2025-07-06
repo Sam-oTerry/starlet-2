@@ -56,10 +56,24 @@ function requireAdminUser() {
         window.location.href = '../../pages/auth/login.html';
         return reject('Not logged in');
       }
-      // Check custom claims or Firestore user doc for admin role
+      
+      // Check if user has admin email (primary check)
+      const isAdminEmail = user.email && (
+        user.email.toLowerCase() === 'admin@starletproperties.ug' ||
+        user.email.toLowerCase().includes('admin')
+      );
+      
+      if (isAdminEmail) {
+        console.log('Admin access granted based on email:', user.email);
+        resolve(user);
+        return;
+      }
+      
+      // Fallback: Check Firestore document for admin role
       try {
         const userDoc = await db.collection('users').doc(user.uid).get();
         if (userDoc.exists && userDoc.data().role === 'admin') {
+          console.log('Admin access granted based on Firestore role');
           resolve(user);
         } else {
           alert('You do not have admin access.');
@@ -68,7 +82,13 @@ function requireAdminUser() {
         }
       } catch (error) {
         console.error('Error checking admin role:', error);
-        reject('Error checking permissions');
+        // If there's an error checking Firestore, still allow admin email access
+        if (isAdminEmail) {
+          console.log('Admin access granted despite Firestore error');
+          resolve(user);
+        } else {
+          reject('Error checking permissions');
+        }
       }
     });
   });
@@ -117,9 +137,24 @@ function enforceAdminAuth() {
         window.location.href = '../../pages/auth/login.html';
         return reject('Not logged in');
       }
+      
+      // Check if user has admin email (primary check)
+      const isAdminEmail = user.email && (
+        user.email.toLowerCase() === 'admin@starletproperties.ug' ||
+        user.email.toLowerCase().includes('admin')
+      );
+      
+      if (isAdminEmail) {
+        console.log('Admin access granted based on email:', user.email);
+        resolve(user);
+        return;
+      }
+      
+      // Fallback: Check Firestore document for admin role
       try {
         const userDoc = await db.collection('users').doc(user.uid).get();
         if (userDoc.exists && userDoc.data().role === 'admin') {
+          console.log('Admin access granted based on Firestore role');
           resolve(user);
         } else {
           alert('You do not have admin access.');
@@ -128,7 +163,13 @@ function enforceAdminAuth() {
         }
       } catch (error) {
         console.error('Error checking admin role:', error);
-        reject('Error checking permissions');
+        // If there's an error checking Firestore, still allow admin email access
+        if (isAdminEmail) {
+          console.log('Admin access granted despite Firestore error');
+          resolve(user);
+        } else {
+          reject('Error checking permissions');
+        }
       }
     });
   });
