@@ -11,7 +11,7 @@
     <!-- Google Fonts: Inter -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- Custom Styles -->
-    <link rel="stylesheet" href="/starlet-2/css/style.css">
+    <link rel="stylesheet" href="../../css/style.css">
     <style>
         :root {
             --primary-color: #0d6efd;
@@ -651,10 +651,63 @@
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
     <script src="../../js/admin.js"></script>
     <script>
-    // --- Admin Listings Management (Schema-Driven) ---
+    // --- Admin Listings Management (Enhanced Firestore Integration) ---
     let allListings = [];
-    const db = firebase.firestore();
-    const auth = firebase.auth();
+    let db, auth;
+    let currentUser = null;
+
+    // Initialize Firebase
+    document.addEventListener('DOMContentLoaded', function() {
+      // Initialize Firebase
+      if (typeof firebase !== 'undefined') {
+        db = firebase.firestore();
+        auth = firebase.auth();
+        
+        // Check admin authentication
+        auth.onAuthStateChanged(async user => {
+          if (!user) {
+            window.location.href = '../auth/login.html';
+            return;
+          }
+          
+          currentUser = user;
+          
+          // Check if user is admin
+          try {
+            const userDoc = await db.collection('users').doc(user.uid).get();
+            const userData = userDoc.data();
+            
+            // Allow access if user is admin OR if admin email (for lenient access)
+            if (userData && userData.role === 'admin') {
+              // User has admin role in Firestore
+              console.log('Admin access granted via Firestore role');
+            } else if (user.email === 'admin@starlet.co.ug') {
+              // Fallback for admin email
+              console.log('Admin access granted via email');
+            } else {
+              alert('Admin access required');
+              window.location.href = '../auth/login.html';
+              return;
+            }
+            
+            // Load listings after authentication
+            fetchAndRenderListings();
+            
+            // Update admin name in navbar
+            document.querySelector('#profileDropdown span').textContent = 
+              userData?.firstName ? userData.firstName + ' ' + (userData.lastName || '') : user.email;
+            
+          } catch (error) {
+            console.error('Error checking admin status:', error);
+            alert('Error checking admin status');
+            window.location.href = '../auth/login.html';
+          }
+        });
+      } else {
+        console.error('Firebase not loaded');
+        alert('Firebase not loaded');
+      }
+    });
 
     const listingTypeOptions = [
       'house_sale', 'house_rent', 'land_sale', 'land_rent', 'vacation_short_stay',
@@ -662,166 +715,465 @@
     ];
     const statusOptions = ['pending', 'approved', 'rejected', 'sold', 'rented', 'expired'];
 
-    requireAdminUser().then(() => {
-      fetchAndRenderListings();
-    });
-
-    // Fetch and render listings
+    // Fetch and render listings with enhanced error handling
     async function fetchAndRenderListings(filters = {}) {
       const tbody = document.querySelector('#listings-table tbody');
       showLoading(tbody, 'Loading listings...');
+      
       try {
         let ref = db.collection('listings');
-        if (filters.listingType) ref = ref.where('listingType', '==', filters.listingType);
-        if (filters.status) ref = ref.where('status', '==', filters.status);
+        
+        // Apply filters
+        if (filters.listingType) {
+          ref = ref.where('listingType', '==', filters.listingType);
+        }
+        if (filters.status) {
+          ref = ref.where('status', '==', filters.status);
+        }
+        
         const snapshot = await ref.orderBy('createdAt', 'desc').limit(100).get();
-        let listings = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        let listings = snapshot.docs.map(doc => ({ 
+          id: doc.id, 
+          ...doc.data(),
+          createdAt: doc.data().createdAt?.toDate ? doc.data().createdAt.toDate() : doc.data().createdAt
+        }));
+        
         // Client-side filter for keyword
         if (filters.keyword) {
           const kw = filters.keyword.toLowerCase();
           listings = listings.filter(l =>
             (l.title && l.title.toLowerCase().includes(kw)) ||
-            (l.description && l.description.toLowerCase().includes(kw))
+            (l.description && l.description.toLowerCase().includes(kw)) ||
+            (l.agentName && l.agentName.toLowerCase().includes(kw)) ||
+            (l.storeName && l.storeName.toLowerCase().includes(kw))
           );
         }
+        
         allListings = listings;
         renderListingsTable(listings);
+        
+        // Update stats
+        updateListingStats(listings);
+        
       } catch (err) {
-        showError(tbody, err.message || 'Error loading listings');
+        console.error('Error fetching listings:', err);
+        showError(tbody, 'Error loading listings: ' + err.message);
       }
     }
 
-    // Render listings table
+    // Update listing statistics
+    function updateListingStats(listings) {
+      const stats = {
+        total: listings.length,
+        pending: listings.filter(l => l.status === 'pending').length,
+        approved: listings.filter(l => l.status === 'approved').length,
+        rejected: listings.filter(l => l.status === 'rejected').length,
+        properties: listings.filter(l => l.listingType && l.listingType.includes('house') || l.listingType.includes('land')).length,
+        vehicles: listings.filter(l => l.listingType && l.listingType.includes('vehicle')).length
+      };
+      
+      // You can display these stats in the UI if needed
+      console.log('Listing stats:', stats);
+    }
+
+    // Enhanced render listings table
     function renderListingsTable(listings) {
       const tbody = document.querySelector('#listings-table tbody');
       tbody.innerHTML = '';
+      
       if (!listings.length) {
-        tbody.innerHTML = `<tr><td colspan="8" class="text-center text-muted">No listings found.</td></tr>`;
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="6" class="text-center text-muted py-4">
+              <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+              No listings found
+            </td>
+          </tr>
+        `;
         return;
       }
+      
       listings.forEach(l => {
+        const statusBadge = getStatusBadge(l.status);
+        const typeLabel = getTypeLabel(l.listingType);
+        const agentInfo = l.agentName || l.storeName || 'Unknown';
+        
         tbody.innerHTML += `
           <tr>
-            <td>${l.title || ''}</td>
-            <td>${l.listingType || ''}</td>
-            <td>${l.propertyType || (l.vehicleDetails?.vehicleCategory || '')}</td>
-            <td>${l.status ? `<span class="badge bg-${l.status==='approved'?'success':l.status==='pending'?'warning':'danger'}">${l.status}</span>` : ''}</td>
-            <td>${l.adminVerification ? l.adminVerification.status : ''}</td>
-            <td>${formatDate(l.createdAt)}</td>
             <td>
-              <button class="btn btn-sm btn-outline-primary me-1" onclick="showListingDetails('${l.id}')"><i class="bi bi-eye"></i></button>
-              ${l.adminVerification && l.adminVerification.status==='pending'?`<button class="btn btn-sm btn-success me-1" onclick="approveListing('${l.id}')"><i class="bi bi-check-lg"></i></button>`:''}
-              ${l.adminVerification && l.adminVerification.status!=='rejected'?`<button class="btn btn-sm btn-danger me-1" onclick="rejectListing('${l.id}')"><i class="bi bi-x-lg"></i></button>`:''}
-              <button class="btn btn-sm btn-outline-danger" onclick="deleteListing('${l.id}')"><i class="bi bi-trash"></i></button>
+              <div class="fw-semibold">${l.title || 'Untitled'}</div>
+              <small class="text-muted">${l.description ? l.description.substring(0, 50) + '...' : ''}</small>
+            </td>
+            <td>
+              <span class="badge bg-secondary">${typeLabel}</span>
+            </td>
+            <td>${agentInfo}</td>
+            <td>${statusBadge}</td>
+            <td>
+              <div>${formatDate(l.createdAt)}</div>
+              <small class="text-muted">${l.location?.district || ''} ${l.location?.town ? ', ' + l.location.town : ''}</small>
+            </td>
+            <td>
+              <div class="btn-group btn-group-sm" role="group">
+                <button class="btn btn-outline-primary" onclick="showListingDetails('${l.id}')" title="View Details">
+                  <i class="bi bi-eye"></i>
+                </button>
+                ${l.status === 'pending' ? `
+                  <button class="btn btn-outline-success" onclick="approveListing('${l.id}')" title="Approve">
+                    <i class="bi bi-check-lg"></i>
+                  </button>
+                ` : ''}
+                ${l.status !== 'rejected' ? `
+                  <button class="btn btn-outline-warning" onclick="rejectListing('${l.id}')" title="Reject">
+                    <i class="bi bi-x-lg"></i>
+                  </button>
+                ` : ''}
+                <button class="btn btn-outline-danger" onclick="deleteListing('${l.id}')" title="Delete">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </div>
             </td>
           </tr>
         `;
       });
     }
 
-    // Filter form
-    const filterForm = document.getElementById('filter-form');
-    filterForm.addEventListener('submit', function(e) {
+    // Get status badge with proper styling
+    function getStatusBadge(status) {
+      const badges = {
+        'pending': 'bg-warning text-dark',
+        'approved': 'bg-success',
+        'rejected': 'bg-danger',
+        'sold': 'bg-info',
+        'rented': 'bg-primary',
+        'expired': 'bg-secondary'
+      };
+      
+      const badgeClass = badges[status] || 'bg-secondary';
+      return `<span class="badge ${badgeClass}">${status || 'unknown'}</span>`;
+    }
+
+    // Get human-readable type label
+    function getTypeLabel(listingType) {
+      const labels = {
+        'house_sale': 'House Sale',
+        'house_rent': 'House Rent',
+        'land_sale': 'Land Sale',
+        'land_rent': 'Land Rent',
+        'vacation_short_stay': 'Vacation',
+        'vehicle_sale': 'Vehicle Sale',
+        'motorcycle_sale': 'Motorcycle',
+        'heavy_machinery_sale': 'Heavy Machinery',
+        'bicycle_ebike_sale': 'Bicycle/E-bike',
+        'boat_watercraft_sale': 'Boat/Watercraft'
+      };
+      
+      return labels[listingType] || listingType || 'Unknown';
+    }
+
+    // Enhanced filter form handling
+    document.getElementById('filter-form').addEventListener('submit', function(e) {
       e.preventDefault();
       const keyword = document.getElementById('search').value.trim();
       const listingType = document.getElementById('listingType').value;
       const status = document.getElementById('status').value;
+      
       fetchAndRenderListings({ keyword, listingType, status });
     });
 
-    // Approve listing (set adminVerification.status and finalPrice)
+    // Enhanced approve listing with better validation
     async function approveListing(id) {
-      const listing = allListings.find(l => l.id === id);
-      if (!listing) return;
-      let finalPrice = listing.finalPrice || listing.askingPrice || 0;
-      finalPrice = prompt('Enter final approved price (USh):', finalPrice);
-      if (!finalPrice || isNaN(finalPrice)) return alert('Invalid price.');
-      await db.collection('listings').doc(id).update({
-        'adminVerification.status': 'approved',
-        finalPrice: Number(finalPrice),
-        'adminVerification.verifiedBy': auth.currentUser.uid,
-        'adminVerification.verifiedAt': new Date()
-      });
-      showToast('Listing approved');
-      fetchAndRenderListings();
+      try {
+        const listing = allListings.find(l => l.id === id);
+        if (!listing) {
+          showToast('Listing not found', 'error');
+          return;
+        }
+        
+        let finalPrice = listing.finalPrice || listing.askingPrice || 0;
+        const priceInput = prompt('Enter final approved price (USh):', finalPrice);
+        
+        if (priceInput === null) return; // User cancelled
+        
+        if (!priceInput || isNaN(priceInput) || Number(priceInput) <= 0) {
+          showToast('Invalid price entered', 'error');
+          return;
+        }
+        
+        finalPrice = Number(priceInput);
+        
+        await db.collection('listings').doc(id).update({
+          status: 'approved',
+          finalPrice: finalPrice,
+          approvedBy: currentUser.uid,
+          approvedAt: new Date(),
+          adminVerification: {
+            status: 'approved',
+            verifiedBy: currentUser.uid,
+            verifiedAt: new Date(),
+            finalPrice: finalPrice
+          }
+        });
+        
+        showToast('Listing approved successfully', 'success');
+        fetchAndRenderListings();
+        
+      } catch (error) {
+        console.error('Error approving listing:', error);
+        showToast('Error approving listing: ' + error.message, 'error');
+      }
     }
-    // Reject listing
+
+    // Enhanced reject listing
     async function rejectListing(id) {
-      if (!confirmAction('Reject this listing?')) return;
-      await db.collection('listings').doc(id).update({
-        'adminVerification.status': 'rejected',
-        'adminVerification.verifiedBy': auth.currentUser.uid,
-        'adminVerification.verifiedAt': new Date()
-      });
-      showToast('Listing rejected');
-      fetchAndRenderListings();
+      try {
+        if (!confirm('Are you sure you want to reject this listing?')) return;
+        
+        const reason = prompt('Enter rejection reason (optional):');
+        
+        await db.collection('listings').doc(id).update({
+          status: 'rejected',
+          rejectedBy: currentUser.uid,
+          rejectedAt: new Date(),
+          rejectionReason: reason || '',
+          adminVerification: {
+            status: 'rejected',
+            verifiedBy: currentUser.uid,
+            verifiedAt: new Date(),
+            reason: reason || ''
+          }
+        });
+        
+        showToast('Listing rejected successfully', 'success');
+        fetchAndRenderListings();
+        
+      } catch (error) {
+        console.error('Error rejecting listing:', error);
+        showToast('Error rejecting listing: ' + error.message, 'error');
+      }
     }
-    // Delete listing
+
+    // Enhanced delete listing
     async function deleteListing(id) {
-      if (!confirmAction('Delete this listing? This cannot be undone.')) return;
-      await db.collection('listings').doc(id).delete();
-      showToast('Listing deleted');
-      fetchAndRenderListings();
+      try {
+        if (!confirm('Are you sure you want to delete this listing? This action cannot be undone.')) return;
+        
+        await db.collection('listings').doc(id).delete();
+        
+        showToast('Listing deleted successfully', 'success');
+        fetchAndRenderListings();
+        
+      } catch (error) {
+        console.error('Error deleting listing:', error);
+        showToast('Error deleting listing: ' + error.message, 'error');
+      }
     }
-    // Show listing details modal (with all nested details)
+
+    // Enhanced show listing details modal
     async function showListingDetails(id) {
-      const listing = allListings.find(l => l.id === id);
-      const modalBody = document.querySelector('#listingDetailsModal .modal-body');
-      if (!listing) {
-        modalBody.innerHTML = '<div class="text-danger">Listing not found.</div>';
-        return;
+      try {
+        const listing = allListings.find(l => l.id === id);
+        const modalBody = document.querySelector('#listingDetailsModal .modal-body');
+        
+        if (!listing) {
+          modalBody.innerHTML = '<div class="text-danger">Listing not found.</div>';
+          return;
+        }
+        
+        let details = `
+          <div class="row">
+            <div class="col-md-6">
+              <h5 class="mb-3">${listing.title || 'Untitled Listing'}</h5>
+              <p class="text-muted">${listing.description || 'No description available'}</p>
+              
+              <div class="mb-3">
+                <strong>Basic Information:</strong>
+                <ul class="list-unstyled">
+                  <li><strong>Type:</strong> ${getTypeLabel(listing.listingType)}</li>
+                  <li><strong>Status:</strong> ${getStatusBadge(listing.status)}</li>
+                  <li><strong>Price:</strong> ${formatPrice(listing.askingPrice)}</li>
+                  ${listing.finalPrice ? `<li><strong>Final Price:</strong> ${formatPrice(listing.finalPrice)}</li>` : ''}
+                  <li><strong>Location:</strong> ${listing.location?.district || ''} ${listing.location?.town ? ', ' + listing.location.town : ''}</li>
+                  <li><strong>Created:</strong> ${formatDate(listing.createdAt)}</li>
+                </ul>
+              </div>
+            </div>
+            
+            <div class="col-md-6">
+              <strong>Detailed Information:</strong>
+        `;
+        
+        // Property details
+        if (listing.propertyType) {
+          details += `<div class="mb-2"><strong>Property Type:</strong> ${listing.propertyType}</div>`;
+        }
+        
+        // Vehicle details
+        if (listing.vehicleDetails) {
+          details += `
+            <div class="mb-2">
+              <strong>Vehicle Details:</strong>
+              <ul class="list-unstyled">
+                <li>Category: ${listing.vehicleDetails.vehicleCategory || ''}</li>
+                <li>Make: ${listing.vehicleDetails.make || ''}</li>
+                <li>Model: ${listing.vehicleDetails.model || ''}</li>
+                <li>Year: ${listing.vehicleDetails.year || ''}</li>
+                <li>Color: ${listing.vehicleDetails.color || ''}</li>
+                <li>Condition: ${listing.vehicleDetails.condition || ''}</li>
+              </ul>
+            </div>
+          `;
+        }
+        
+        // House details
+        if (listing.houseDetails) {
+          details += `
+            <div class="mb-2">
+              <strong>House Details:</strong>
+              <ul class="list-unstyled">
+                <li>Subcategory: ${listing.houseDetails.subCategory || ''}</li>
+                <li>Bedrooms: ${listing.houseDetails.bedrooms || ''}</li>
+                <li>Bathrooms: ${listing.houseDetails.bathrooms || ''}</li>
+              </ul>
+            </div>
+          `;
+        }
+        
+        // Land details
+        if (listing.landDetails) {
+          details += `
+            <div class="mb-2">
+              <strong>Land Details:</strong>
+              <ul class="list-unstyled">
+                <li>Subcategory: ${listing.landDetails.subCategory || ''}</li>
+                <li>Topography: ${listing.landDetails.topography || ''}</li>
+              </ul>
+            </div>
+          `;
+        }
+        
+        // Ownership details
+        if (listing.ownershipDetails) {
+          details += `
+            <div class="mb-2">
+              <strong>Ownership Details:</strong>
+              <ul class="list-unstyled">
+                <li>Type: ${listing.ownershipDetails.ownershipType || ''}</li>
+                <li>Title Status: ${listing.ownershipDetails.titleStatus || ''}</li>
+              </ul>
+            </div>
+          `;
+        }
+        
+        // Media and documents
+        if (listing.media && listing.media.length) {
+          details += `
+            <div class="mb-2">
+              <strong>Media Files:</strong>
+              <div class="d-flex flex-wrap gap-1">
+                ${listing.media.map(m => `<a href="${m.url}" target="_blank" class="btn btn-sm btn-outline-primary">${m.type}</a>`).join('')}
+              </div>
+            </div>
+          `;
+        }
+        
+        if (listing.documents && listing.documents.length) {
+          details += `
+            <div class="mb-2">
+              <strong>Documents:</strong>
+              <div class="d-flex flex-wrap gap-1">
+                ${listing.documents.map(d => `<a href="${d.url}" target="_blank" class="btn btn-sm btn-outline-secondary">${d.type}</a>`).join('')}
+              </div>
+            </div>
+          `;
+        }
+        
+        details += `
+            </div>
+          </div>
+        `;
+        
+        modalBody.innerHTML = details;
+        
+        const modal = new bootstrap.Modal(document.getElementById('listingDetailsModal'));
+        modal.show();
+        
+      } catch (error) {
+        console.error('Error showing listing details:', error);
+        showToast('Error loading listing details: ' + error.message, 'error');
       }
-      let details = '';
-      if (listing.propertyType) {
-        details += `<div><b>Property Type:</b> ${listing.propertyType}</div>`;
-      }
-      if (listing.vehicleDetails) {
-        details += `<div><b>Vehicle Category:</b> ${listing.vehicleDetails.vehicleCategory || ''}</div>
-          <div><b>Make:</b> ${listing.vehicleDetails.make || ''}</div>
-          <div><b>Model:</b> ${listing.vehicleDetails.model || ''}</div>
-          <div><b>Year:</b> ${listing.vehicleDetails.year || ''}</div>
-          <div><b>Color:</b> ${listing.vehicleDetails.color || ''}</div>
-          <div><b>Condition:</b> ${listing.vehicleDetails.condition || ''}</div>`;
-      }
-      if (listing.houseDetails) {
-        details += `<div><b>House Subcategory:</b> ${listing.houseDetails.subCategory || ''}</div>
-          <div><b>Bedrooms:</b> ${listing.houseDetails.bedrooms || ''}</div>
-          <div><b>Bathrooms:</b> ${listing.houseDetails.bathrooms || ''}</div>`;
-      }
-      if (listing.landDetails) {
-        details += `<div><b>Land Subcategory:</b> ${listing.landDetails.subCategory || ''}</div>
-          <div><b>Topography:</b> ${listing.landDetails.topography || ''}</div>`;
-      }
-      if (listing.ownershipDetails) {
-        details += `<div><b>Ownership Type:</b> ${listing.ownershipDetails.ownershipType || ''}</div>
-          <div><b>Title Status:</b> ${listing.ownershipDetails.titleStatus || ''}</div>`;
-      }
-      if (listing.amenities) {
-        details += `<div><b>Amenities:</b> ${Object.entries(listing.amenities).map(([k,v])=>`${k}: ${JSON.stringify(v)}`).join(', ')}</div>`;
-      }
-      if (listing.media && listing.media.length) {
-        details += `<div><b>Media:</b> ${listing.media.map(m=>`<a href='${m.url}' target='_blank'>${m.type}</a>`).join(', ')}</div>`;
-      }
-      if (listing.documents && listing.documents.length) {
-        details += `<div><b>Documents:</b> ${listing.documents.map(d=>`<a href='${d.url}' target='_blank'>${d.type}</a>`).join(', ')}</div>`;
-      }
-      if (listing.adminVerification) {
-        details += `<div><b>Admin Verification:</b> ${listing.adminVerification.status || ''}</div>`;
-      }
-      modalBody.innerHTML = `
-        <h5>${listing.title || ''}</h5>
-        <div><b>Type:</b> ${listing.listingType || ''}</div>
-        <div><b>Status:</b> ${listing.status || ''}</div>
-        <div><b>Admin Verification:</b> ${listing.adminVerification ? listing.adminVerification.status : ''}</div>
-        <div><b>Price:</b> ${formatPrice(listing.askingPrice)} ${listing.finalPrice ? '(Final: ' + formatPrice(listing.finalPrice) + ')' : ''}</div>
-        <div><b>Location:</b> ${listing.location?.district || ''} ${listing.location?.town ? ', ' + listing.location.town : ''}</div>
-        <div><b>Description:</b> <br>${listing.description || ''}</div>
-        <div><b>Created:</b> ${formatDate(listing.createdAt)}</div>
-        ${details}
-      `;
-      const modal = new bootstrap.Modal(document.getElementById('listingDetailsModal'));
-      modal.show();
     }
+
+    // Utility functions
+    function formatDate(date) {
+      if (!date) return 'Unknown';
+      const d = new Date(date);
+      return d.toLocaleDateString() + ' ' + d.toLocaleTimeString();
+    }
+
+    function formatPrice(price) {
+      if (!price) return 'Not specified';
+      return 'USh ' + Number(price).toLocaleString();
+    }
+
+    function showLoading(element, message = 'Loading...') {
+      element.innerHTML = `
+        <tr>
+          <td colspan="6" class="text-center py-4">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+            <div class="mt-2">${message}</div>
+          </td>
+        </tr>
+      `;
+    }
+
+    function showError(element, message) {
+      element.innerHTML = `
+        <tr>
+          <td colspan="6" class="text-center text-danger py-4">
+            <i class="bi bi-exclamation-triangle fs-1 d-block mb-2"></i>
+            ${message}
+          </td>
+        </tr>
+      `;
+    }
+
+    function showToast(message, type = 'info') {
+      const toast = document.createElement('div');
+      toast.className = `position-fixed top-0 end-0 p-3`;
+      toast.style.zIndex = '9999';
+      
+      const alertClass = type === 'success' ? 'alert-success' : type === 'error' ? 'alert-danger' : 'alert-info';
+      
+      toast.innerHTML = `
+        <div class="alert ${alertClass} alert-dismissible fade show" role="alert">
+          ${message}
+          <button type="button" class="btn-close" onclick="this.closest('.alert').remove()"></button>
+        </div>
+      `;
+      
+      document.body.appendChild(toast);
+      
+      setTimeout(() => {
+        if (toast.parentNode) {
+          toast.remove();
+        }
+      }, 5000);
+    }
+
+    // Logout functionality
+    document.querySelector('.logout-link').addEventListener('click', function(e) {
+      e.preventDefault();
+      if (confirm('Are you sure you want to logout?')) {
+        auth.signOut().then(() => {
+          window.location.href = '../auth/login.html';
+        }).catch(error => {
+          console.error('Error signing out:', error);
+        });
+      }
+    });
     </script>
 </body>
 </html>
