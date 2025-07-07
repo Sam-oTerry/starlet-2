@@ -408,7 +408,6 @@
   <script src="../../js/admin.js"></script>
   <!-- Dashboard JS -->
   <script>
-    let db, auth;
     let listingsChart, usersChart;
     let statsData = {};
 
@@ -416,9 +415,6 @@
     document.addEventListener('DOMContentLoaded', function() {
       // Initialize Firebase
       if (typeof firebase !== 'undefined') {
-        db = firebase.firestore();
-        auth = firebase.auth();
-        
         // Load dashboard data
         loadDashboardStats();
         loadRecentActivity();
