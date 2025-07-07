@@ -19,6 +19,7 @@
       display: flex;
       flex-direction: column;
       justify-content: center;
+      height: 100%;
     }
     .stat-card:hover {
       transform: translateY(-2px);
@@ -45,10 +46,18 @@
       padding: 1.5rem;
       box-shadow: 0 2px 12px rgba(0,0,0,0.07);
       margin-bottom: 2rem;
-      min-height: 400px;
+      min-height: 320px;
       display: flex;
       flex-direction: column;
       justify-content: center;
+      height: 100%;
+    }
+    .chart-container canvas {
+      width: 100% !important;
+      height: 300px !important;
+      max-width: 100%;
+      aspect-ratio: 2/1;
+      display: block;
     }
     .loading-spinner {
       display: inline-block;
@@ -131,7 +140,7 @@
     <!-- Metrics Cards -->
     <div class="container my-5">
       <div class="row g-4 mb-4">
-        <div class="col-md-3">
+        <div class="col-6 col-md-3">
           <div class="card card-modern stat-card text-center p-3 h-100">
             <div class="card-body">
               <div class="mb-2"><i class="bi bi-list-ul fs-2 text-primary"></i></div>
@@ -143,7 +152,7 @@
             </div>
           </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-6 col-md-3">
           <div class="card card-modern stat-card text-center p-3 h-100">
             <div class="card-body">
               <div class="mb-2"><i class="bi bi-people fs-2 text-success"></i></div>
@@ -155,7 +164,7 @@
             </div>
           </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-6 col-md-3">
           <div class="card card-modern stat-card text-center p-3 h-100">
             <div class="card-body">
               <div class="mb-2"><i class="bi bi-shop fs-2 text-warning"></i></div>
@@ -167,7 +176,7 @@
             </div>
           </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-6 col-md-3">
           <div class="card card-modern stat-card text-center p-3 h-100">
             <div class="card-body">
               <div class="mb-2"><i class="bi bi-hourglass-split fs-2 text-danger"></i></div>
@@ -183,7 +192,7 @@
 
       <!-- Additional Stats Row -->
       <div class="row g-4 mb-4">
-        <div class="col-md-3">
+        <div class="col-6 col-md-3">
           <div class="card card-modern stat-card text-center p-3 h-100">
             <div class="card-body">
               <div class="mb-2"><i class="bi bi-chat-dots fs-2 text-info"></i></div>
@@ -195,7 +204,7 @@
             </div>
           </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-6 col-md-3">
           <div class="card card-modern stat-card text-center p-3 h-100">
             <div class="card-body">
               <div class="mb-2"><i class="bi bi-eye fs-2 text-purple"></i></div>
@@ -207,7 +216,7 @@
             </div>
           </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-6 col-md-3">
           <div class="card card-modern stat-card text-center p-3 h-100">
             <div class="card-body">
               <div class="mb-2"><i class="bi bi-star fs-2 text-warning"></i></div>
@@ -219,7 +228,7 @@
             </div>
           </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-6 col-md-3">
           <div class="card card-modern stat-card text-center p-3 h-100">
             <div class="card-body">
               <div class="mb-2"><i class="bi bi-currency-dollar fs-2 text-success"></i></div>
@@ -286,16 +295,16 @@
 
       <!-- Charts and Analytics -->
       <div class="row">
-        <div class="col-lg-8">
+        <div class="col-12 col-lg-8 mb-4 mb-lg-0">
           <div class="chart-container">
             <h5 class="mb-3"><i class="bi bi-bar-chart"></i> Listings by Category</h5>
-            <canvas id="listingsChart" width="400" height="200"></canvas>
+            <canvas id="listingsChart"></canvas>
           </div>
         </div>
-        <div class="col-lg-4">
+        <div class="col-12 col-lg-4">
           <div class="chart-container">
             <h5 class="mb-3"><i class="bi bi-pie-chart"></i> User Distribution</h5>
-            <canvas id="usersChart" width="200" height="200"></canvas>
+            <canvas id="usersChart"></canvas>
           </div>
         </div>
       </div>
@@ -685,7 +694,23 @@
         },
         options: {
           responsive: true,
-          maintainAspectRatio: false
+          maintainAspectRatio: true,
+          aspectRatio: 2,
+          plugins: {
+            legend: { display: false },
+            tooltip: { enabled: true, mode: 'index', intersect: false }
+          },
+          scales: {
+            x: {
+              grid: { display: false },
+              title: { display: true, text: 'Category', font: { weight: 'bold' } }
+            },
+            y: {
+              beginAtZero: true,
+              grid: { color: '#e9ecef' },
+              title: { display: true, text: 'Listings', font: { weight: 'bold' } }
+            }
+          }
         }
       });
       
@@ -706,7 +731,12 @@
         },
         options: {
           responsive: true,
-          maintainAspectRatio: false
+          maintainAspectRatio: true,
+          aspectRatio: 1.2,
+          plugins: {
+            legend: { display: true, position: 'bottom' },
+            tooltip: { enabled: true, mode: 'index', intersect: false }
+          }
         }
       });
     }
