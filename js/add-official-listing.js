@@ -158,42 +158,55 @@ listingTypeEl.addEventListener('change', function() {
 });
 
 // Property type logic
-propertySection.addEventListener('change', function(e) {
-  const propertyType = document.getElementById('propertyType').value;
-  // House details
-  const houseDetailsSection = document.getElementById('houseDetailsSection');
-  const landDetailsSection = document.getElementById('landDetailsSection');
-  const ownershipDetailsSection = document.getElementById('ownershipDetailsSection');
-  const amenitiesSection = document.getElementById('amenitiesSection');
-  if (["house_sale","house_rent","vacation_short_stay"].includes(propertyType)) {
-    houseDetailsSection.classList.remove('d-none');
-    landDetailsSection.classList.add('d-none');
-    populateHouseSubCategoryDropdown();
-  } else if (["land_sale","land_rent"].includes(propertyType)) {
-    landDetailsSection.classList.remove('d-none');
-    houseDetailsSection.classList.add('d-none');
-    populateLandSubCategoryDropdown();
-  } else {
-    houseDetailsSection.classList.add('d-none');
-    landDetailsSection.classList.add('d-none');
-  }
-  // Ownership and amenities for all property types
-  ownershipDetailsSection.classList.remove('d-none');
-  amenitiesSection.classList.remove('d-none');
-});
+const propertyTypeEl = document.getElementById('propertyType');
+const houseSubCategoryEl = document.getElementById('houseSubCategory');
+const landSubCategoryEl = document.getElementById('landSubCategory');
+
+if (propertyTypeEl) {
+  propertyTypeEl.addEventListener('change', function() {
+    const propertyType = propertyTypeEl.value;
+    const houseDetailsSection = document.getElementById('houseDetailsSection');
+    const landDetailsSection = document.getElementById('landDetailsSection');
+    const ownershipDetailsSection = document.getElementById('ownershipDetailsSection');
+    const amenitiesSection = document.getElementById('amenitiesSection');
+    if (["house_sale","house_rent","vacation_short_stay"].includes(propertyType)) {
+      houseDetailsSection.classList.remove('d-none');
+      landDetailsSection.classList.add('d-none');
+      populateHouseSubCategoryDropdown();
+    } else if (["land_sale","land_rent"].includes(propertyType)) {
+      landDetailsSection.classList.remove('d-none');
+      houseDetailsSection.classList.add('d-none');
+      populateLandSubCategoryDropdown();
+    } else {
+      houseDetailsSection.classList.add('d-none');
+      landDetailsSection.classList.add('d-none');
+    }
+    ownershipDetailsSection.classList.remove('d-none');
+    amenitiesSection.classList.remove('d-none');
+  });
+}
 
 // Vehicle category logic
-vehicleSection.addEventListener('change', function(e) {
-  const vehicleCategory = document.getElementById('vehicleCategory').value;
-  populateVehicleSubCategoryDropdown(vehicleCategory);
-  populateVehicleMakeDropdown(vehicleCategory);
-  document.getElementById('vehicleModel').length = 1;
-});
-document.getElementById('vehicleMake').addEventListener('change', function() {
-  const vehicleCategory = document.getElementById('vehicleCategory').value;
-  const vehicleMake = document.getElementById('vehicleMake').value;
-  populateVehicleModelDropdown(vehicleCategory, vehicleMake);
-});
+const vehicleCategoryEl = document.getElementById('vehicleCategory');
+const vehicleSubCategoryEl = document.getElementById('vehicleSubCategory');
+const vehicleMakeEl = document.getElementById('vehicleMake');
+const vehicleModelEl = document.getElementById('vehicleModel');
+
+if (vehicleCategoryEl) {
+  vehicleCategoryEl.addEventListener('change', function() {
+    const vehicleCategory = vehicleCategoryEl.value;
+    populateVehicleSubCategoryDropdown(vehicleCategory);
+    populateVehicleMakeDropdown(vehicleCategory);
+    if (vehicleModelEl) vehicleModelEl.length = 1;
+  });
+}
+if (vehicleMakeEl) {
+  vehicleMakeEl.addEventListener('change', function() {
+    const vehicleCategory = vehicleCategoryEl.value;
+    const vehicleMake = vehicleMakeEl.value;
+    populateVehicleModelDropdown(vehicleCategory, vehicleMake);
+  });
+}
 
 // --- Helper: Remove required from hidden fields before validation ---
 function updateRequiredAttributes() {
