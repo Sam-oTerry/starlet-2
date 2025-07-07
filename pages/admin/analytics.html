@@ -123,7 +123,7 @@
                     <div class="card">
                         <div class="card-header">Top Agents/Stores</div>
                         <div class="card-body">
-                            <canvas id="topAgentsChart" height="200"></canvas>
+                            <ul id="topAgentsList" class="list-group"></ul>
                         </div>
                     </div>
                 </div>
@@ -313,7 +313,7 @@
           agentCounts[agent] = (agentCounts[agent] || 0) + 1;
         });
         const sortedAgents = Object.entries(agentCounts).sort((a,b) => b[1]-a[1]).slice(0,8);
-        renderBarChart('topAgentsChart', sortedAgents.map(x=>x[0]), sortedAgents.map(x=>x[1]), 'Listings');
+        await renderTopAgentsList(sortedAgents);
       }
 
       function renderStackedLineChart(canvasId, dataObj, label) {
@@ -334,19 +334,46 @@
           options: { responsive: true, plugins: { legend: { display: true } } }
         });
       }
-      function renderBarChart(canvasId, labels, data, label) {
-        const ctx = document.getElementById(canvasId).getContext('2d');
-        new Chart(ctx, {
-          type: 'bar',
-          data: {
-            labels,
-            datasets: [{
-              label,
-              data,
-              backgroundColor: '#0d6efd',
-            }]
-          },
-          options: { responsive: true, plugins: { legend: { display: false } } }
+
+      // Helper to fetch names for agent/store IDs
+      async function fetchAgentStoreNames(ids) {
+        const names = {};
+        // Try to fetch from users (agents)
+        if (ids.length === 0) return names;
+        // Firestore 'in' queries are limited to 10
+        const batchSize = 10;
+        for (let i = 0; i < ids.length; i += batchSize) {
+          const batchIds = ids.slice(i, i + batchSize);
+          const usersSnap = await db.collection('users').where(firebase.firestore.FieldPath.documentId(), 'in', batchIds).get();
+          usersSnap.forEach(doc => {
+            names[doc.id] = doc.data().displayName || doc.data().name || doc.data().email || doc.id;
+          });
+          const storesSnap = await db.collection('stores').where(firebase.firestore.FieldPath.documentId(), 'in', batchIds).get();
+          storesSnap.forEach(doc => {
+            names[doc.id] = doc.data().name || doc.id;
+          });
+        }
+        ids.forEach(id => {
+          if (!names[id]) names[id] = id;
+        });
+        return names;
+      }
+
+      async function renderTopAgentsList(sortedAgents) {
+        const topIds = sortedAgents.map(x => x[0]);
+        const namesMap = await fetchAgentStoreNames(topIds);
+        const list = document.getElementById('topAgentsList');
+        list.innerHTML = '';
+        sortedAgents.forEach(([id, count]) => {
+          const name = namesMap[id] || id;
+          const li = document.createElement('li');
+          li.className = 'list-group-item d-flex justify-content-between align-items-center';
+          li.textContent = name;
+          const badge = document.createElement('span');
+          badge.className = 'badge bg-primary rounded-pill';
+          badge.textContent = count;
+          li.appendChild(badge);
+          list.appendChild(li);
         });
       }
     </script>
