@@ -42,7 +42,7 @@
       </div>
       <a href="add-listing.html" class="btn btn-lg btn-primary mt-3 mt-md-0 shadow-sm"><i class="bi bi-plus-circle"></i> Add Listing</a>
     </div>
-    <div class="row g-4" id="dashboardStoresList">
+    <div class="d-flex flex-column gap-4" id="dashboardStoresList" style="width:100%;max-width:900px;margin:0 auto;">
       <!-- Store cards will be injected here by JS -->
     </div>
   </section>
@@ -112,6 +112,8 @@
       transition: box-shadow 0.2s;
       border: 1px solid #f0f0f0;
       height: 100%;
+      width: 100%;
+      max-width: 100%;
     }
     .store-card-modern:hover {
       box-shadow: 0 8px 32px 0 rgba(0,0,0,0.12);
@@ -246,56 +248,58 @@ function renderDashboardStores(listings) {
     return;
   }
   listings.forEach((store, idx) => {
-    const card = document.createElement('div');
-    card.className = 'col-md-6 col-lg-4 mb-4';
-    // Store profile
-    const agentTier = store.agentTier || 'silver';
-    const verification = store.verificationStatus?.status || 'pending';
-    const subscription = store.subscriptionStatus || 'active';
-    const year = store.createdAt ? new Date(store.createdAt.seconds ? store.createdAt.seconds * 1000 : store.createdAt).getFullYear() : '';
-    // Stats
-    const listingsCount = store.listingsCount || 0;
-    const reviewCount = store.reviewCount || 0;
-    const avgRating = store.averageRating || 0;
-    const recentReviews = store.recentReviews || [];
-    // Agent profile (dummy, to be fetched if needed)
-    // Analytics (dummy, to be fetched if needed)
-    // Card inner HTML
-    card.innerHTML = `
-      <div class="store-card-modern d-flex flex-column shadow-sm border-0 rounded-4 p-3 bg-white h-100 gap-2">
-        <div class="d-flex align-items-center gap-3 mb-2">
-          <img src="${store.logo || 'https://via.placeholder.com/90?text=Logo'}" alt="${store.name}" class="rounded-circle border border-2" style="width:64px;height:64px;object-fit:cover;">
-          <div class="flex-grow-1">
-            <span class="fw-semibold text-dark small">${store.name}</span>
-            <span class="badge bg-light text-secondary border ms-2 px-2 py-1 small text-uppercase">${agentTier}</span>
-            <span class="store-status-badge ${verification}">${verification.charAt(0).toUpperCase() + verification.slice(1)}</span>
-            <span class="badge bg-info ms-2">${subscription.charAt(0).toUpperCase() + subscription.slice(1)}</span>
-            <div class="d-flex align-items-center gap-1 mt-1">
-              <span class="rating-stars">${'★'.repeat(Math.round(avgRating))}${'☆'.repeat(5-Math.round(avgRating))}</span>
-              <span class="text-muted small ms-1">${avgRating.toFixed(1)}</span>
-            </div>
-          </div>
+    // Store Profile Card
+    const profileCard = document.createElement('div');
+    profileCard.className = 'store-card-modern mb-3';
+    profileCard.innerHTML = `
+      <div class="d-flex align-items-center gap-3 mb-2">
+        <img src="${store.logo || 'https://via.placeholder.com/90?text=Logo'}" alt="${store.name}" class="rounded-circle border border-2" style="width:64px;height:64px;object-fit:cover;">
+        <div class="flex-grow-1">
+          <span class="fw-semibold text-dark small">${store.name}</span>
+          <span class="badge bg-light text-secondary border ms-2 px-2 py-1 small text-uppercase">${agentTier}</span>
+          <span class="store-status-badge ${verification}">${verification.charAt(0).toUpperCase() + verification.slice(1)}</span>
+          <span class="badge bg-info ms-2">${subscription.charAt(0).toUpperCase() + subscription.slice(1)}</span>
         </div>
-        <div class="text-muted small mb-2" style="min-height:2.2em;">${store.description || ''}</div>
-        <div class="d-flex align-items-center gap-3 mb-2 stats-row">
-          <span class="text-secondary small"><i class="bi bi-list-ul"></i> ${listingsCount} Listings</span>
-          <span class="text-secondary small"><i class="bi bi-graph-up"></i> ${reviewCount} Reviews</span>
-          <span class="text-secondary small"><i class="bi bi-calendar3"></i> ${year}</span>
-        </div>
-        <div class="mb-2">
-          <strong>Recent Reviews:</strong>
-          ${recentReviews.length ? recentReviews.map(r => `<div class='border rounded p-2 mb-1'><span class='text-warning'>${'★'.repeat(r.rating)}${'☆'.repeat(5-r.rating)}</span> <span class='text-muted small'>${r.comment || ''}</span><br><span class='text-muted small'>${r.createdAt ? new Date(r.createdAt.seconds ? r.createdAt.seconds * 1000 : r.createdAt).toLocaleDateString() : ''}</span></div>`).join('') : '<span class="text-muted small">No reviews yet.</span>'}
-        </div>
-        <div class="d-flex gap-2 flex-wrap mb-2">
-          <a href="details.html?id=${store.id || store._id}" class="btn btn-sm btn-outline-primary"><i class="bi bi-eye"></i> View</a>
-          <button class="btn btn-sm btn-outline-success" onclick="editStore('${store.id || store._id}')"><i class="bi bi-pencil"></i> Edit</button>
-          <button class="btn btn-sm btn-outline-danger" onclick="deleteStore('${store.id || store._id}', '${store.name}')"><i class="bi bi-trash"></i> Delete</button>
-          <button class="btn btn-sm btn-primary" onclick="manageListings('${store.id || store._id}', '${store.name}')"><i class="bi bi-list-task"></i> Manage Listings</button>
-        </div>
-        <div id="listingsSection-${store.id || store._id}" style="display:none;"></div>
+      </div>
+      <div class="text-muted small mb-2" style="min-height:2.2em;">${store.description || ''}</div>
+    `;
+    // Store Stats Card
+    const statsCard = document.createElement('div');
+    statsCard.className = 'store-card-modern mb-3';
+    statsCard.innerHTML = `
+      <div class="d-flex align-items-center gap-3 mb-2 stats-row">
+        <span class="text-secondary small"><i class="bi bi-list-ul"></i> ${listingsCount} Listings</span>
+        <span class="text-secondary small"><i class="bi bi-graph-up"></i> ${reviewCount} Reviews</span>
+        <span class="text-secondary small"><i class="bi bi-calendar3"></i> ${year}</span>
+        <span class="text-secondary small"><i class="bi bi-star-fill text-warning"></i> ${avgRating.toFixed(1)}</span>
       </div>
     `;
-    container.appendChild(card);
+    // Recent Reviews Card
+    const reviewsCard = document.createElement('div');
+    reviewsCard.className = 'store-card-modern mb-3';
+    reviewsCard.innerHTML = `
+      <strong>Recent Reviews:</strong>
+      <div class="mt-2">
+        ${recentReviews.length ? recentReviews.map(r => `<div class='border rounded p-2 mb-1'><span class='text-warning'>${'★'.repeat(r.rating)}${'☆'.repeat(5-r.rating)}</span> <span class='text-muted small'>${r.comment || ''}</span><br><span class='text-muted small'>${r.createdAt ? new Date(r.createdAt.seconds ? r.createdAt.seconds * 1000 : r.createdAt).toLocaleDateString() : ''}</span></div>`).join('') : '<span class="text-muted small">No reviews yet.</span>'}
+      </div>
+    `;
+    // Actions Card
+    const actionsCard = document.createElement('div');
+    actionsCard.className = 'store-card-modern mb-3';
+    actionsCard.innerHTML = `
+      <div class="d-flex gap-2 flex-wrap mb-2">
+        <a href="details.html?id=${store.id || store._id}" class="btn btn-sm btn-outline-primary"><i class="bi bi-eye"></i> View</a>
+        <button class="btn btn-sm btn-outline-success" onclick="editStore('${store.id || store._id}')"><i class="bi bi-pencil"></i> Edit</button>
+        <button class="btn btn-sm btn-outline-danger" onclick="deleteStore('${store.id || store._id}', '${store.name}')"><i class="bi bi-trash"></i> Delete</button>
+        <button class="btn btn-sm btn-primary" onclick="manageListings('${store.id || store._id}', '${store.name}')"><i class="bi bi-list-task"></i> Manage Listings</button>
+      </div>
+      <div id="listingsSection-${store.id || store._id}" style="display:none;"></div>
+    `;
+    // Append all cards
+    container.appendChild(profileCard);
+    container.appendChild(statsCard);
+    container.appendChild(reviewsCard);
+    container.appendChild(actionsCard);
   });
 }
 
