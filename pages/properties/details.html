@@ -1273,18 +1273,6 @@
                 if (initialLoad) {
                     currentSimilarPage = 0;
                     similarListings = [];
-                    document.getElementById('similarListingsContainer').innerHTML = '';
-                }
-
-                console.log('🔄 Loading similar listings for:', {
-                    type: currentListingData.type,
-                    category: currentListingData.category,
-                    location: currentListingData.location,
-                    page: currentSimilarPage
-                });
-
-                // Show loading state
-                if (initialLoad) {
                     document.getElementById('similarListingsContainer').innerHTML = `
                         <div class="col-12 text-center">
                             <div class="spinner-border text-primary" role="status">
@@ -1295,71 +1283,47 @@
                     `;
                 }
 
-                // Build query for similar listings
-                let query = firebase.firestore().collection('listings')
-                    .where('status', '==', 'approved');
+                // --- Professional Similar Listings Query Logic ---
+                const db = window.firebaseDB;
+                let query = db.collection('listings').where('status', '==', 'approved');
+                const currentId = currentListingData.id;
+                const type = currentListingData.listingType || currentListingData.type || null;
+                const category = currentListingData.category || null;
+                const district = currentListingData.location?.district || null;
+                const neighborhood = currentListingData.location?.neighborhood || null;
+                const subCategory = currentListingData.houseDetails?.subCategory || currentListingData.landDetails?.subCategory || null;
 
-                // Add type filter if available
-                if (currentListingData.type) {
-                    query = query.where('type', '==', currentListingData.type);
+                // 1. Try: Same type + same district + same subCategory
+                let filters = [];
+                if (type) filters.push(['listingType', '==', type]);
+                if (district) filters.push(['location.district', '==', district]);
+                if (subCategory) filters.push(['houseDetails.subCategory', '==', subCategory]);
+                let listings = await runSimilarQuery(query, filters, currentId, 12);
+
+                // 2. If not enough, relax subCategory
+                if (listings.length < 6 && type && district) {
+                    filters = [['listingType', '==', type], ['location.district', '==', district]];
+                    listings = await runSimilarQuery(query, filters, currentId, 12);
+                }
+                // 3. If still not enough, relax to just type
+                if (listings.length < 6 && type) {
+                    filters = [['listingType', '==', type]];
+                    listings = await runSimilarQuery(query, filters, currentId, 12);
+                }
+                // 4. If still not enough, fallback to category
+                if (listings.length < 6 && category) {
+                    filters = [['category', '==', category]];
+                    listings = await runSimilarQuery(query, filters, currentId, 12);
+                }
+                // 5. If still not enough, just get recent approved listings
+                if (listings.length < 6) {
+                    listings = await runSimilarQuery(query, [], currentId, 12);
                 }
 
-                // Add category filter if available
-                if (currentListingData.category) {
-                    query = query.where('category', '==', currentListingData.category);
-                }
-
-                // For pagination, we need to use startAfter instead of offset
-                // Since we can't use offset with where clauses, we'll implement a simpler approach
-                // Load all similar listings and handle pagination on the client side
-                const snapshot = await query
-                    .orderBy('createdAt', 'desc')
-                    .limit(50) // Load more items initially
-                    .get();
-
-                const allListings = [];
-                snapshot.forEach(doc => {
-                    const data = doc.data();
-                    data.id = doc.id;
-                    // Exclude current listing
-                    if (data.id !== currentListingData.id) {
-                        allListings.push(data);
-                    }
-                });
-
-                console.log(`📋 Found ${allListings.length} total similar listings`);
-
-                // Handle pagination on client side
-                const startIndex = currentSimilarPage * similarListingsPerPage;
-                const endIndex = startIndex + similarListingsPerPage;
-                const newListings = allListings.slice(startIndex, endIndex);
-
-                console.log(`📋 Showing ${newListings.length} listings (page ${currentSimilarPage + 1})`);
-
-                // If no listings found and it's the initial load
-                if (newListings.length === 0 && initialLoad) {
-                    document.getElementById('similarListingsContainer').innerHTML = '';
-                    document.getElementById('noSimilarContainer').style.display = 'block';
-                    document.getElementById('loadMoreContainer').style.display = 'none';
-                    return;
-                }
-
-                // Add new listings to the array
-                similarListings = similarListings.concat(newListings);
-
-                // Render listings
+                similarListings = listings;
                 renderSimilarListings();
-
-                // Show/hide load more button
-                if (endIndex < allListings.length) {
-                    document.getElementById('loadMoreContainer').style.display = 'block';
-                    currentSimilarPage++;
-                } else {
-                    document.getElementById('loadMoreContainer').style.display = 'none';
-                }
-
-                document.getElementById('noSimilarContainer').style.display = 'none';
-
+                document.getElementById('loadMoreContainer').style.display = 'none';
+                document.getElementById('noSimilarContainer').style.display = listings.length === 0 ? 'block' : 'none';
             } catch (error) {
                 console.error('❌ Error loading similar listings:', error);
                 document.getElementById('similarListingsContainer').innerHTML = `
@@ -1371,6 +1335,30 @@
                     </div>
                 `;
             }
+        }
+
+        // Helper to run a query with dynamic filters and exclude current listing
+        async function runSimilarQuery(baseQuery, filters, excludeId, limit) {
+            let q = baseQuery;
+            for (const [field, op, value] of filters) {
+                q = q.where(field, op, value);
+            }
+            const snap = await q.orderBy('createdAt', 'desc').limit(limit + 2).get();
+            const results = [];
+            snap.forEach(doc => {
+                const data = doc.data();
+                data.id = doc.id;
+                if (data.id !== excludeId) results.push(data);
+            });
+            // Shuffle for variety if more than needed
+            if (results.length > limit) {
+                for (let i = results.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [results[i], results[j]] = [results[j], results[i]];
+                }
+                return results.slice(0, limit);
+            }
+            return results;
         }
 
         function renderSimilarListings() {
@@ -1394,7 +1382,15 @@
                 const title = listing.title || listing.name || 'Property for Sale';
                 const location = listing.location || listing.address || 'Location not specified';
                 
-                // Determine listing type for badge
+                // Improved: Display main category and subcategory
+                const category = listing.listingType
+                  ? listing.listingType.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
+                  : (listing.category ? listing.category.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) : 'Property');
+                const subCategory = (listing.houseDetails && listing.houseDetails.subCategory) ||
+                                   (listing.landDetails && listing.landDetails.subCategory) ||
+                                   (listing.vehicleDetails && listing.vehicleDetails.subCategory) || '';
+
+                // Determine listing type for badge (keep for type-badge on image)
                 let typeBadge = 'Property';
                 if (listing.type) {
                     typeBadge = listing.type.charAt(0).toUpperCase() + listing.type.slice(1).replace('_', ' ');
@@ -1439,7 +1435,9 @@
                                 </div>
                             </div>
                             <div class="card-body">
-                                <h5 class="card-title">${title}</h5>
+                                <h5 class="card-title mb-1">${title}</h5>
+                                <span class="badge bg-info mb-2">${category}</span>
+                                ${subCategory ? `<span class='badge bg-secondary mb-2 ms-2'>${subCategory}</span>` : ''}
                                 <div class="location">
                                     <i class="bi bi-geo-alt-fill"></i> ${location}
                                 </div>
