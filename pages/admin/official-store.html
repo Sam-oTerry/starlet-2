@@ -70,11 +70,30 @@
         <button class="btn btn-primary" id="addListingBtn"><i class="bi bi-plus-lg"></i> Add Listing</button>
       </div>
       <div class="d-flex flex-wrap gap-2 align-items-center mb-2">
-        <button class="btn btn-success btn-sm" id="bulkApproveBtn"><i class="bi bi-patch-check"></i> Approve</button>
-        <button class="btn btn-danger btn-sm" id="bulkRejectBtn"><i class="bi bi-x-octagon"></i> Reject</button>
-        <button class="btn btn-outline-danger btn-sm" id="bulkDeleteBtn"><i class="bi bi-trash"></i> Delete</button>
-        <button class="btn btn-secondary btn-sm" id="exportCsvBtn"><i class="bi bi-download"></i> Export CSV</button>
+        <div class="btn-group" role="group" aria-label="Bulk actions">
+          <button class="btn btn-success btn-sm" id="bulkApproveBtn" disabled data-bs-toggle="tooltip" title="Approve selected"><i class="bi bi-patch-check"></i></button>
+          <button class="btn btn-danger btn-sm" id="bulkRejectBtn" disabled data-bs-toggle="tooltip" title="Reject selected"><i class="bi bi-x-octagon"></i></button>
+          <button class="btn btn-outline-danger btn-sm" id="bulkDeleteBtn" disabled data-bs-toggle="tooltip" title="Delete selected"><i class="bi bi-trash"></i></button>
+        </div>
+        <button class="btn btn-secondary btn-sm" id="exportCsvBtn" data-bs-toggle="tooltip" title="Export all to CSV"><i class="bi bi-download"></i> Export CSV</button>
         <span class="ms-3 text-muted" id="selectedCount"></span>
+      </div>
+      <div class="toast-container position-fixed bottom-0 end-0 p-3" id="toastContainer" style="z-index: 1080;"></div>
+      <!-- Confirmation Modal -->
+      <div class="modal fade" id="bulkConfirmModal" tabindex="-1" aria-labelledby="bulkConfirmModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="bulkConfirmModalLabel">Confirm Bulk Action</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="bulkConfirmModalBody"></div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+              <button type="button" class="btn btn-primary" id="bulkConfirmModalOk">OK</button>
+            </div>
+          </div>
+        </div>
       </div>
       <div class="card card-modern">
         <div class="card-body">
@@ -447,8 +466,8 @@
           listings.forEach((l, idx) => {
             const statusBadge = `<span class="badge bg-${l.status==='active'?'success':l.status==='pending'?'warning':l.status==='rejected'?'danger':'secondary'}">${l.status||''}</span>`;
             tbody.innerHTML += `
-              <tr class="fade-in" style="animation-delay:${idx*0.07}s;">
-                <td><input type="checkbox" class="official-listing-checkbox" data-id="${l.id}"></td>
+              <tr class="fade-in" style="animation-delay:${idx*0.07}s;" data-id="${l.id}">
+                <td><input type="checkbox" class="official-listing-checkbox" data-id="${l.id}" aria-label="Select listing"></td>
                 <td>${l.title||''}</td>
                 <td>${l.listingType||''}</td>
                 <td>${statusBadge}</td>
@@ -472,6 +491,14 @@
           document.querySelectorAll('.official-listing-checkbox').forEach(cb => {
             cb.onchange = updateSelectedCount;
           });
+          // Highlight selected rows
+          document.querySelectorAll('.official-listing-checkbox').forEach(cb => {
+            cb.addEventListener('change', function() {
+              const row = cb.closest('tr');
+              if (cb.checked) row.classList.add('table-active');
+              else row.classList.remove('table-active');
+            });
+          });
         }
         function getSelectedOfficialListingIds() {
           return Array.from(document.querySelectorAll('.official-listing-checkbox:checked')).map(cb => cb.getAttribute('data-id'));
@@ -479,71 +506,96 @@
         function updateSelectedCount() {
           const count = getSelectedOfficialListingIds().length;
           document.getElementById('selectedCount').textContent = count ? `${count} selected` : '';
+          document.getElementById('bulkApproveBtn').disabled = count === 0;
+          document.getElementById('bulkRejectBtn').disabled = count === 0;
+          document.getElementById('bulkDeleteBtn').disabled = count === 0;
         }
-        document.getElementById('bulkApproveBtn').onclick = async function() {
+        // Toast function
+        function showToast(message, type = 'success') {
+          const toastContainer = document.getElementById('toastContainer');
+          const toast = document.createElement('div');
+          toast.className = `toast align-items-center text-bg-${type} border-0 show`;
+          toast.role = 'alert';
+          toast.innerHTML = `<div class="d-flex"><div class="toast-body">${message}</div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button></div>`;
+          toastContainer.appendChild(toast);
+          setTimeout(() => toast.remove(), 4000);
+        }
+        // Confirmation modal
+        function showBulkConfirmModal(action, callback) {
+          const modal = new bootstrap.Modal(document.getElementById('bulkConfirmModal'));
+          let msg = '';
+          if (action === 'approve') msg = 'Approve selected listings?';
+          else if (action === 'reject') msg = 'Reject selected listings?';
+          else if (action === 'delete') msg = 'Delete selected listings? This cannot be undone.';
+          document.getElementById('bulkConfirmModalBody').textContent = msg;
+          document.getElementById('bulkConfirmModalOk').onclick = function() {
+            modal.hide();
+            callback();
+          };
+          modal.show();
+        }
+        // Batch Firestore writes
+        async function batchUpdateListings(ids, updateObj) {
+          const batch = db.batch();
+          ids.forEach(id => {
+            const ref = db.collection('listings').doc(id);
+            batch.update(ref, updateObj);
+          });
+          await batch.commit();
+        }
+        async function batchDeleteListings(ids) {
+          const batch = db.batch();
+          ids.forEach(id => {
+            const ref = db.collection('listings').doc(id);
+            batch.delete(ref);
+          });
+          await batch.commit();
+        }
+        document.getElementById('bulkApproveBtn').onclick = function() {
           const ids = getSelectedOfficialListingIds();
-          if (!ids.length) return showToast('No listings selected');
-          if (!confirm('Approve selected listings?')) return;
-          for (const id of ids) {
-            await db.collection('listings').doc(id).update({ status: 'active' });
-          }
-          showToast('Selected listings approved');
-          fetchAndRenderOfficialListings();
+          if (!ids.length) return showToast('No listings selected', 'danger');
+          showBulkConfirmModal('approve', async () => {
+            try {
+              await batchUpdateListings(ids, { status: 'active' });
+              showToast('Selected listings approved');
+              fetchAndRenderOfficialListings();
+            } catch (e) {
+              showToast('Error approving listings', 'danger');
+            }
+          });
         };
-        document.getElementById('bulkRejectBtn').onclick = async function() {
+        document.getElementById('bulkRejectBtn').onclick = function() {
           const ids = getSelectedOfficialListingIds();
-          if (!ids.length) return showToast('No listings selected');
-          if (!confirm('Reject selected listings?')) return;
-          for (const id of ids) {
-            await db.collection('listings').doc(id).update({ status: 'rejected' });
-          }
-          showToast('Selected listings rejected');
-          fetchAndRenderOfficialListings();
+          if (!ids.length) return showToast('No listings selected', 'danger');
+          showBulkConfirmModal('reject', async () => {
+            try {
+              await batchUpdateListings(ids, { status: 'rejected' });
+              showToast('Selected listings rejected', 'warning');
+              fetchAndRenderOfficialListings();
+            } catch (e) {
+              showToast('Error rejecting listings', 'danger');
+            }
+          });
         };
-        document.getElementById('bulkDeleteBtn').onclick = async function() {
+        document.getElementById('bulkDeleteBtn').onclick = function() {
           const ids = getSelectedOfficialListingIds();
-          if (!ids.length) return showToast('No listings selected');
-          if (!confirm('Delete selected listings? This cannot be undone.')) return;
-          for (const id of ids) {
-            await db.collection('listings').doc(id).delete();
-          }
-          showToast('Selected listings deleted');
-          fetchAndRenderOfficialListings();
+          if (!ids.length) return showToast('No listings selected', 'danger');
+          showBulkConfirmModal('delete', async () => {
+            try {
+              await batchDeleteListings(ids);
+              showToast('Selected listings deleted', 'danger');
+              fetchAndRenderOfficialListings();
+            } catch (e) {
+              showToast('Error deleting listings', 'danger');
+            }
+          });
         };
-        document.getElementById('exportCsvBtn').onclick = function() {
-          if (!window.officialListings || !officialListings.length) return showToast('No listings to export');
-          const csvRows = [
-            ['Title','Type','Status','Price','Created'],
-            ...officialListings.map(l => [
-              l.title||'',
-              l.listingType||'',
-              l.status||'',
-              l.askingPrice||'',
-              formatDate(l.createdAt)
-            ])
-          ];
-          const csvContent = csvRows.map(row => row.map(v => '"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\n');
-          const blob = new Blob([csvContent], { type: 'text/csv' });
-          const url = window.URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          a.href = url;
-          a.download = `official-listings-${new Date().toISOString().split('T')[0]}.csv`;
-          a.click();
-          window.URL.revokeObjectURL(url);
-          showToast('Exported to CSV');
-        };
-        window.verifyOfficialListing = async function(id) {
-          if (!confirm('Approve this listing?')) return;
-          await db.collection('listings').doc(id).update({ status: 'active' });
-          showToast('Listing approved');
-          fetchAndRenderOfficialListings();
-        };
-        window.rejectOfficialListing = async function(id) {
-          if (!confirm('Reject this listing?')) return;
-          await db.collection('listings').doc(id).update({ status: 'rejected' });
-          showToast('Listing rejected');
-          fetchAndRenderOfficialListings();
-        };
+        // Enable Bootstrap tooltips
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        tooltipTriggerList.map(function (tooltipTriggerEl) {
+          return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
       });
     }
   });
