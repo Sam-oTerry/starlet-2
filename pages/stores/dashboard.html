@@ -248,6 +248,15 @@ function renderDashboardStores(listings) {
     return;
   }
   listings.forEach((store, idx) => {
+    // Define all variables needed for the cards at the top
+    const agentTier = store.agentTier || 'silver';
+    const verification = store.verificationStatus?.status || 'pending';
+    const subscription = store.subscriptionStatus || 'active';
+    const year = store.createdAt ? new Date(store.createdAt.seconds ? store.createdAt.seconds * 1000 : store.createdAt).getFullYear() : '';
+    const listingsCount = store.listingsCount || 0;
+    const reviewCount = store.reviewCount || 0;
+    const avgRating = store.averageRating || 0;
+    const recentReviews = store.recentReviews || [];
     // Store Profile Card
     const profileCard = document.createElement('div');
     profileCard.className = 'store-card-modern mb-3';
