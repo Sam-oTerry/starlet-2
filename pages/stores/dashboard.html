@@ -208,9 +208,97 @@ async function manageListings(storeId, storeName) {
     console.error('Error loading listings:', err);
   }
 }
-// Add Listing (placeholder)
+// Add Listing Modal
+const addListingModalHtml = `
+<div class="modal fade" id="addListingModal" tabindex="-1" aria-labelledby="addListingModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="addListingModalLabel">Add Listing</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="addListingForm">
+          <input type="hidden" id="addListingStoreId">
+          <div class="mb-3">
+            <label for="listingTitle" class="form-label">Title</label>
+            <input type="text" class="form-control" id="listingTitle" required>
+          </div>
+          <div class="mb-3">
+            <label for="listingDescription" class="form-label">Description</label>
+            <textarea class="form-control" id="listingDescription" rows="3" required></textarea>
+          </div>
+          <div class="mb-3">
+            <label for="listingPrice" class="form-label">Price (UGX)</label>
+            <input type="number" class="form-control" id="listingPrice" required min="0">
+          </div>
+          <div class="mb-3">
+            <label for="listingType" class="form-label">Type</label>
+            <select class="form-select" id="listingType" required>
+              <option value="">Select type</option>
+              <option value="house_sale">House for Sale</option>
+              <option value="house_rent">House for Rent</option>
+              <option value="land_sale">Land for Sale</option>
+              <option value="land_rent">Land for Rent</option>
+              <option value="vehicle_sale">Vehicle for Sale</option>
+              <option value="motorcycle_sale">Motorcycle for Sale</option>
+            </select>
+          </div>
+          <button type="submit" class="btn btn-primary w-100">Add Listing</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>`;
+if (!document.getElementById('addListingModal')) {
+  document.body.insertAdjacentHTML('beforeend', addListingModalHtml);
+}
+
+// Add Listing (show modal)
 function addListing(storeId) {
-  alert('Add listing for store: ' + storeId + '\n(To implement: open add listing modal or page)');
+  document.getElementById('addListingStoreId').value = storeId;
+  document.getElementById('addListingForm').reset();
+  const modal = new bootstrap.Modal(document.getElementById('addListingModal'));
+  modal.show();
+}
+// Handle Add Listing form submit
+if (!window._addListingFormHandlerAttached) {
+  document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('addListingForm');
+    if (form) {
+      form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const user = window.firebaseAuth.currentUser;
+        if (!user) {
+          alert('You must be logged in.');
+          return;
+        }
+        const storeId = document.getElementById('addListingStoreId').value;
+        const title = document.getElementById('listingTitle').value;
+        const description = document.getElementById('listingDescription').value;
+        const price = parseInt(document.getElementById('listingPrice').value, 10);
+        const type = document.getElementById('listingType').value;
+        try {
+          await window.firebaseDB.collection('listings').add({
+            title,
+            description,
+            price,
+            type,
+            storeId,
+            agentId: user.uid,
+            status: 'pending',
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+          });
+          bootstrap.Modal.getInstance(document.getElementById('addListingModal')).hide();
+          alert('Listing added!');
+          manageListings(storeId, '');
+        } catch (err) {
+          alert('Error adding listing: ' + err.message);
+        }
+      });
+    }
+  });
+  window._addListingFormHandlerAttached = true;
 }
 // Edit Listing (placeholder)
 function editListing(listingId) {
