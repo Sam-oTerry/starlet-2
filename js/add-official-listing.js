@@ -163,6 +163,7 @@ const houseSubCategoryEl = document.getElementById('houseSubCategory');
 const landSubCategoryEl = document.getElementById('landSubCategory');
 
 if (propertyTypeEl) {
+  let lastPropertyType = propertyTypeEl.value;
   propertyTypeEl.addEventListener('change', function() {
     const propertyType = propertyTypeEl.value;
     const houseDetailsSection = document.getElementById('houseDetailsSection');
@@ -172,17 +173,31 @@ if (propertyTypeEl) {
     if (["house_sale","house_rent","vacation_short_stay"].includes(propertyType)) {
       houseDetailsSection.classList.remove('d-none');
       landDetailsSection.classList.add('d-none');
-      populateHouseSubCategoryDropdown();
+      // Only repopulate if propertyType actually changed
+      if (propertyType !== lastPropertyType) {
+        const prev = houseSubCategoryEl.value;
+        populateHouseSubCategoryDropdown();
+        if ([...houseSubCategoryEl.options].some(opt => opt.value === prev)) {
+          houseSubCategoryEl.value = prev;
+        }
+      }
     } else if (["land_sale","land_rent"].includes(propertyType)) {
       landDetailsSection.classList.remove('d-none');
       houseDetailsSection.classList.add('d-none');
-      populateLandSubCategoryDropdown();
+      if (propertyType !== lastPropertyType) {
+        const prev = landSubCategoryEl.value;
+        populateLandSubCategoryDropdown();
+        if ([...landSubCategoryEl.options].some(opt => opt.value === prev)) {
+          landSubCategoryEl.value = prev;
+        }
+      }
     } else {
       houseDetailsSection.classList.add('d-none');
       landDetailsSection.classList.add('d-none');
     }
     ownershipDetailsSection.classList.remove('d-none');
     amenitiesSection.classList.remove('d-none');
+    lastPropertyType = propertyType;
   });
 }
 
