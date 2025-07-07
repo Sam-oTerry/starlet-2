@@ -281,24 +281,37 @@
           alert('You must be logged in to create a store.');
           return;
         }
+        // Check if store already exists for this user
+        try {
+          const existing = await db.collection('stores').doc(user.uid).get();
+          if (existing.exists) {
+            alert('You already have a store. You can only create one store per account.');
+            window.location.href = 'dashboard.html';
+            return;
+          }
+        } catch (err) {
+          alert('Error checking for existing store: ' + err.message);
+          return;
+        }
         // Collect form data
         const storeName = document.getElementById('storeName').value;
         const storeDescription = document.getElementById('storeDescription').value;
         const storeContact = document.getElementById('storeContact').value || (user.displayName || '');
         const storeEmail = user.email || '';
         const storeLocation = document.getElementById('storeLocation').value;
-        let logoUrl = '';
+        let logo = '';
         // Optionally handle logo upload (not implemented here)
-        // Save store to Firestore
+        // Save store to Firestore, use user.uid as store ID
         try {
-          await db.collection('stores').add({
+          await db.collection('stores').doc(user.uid).set({
             name: storeName,
             description: storeDescription,
             contact: storeContact,
             email: storeEmail,
             location: storeLocation,
-            logoUrl: logoUrl,
-            userId: user.uid,
+            logo: logo,
+            agentId: user.uid, // Link store to user as agent
+            agentTier: 'silver', // Default tier, can be upgraded
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
           });
           window.location.href = 'dashboard.html';
