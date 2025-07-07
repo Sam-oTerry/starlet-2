@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Redirecting...</title>
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get('id');
+    if (id) {
+      window.location.replace(`../agents/profile.html?id=${encodeURIComponent(id)}`);
+    } else {
+      document.addEventListener('DOMContentLoaded', function() {
+        document.body.innerHTML = '<div class="container text-center py-5"><h2>Agent ID Required</h2><p>Please provide a valid agent ID in the URL.</p></div>';
+      });
+    }
+  </script>
+</head>
+<body>
+  <noscript>Please enable JavaScript to view this page.</noscript>
+</body>
+</html> 
