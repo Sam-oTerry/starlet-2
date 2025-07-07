@@ -111,6 +111,7 @@
       justify-content: space-between;
       transition: box-shadow 0.2s;
       border: 1px solid #f0f0f0;
+      height: 100%;
     }
     .store-card-modern:hover {
       box-shadow: 0 8px 32px 0 rgba(0,0,0,0.12);
@@ -128,6 +129,7 @@
     }
     .store-card-modern .btn {
       min-width: 110px;
+      margin-bottom: 0.5rem;
     }
     .store-card-modern .stats-row span {
       font-size: 1.05em;
@@ -179,9 +181,54 @@
       background: #fff;
       box-shadow: 0 1px 4px rgba(0,0,0,0.03);
     }
+    @media (max-width: 1200px) {
+      .store-card-modern {
+        padding: 1.2rem 1rem 1rem 1rem;
+      }
+    }
+    @media (max-width: 992px) {
+      .store-card-modern {
+        padding: 1rem 0.7rem 1rem 0.7rem;
+      }
+      .row.g-4 > .col-md-6, .row.g-4 > .col-lg-4 {
+        flex: 0 0 100%;
+        max-width: 100%;
+      }
+    }
     @media (max-width: 768px) {
       .store-card-modern {
-        padding: 1.2rem 0.7rem 1rem 0.7rem;
+        padding: 0.8rem 0.3rem 0.8rem 0.3rem;
+        min-height: unset;
+      }
+      .d-flex.gap-2.flex-wrap.mb-2 {
+        flex-direction: column !important;
+        gap: 0.5rem !important;
+      }
+      .store-card-modern .btn {
+        width: 100%;
+        min-width: unset;
+      }
+      .store-card-modern .d-flex.align-items-center.gap-3.mb-2 {
+        flex-direction: column;
+        align-items: flex-start !important;
+        gap: 0.7rem !important;
+      }
+      .store-card-modern .flex-grow-1 {
+        width: 100%;
+      }
+    }
+    @media (max-width: 576px) {
+      .store-card-modern {
+        padding: 0.5rem 0.1rem 0.5rem 0.1rem;
+      }
+      .store-card-modern .d-flex.align-items-center.gap-3.mb-2 {
+        flex-direction: column;
+        align-items: flex-start !important;
+        gap: 0.5rem !important;
+      }
+      .store-card-modern .btn {
+        font-size: 0.95em;
+        padding: 0.5em 0.7em;
       }
     }
   </style>
