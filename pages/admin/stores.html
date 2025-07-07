@@ -398,6 +398,7 @@
                 <button class="btn btn-outline-danger" id="bulkRejectBtn"><i class="bi bi-x-octagon me-1"></i>Reject Selected</button>
                 <button class="btn btn-outline-secondary" id="bulkDeleteBtn"><i class="bi bi-trash3 me-1"></i>Delete Selected</button>
                 <button class="btn btn-outline-info" id="exportCsvBtn"><i class="bi bi-download me-1"></i>Export to CSV</button>
+                <button class="btn btn-outline-success" id="bulkVerifyBtn"><i class="bi bi-patch-check me-1"></i>Verify Selected</button>
                 <span class="ms-2 text-muted small" id="selectedCount"></span>
             </div>
             <div class="table-container">
@@ -601,6 +602,7 @@
               <div class="btn-group btn-group-sm" role="group">
                 <button class="btn btn-outline-primary" onclick="showStoreDetails('${s.id}')" title="View Details"><i class="bi bi-eye"></i></button>
                 <button class="btn btn-outline-secondary" onclick="changeStoreStatus('${s.id}')" title="Change Status"><i class="bi bi-flag"></i></button>
+                ${(s.verificationStatus!=='verified' && s.verificationStatus!=='rejected') ? `<button class="btn btn-outline-success" onclick="verifyStore('${s.id}')" title="Verify Store"><i class="bi bi-patch-check"></i></button>` : ''}
                 <button class="btn btn-outline-danger" onclick="deleteStore('${s.id}')" title="Delete Store"><i class="bi bi-trash"></i></button>
               </div>
             </td>
@@ -805,6 +807,13 @@
       window.URL.revokeObjectURL(url);
       showToast('Exported to CSV');
     };
+    // Add verifyStore function
+    async function verifyStore(id) {
+      if (!confirm('Verify this store?')) return;
+      await db.collection('stores').doc(id).update({ verificationStatus: 'verified', status: 'active' });
+      showToast('Store verified');
+      fetchAndRenderStores();
+    }
     </script>
 </body>
 </html>
