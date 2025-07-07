@@ -46,15 +46,19 @@
       padding: 1.5rem;
       box-shadow: 0 2px 12px rgba(0,0,0,0.07);
       margin-bottom: 2rem;
-      min-height: 320px;
+      min-height: 220px;
+      max-width: 420px;
+      height: 260px;
       display: flex;
       flex-direction: column;
       justify-content: center;
-      height: 100%;
+      align-items: center;
+      margin-left: auto;
+      margin-right: auto;
     }
     .chart-container canvas {
       width: 100% !important;
-      height: 300px !important;
+      height: 180px !important;
       max-width: 100%;
       aspect-ratio: 2/1;
       display: block;
@@ -295,13 +299,13 @@
 
       <!-- Charts and Analytics -->
       <div class="row">
-        <div class="col-12 col-lg-8 mb-4 mb-lg-0">
+        <div class="col-12 col-lg-6 mb-4 mb-lg-0 d-flex justify-content-center">
           <div class="chart-container">
             <h5 class="mb-3"><i class="bi bi-bar-chart"></i> Listings by Category</h5>
             <canvas id="listingsChart"></canvas>
           </div>
         </div>
-        <div class="col-12 col-lg-4">
+        <div class="col-12 col-lg-6 d-flex justify-content-center">
           <div class="chart-container">
             <h5 class="mb-3"><i class="bi bi-pie-chart"></i> User Distribution</h5>
             <canvas id="usersChart"></canvas>
