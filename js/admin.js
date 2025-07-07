@@ -107,6 +107,24 @@ function formatPrice(price) {
   return 'USh ' + Number(price).toLocaleString();
 }
 
+// Utility: Format money input fields with thousands separator
+function formatMoneyInput(input) {
+  let val = input.value.replace(/,/g, '');
+  if (!isNaN(val) && val !== '') {
+    input.value = Number(val).toLocaleString();
+  }
+}
+
+function setupMoneyInputs() {
+  document.querySelectorAll('input.money-input').forEach(function(el) {
+    formatMoneyInput(el);
+    el.addEventListener('blur', function() { formatMoneyInput(el); });
+    el.addEventListener('focus', function() { el.value = el.value.replace(/,/g, ''); });
+  });
+}
+
+document.addEventListener('DOMContentLoaded', setupMoneyInputs);
+
 // Utility: Confirm action
 function confirmAction(message) {
   return window.confirm(message);

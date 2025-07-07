@@ -129,15 +129,15 @@
               <form id="feeSettingsForm">
                 <div class="mb-3">
                   <label class="form-label">Silver Store Monthly Fee (USh)</label>
-                  <input type="number" class="form-control" id="feeSilver" value="0">
+                  <input type="number" class="form-control money-input" id="feeSilver" value="0">
                 </div>
                 <div class="mb-3">
                   <label class="form-label">Gold Store Monthly Fee (USh)</label>
-                  <input type="number" class="form-control" id="feeGold" value="0">
+                  <input type="number" class="form-control money-input" id="feeGold" value="0">
                 </div>
                 <div class="mb-3">
                   <label class="form-label">Diamond Store Monthly Fee (USh)</label>
-                  <input type="number" class="form-control" id="feeDiamond" value="0">
+                  <input type="number" class="form-control money-input" id="feeDiamond" value="0">
                 </div>
                 <button type="submit" class="btn btn-primary">Update Fees</button>
               </form>
@@ -242,6 +242,24 @@
       auth = firebase.auth();
     }
   </script>
-  <!-- JS for settings page will be added next -->
+  <script>
+    // Format fee inputs with thousands separator on blur and load
+    function formatFeeInput(input) {
+      let val = input.value.replace(/,/g, '');
+      if (!isNaN(val) && val !== '') {
+        input.value = Number(val).toLocaleString();
+      }
+    }
+    document.addEventListener('DOMContentLoaded', function() {
+      ['feeSilver','feeGold','feeDiamond'].forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) {
+          formatFeeInput(el);
+          el.addEventListener('blur', function() { formatFeeInput(el); });
+          el.addEventListener('focus', function() { el.value = el.value.replace(/,/g, ''); });
+        }
+      });
+    });
+  </script>
 </body>
 </html> 

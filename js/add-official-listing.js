@@ -306,7 +306,7 @@ form.onsubmit = async function(e) {
     listing.listingType = 'property';
     listing.propertyType = document.getElementById('propertyType').value;
     listing.title = document.getElementById('propertyTitle').value;
-    listing.askingPrice = Number(document.getElementById('propertyAskingPrice').value);
+    listing.askingPrice = Number(document.getElementById('propertyAskingPrice').value.replace(/,/g, ''));
     listing.location = { district: document.getElementById('propertyDistrict').value };
     listing.description = document.getElementById('propertyDescription').value;
     listing.priceType = document.getElementById('propertyPriceType').value;
@@ -389,7 +389,7 @@ form.onsubmit = async function(e) {
       mileage: Number(document.getElementById('vehicleMileage').value)
     };
     listing.title = document.getElementById('vehicleTitle').value;
-    listing.askingPrice = Number(document.getElementById('vehicleAskingPrice').value);
+    listing.askingPrice = Number(document.getElementById('vehicleAskingPrice').value.replace(/,/g, ''));
     listing.description = document.getElementById('vehicleDescription').value;
     listing.priceType = document.getElementById('vehiclePriceType').value;
   }
