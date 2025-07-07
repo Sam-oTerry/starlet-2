@@ -83,378 +83,471 @@
             color: var(--primary-color);
         }
 
-        /* Search Form */
-        .search-container {
+        /* Enhanced Table Styling */
+        .table-container {
             background: white;
             border-radius: 15px;
-            padding: 2rem;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            margin-top: 2rem;
-        }
-
-        .search-tabs {
-            display: flex;
-            margin-bottom: 1.5rem;
-            border-bottom: 2px solid var(--light-color);
-        }
-
-        .search-tab {
-            background: none;
-            border: none;
-            padding: 0.75rem 1.5rem;
-            font-weight: 600;
-            color: var(--secondary-color);
-            transition: all 0.3s ease;
-        }
-
-        .search-tab.active {
-            color: var(--primary-color);
-            border-bottom: 2px solid var(--primary-color);
-        }
-
-        .search-tab:hover {
-            color: var(--primary-color);
-        }
-
-        .search-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr auto;
-            gap: 1rem;
-            align-items: end;
-        }
-
-        .price-range {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .price-range input {
-            flex: 1;
-        }
-
-        /* Cards */
-        .listing-card {
-            transition: all 0.3s ease;
-            border: 1px solid rgba(0, 0, 0, 0.08);
-            border-radius: 10px;
             overflow: hidden;
-            background: white;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-            height: 100%;
+            margin-bottom: 2rem;
         }
 
-        .listing-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 12px 24px rgba(13, 110, 253, 0.15);
+        .table {
+            margin-bottom: 0;
         }
 
-        .card-img-wrapper {
-            position: relative;
-            overflow: hidden;
-            padding-top: 66.67%;
-            background: var(--light-color);
-        }
-
-        .card-img-top {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform 0.5s ease;
-        }
-
-        .listing-card:hover .card-img-top {
-            transform: scale(1.05);
-        }
-
-        .type-badge {
-            position: absolute;
-            top: 12px;
-            right: 12px;
-            z-index: 2;
-        }
-
-        .price-tag {
-            position: absolute;
-            bottom: 12px;
-            left: 12px;
-            background: rgba(33, 37, 41, 0.9);
+        .table thead th {
+            background: linear-gradient(135deg, var(--primary-color), #0056b3);
             color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 6px;
-            font-weight: 700;
+            border: none;
+            padding: 1rem;
+            font-weight: 600;
+            text-transform: uppercase;
             font-size: 0.9rem;
+            letter-spacing: 0.5px;
+        }
+
+        .table tbody tr {
+            transition: all 0.3s ease;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .table tbody tr:hover {
+            background: linear-gradient(135deg, rgba(13, 110, 253, 0.05), rgba(0, 86, 179, 0.05));
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .table tbody td {
+            padding: 1rem;
+            vertical-align: middle;
+            border: none;
+        }
+
+        /* Enhanced Badge Styling */
+        .badge {
+            padding: 0.5rem 0.75rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            border-radius: 20px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
         }
 
-        /* Agent Tiers */
-        .tier-card {
-            background: white;
-            border-radius: 15px;
-            padding: 2rem;
-            text-align: center;
+        .badge.bg-warning {
+            background: linear-gradient(135deg, #ffc107, #ffb300) !important;
+            color: #000 !important;
+        }
+
+        .badge.bg-success {
+            background: linear-gradient(135deg, #198754, #146c43) !important;
+        }
+
+        .badge.bg-danger {
+            background: linear-gradient(135deg, #dc3545, #b02a37) !important;
+        }
+
+        .badge.bg-info {
+            background: linear-gradient(135deg, #0dcaf0, #0aa2c0) !important;
+        }
+
+        .badge.bg-primary {
+            background: linear-gradient(135deg, #0d6efd, #0b5ed7) !important;
+        }
+
+        .badge.bg-secondary {
+            background: linear-gradient(135deg, #6c757d, #5c636a) !important;
+        }
+
+        /* Enhanced Button Group */
+        .btn-group .btn {
+            border-radius: 8px;
+            margin: 0 2px;
             transition: all 0.3s ease;
-            border: 2px solid transparent;
-            height: 100%;
-        }
-
-        .tier-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-        }
-
-        .tier-card.featured {
-            border-color: var(--accent-gold);
-            position: relative;
-        }
-
-        .tier-header {
-            margin-bottom: 1.5rem;
-            padding: 1rem;
-            border-radius: 10px;
-            position: relative;
-        }
-
-        .tier-header.silver {
-            background: linear-gradient(135deg, #c0c0c0, #e5e5e5);
-        }
-
-        .tier-header.gold {
-            background: linear-gradient(135deg, var(--accent-gold), #ffed4e);
-        }
-
-        .tier-header.diamond {
-            background: linear-gradient(135deg, #b9f2ff, #e0f7fa);
-        }
-
-        .tier-header i {
-            font-size: 2rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .tier-header h3 {
-            margin: 0;
-            font-weight: 700;
-        }
-
-        .popular {
-            position: absolute;
-            top: -10px;
-            right: -10px;
-            background: var(--danger-color);
-            color: white;
-            padding: 0.25rem 0.75rem;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 600;
-        }
-
-        .tier-content ul {
-            list-style: none;
-            padding: 0;
-            margin-bottom: 1.5rem;
-        }
-
-        .tier-content li {
-            padding: 0.5rem 0;
-            border-bottom: 1px solid var(--light-color);
-        }
-
-        .tier-content li:last-child {
-            border-bottom: none;
-        }
-
-        /* Statistics */
-        .statistics-section {
-            background: linear-gradient(135deg, var(--dark-color), #343a40);
-            color: white;
-            padding: 3rem 0;
             position: relative;
             overflow: hidden;
         }
 
-        .statistics-section::before {
-            content: "";
+        .btn-group .btn::before {
+            content: '';
             position: absolute;
             top: 0;
-            left: 0;
+            left: -100%;
             width: 100%;
             height: 100%;
-            background: linear-gradient(135deg, rgba(0, 255, 255, 0.1), rgba(255, 215, 0, 0.1));
-            z-index: 0;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
         }
 
-        .stat-item {
-            position: relative;
-            z-index: 1;
-            text-align: center;
+        .btn-group .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn-group .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-outline-primary:hover {
+            background: linear-gradient(135deg, var(--primary-color), #0056b3);
+            border-color: var(--primary-color);
+        }
+
+        .btn-outline-success:hover {
+            background: linear-gradient(135deg, var(--success-color), #146c43);
+            border-color: var(--success-color);
+        }
+
+        .btn-outline-warning:hover {
+            background: linear-gradient(135deg, var(--warning-color), #ffb300);
+            border-color: var(--warning-color);
+            color: #000;
+        }
+
+        .btn-outline-danger:hover {
+            background: linear-gradient(135deg, var(--danger-color), #b02a37);
+            border-color: var(--danger-color);
+        }
+
+        /* Enhanced Filter Form */
+        .filter-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
             padding: 1.5rem;
-            background: rgba(255, 255, 255, 0.1);
+            margin-bottom: 2rem;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .filter-card .form-control,
+        .filter-card .form-select {
             border-radius: 10px;
-            backdrop-filter: blur(5px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            border: 2px solid #e9ecef;
+            transition: all 0.3s ease;
+            padding: 0.75rem 1rem;
+        }
+
+        .filter-card .form-control:focus,
+        .filter-card .form-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+            transform: translateY(-2px);
+        }
+
+        .filter-card .btn {
+            border-radius: 10px;
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
             transition: all 0.3s ease;
         }
 
-        .stat-item:hover {
-            transform: translateY(-5px);
-            background: rgba(255, 255, 255, 0.15);
+        .filter-card .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
         }
 
-        .stat-number {
-            font-size: 2.5rem;
+        /* Enhanced Modal Styling */
+        .modal-content {
+            border-radius: 20px;
+            border: none;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, var(--primary-color), #0056b3);
+            color: white;
+            border: none;
+            padding: 1.5rem 2rem;
+        }
+
+        .modal-header .modal-title {
             font-weight: 700;
-            color: var(--accent-gold);
+            font-size: 1.5rem;
+        }
+
+        .modal-header .btn-close {
+            filter: invert(1);
+            opacity: 0.8;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-header .btn-close:hover {
+            opacity: 1;
+        }
+
+        .modal-body {
+            padding: 2rem;
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+
+        .modal-body::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .modal-body::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        .modal-body::-webkit-scrollbar-thumb {
+            background: var(--primary-color);
+            border-radius: 10px;
+        }
+
+        .modal-body::-webkit-scrollbar-thumb:hover {
+            background: #0056b3;
+        }
+
+        /* Enhanced Listing Details */
+        .listing-detail-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border-left: 4px solid var(--primary-color);
+            transition: all 0.3s ease;
+        }
+
+        .listing-detail-section:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .listing-detail-section h6 {
+            color: var(--primary-color);
+            font-weight: 700;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .detail-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.75rem;
+            padding: 0.5rem;
+            background: white;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .detail-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .detail-item i {
+            color: var(--primary-color);
+            margin-right: 0.75rem;
+            font-size: 1.1rem;
+            width: 20px;
+            text-align: center;
+        }
+
+        .detail-item strong {
+            color: var(--dark-color);
+            margin-right: 0.5rem;
+        }
+
+        .detail-item span {
+            color: var(--secondary-color);
+        }
+
+        /* Media Gallery */
+        .media-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .media-item {
+            background: white;
+            border-radius: 10px;
+            padding: 1rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .media-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+            border-color: var(--primary-color);
+        }
+
+        .media-item i {
+            font-size: 2rem;
+            color: var(--primary-color);
             margin-bottom: 0.5rem;
         }
 
-        .stat-label {
-            font-size: 1rem;
-            color: rgba(255, 255, 255, 0.9);
-        }
-
-        /* Section Headers */
-        .section-header {
-            text-align: center;
-            margin-bottom: 3rem;
-        }
-
-        .section-header h2 {
-            font-weight: 700;
+        .media-item a {
             color: var(--dark-color);
-            margin-bottom: 1rem;
-            position: relative;
-            display: inline-block;
-        }
-
-        .section-header h2::after {
-            content: '';
-            position: absolute;
-            left: 50%;
-            bottom: -10px;
-            transform: translateX(-50%);
-            width: 60px;
-            height: 4px;
-            background: linear-gradient(90deg, var(--primary-color), var(--accent-cyan));
-            border-radius: 2px;
-        }
-
-        .section-header p {
-            color: var(--secondary-color);
-            font-size: 1.1rem;
-        }
-
-        /* Footer */
-        .footer {
-            background: var(--dark-color);
-            color: white;
-            padding: 4rem 0 2rem;
-            position: relative;
-        }
-
-        .footer::before {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 3px;
-            background: linear-gradient(90deg, var(--accent-gold), var(--accent-cyan));
-        }
-
-        .footer h4 {
-            color: var(--accent-gold);
-            margin-bottom: 1.5rem;
-            font-weight: 600;
-            position: relative;
-            display: inline-block;
-        }
-
-        .footer h4::after {
-            content: '';
-            position: absolute;
-            left: 0;
-            bottom: -8px;
-            width: 40px;
-            height: 2px;
-            background: var(--accent-cyan);
-        }
-
-        .footer a {
-            color: rgba(255, 255, 255, 0.8);
             text-decoration: none;
-            transition: all 0.3s ease;
+            font-weight: 600;
+            font-size: 0.9rem;
         }
 
-        .footer a:hover {
-            color: var(--accent-cyan);
-            padding-left: 5px;
+        .media-item a:hover {
+            color: var(--primary-color);
         }
 
-        .footer ul {
-            list-style: none;
-            padding-left: 0;
+        /* Enhanced Loading Animation */
+        .loading-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 3rem;
         }
 
-        .footer ul li {
-            margin-bottom: 0.75rem;
-        }
-
-        .social-links a {
-            display: inline-block;
-            width: 40px;
-            height: 40px;
-            background: rgba(255, 255, 255, 0.1);
+        .loading-spinner {
+            width: 3rem;
+            height: 3rem;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--primary-color);
             border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Enhanced Error State */
+        .error-container {
             text-align: center;
-            line-height: 40px;
-            margin-right: 0.5rem;
-            transition: all 0.3s ease;
+            padding: 3rem;
+            color: var(--danger-color);
         }
 
-        .social-links a:hover {
-            background: var(--primary-color);
-            transform: translateY(-3px);
+        .error-container i {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            animation: pulse 2s infinite;
         }
 
-        .footer-bottom {
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            padding-top: 2rem;
-            margin-top: 2rem;
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
         }
 
-        /* Responsive */
+        /* Enhanced Toast Notifications */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+        }
+
+        .custom-toast {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            border: none;
+            margin-bottom: 1rem;
+            animation: slideInRight 0.3s ease;
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .custom-toast .toast-header {
+            background: linear-gradient(135deg, var(--primary-color), #0056b3);
+            color: white;
+            border: none;
+            border-radius: 15px 15px 0 0;
+        }
+
+        .custom-toast .toast-body {
+            padding: 1rem 1.5rem;
+            font-weight: 500;
+        }
+
+        /* Responsive Design */
         @media (max-width: 768px) {
             .hero-title {
                 font-size: 2rem;
             }
             
-            .search-row {
-                grid-template-columns: 1fr;
-                gap: 1rem;
+            .table-responsive {
+                border-radius: 15px;
             }
             
-            .tier-card {
-                margin-bottom: 2rem;
+            .btn-group {
+                flex-direction: column;
             }
             
-            .stat-item {
-                margin-bottom: 1.5rem;
+            .btn-group .btn {
+                margin: 2px 0;
+            }
+            
+            .modal-body {
+                padding: 1rem;
+            }
+            
+            .media-gallery {
+                grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
             }
         }
 
-        /* Animation */
-        @keyframes float {
-            0% { transform: translateY(0px); }
-            50% { transform: translateY(-10px); }
-            100% { transform: translateY(0px); }
+        /* Animation Classes */
+        .fade-in {
+            animation: fadeIn 0.5s ease;
         }
 
-        .floating {
-            animation: float 6s ease-in-out infinite;
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .slide-up {
+            animation: slideUp 0.5s ease;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Enhanced Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--secondary-color);
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+            opacity: 0.5;
+        }
+
+        .empty-state h4 {
+            margin-bottom: 0.5rem;
+            color: var(--dark-color);
+        }
+
+        .empty-state p {
+            font-size: 1.1rem;
         }
     </style>
 </head>
@@ -509,20 +602,27 @@
 
         <!-- Listings Content -->
         <div class="container my-5">
-            <div class="card mb-4">
-                <div class="card-body">
-                    <form class="row g-3" id="filter-form">
-                        <div class="col-md-3">
-                            <input type="text" class="form-control" id="search" placeholder="Search by title, agent, store...">
+            <div class="filter-card">
+                <form class="row g-3" id="filter-form">
+                    <div class="col-md-3">
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-search"></i></span>
+                            <input type="text" class="form-control" id="search" placeholder="Search listings...">
                         </div>
-                        <div class="col-md-2">
+                    </div>
+                    <div class="col-md-2">
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-tags"></i></span>
                             <select class="form-select" id="listingType">
                                 <option value="">All Types</option>
                                 <option value="property">Property</option>
                                 <option value="vehicle">Vehicle</option>
                             </select>
                         </div>
-                        <div class="col-md-2">
+                    </div>
+                    <div class="col-md-2">
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-flag"></i></span>
                             <select class="form-select" id="status">
                                 <option value="">All Statuses</option>
                                 <option value="pending">Pending</option>
@@ -530,39 +630,48 @@
                                 <option value="rejected">Rejected</option>
                             </select>
                         </div>
-                        <div class="col-md-2">
-                            <button type="submit" class="btn btn-primary w-100"><i class="bi bi-funnel"></i> Filter</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-            <div class="card card-modern">
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle" id="listings-table">
-                            <thead>
-                                <tr>
-                                    <th>Title</th>
-                                    <th>Type</th>
-                                    <th>Agent/Store</th>
-                                    <th>Status</th>
-                                    <th>Created</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <!-- Listings will be injected here by JS -->
-                            </tbody>
-                        </table>
                     </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="bi bi-funnel"></i> Filter
+                        </button>
+                    </div>
+                    <div class="col-md-3">
+                        <button type="button" class="btn btn-outline-secondary w-100" onclick="fetchAndRenderListings()">
+                            <i class="bi bi-arrow-clockwise"></i> Refresh
+                        </button>
+                    </div>
+                </form>
+            </div>
+            
+            <div class="table-container">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle" id="listings-table">
+                        <thead>
+                            <tr>
+                                <th><i class="bi bi-card-text me-2"></i>Title</th>
+                                <th><i class="bi bi-tag me-2"></i>Type</th>
+                                <th><i class="bi bi-person me-2"></i>Agent/Store</th>
+                                <th><i class="bi bi-flag me-2"></i>Status</th>
+                                <th><i class="bi bi-calendar me-2"></i>Created</th>
+                                <th><i class="bi bi-gear me-2"></i>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Listings will be injected here by JS -->
+                        </tbody>
+                    </table>
                 </div>
             </div>
-            <!-- Listing Details Modal -->
+            
+            <!-- Enhanced Listing Details Modal -->
             <div class="modal fade" id="listingDetailsModal" tabindex="-1" aria-labelledby="listingDetailsModalLabel" aria-hidden="true">
-                <div class="modal-dialog modal-lg">
+                <div class="modal-dialog modal-xl">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h5 class="modal-title" id="listingDetailsModalLabel">Listing Details</h5>
+                            <h5 class="modal-title" id="listingDetailsModalLabel">
+                                <i class="bi bi-eye me-2"></i>Listing Details
+                            </h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">

@@ -11,7 +11,363 @@
     <!-- Google Fonts: Inter -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- Custom Styles -->
-    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="../../css/style.css">
+    <style>
+        :root {
+            --primary-color: #0d6efd;
+            --secondary-color: #6c757d;
+            --success-color: #198754;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+            --info-color: #0dcaf0;
+            --light-color: #f8f9fa;
+            --dark-color: #212529;
+            --accent-gold: #ffd700;
+            --accent-cyan: #00ffff;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            color: var(--dark-color);
+            background-color: var(--light-color);
+        }
+
+        /* Enhanced Table Styling */
+        .table-container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .table {
+            margin-bottom: 0;
+        }
+
+        .table thead th {
+            background: linear-gradient(135deg, var(--primary-color), #0056b3);
+            color: white;
+            border: none;
+            padding: 1rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            letter-spacing: 0.5px;
+        }
+
+        .table tbody tr {
+            transition: all 0.3s ease;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .table tbody tr:hover {
+            background: linear-gradient(135deg, rgba(13, 110, 253, 0.05), rgba(0, 86, 179, 0.05));
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .table tbody td {
+            padding: 1rem;
+            vertical-align: middle;
+            border: none;
+        }
+
+        /* Enhanced Badge Styling */
+        .badge {
+            padding: 0.5rem 0.75rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            border-radius: 20px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .badge.bg-warning {
+            background: linear-gradient(135deg, #ffc107, #ffb300) !important;
+            color: #000 !important;
+        }
+
+        .badge.bg-success {
+            background: linear-gradient(135deg, #198754, #146c43) !important;
+        }
+
+        .badge.bg-danger {
+            background: linear-gradient(135deg, #dc3545, #b02a37) !important;
+        }
+
+        .badge.bg-info {
+            background: linear-gradient(135deg, #0dcaf0, #0aa2c0) !important;
+        }
+
+        .badge.bg-primary {
+            background: linear-gradient(135deg, #0d6efd, #0b5ed7) !important;
+        }
+
+        .badge.bg-secondary {
+            background: linear-gradient(135deg, #6c757d, #5c636a) !important;
+        }
+
+        /* Enhanced Filter Form */
+        .filter-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .filter-card .form-control,
+        .filter-card .form-select {
+            border-radius: 10px;
+            border: 2px solid #e9ecef;
+            transition: all 0.3s ease;
+            padding: 0.75rem 1rem;
+        }
+
+        .filter-card .form-control:focus,
+        .filter-card .form-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+            transform: translateY(-2px);
+        }
+
+        .filter-card .btn {
+            border-radius: 10px;
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+        }
+
+        .filter-card .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Enhanced Modal Styling */
+        .modal-content {
+            border-radius: 20px;
+            border: none;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, var(--primary-color), #0056b3);
+            color: white;
+            border: none;
+            padding: 1.5rem 2rem;
+        }
+
+        .modal-header .modal-title {
+            font-weight: 700;
+            font-size: 1.5rem;
+        }
+
+        .modal-header .btn-close {
+            filter: invert(1);
+            opacity: 0.8;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-header .btn-close:hover {
+            opacity: 1;
+        }
+
+        .modal-body {
+            padding: 2rem;
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+
+        /* User Profile Section */
+        .user-profile-section {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .user-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid white;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            margin-bottom: 1rem;
+        }
+
+        .user-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--dark-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .user-role {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .user-role.admin {
+            background: linear-gradient(135deg, #dc3545, #b02a37);
+            color: white;
+        }
+
+        .user-role.agent {
+            background: linear-gradient(135deg, #ffc107, #ffb300);
+            color: #000;
+        }
+
+        .user-role.user {
+            background: linear-gradient(135deg, #6c757d, #5c636a);
+            color: white;
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .stat-card i {
+            font-size: 2rem;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-card .stat-number {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--dark-color);
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-card .stat-label {
+            color: var(--secondary-color);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Enhanced Button Group */
+        .btn-group .btn {
+            border-radius: 8px;
+            margin: 0 2px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-group .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn-group .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn-group .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Loading and Error States */
+        .loading-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 3rem;
+        }
+
+        .loading-spinner {
+            width: 3rem;
+            height: 3rem;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error-container {
+            text-align: center;
+            padding: 3rem;
+            color: var(--danger-color);
+        }
+
+        .error-container i {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .btn-group {
+                flex-direction: column;
+            }
+            
+            .btn-group .btn {
+                margin: 2px 0;
+            }
+            
+            .modal-body {
+                padding: 1rem;
+            }
+        }
+    </style>
 </head>
 <body class="admin-panel">
     <!-- Admin Sidebar -->
@@ -58,13 +414,17 @@
             </div>
         </section>
         <div class="container my-5">
-            <div class="card mb-4">
-                <div class="card-body">
-                    <form class="row g-3" id="filter-form">
-                        <div class="col-md-3">
-                            <input type="text" class="form-control" id="search" placeholder="Search by name, email...">
+            <div class="filter-card">
+                <form class="row g-3" id="filter-form">
+                    <div class="col-md-3">
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-search"></i></span>
+                            <input type="text" class="form-control" id="search" placeholder="Search users...">
                         </div>
-                        <div class="col-md-2">
+                    </div>
+                    <div class="col-md-2">
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-person-badge"></i></span>
                             <select class="form-select" id="role">
                                 <option value="">All Roles</option>
                                 <option value="admin">Admin</option>
@@ -74,7 +434,10 @@
                                 <option value="agent">Agent</option>
                             </select>
                         </div>
-                        <div class="col-md-2">
+                    </div>
+                    <div class="col-md-2">
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-award"></i></span>
                             <select class="form-select" id="agentTier">
                                 <option value="">All Agent Tiers</option>
                                 <option value="silver">Silver</option>
@@ -82,7 +445,10 @@
                                 <option value="diamond">Diamond</option>
                             </select>
                         </div>
-                        <div class="col-md-2">
+                    </div>
+                    <div class="col-md-2">
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-shield-check"></i></span>
                             <select class="form-select" id="verificationStatus">
                                 <option value="">All Verification Statuses</option>
                                 <option value="pending">Pending</option>
@@ -91,49 +457,56 @@
                                 <option value="not_applicable">Not Applicable</option>
                             </select>
                         </div>
-                        <div class="col-md-2">
+                    </div>
+                    <div class="col-md-2">
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-flag"></i></span>
                             <select class="form-select" id="status">
                                 <option value="">All Statuses</option>
                                 <option value="active">Active</option>
                                 <option value="banned">Banned</option>
                             </select>
                         </div>
-                        <div class="col-md-2">
-                            <button type="submit" class="btn btn-primary w-100"><i class="bi bi-funnel"></i> Filter</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-            <div class="card card-modern">
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle" id="users-table">
-                            <thead>
-                                <tr>
-                                    <th>Name</th>
-                                    <th>Email</th>
-                                    <th>Phone</th>
-                                    <th>Role</th>
-                                    <th>Agent Tier</th>
-                                    <th>Verification Status</th>
-                                    <th>Status</th>
-                                    <th>Joined</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <!-- Users will be injected here by JS -->
-                            </tbody>
-                        </table>
                     </div>
+                    <div class="col-md-1">
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="bi bi-funnel"></i>
+                        </button>
+                    </div>
+                </form>
+            </div>
+            
+            <div class="table-container">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle" id="users-table">
+                        <thead>
+                            <tr>
+                                <th><i class="bi bi-person me-2"></i>Name</th>
+                                <th><i class="bi bi-envelope me-2"></i>Email</th>
+                                <th><i class="bi bi-telephone me-2"></i>Phone</th>
+                                <th><i class="bi bi-person-badge me-2"></i>Role</th>
+                                <th><i class="bi bi-award me-2"></i>Agent Tier</th>
+                                <th><i class="bi bi-shield-check me-2"></i>Verification</th>
+                                <th><i class="bi bi-flag me-2"></i>Status</th>
+                                <th><i class="bi bi-calendar me-2"></i>Joined</th>
+                                <th><i class="bi bi-gear me-2"></i>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Users will be injected here by JS -->
+                        </tbody>
+                    </table>
                 </div>
             </div>
-            <!-- User Details Modal -->
+            
+            <!-- Enhanced User Details Modal -->
             <div class="modal fade" id="userDetailsModal" tabindex="-1" aria-labelledby="userDetailsModalLabel" aria-hidden="true">
-                <div class="modal-dialog modal-lg">
+                <div class="modal-dialog modal-xl">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h5 class="modal-title" id="userDetailsModalLabel">User Details</h5>
+                            <h5 class="modal-title" id="userDetailsModalLabel">
+                                <i class="bi bi-person-circle me-2"></i>User Details
+                            </h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
@@ -220,18 +593,46 @@
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
     <script src="../../js/admin.js"></script>
     <script>
-    // --- Admin Users Management (Schema-Driven) ---
+    // --- Admin Users Management (Enhanced Firestore Integration) ---
     let allUsers = [];
-    const db = firebase.firestore();
-    const auth = firebase.auth();
+    let currentUser = null;
+
+    // Use db and auth from admin.js
+    document.addEventListener('DOMContentLoaded', function() {
+      if (typeof firebase !== 'undefined') {
+        db = firebase.firestore();
+        auth = firebase.auth();
+        auth.onAuthStateChanged(async user => {
+          if (!user) {
+            window.location.href = '../auth/login.html';
+            return;
+          }
+          currentUser = user;
+          // Check admin
+          try {
+            const userDoc = await db.collection('users').doc(user.uid).get();
+            const userData = userDoc.data();
+            if (userData && userData.role === 'admin') {
+              // ok
+            } else if (user.email === 'admin@starlet.co.ug') {
+              // fallback
+            } else {
+              alert('Admin access required');
+              window.location.href = '../auth/login.html';
+              return;
+            }
+            fetchAndRenderUsers();
+          } catch (e) {
+            alert('Error checking admin status');
+            window.location.href = '../auth/login.html';
+          }
+        });
+      }
+    });
 
     const roleOptions = ['admin', 'staff', 'seller', 'buyer', 'agent'];
     const agentTierOptions = ['silver', 'gold', 'diamond'];
     const verificationStatusOptions = ['pending', 'verified', 'rejected', 'not_applicable'];
-
-    requireAdminUser().then(() => {
-      fetchAndRenderUsers();
-    });
 
     // Fetch and render users
     async function fetchAndRenderUsers(filters = {}) {
@@ -244,7 +645,7 @@
         if (filters.verificationStatus) ref = ref.where('verificationStatus.status', '==', filters.verificationStatus);
         if (filters.status) ref = ref.where('status', '==', filters.status);
         const snapshot = await ref.orderBy('createdAt', 'desc').limit(100).get();
-        let users = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        let users = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data(), createdAt: doc.data().createdAt?.toDate ? doc.data().createdAt.toDate() : doc.data().createdAt }));
         // Client-side filter for keyword
         if (filters.keyword) {
           const kw = filters.keyword.toLowerCase();
@@ -266,24 +667,30 @@
       const tbody = document.querySelector('#users-table tbody');
       tbody.innerHTML = '';
       if (!users.length) {
-        tbody.innerHTML = `<tr><td colspan="8" class="text-center text-muted">No users found.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="9" class="text-center text-muted">No users found.</td></tr>`;
         return;
       }
-      users.forEach(u => {
+      users.forEach((u, idx) => {
+        const roleBadge = `<span class="badge bg-${u.role==='admin'?'danger':u.role==='agent'?'warning':'secondary'} text-${u.role==='agent'?'dark':'white'}">${u.role||''}</span>`;
+        const statusBadge = `<span class="badge bg-${u.status==='active'?'success':'danger'}">${u.status||''}</span>`;
+        const tierBadge = u.agentTier ? `<span class="badge bg-info text-dark">${u.agentTier}</span>` : '';
+        const verificationBadge = u.verificationStatus ? `<span class="badge bg-${u.verificationStatus.status==='verified'?'success':u.verificationStatus.status==='pending'?'warning':'danger'}">${u.verificationStatus.status}</span>` : '';
         tbody.innerHTML += `
-          <tr>
-            <td>${u.firstName || ''} ${u.lastName || ''}</td>
-            <td>${u.email || ''}</td>
-            <td>${u.phone || ''}</td>
-            <td>${u.role || ''}</td>
-            <td>${u.agentTier || ''}</td>
-            <td>${u.verificationStatus ? u.verificationStatus.status : ''}</td>
-            <td>${u.status ? `<span class="badge bg-${u.status==='active'?'success':'danger'}">${u.status}</span>` : ''}</td>
-            <td>${formatDate(u.createdAt)}</td>
+          <tr class="fade-in" style="animation-delay:${idx*0.07}s;">
+            <td><i class="bi bi-person-circle me-2 text-primary"></i>${u.firstName||''} ${u.lastName||''}</td>
+            <td><i class="bi bi-envelope me-2 text-secondary"></i>${u.email||''}</td>
+            <td><i class="bi bi-telephone me-2 text-secondary"></i>${u.phone||''}</td>
+            <td>${roleBadge}</td>
+            <td>${tierBadge}</td>
+            <td>${verificationBadge}</td>
+            <td>${statusBadge}</td>
+            <td><i class="bi bi-calendar-event me-2 text-muted"></i>${formatDate(u.createdAt)}</td>
             <td>
-              <button class="btn btn-sm btn-outline-primary me-1" onclick="showUserDetails('${u.id}')"><i class="bi bi-eye"></i></button>
-              <button class="btn btn-sm btn-outline-secondary me-1" onclick="changeUserRole('${u.id}')"><i class="bi bi-person-badge"></i></button>
-              <button class="btn btn-sm btn-outline-${u.status==='banned'?'success':'danger'}" onclick="toggleBanUser('${u.id}')"><i class="bi bi-${u.status==='banned'?'unlock':'lock'}"></i></button>
+              <div class="btn-group btn-group-sm" role="group">
+                <button class="btn btn-outline-primary" onclick="showUserDetails('${u.id}')" title="View Details"><i class="bi bi-eye"></i></button>
+                <button class="btn btn-outline-secondary" onclick="changeUserRole('${u.id}')" title="Change Role"><i class="bi bi-person-badge"></i></button>
+                <button class="btn btn-outline-${u.status==='banned'?'success':'danger'}" onclick="toggleBanUser('${u.id}')" title="${u.status==='banned'?'Unban':'Ban'} User"><i class="bi bi-${u.status==='banned'?'unlock':'lock'}"></i></button>
+              </div>
             </td>
           </tr>
         `;
@@ -291,8 +698,7 @@
     }
 
     // Filter form
-    const filterForm = document.getElementById('filter-form');
-    filterForm.addEventListener('submit', function(e) {
+    document.getElementById('filter-form').addEventListener('submit', function(e) {
       e.preventDefault();
       const keyword = document.getElementById('search').value.trim();
       const role = document.getElementById('role').value;
@@ -317,7 +723,7 @@
       const user = allUsers.find(u => u.id === id);
       if (!user) return;
       const newStatus = user.status === 'banned' ? 'active' : 'banned';
-      if (!confirmAction(`${newStatus==='banned'?'Ban':'Unban'} this user?`)) return;
+      if (!confirm(`Are you sure you want to ${newStatus==='banned'?'ban':'unban'} this user?`)) return;
       await db.collection('users').doc(id).update({ status: newStatus });
       showToast(`User ${newStatus==='banned'?'banned':'unbanned'}`);
       fetchAndRenderUsers();
@@ -350,18 +756,98 @@
         </div>`;
       }
       modalBody.innerHTML = `
-        <h5>${user.firstName || ''} ${user.lastName || ''}</h5>
-        <div><b>Email:</b> ${user.email || ''}</div>
-        <div><b>Phone:</b> ${user.phone || ''}</div>
-        <div><b>Role:</b> ${user.role || ''}</div>
-        <div><b>Language:</b> ${user.languagePreference || ''}</div>
-        <div><b>Created:</b> ${formatDate(user.createdAt)}</div>
+        <div class="user-profile-section">
+          <img src="${user.avatar || 'https://randomuser.me/api/portraits/lego/1.jpg'}" class="user-avatar mb-2">
+          <div class="user-name">${user.firstName || ''} ${user.lastName || ''}</div>
+          <div class="user-role ${user.role}">${user.role || ''}</div>
+          <div class="mt-2"><i class="bi bi-envelope me-1"></i> ${user.email || ''}</div>
+          <div><i class="bi bi-telephone me-1"></i> ${user.phone || ''}</div>
+          <div><i class="bi bi-calendar-event me-1"></i> Joined: ${formatDate(user.createdAt)}</div>
+        </div>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <i class="bi bi-person-badge"></i>
+            <div class="stat-number">${user.role || ''}</div>
+            <div class="stat-label">Role</div>
+          </div>
+          <div class="stat-card">
+            <i class="bi bi-award"></i>
+            <div class="stat-number">${user.agentTier || '-'}</div>
+            <div class="stat-label">Agent Tier</div>
+          </div>
+          <div class="stat-card">
+            <i class="bi bi-shield-check"></i>
+            <div class="stat-number">${user.verificationStatus ? user.verificationStatus.status : '-'}</div>
+            <div class="stat-label">Verification</div>
+          </div>
+          <div class="stat-card">
+            <i class="bi bi-flag"></i>
+            <div class="stat-number">${user.status || ''}</div>
+            <div class="stat-label">Status</div>
+          </div>
+        </div>
         ${agentMetrics}
         ${verification}
       `;
       const modal = new bootstrap.Modal(document.getElementById('userDetailsModal'));
       modal.show();
     }
+
+    // Utility functions
+    function formatDate(date) {
+      if (!date) return 'Unknown';
+      const d = new Date(date);
+      return d.toLocaleDateString() + ' ' + d.toLocaleTimeString();
+    }
+    function showLoading(element, message = 'Loading...') {
+      element.innerHTML = `
+        <tr>
+          <td colspan="9" class="text-center py-4">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+            <div class="mt-2">${message}</div>
+          </td>
+        </tr>
+      `;
+    }
+    function showError(element, message) {
+      element.innerHTML = `
+        <tr>
+          <td colspan="9" class="text-center text-danger py-4">
+            <i class="bi bi-exclamation-triangle fs-1 d-block mb-2"></i>
+            ${message}
+          </td>
+        </tr>
+      `;
+    }
+    function showToast(message) {
+      const toast = document.createElement('div');
+      toast.className = 'position-fixed top-0 end-0 p-3';
+      toast.style.zIndex = '9999';
+      toast.innerHTML = `
+        <div class="toast show" role="alert">
+          <div class="toast-header">
+            <strong class="me-auto">Admin</strong>
+            <button type="button" class="btn-close" onclick="this.closest('.toast').remove()"></button>
+          </div>
+          <div class="toast-body">${message}</div>
+        </div>
+      `;
+      document.body.appendChild(toast);
+      setTimeout(() => { if (toast.parentNode) toast.remove(); }, 4000);
+    }
+    // Logout functionality
+    document.querySelector('.logout-link').addEventListener('click', function(e) {
+      e.preventDefault();
+      if (confirm('Are you sure you want to logout?')) {
+        auth.signOut().then(() => {
+          window.location.href = '../auth/login.html';
+        }).catch(error => {
+          console.error('Error signing out:', error);
+        });
+      }
+    });
     </script>
 </body>
 </html>
