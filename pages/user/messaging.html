@@ -566,6 +566,53 @@
         db.collection('conversations').doc(selectedConversation.id).update({ ['typing_' + currentUser.id]: false });
       }, 2000);
     });
+
+    // On page load, check for pending offer and send as first message if needed
+    document.addEventListener('DOMContentLoaded', async function() {
+      const url = new URL(window.location.href);
+      const makeOffer = url.searchParams.get('makeOffer');
+      const pendingOfferRaw = localStorage.getItem('pendingOffer');
+      let pendingOffer = null;
+      if (makeOffer && pendingOfferRaw) {
+        try {
+          pendingOffer = JSON.parse(pendingOfferRaw);
+        } catch (e) {}
+      }
+      if (makeOffer && pendingOffer && pendingOffer.listingId && pendingOffer.listerId && pendingOffer.offerAmount) {
+        // Wait for auth and conversation to be ready
+        const waitForConv = async () => {
+          if (!currentUser) return setTimeout(waitForConv, 200);
+          await startConversationForListing(pendingOffer.listingId);
+          // Wait for selectedConversation to be set
+          const waitForSelected = async () => {
+            if (!selectedConversation) return setTimeout(waitForSelected, 200);
+            // Send the offer as the first message
+            const offerMsg = {
+              text: `I would like to make an offer of UGX ${Number(pendingOffer.offerAmount).toLocaleString()}.`,
+              senderId: currentUser.id,
+              senderName: currentUser.name,
+              senderAvatar: currentUser.avatar,
+              createdAt: new Date(),
+              isOffer: true,
+              offerAmount: Number(pendingOffer.offerAmount)
+            };
+            try {
+              await db.collection('conversations').doc(selectedConversation.id)
+                .collection('messages').add(offerMsg);
+              await db.collection('conversations').doc(selectedConversation.id).update({
+                lastMessage: offerMsg.text,
+                lastMessageAt: new Date()
+              });
+              localStorage.removeItem('pendingOffer');
+            } catch (err) {
+              alert('Failed to send offer. Please try again.');
+            }
+          };
+          waitForSelected();
+        };
+        waitForConv();
+      }
+    });
   </script>
 </body>
 </html> 
