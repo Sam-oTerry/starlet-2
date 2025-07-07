@@ -459,13 +459,14 @@ document.addEventListener('DOMContentLoaded', function() {
         });
       }
 
-      // Show modal on Add Listing button click
+      // Show modal on Add Listing button click (robust)
       const addListingBtn = document.getElementById('addListingBtn');
       if (addListingBtn) {
-        addListingBtn.onclick = function() {
+        addListingBtn.addEventListener('click', function() {
+          console.log('Add Listing button clicked');
           clearModalForm();
           showModal();
-        };
+        });
       }
 
       // Fetch official store ID (assume only one official store)
