@@ -195,8 +195,21 @@ document.getElementById('vehicleMake').addEventListener('change', function() {
   populateVehicleModelDropdown(vehicleCategory, vehicleMake);
 });
 
-// --- Validation Helper ---
+// --- Helper: Remove required from hidden fields before validation ---
+function updateRequiredAttributes() {
+  // For all form controls, if hidden, remove required
+  document.querySelectorAll('#addOfficialListingForm [required]').forEach(el => {
+    if (el.offsetParent === null) {
+      el.required = false;
+    } else {
+      el.required = true;
+    }
+  });
+}
+
+// --- Validation Helper (updated) ---
 function validateRequired(ids) {
+  updateRequiredAttributes();
   let valid = true;
   ids.forEach(id => {
     const el = document.getElementById(id);
@@ -208,6 +221,34 @@ function validateRequired(ids) {
     }
   });
   return valid;
+}
+
+// --- Checkbox rendering for amenities, security, features ---
+// (Assume amenitiesSection, amenitySecurityCheckboxes, amenityNearbyCheckboxes already exist in HTML)
+// If you want to dynamically render checkboxes, you can do so here:
+function renderAmenityCheckboxes() {
+  // Security
+  const securityOptions = ['Gate', 'Guard', 'CCTV', 'Fence', 'None'];
+  const securityContainer = document.getElementById('amenitySecurityCheckboxes');
+  if (securityContainer) {
+    securityContainer.innerHTML = '';
+    securityOptions.forEach(opt => {
+      const id = 'security_' + opt.replace(/\s+/g, '').toLowerCase();
+      securityContainer.innerHTML += `<input class="form-check-input" type="checkbox" value="${opt}" id="${id}">
+        <label class="form-check-label me-2" for="${id}">${opt}</label>`;
+    });
+  }
+  // Nearby Amenities
+  const nearbyOptions = ['Schools', 'Hospitals', 'Markets', 'Public Transport', 'None'];
+  const nearbyContainer = document.getElementById('amenityNearbyCheckboxes');
+  if (nearbyContainer) {
+    nearbyContainer.innerHTML = '';
+    nearbyOptions.forEach(opt => {
+      const id = 'nearby_' + opt.replace(/\s+/g, '').toLowerCase();
+      nearbyContainer.innerHTML += `<input class="form-check-input" type="checkbox" value="${opt}" id="${id}">
+        <label class="form-check-label me-2" for="${id}">${opt}</label>`;
+    });
+  }
 }
 
 // --- Form Submission ---
@@ -341,6 +382,10 @@ form.onsubmit = async function(e) {
   }
 };
 
+// Call this after DOMContentLoaded and after amenitiesSection is shown
 // --- Init ---
-fetchVehicleMakesModels();
-fetchPropertyMeta(); 
+document.addEventListener('DOMContentLoaded', function() {
+  fetchVehicleMakesModels();
+  fetchPropertyMeta();
+  renderAmenityCheckboxes();
+}); 
