@@ -227,9 +227,21 @@
     </script>
     <script>
       // --- Admin Analytics (Schema-Driven) ---
-      requireAdminUser().then(() => {
-        fetchAndRenderStats();
-        fetchAndRenderCharts();
+      document.addEventListener('DOMContentLoaded', function() {
+        // Wait for Firebase to be initialized (db/auth set)
+        function waitForFirebaseInit(retries = 10) {
+          if (typeof db !== 'undefined' && db && typeof auth !== 'undefined' && auth) {
+            requireAdminUser().then(() => {
+              fetchAndRenderStats();
+              fetchAndRenderCharts();
+            });
+          } else if (retries > 0) {
+            setTimeout(() => waitForFirebaseInit(retries - 1), 150);
+          } else {
+            showToast('Error: Firebase not initialized', 'danger');
+          }
+        }
+        waitForFirebaseInit();
       });
 
       // Fetch and display stats
