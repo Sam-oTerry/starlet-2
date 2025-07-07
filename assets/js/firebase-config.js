@@ -1,0 +1,22 @@
+// Firebase configuration and initialization for Starlet Properties
+const firebaseConfig = {
+  apiKey: "AIzaSyDH1sMk2NwceMAEfvH07azxaoPXpOI1Sek",
+  authDomain: "starlet-properties-41509.firebaseapp.com",
+  projectId: "starlet-properties-41509",
+  storageBucket: "starlet-properties-41509.appspot.com",
+  messagingSenderId: "393372988481",
+  appId: "1:393372988481:web:c92584d7408296457b02c0",
+  measurementId: "G-F02K9SP07C"
+};
+
+(function() {
+  if (typeof firebase === 'undefined') {
+    console.error('Firebase SDK not loaded');
+    return;
+  }
+  if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+  }
+  window.firebaseDB = firebase.firestore();
+  window.firebaseAuth = firebase.auth();
+})(); 
