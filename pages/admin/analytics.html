@@ -373,6 +373,25 @@
         });
       }
 
+      function renderStackedLineChart(canvasId, dataObj, label) {
+        const ctx = document.getElementById(canvasId).getContext('2d');
+        const labels = Object.keys(dataObj);
+        const allKeys = Array.from(new Set(labels.flatMap(l => Object.keys(dataObj[l]))));
+        const datasets = allKeys.map((k, i) => ({
+          label: k,
+          data: labels.map(l => dataObj[l][k] || 0),
+          borderColor: `hsl(${i * 40},70%,50%)`,
+          backgroundColor: `hsla(${i * 40},70%,50%,0.1)`,
+          fill: true,
+          tension: 0.3
+        }));
+        new Chart(ctx, {
+          type: 'line',
+          data: { labels, datasets },
+          options: { responsive: true, plugins: { legend: { display: true } } }
+        });
+      }
+
       function renderDailyViewsChart(canvasId, dataObj) {
         const ctx = document.getElementById(canvasId).getContext('2d');
         const labels = Object.keys(dataObj);
