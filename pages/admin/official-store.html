@@ -69,12 +69,20 @@
         <h4>Official Store Listings</h4>
         <button class="btn btn-primary" id="addListingBtn"><i class="bi bi-plus-lg"></i> Add Listing</button>
       </div>
+      <div class="d-flex flex-wrap gap-2 align-items-center mb-2">
+        <button class="btn btn-success btn-sm" id="bulkApproveBtn"><i class="bi bi-patch-check"></i> Approve</button>
+        <button class="btn btn-danger btn-sm" id="bulkRejectBtn"><i class="bi bi-x-octagon"></i> Reject</button>
+        <button class="btn btn-outline-danger btn-sm" id="bulkDeleteBtn"><i class="bi bi-trash"></i> Delete</button>
+        <button class="btn btn-secondary btn-sm" id="exportCsvBtn"><i class="bi bi-download"></i> Export CSV</button>
+        <span class="ms-3 text-muted" id="selectedCount"></span>
+      </div>
       <div class="card card-modern">
         <div class="card-body">
           <div class="table-responsive">
             <table class="table table-hover align-middle" id="official-listings-table">
               <thead>
                 <tr>
+                  <th><input type="checkbox" id="selectAllOfficialListings"></th>
                   <th>Title</th>
                   <th>Type</th>
                   <th>Status</th>
