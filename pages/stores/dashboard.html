@@ -98,7 +98,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="../../assets/js/firebase-config.js"></script>
   <script>
-// Firestore: Load only stores where agentId == current user
+// --- Store Management Dashboard ---
 function renderDashboardStores(listings) {
   const container = document.getElementById('dashboardStoresList');
   container.innerHTML = '';
@@ -117,32 +117,116 @@ function renderDashboardStores(listings) {
     for (let i = 0; i < fullStars; i++) starsHtml += '<i class="bi bi-star-fill text-warning"></i>';
     if (halfStar) starsHtml += '<i class="bi bi-star-half text-warning"></i>';
     for (let i = 0; i < emptyStars; i++) starsHtml += '<i class="bi bi-star text-warning"></i>';
+    // Verification badge
+    const verifiedBadge = store.verificationStatus && store.verificationStatus.status === 'verified'
+      ? '<i class="bi bi-patch-check-fill text-primary" title="Verified"></i>' : '';
+    // Store stats
+    const statsHtml = `
+      <div class="d-flex align-items-center gap-3 mb-2 stats-row">
+        <span class="text-secondary small"><i class="bi bi-list-ul"></i> ${store.listingsCount || 0} Listings</span>
+        <span class="text-secondary small"><i class="bi bi-graph-up"></i> ${store.reviewCount || 0} Reviews</span>
+        <span class="text-secondary small"><i class="bi bi-calendar3"></i> ${store.createdAt ? new Date(store.createdAt.seconds ? store.createdAt.seconds * 1000 : store.createdAt).getFullYear() : ''}</span>
+      </div>`;
+    // Card inner HTML
     card.innerHTML = `
-      <div class="store-card-modern d-flex flex-row align-items-center shadow-sm border-0 rounded-4 p-3 bg-white h-100 gap-3">
-        <div class="flex-shrink-0 position-relative" style="z-index:2;">
+      <div class="store-card-modern d-flex flex-column shadow-sm border-0 rounded-4 p-3 bg-white h-100 gap-2">
+        <div class="d-flex align-items-center gap-3 mb-2">
           <img src="${store.logo || 'https://via.placeholder.com/90?text=Logo'}" alt="${store.name}" class="rounded-circle border border-2" style="width:64px;height:64px;object-fit:cover;">
-        </div>
-        <div class="flex-grow-1 d-flex flex-column justify-content-between h-100 ps-2">
-          <div class="d-flex align-items-center gap-2 mb-1">
-            <span class="fw-semibold text-dark small">${store.name}</span>
-            ${store.verificationStatus && store.verificationStatus.status === 'verified' ? '<i class="bi bi-patch-check-fill text-primary" title="Verified"></i>' : ''}
+          <div class="flex-grow-1">
+            <span class="fw-semibold text-dark small">${store.name}</span> ${verifiedBadge}
             <span class="badge bg-light text-secondary border ms-2 px-2 py-1 small">${store.agentTier || ''}</span>
+            <div class="d-flex align-items-center gap-1 mt-1">
+              <span class="rating-stars">${starsHtml}</span>
+              <span class="text-muted small ms-1">${(store.averageRating || 0).toFixed(1)}</span>
+            </div>
           </div>
-          <div class="d-flex align-items-center gap-1 mb-1">
-            <span class="rating-stars">${starsHtml}</span>
-            <span class="text-muted small ms-1">${(store.averageRating || 0).toFixed(1)}</span>
-          </div>
-          <div class="d-flex align-items-center gap-3 mb-2 stats-row">
-            <span class="text-secondary small"><i class="bi bi-list-ul"></i> ${store.listingsCount || 0}</span>
-            <span class="text-secondary small"><i class="bi bi-graph-up"></i> ${store.reviewCount || 0} reviews</span>
-          </div>
-          <div class="text-muted small mb-2" style="min-height:2.2em;">${store.description || ''}</div>
-          <a href="details.html?id=${store.id || store._id}" class="btn btn-sm btn-primary rounded-pill mt-auto align-self-start px-3 py-1"><i class="bi bi-eye"></i> View Details</a>
         </div>
+        <div class="text-muted small mb-2" style="min-height:2.2em;">${store.description || ''}</div>
+        ${statsHtml}
+        <div class="d-flex gap-2 flex-wrap mb-2">
+          <a href="details.html?id=${store.id || store._id}" class="btn btn-sm btn-outline-primary"><i class="bi bi-eye"></i> View</a>
+          <button class="btn btn-sm btn-outline-success" onclick="editStore('${store.id || store._id}')"><i class="bi bi-pencil"></i> Edit</button>
+          <button class="btn btn-sm btn-outline-danger" onclick="deleteStore('${store.id || store._id}', '${store.name}')"><i class="bi bi-trash"></i> Delete</button>
+          <button class="btn btn-sm btn-primary" onclick="manageListings('${store.id || store._id}', '${store.name}')"><i class="bi bi-list-task"></i> Manage Listings</button>
+        </div>
+        <div id="listingsSection-${store.id || store._id}" style="display:none;"></div>
       </div>
     `;
     container.appendChild(card);
   });
+}
+
+// Edit Store (placeholder)
+function editStore(storeId) {
+  alert('Edit store: ' + storeId + '\n(To implement: open edit modal or page)');
+}
+// Delete Store with confirmation
+async function deleteStore(storeId, storeName) {
+  if (!confirm(`Are you sure you want to delete the store "${storeName}"? This cannot be undone.`)) return;
+  try {
+    await window.firebaseDB.collection('stores').doc(storeId).delete();
+    alert('Store deleted.');
+    loadUserStores();
+  } catch (err) {
+    alert('Error deleting store.');
+    console.error('Delete store error:', err);
+  }
+}
+// Manage Listings: Show all listings for this store
+async function manageListings(storeId, storeName) {
+  const section = document.getElementById('listingsSection-' + storeId);
+  if (!section) return;
+  if (section.style.display === 'block') {
+    section.style.display = 'none';
+    section.innerHTML = '';
+    return;
+  }
+  section.style.display = 'block';
+  section.innerHTML = '<div class="text-center py-3"><div class="spinner-border"></div> Loading listings...</div>';
+  try {
+    const snap = await window.firebaseDB.collection('listings').where('storeId', '==', storeId).get();
+    let html = `<div class='mb-2 d-flex justify-content-between align-items-center'><strong>Listings for ${storeName}</strong><button class='btn btn-sm btn-success' onclick='addListing("${storeId}")'><i class='bi bi-plus-circle'></i> Add Listing</button></div>`;
+    if (snap.empty) {
+      html += '<div class="text-muted">No listings found for this store.</div>';
+    } else {
+      html += '<ul class="list-group mb-2">';
+      snap.forEach(doc => {
+        const l = doc.data();
+        html += `<li class='list-group-item d-flex justify-content-between align-items-center'>
+          <span>${l.title || 'Untitled'} <span class='badge bg-light text-secondary ms-2'>${l.status || ''}</span></span>
+          <span>
+            <button class='btn btn-sm btn-outline-success' onclick='editListing("${doc.id}")'><i class='bi bi-pencil'></i></button>
+            <button class='btn btn-sm btn-outline-danger' onclick='deleteListing("${doc.id}", "${l.title || 'Untitled'}", "${storeId}")'><i class='bi bi-trash'></i></button>
+          </span>
+        </li>`;
+      });
+      html += '</ul>';
+    }
+    section.innerHTML = html;
+  } catch (err) {
+    section.innerHTML = '<div class="text-danger">Error loading listings.</div>';
+    console.error('Error loading listings:', err);
+  }
+}
+// Add Listing (placeholder)
+function addListing(storeId) {
+  alert('Add listing for store: ' + storeId + '\n(To implement: open add listing modal or page)');
+}
+// Edit Listing (placeholder)
+function editListing(listingId) {
+  alert('Edit listing: ' + listingId + '\n(To implement: open edit listing modal or page)');
+}
+// Delete Listing with confirmation
+async function deleteListing(listingId, title, storeId) {
+  if (!confirm(`Are you sure you want to delete the listing "${title}"? This cannot be undone.`)) return;
+  try {
+    await window.firebaseDB.collection('listings').doc(listingId).delete();
+    alert('Listing deleted.');
+    manageListings(storeId, '');
+  } catch (err) {
+    alert('Error deleting listing.');
+    console.error('Delete listing error:', err);
+  }
 }
 
 async function loadUserStores() {
