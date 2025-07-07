@@ -57,6 +57,12 @@
                 <p class="hero-subtitle">View platform statistics, trends, and performance reports</p>
             </div>
         </section>
+        <!-- Add Generate Report Button -->
+        <div class="mb-3 text-end">
+            <button id="generateReportBtn" class="btn btn-primary">
+                <i class="bi bi-file-earmark-pdf"></i> Generate Report (PDF)
+            </button>
+        </div>
         <div class="container my-5">
             <div class="row g-4 mb-4">
                 <div class="col-md-3">
@@ -95,9 +101,9 @@
             <div class="row">
                 <div class="col-md-6 mb-4">
                     <div class="card">
-                        <div class="card-header">Listings Over Time</div>
+                        <div class="card-header">Listings Over Time (Property vs Vehicles)</div>
                         <div class="card-body">
-                            <canvas id="listingsChart" height="200"></canvas>
+                            <canvas id="listingsCompareChart" height="200"></canvas>
                         </div>
                     </div>
                 </div>
@@ -124,6 +130,16 @@
                         <div class="card-header">Top Agents/Stores</div>
                         <div class="card-body">
                             <ul id="topAgentsList" class="list-group"></ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 mb-4">
+                    <div class="card">
+                        <div class="card-header">Daily Views</div>
+                        <div class="card-body">
+                            <canvas id="dailyViewsChart" height="200"></canvas>
                         </div>
                     </div>
                 </div>
@@ -206,6 +222,9 @@
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
     <script src="../../js/admin.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <!-- Add jsPDF and html2canvas CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <!-- Firebase Initialization (only if not already set by admin.js) -->
     <script>
       if (typeof firebase !== 'undefined' && typeof db === 'undefined') {
@@ -266,72 +285,112 @@
 
       // Fetch and render charts
       async function fetchAndRenderCharts() {
-        // Listings Over Time by Type
+        // --- Listings Over Time: Property vs Vehicles ---
+        const propertyTypes = ['house_sale', 'house_rent', 'land_sale', 'land_rent', 'vacation_short_stay'];
+        const vehicleTypes = ['vehicle_sale', 'motorcycle_sale', 'heavy_machinery_sale', 'bicycle_ebike_sale', 'boat_watercraft_sale'];
         const listingsSnap = await db.collection('listings').orderBy('createdAt').get();
-        const listingsByMonthType = {};
+        const listingsByMonthCategory = {};
         listingsSnap.forEach(doc => {
-          const d = doc.data();
-          let date = d.createdAt && d.createdAt.toDate ? d.createdAt.toDate() : null;
-          if (!date) return;
-          const key = `${date.getFullYear()}-${date.getMonth()+1}`;
-          if (!listingsByMonthType[key]) listingsByMonthType[key] = {};
-          listingsByMonthType[key][d.listingType] = (listingsByMonthType[key][d.listingType] || 0) + 1;
+            const d = doc.data();
+            let date = d.createdAt && d.createdAt.toDate ? d.createdAt.toDate() : null;
+            if (!date) return;
+            const key = `${date.getFullYear()}-${date.getMonth()+1}`;
+            if (!listingsByMonthCategory[key]) listingsByMonthCategory[key] = { Property: 0, Vehicles: 0 };
+            if (propertyTypes.includes(d.listingType)) {
+                listingsByMonthCategory[key].Property++;
+            } else if (vehicleTypes.includes(d.listingType)) {
+                listingsByMonthCategory[key].Vehicles++;
+            }
         });
-        renderStackedLineChart('listingsChart', listingsByMonthType, 'Listings');
+        renderCompareLineChart('listingsCompareChart', listingsByMonthCategory, ['Property', 'Vehicles']);
 
-        // User Registrations by Role
+        // --- User Registrations by Role ---
         const usersSnap = await db.collection('users').orderBy('createdAt').get();
         const usersByMonthRole = {};
         usersSnap.forEach(doc => {
-          const d = doc.data();
-          let date = d.createdAt && d.createdAt.toDate ? d.createdAt.toDate() : null;
-          if (!date) return;
-          const key = `${date.getFullYear()}-${date.getMonth()+1}`;
-          if (!usersByMonthRole[key]) usersByMonthRole[key] = {};
-          usersByMonthRole[key][d.role] = (usersByMonthRole[key][d.role] || 0) + 1;
+            const d = doc.data();
+            let date = d.createdAt && d.createdAt.toDate ? d.createdAt.toDate() : null;
+            if (!date) return;
+            const key = `${date.getFullYear()}-${date.getMonth()+1}`;
+            if (!usersByMonthRole[key]) usersByMonthRole[key] = {};
+            usersByMonthRole[key][d.role] = (usersByMonthRole[key][d.role] || 0) + 1;
         });
         renderStackedLineChart('usersChart', usersByMonthRole, 'Users');
 
-        // Stores by Agent Tier
+        // --- Stores by Agent Tier ---
         const storesSnap = await db.collection('stores').orderBy('createdAt').get();
         const storesByMonthTier = {};
         storesSnap.forEach(doc => {
-          const d = doc.data();
-          let date = d.createdAt && d.createdAt.toDate ? d.createdAt.toDate() : null;
-          if (!date) return;
-          const key = `${date.getFullYear()}-${date.getMonth()+1}`;
-          if (!storesByMonthTier[key]) storesByMonthTier[key] = {};
-          storesByMonthTier[key][d.agentTier] = (storesByMonthTier[key][d.agentTier] || 0) + 1;
+            const d = doc.data();
+            let date = d.createdAt && d.createdAt.toDate ? d.createdAt.toDate() : null;
+            if (!date) return;
+            const key = `${date.getFullYear()}-${date.getMonth()+1}`;
+            if (!storesByMonthTier[key]) storesByMonthTier[key] = {};
+            storesByMonthTier[key][d.agentTier] = (storesByMonthTier[key][d.agentTier] || 0) + 1;
         });
         renderStackedLineChart('storesChart', storesByMonthTier, 'Stores');
 
-        // Top Agents/Stores (by listings count)
+        // --- Top Agents/Stores (by listings count) ---
         const agentCounts = {};
         listingsSnap.forEach(doc => {
-          const d = doc.data();
-          const agent = d.agentId || d.storeId || 'Unknown';
-          agentCounts[agent] = (agentCounts[agent] || 0) + 1;
+            const d = doc.data();
+            const agent = d.agentId || d.storeId || 'Unknown';
+            agentCounts[agent] = (agentCounts[agent] || 0) + 1;
         });
         const sortedAgents = Object.entries(agentCounts).sort((a,b) => b[1]-a[1]).slice(0,8);
         await renderTopAgentsList(sortedAgents);
+
+        // --- Daily Views Chart ---
+        const analyticsSnap = await db.collection('analytics').where('type', 'in', [
+            'view', 'listing_view', 'vehicle_view', 'motorcycle_view', 'heavy_machinery_view', 'bicycle_ebike_view', 'boat_watercraft_view', 'vacation_short_stay_view'
+        ]).orderBy('createdAt').get();
+        const viewsByDay = {};
+        analyticsSnap.forEach(doc => {
+            const d = doc.data();
+            let date = d.createdAt && d.createdAt.toDate ? d.createdAt.toDate() : null;
+            if (!date) return;
+            const key = `${date.getFullYear()}-${(date.getMonth()+1).toString().padStart(2,'0')}-${date.getDate().toString().padStart(2,'0')}`;
+            viewsByDay[key] = (viewsByDay[key] || 0) + 1;
+        });
+        renderDailyViewsChart('dailyViewsChart', viewsByDay);
       }
 
-      function renderStackedLineChart(canvasId, dataObj, label) {
+      function renderCompareLineChart(canvasId, dataObj, categories) {
         const ctx = document.getElementById(canvasId).getContext('2d');
         const labels = Object.keys(dataObj);
-        const allKeys = Array.from(new Set(labels.flatMap(l=>Object.keys(dataObj[l]))));
-        const datasets = allKeys.map((k,i) => ({
-          label: k,
-          data: labels.map(l=>dataObj[l][k]||0),
-          borderColor: `hsl(${i*40},70%,50%)`,
-          backgroundColor: `hsla(${i*40},70%,50%,0.1)`,
-          fill: true,
-          tension: 0.3
+        const datasets = categories.map((cat, i) => ({
+            label: cat,
+            data: labels.map(l => dataObj[l][cat] || 0),
+            borderColor: `hsl(${i*40},70%,50%)`,
+            backgroundColor: `hsla(${i*40},70%,50%,0.1)`,
+            fill: false,
+            tension: 0.3
         }));
         new Chart(ctx, {
-          type: 'line',
-          data: { labels, datasets },
-          options: { responsive: true, plugins: { legend: { display: true } } }
+            type: 'line',
+            data: { labels, datasets },
+            options: { responsive: true, plugins: { legend: { display: true } } }
+        });
+      }
+
+      function renderDailyViewsChart(canvasId, dataObj) {
+        const ctx = document.getElementById(canvasId).getContext('2d');
+        const labels = Object.keys(dataObj);
+        const data = labels.map(l => dataObj[l] || 0);
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels,
+                datasets: [{
+                    label: 'Daily Views',
+                    data,
+                    borderColor: '#0d6efd',
+                    backgroundColor: 'rgba(13,110,253,0.1)',
+                    fill: true,
+                    tension: 0.3
+                }]
+            },
+            options: { responsive: true, plugins: { legend: { display: true } } }
         });
       }
 
@@ -376,6 +435,51 @@
           list.appendChild(li);
         });
       }
+
+      document.getElementById('generateReportBtn').addEventListener('click', async function() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+
+        // Title
+        doc.setFontSize(18);
+        doc.text('Starlet Analytics Report', 10, 15);
+
+        // Add summary stats
+        doc.setFontSize(12);
+        doc.text('Total Listings: ' + document.getElementById('total-listings').textContent, 10, 30);
+        doc.text('Total Users: ' + document.getElementById('total-users').textContent, 10, 38);
+        doc.text('Total Stores: ' + document.getElementById('total-stores').textContent, 10, 46);
+        doc.text('Pending Approvals: ' + document.getElementById('pending-approvals').textContent, 10, 54);
+
+        // Helper to add chart as image
+        async function addChartImage(canvasId, y) {
+          const canvas = document.getElementById(canvasId);
+          if (!canvas) return y;
+          const imgData = canvas.toDataURL('image/png');
+          doc.addImage(imgData, 'PNG', 10, y, 180, 60);
+          return y + 65;
+        }
+
+        let y = 65;
+        y = await addChartImage('listingsCompareChart', y);
+        y = await addChartImage('usersChart', y);
+        y = await addChartImage('storesChart', y);
+        y = await addChartImage('dailyViewsChart', y);
+
+        // Add Top Agents/Stores
+        doc.setFontSize(14);
+        doc.text('Top Agents/Stores:', 10, y + 10);
+        doc.setFontSize(12);
+        const list = document.getElementById('topAgentsList');
+        if (list) {
+          Array.from(list.children).forEach((li, i) => {
+            doc.text('- ' + li.textContent, 12, y + 18 + i * 8);
+          });
+          y += 18 + list.children.length * 8;
+        }
+
+        doc.save('starlet-analytics-report.pdf');
+      });
     </script>
 </body>
 </html>
