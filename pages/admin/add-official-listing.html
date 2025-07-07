@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Add Official Listing | Starlet Admin</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link href="../../css/style.css" rel="stylesheet">
+</head>
+<body class="admin-panel">
+  <nav class="admin-navbar navbar navbar-expand-lg navbar-light bg-light mb-4">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="official-store.html"><span class="brand-star">Star</span> <span class="brand-let">Let</span> Admin</a>
+      <a href="official-store.html" class="btn btn-outline-primary ms-auto"><i class="bi bi-arrow-left"></i> Back to Official Store</a>
+    </div>
+  </nav>
+  <main class="container my-5">
+    <div class="row justify-content-center">
+      <div class="col-lg-8 col-md-10">
+        <div class="card shadow">
+          <div class="card-body">
+            <h2 class="mb-4">Add Official Listing</h2>
+            <form id="addOfficialListingForm">
+              <div class="mb-3">
+                <label class="form-label">Listing Type <span class="text-danger">*</span></label>
+                <select id="listingType" class="form-select" required>
+                  <option value="">Select Type</option>
+                  <option value="property">Property</option>
+                  <option value="vehicle">Vehicle</option>
+                </select>
+              </div>
+              <div id="propertySection" class="d-none">
+                <!-- Property Type -->
+                <div class="mb-3">
+                  <label class="form-label">Property Type <span class="text-danger">*</span></label>
+                  <select id="propertyType" class="form-select" required></select>
+                </div>
+                <!-- Title, Price, District, Description, Price Type -->
+                <div class="row g-3">
+                  <div class="col-md-6">
+                    <label class="form-label">Title <span class="text-danger">*</span></label>
+                    <input id="propertyTitle" type="text" class="form-control" required>
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label">Asking Price (UGX) <span class="text-danger">*</span></label>
+                    <input id="propertyAskingPrice" type="number" class="form-control" required>
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label">District <span class="text-danger">*</span></label>
+                    <input id="propertyDistrict" type="text" class="form-control" required>
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label">Price Type <span class="text-danger">*</span></label>
+                    <select id="propertyPriceType" class="form-select" required>
+                      <option value="fixed">Fixed</option>
+                      <option value="negotiable">Negotiable</option>
+                    </select>
+                  </div>
+                  <div class="col-12">
+                    <label class="form-label">Description <span class="text-danger">*</span></label>
+                    <textarea id="propertyDescription" class="form-control" rows="2" required></textarea>
+                  </div>
+                </div>
+                <!-- House Details (shown for house_sale, house_rent, vacation_short_stay) -->
+                <div id="houseDetailsSection" class="d-none mt-4 border-top pt-3">
+                  <h5>House Details</h5>
+                  <div class="row g-3">
+                    <div class="col-md-6">
+                      <label class="form-label">Sub Category <span class="text-danger">*</span></label>
+                      <select id="houseSubCategory" class="form-select" required></select>
+                    </div>
+                    <div class="col-md-3">
+                      <label class="form-label">Bedrooms <span class="text-danger">*</span></label>
+                      <input id="houseBedrooms" type="number" class="form-control" min="0" required>
+                    </div>
+                    <div class="col-md-3">
+                      <label class="form-label">Bathrooms <span class="text-danger">*</span></label>
+                      <input id="houseBathrooms" type="number" class="form-control" min="0" required>
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label">Total Area (sqm) <span class="text-danger">*</span></label>
+                      <input id="houseTotalArea" type="number" class="form-control" required>
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label">Plot Size</label>
+                      <div class="row g-2">
+                        <div class="col"><input id="housePlotWidth" type="number" placeholder="Width (ft)" class="form-control"></div>
+                        <div class="col"><input id="housePlotLength" type="number" placeholder="Length (ft)" class="form-control"></div>
+                        <div class="col"><input id="housePlotAcres" type="number" placeholder="Acres" class="form-control"></div>
+                        <div class="col"><input id="housePlotHectares" type="number" placeholder="Hectares" class="form-control"></div>
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label">Furnishing Status <span class="text-danger">*</span></label>
+                      <select id="houseFurnishingStatus" class="form-select" required>
+                        <option value="">Select</option>
+                        <option>Fully Furnished</option>
+                        <option>Semi-Furnished</option>
+                        <option>Unfurnished</option>
+                      </select>
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label">Condition <span class="text-danger">*</span></label>
+                      <select id="houseCondition" class="form-select" required>
+                        <option value="">Select</option>
+                        <option>New</option>
+                        <option>Renovated</option>
+                        <option>Needs Repair</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+                <!-- Land Details (shown for land_sale, land_rent) -->
+                <div id="landDetailsSection" class="d-none mt-4 border-top pt-3">
+                  <h5>Land Details</h5>
+                  <div class="row g-3">
+                    <div class="col-md-6">
+                      <label class="form-label">Sub Category <span class="text-danger">*</span></label>
+                      <select id="landSubCategory" class="form-select" required></select>
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label">Plot Size</label>
+                      <div class="row g-2">
+                        <div class="col"><input id="landPlotAcres" type="number" placeholder="Acres" class="form-control"></div>
+                        <div class="col"><input id="landPlotHectares" type="number" placeholder="Hectares" class="form-control"></div>
+                        <div class="col"><input id="landPlotWidth" type="number" placeholder="Width (m)" class="form-control"></div>
+                        <div class="col"><input id="landPlotLength" type="number" placeholder="Length (m)" class="form-control"></div>
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label">Topography <span class="text-danger">*</span></label>
+                      <select id="landTopography" class="form-select" required>
+                        <option value="">Select</option>
+                        <option>Flat</option>
+                        <option>Sloped</option>
+                        <option>Hilly</option>
+                        <option>Wetland</option>
+                      </select>
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label">Soil Type</label>
+                      <select id="landSoilType" class="form-select">
+                        <option value="">Select</option>
+                        <option>Clay</option>
+                        <option>Loam</option>
+                        <option>Sandy</option>
+                        <option>Unknown</option>
+                      </select>
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label">Current Use <span class="text-danger">*</span></label>
+                      <select id="landCurrentUse" class="form-select" required>
+                        <option value="">Select</option>
+                        <option>Vacant</option>
+                        <option>Farmland</option>
+                        <option>Bush</option>
+                        <option>Developed</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+                <!-- Ownership Details (shown for house_sale, land_sale, land_rent, vacation_short_stay) -->
+                <div id="ownershipDetailsSection" class="d-none mt-4 border-top pt-3">
+                  <h5>Ownership Details</h5>
+                  <div class="row g-3">
+                    <div class="col-md-4">
+                      <label class="form-label">Ownership Type <span class="text-danger">*</span></label>
+                      <select id="ownershipType" class="form-select" required>
+                        <option value="">Select</option>
+                        <option>Freehold</option>
+                        <option>Leasehold</option>
+                        <option>Customary</option>
+                        <option>Private Mailo</option>
+                      </select>
+                    </div>
+                    <div class="col-md-4">
+                      <label class="form-label">Title Status <span class="text-danger">*</span></label>
+                      <select id="titleStatus" class="form-select" required>
+                        <option value="">Select</option>
+                        <option>Registered</option>
+                        <option>Unregistered</option>
+                        <option>Processing</option>
+                      </select>
+                    </div>
+                    <div class="col-md-4" id="leaseYearsField">
+                      <label class="form-label">Lease Years Remaining</label>
+                      <input id="leaseYearsRemaining" type="number" class="form-control">
+                    </div>
+                  </div>
+                </div>
+                <!-- Amenities (shown for all property types) -->
+                <div id="amenitiesSection" class="d-none mt-4 border-top pt-3">
+                  <h5>Amenities</h5>
+                  <div class="row g-3">
+                    <div class="col-md-4">
+                      <label class="form-label">Electricity <span class="text-danger">*</span></label>
+                      <select id="amenityElectricity" class="form-select" required>
+                        <option>UMEME</option>
+                        <option>Solar</option>
+                        <option>Grid</option>
+                        <option>None</option>
+                      </select>
+                    </div>
+                    <div class="col-md-4">
+                      <label class="form-label">Water Supply <span class="text-danger">*</span></label>
+                      <select id="amenityWater" class="form-select" required>
+                        <option>Piped</option>
+                        <option>Borehole</option>
+                        <option>Water Tank</option>
+                        <option>Nearby Source</option>
+                        <option>None</option>
+                      </select>
+                    </div>
+                    <div class="col-md-4">
+                      <label class="form-label">Toilet Type <span class="text-danger">*</span></label>
+                      <select id="amenityToilet" class="form-select" required>
+                        <option>Flush</option>
+                        <option>Pit Latrine</option>
+                        <option>None</option>
+                      </select>
+                    </div>
+                    <div class="col-md-4">
+                      <label class="form-label">Security</label><br>
+                      <div id="amenitySecurityCheckboxes" class="form-check">
+                        <input class="form-check-input" type="checkbox" value="Gate" id="securityGate">
+                        <label class="form-check-label me-2" for="securityGate">Gate</label>
+                        <input class="form-check-input" type="checkbox" value="Guard" id="securityGuard">
+                        <label class="form-check-label me-2" for="securityGuard">Guard</label>
+                        <input class="form-check-input" type="checkbox" value="CCTV" id="securityCCTV">
+                        <label class="form-check-label me-2" for="securityCCTV">CCTV</label>
+                        <input class="form-check-input" type="checkbox" value="Fence" id="securityFence">
+                        <label class="form-check-label me-2" for="securityFence">Fence</label>
+                        <input class="form-check-input" type="checkbox" value="None" id="securityNone">
+                        <label class="form-check-label" for="securityNone">None</label>
+                      </div>
+                    </div>
+                    <div class="col-md-4">
+                      <label class="form-label">Parking</label>
+                      <select id="amenityParking" class="form-select">
+                        <option>Garage</option>
+                        <option>Carport</option>
+                        <option>Open Space</option>
+                        <option>None</option>
+                      </select>
+                    </div>
+                    <div class="col-md-4">
+                      <label class="form-label">Internet Ready</label>
+                      <select id="amenityInternet" class="form-select">
+                        <option>Fibre</option>
+                        <option>Airtel Wireless</option>
+                        <option>MTN Wireless</option>
+                        <option>None</option>
+                      </select>
+                    </div>
+                    <div class="col-md-4">
+                      <label class="form-label">Backup Power</label>
+                      <select id="amenityBackup" class="form-select">
+                        <option>Generator</option>
+                        <option>Solar</option>
+                        <option>None</option>
+                      </select>
+                    </div>
+                    <div class="col-md-4">
+                      <label class="form-label">Kitchen</label>
+                      <select id="amenityKitchen" class="form-select">
+                        <option>Modern</option>
+                        <option>Standard</option>
+                        <option>Basic</option>
+                        <option>None</option>
+                      </select>
+                    </div>
+                    <div class="col-md-4 d-flex align-items-center">
+                      <input id="amenityTiled" type="checkbox" class="form-check-input me-2">
+                      <label class="form-label mb-0">Tiled</label>
+                    </div>
+                    <div class="col-md-4">
+                      <label class="form-label">Road Access</label>
+                      <select id="amenityRoadAccess" class="form-select">
+                        <option>Tarmac</option>
+                        <option>Murram</option>
+                        <option>Footpath</option>
+                        <option>None</option>
+                      </select>
+                    </div>
+                    <div class="col-md-4">
+                      <label class="form-label">Nearby Amenities</label><br>
+                      <div id="amenityNearbyCheckboxes" class="form-check">
+                        <input class="form-check-input" type="checkbox" value="Schools" id="nearbySchools">
+                        <label class="form-check-label me-2" for="nearbySchools">Schools</label>
+                        <input class="form-check-input" type="checkbox" value="Hospitals" id="nearbyHospitals">
+                        <label class="form-check-label me-2" for="nearbyHospitals">Hospitals</label>
+                        <input class="form-check-input" type="checkbox" value="Markets" id="nearbyMarkets">
+                        <label class="form-check-label me-2" for="nearbyMarkets">Markets</label>
+                        <input class="form-check-input" type="checkbox" value="Public Transport" id="nearbyTransport">
+                        <label class="form-check-label me-2" for="nearbyTransport">Public Transport</label>
+                        <input class="form-check-input" type="checkbox" value="None" id="nearbyNone">
+                        <label class="form-check-label" for="nearbyNone">None</label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div id="vehicleSection" class="d-none">
+                <!-- Vehicle Category, Make, Model, Year, etc. -->
+                <div class="mb-3">
+                  <label class="form-label">Vehicle Category <span class="text-danger">*</span></label>
+                  <select id="vehicleCategory" class="form-select" required></select>
+                </div>
+                <div class="row g-3">
+                  <div class="col-md-6">
+                    <label class="form-label">Sub Category <span class="text-danger">*</span></label>
+                    <select id="vehicleSubCategory" class="form-select" required></select>
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label">Make <span class="text-danger">*</span></label>
+                    <select id="vehicleMake" class="form-select" required></select>
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label">Model <span class="text-danger">*</span></label>
+                    <select id="vehicleModel" class="form-select" required></select>
+                  </div>
+                  <div class="col-md-3">
+                    <label class="form-label">Year <span class="text-danger">*</span></label>
+                    <input id="vehicleYear" type="number" class="form-control" min="1900" max="2025" required>
+                  </div>
+                  <div class="col-md-3">
+                    <label class="form-label">Color <span class="text-danger">*</span></label>
+                    <input id="vehicleColor" type="text" class="form-control" required>
+                  </div>
+                  <div class="col-md-4">
+                    <label class="form-label">Condition <span class="text-danger">*</span></label>
+                    <select id="vehicleCondition" class="form-select" required>
+                      <option>New</option>
+                      <option>Used</option>
+                      <option>For Parts</option>
+                    </select>
+                  </div>
+                  <div class="col-md-4">
+                    <label class="form-label">Transmission <span class="text-danger">*</span></label>
+                    <select id="vehicleTransmission" class="form-select" required>
+                      <option>Manual</option>
+                      <option>Automatic</option>
+                      <option>Semi-Automatic</option>
+                      <option>None</option>
+                    </select>
+                  </div>
+                  <div class="col-md-4">
+                    <label class="form-label">Fuel Type <span class="text-danger">*</span></label>
+                    <select id="vehicleFuelType" class="form-select" required>
+                      <option>Petrol</option>
+                      <option>Diesel</option>
+                      <option>Electric</option>
+                      <option>Hybrid</option>
+                      <option>None</option>
+                    </select>
+                  </div>
+                  <div class="col-md-4">
+                    <label class="form-label">Mileage (km)</label>
+                    <input id="vehicleMileage" type="number" class="form-control">
+                  </div>
+                </div>
+                <div class="row g-3 mt-3">
+                  <div class="col-md-8">
+                    <label class="form-label">Description <span class="text-danger">*</span></label>
+                    <textarea id="vehicleDescription" class="form-control" rows="2" required></textarea>
+                  </div>
+                  <div class="col-md-4">
+                    <label class="form-label">Price Type <span class="text-danger">*</span></label>
+                    <select id="vehiclePriceType" class="form-select" required>
+                      <option value="fixed">Fixed</option>
+                      <option value="negotiable">Negotiable</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+              <div class="mt-4">
+                <button type="submit" class="btn btn-primary px-4">Submit Listing</button>
+              </div>
+            </form>
+            <div id="successMsg" class="alert alert-success mt-4 d-none"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="../../js/add-official-listing.js"></script>
+</body>
+</html> 
