@@ -209,4 +209,194 @@ document.addEventListener('DOMContentLoaded', function() {
   }).catch(error => {
     console.error('Admin auth failed:', error);
   });
+
+  // --- Official Store Add/Edit Listing Modal Logic ---
+  if (window.location.pathname.includes('official-store.html')) {
+    document.addEventListener('DOMContentLoaded', function() {
+      // Modal elements
+      const addEditListingModal = document.getElementById('addEditListingModal');
+      const addEditListingForm = document.getElementById('addEditListingForm');
+      const modalListingType = document.getElementById('modalListingType');
+      const modalPropertySection = document.getElementById('modalPropertySection');
+      const modalVehicleSection = document.getElementById('modalVehicleSection');
+      let officialStoreId = null;
+      let vehicleMakesModels = [];
+      let propertyMeta = null;
+
+      // Helper: Show modal
+      function showModal() {
+        const modal = new bootstrap.Modal(addEditListingModal);
+        modal.show();
+      }
+
+      // Helper: Clear form
+      function clearModalForm() {
+        addEditListingForm.reset();
+        modalPropertySection.classList.add('d-none');
+        modalVehicleSection.classList.add('d-none');
+        modalPropertySection.innerHTML = '';
+        modalVehicleSection.innerHTML = '';
+      }
+
+      // Helper: Render property form fields (copy from add.html, use modal- prefix)
+      function renderPropertyFields() {
+        modalPropertySection.innerHTML = `
+          <div class="row g-3">
+            <div class="col-lg-6 col-md-12 col-12">
+              <label class="form-label">Property Type</label>
+              <select id="modalPropertyType" class="form-select" required>
+                <option value="">Select Property Type</option>
+                <option value="house_sale">House for Sale</option>
+                <option value="house_rent">House for Rent</option>
+                <option value="land_sale">Land for Sale</option>
+                <option value="land_rent">Land for Rent</option>
+                <option value="vacation_short_stay">Vacation & Short Stay</option>
+              </select>
+            </div>
+            <div class="col-lg-6 col-md-12 col-12">
+              <label class="form-label">Title</label>
+              <input id="modalPropertyTitle" type="text" class="form-control" required>
+            </div>
+            <div class="col-lg-6 col-md-12 col-12">
+              <label class="form-label">Asking Price (UGX)</label>
+              <input id="modalPropertyAskingPrice" type="number" class="form-control" required>
+            </div>
+            <div class="col-lg-6 col-md-12 col-12">
+              <label class="form-label">District</label>
+              <input id="modalPropertyDistrict" type="text" class="form-control" required>
+            </div>
+          </div>
+          <div class="row g-3 mt-3">
+            <div class="col-md-8">
+              <label class="form-label">Description</label>
+              <textarea id="modalPropertyDescription" class="form-control" rows="2"></textarea>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Price Type</label>
+              <select id="modalPropertyPriceType" class="form-select">
+                <option value="fixed">Fixed</option>
+                <option value="negotiable">Negotiable</option>
+              </select>
+            </div>
+          </div>
+        `;
+        modalPropertySection.classList.remove('d-none');
+      }
+
+      // Helper: Render vehicle form fields (copy from add.html, use modal- prefix)
+      function renderVehicleFields() {
+        modalVehicleSection.innerHTML = `
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">Vehicle Category</label>
+              <select id="modalVehicleCategory" class="form-select" required>
+                <option value="">Select Category</option>
+                <option value="Cars">Cars</option>
+                <option value="Motorcycles">Motorcycles</option>
+                <option value="Trucks & Lorries">Trucks & Lorries</option>
+                <option value="Buses & Vans">Buses & Vans</option>
+                <option value="Heavy Machinery">Heavy Machinery</option>
+                <option value="Bicycles & E-bikes">Bicycles & E-bikes</option>
+                <option value="Boats & Watercraft">Boats & Watercraft</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Title</label>
+              <input id="modalVehicleTitle" type="text" class="form-control" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Asking Price (UGX)</label>
+              <input id="modalVehicleAskingPrice" type="number" class="form-control" required>
+            </div>
+          </div>
+          <div class="row g-3 mt-3">
+            <div class="col-md-8">
+              <label class="form-label">Description</label>
+              <textarea id="modalVehicleDescription" class="form-control" rows="2"></textarea>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Price Type</label>
+              <select id="modalVehiclePriceType" class="form-select">
+                <option value="fixed">Fixed</option>
+                <option value="negotiable">Negotiable</option>
+              </select>
+            </div>
+          </div>
+        `;
+        modalVehicleSection.classList.remove('d-none');
+      }
+
+      // Listing type change logic
+      modalListingType.addEventListener('change', function() {
+        if (modalListingType.value === 'property') {
+          renderPropertyFields();
+          modalVehicleSection.classList.add('d-none');
+        } else if (modalListingType.value === 'vehicle') {
+          renderVehicleFields();
+          modalPropertySection.classList.add('d-none');
+        } else {
+          modalPropertySection.classList.add('d-none');
+          modalVehicleSection.classList.add('d-none');
+        }
+      });
+
+      // Show modal on Add Listing button click
+      const addListingBtn = document.getElementById('addListingBtn');
+      if (addListingBtn) {
+        addListingBtn.onclick = function() {
+          clearModalForm();
+          showModal();
+        };
+      }
+
+      // Fetch official store ID (assume only one official store)
+      async function fetchOfficialStoreId() {
+        const snap = await db.collection('stores').where('isOfficial', '==', true).limit(1).get();
+        if (!snap.empty) {
+          officialStoreId = snap.docs[0].id;
+        }
+      }
+      fetchOfficialStoreId();
+
+      // Handle form submit
+      addEditListingForm.onsubmit = async function(e) {
+        e.preventDefault();
+        let listing = {};
+        if (modalListingType.value === 'property') {
+          listing.listingType = 'property';
+          listing.propertyType = document.getElementById('modalPropertyType').value;
+          listing.title = document.getElementById('modalPropertyTitle').value;
+          listing.askingPrice = Number(document.getElementById('modalPropertyAskingPrice').value);
+          listing.location = { district: document.getElementById('modalPropertyDistrict').value };
+          listing.description = document.getElementById('modalPropertyDescription').value;
+          listing.priceType = document.getElementById('modalPropertyPriceType').value;
+        } else if (modalListingType.value === 'vehicle') {
+          listing.listingType = 'vehicle';
+          listing.vehicleCategory = document.getElementById('modalVehicleCategory').value;
+          listing.title = document.getElementById('modalVehicleTitle').value;
+          listing.askingPrice = Number(document.getElementById('modalVehicleAskingPrice').value);
+          listing.description = document.getElementById('modalVehicleDescription').value;
+          listing.priceType = document.getElementById('modalVehiclePriceType').value;
+        }
+        listing.isOfficial = true;
+        listing.storeId = officialStoreId;
+        listing.status = 'pending';
+        listing.createdAt = new Date();
+        try {
+          await db.collection('listings').add(listing);
+          showToast('Listing added successfully');
+          const modal = bootstrap.Modal.getInstance(addEditListingModal);
+          if (modal) modal.hide();
+          // Optionally refresh listings table
+          if (typeof fetchAndRenderOfficialListings === 'function') fetchAndRenderOfficialListings();
+        } catch (e) {
+          showToast('Error adding listing', 'danger');
+        }
+      };
+    });
+    // Expose for inline script
+    window.showAddEditListingModal = function() {
+      document.getElementById('addListingBtn').click();
+    };
+  }
 }); 
