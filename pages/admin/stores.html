@@ -11,7 +11,302 @@
     <!-- Google Fonts: Inter -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- Custom Styles -->
-    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="../../css/style.css">
+    <style>
+        :root {
+            --primary-color: #0d6efd;
+            --secondary-color: #6c757d;
+            --success-color: #198754;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+            --info-color: #0dcaf0;
+            --light-color: #f8f9fa;
+            --dark-color: #212529;
+            --accent-gold: #ffd700;
+            --accent-cyan: #00ffff;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            color: var(--dark-color);
+            background-color: var(--light-color);
+        }
+        .table-container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+        .table {
+            margin-bottom: 0;
+        }
+        .table thead th {
+            background: linear-gradient(135deg, var(--primary-color), #0056b3);
+            color: white;
+            border: none;
+            padding: 1rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            letter-spacing: 0.5px;
+        }
+        .table tbody tr {
+            transition: all 0.3s ease;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        .table tbody tr:hover {
+            background: linear-gradient(135deg, rgba(13, 110, 253, 0.05), rgba(0, 86, 179, 0.05));
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        .table tbody td {
+            padding: 1rem;
+            vertical-align: middle;
+            border: none;
+        }
+        .badge {
+            padding: 0.5rem 0.75rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            border-radius: 20px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+        .badge.bg-warning {
+            background: linear-gradient(135deg, #ffc107, #ffb300) !important;
+            color: #000 !important;
+        }
+        .badge.bg-success {
+            background: linear-gradient(135deg, #198754, #146c43) !important;
+        }
+        .badge.bg-danger {
+            background: linear-gradient(135deg, #dc3545, #b02a37) !important;
+        }
+        .badge.bg-info {
+            background: linear-gradient(135deg, #0dcaf0, #0aa2c0) !important;
+        }
+        .badge.bg-primary {
+            background: linear-gradient(135deg, #0d6efd, #0b5ed7) !important;
+        }
+        .badge.bg-secondary {
+            background: linear-gradient(135deg, #6c757d, #5c636a) !important;
+        }
+        .filter-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        .filter-card .form-control,
+        .filter-card .form-select {
+            border-radius: 10px;
+            border: 2px solid #e9ecef;
+            transition: all 0.3s ease;
+            padding: 0.75rem 1rem;
+        }
+        .filter-card .form-control:focus,
+        .filter-card .form-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+            transform: translateY(-2px);
+        }
+        .filter-card .btn {
+            border-radius: 10px;
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+        }
+        .filter-card .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        .modal-content {
+            border-radius: 20px;
+            border: none;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+        .modal-header {
+            background: linear-gradient(135deg, var(--primary-color), #0056b3);
+            color: white;
+            border: none;
+            padding: 1.5rem 2rem;
+        }
+        .modal-header .modal-title {
+            font-weight: 700;
+            font-size: 1.5rem;
+        }
+        .modal-header .btn-close {
+            filter: invert(1);
+            opacity: 0.8;
+            transition: opacity 0.3s ease;
+        }
+        .modal-header .btn-close:hover {
+            opacity: 1;
+        }
+        .modal-body {
+            padding: 2rem;
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+        .store-profile-section {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        .store-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid white;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            margin-bottom: 1rem;
+        }
+        .store-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--dark-color);
+            margin-bottom: 0.5rem;
+        }
+        .store-status {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .store-status.verified {
+            background: linear-gradient(135deg, #198754, #146c43);
+            color: white;
+        }
+        .store-status.pending {
+            background: linear-gradient(135deg, #ffc107, #ffb300);
+            color: #000;
+        }
+        .store-status.rejected {
+            background: linear-gradient(135deg, #dc3545, #b02a37);
+            color: white;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        .stat-card {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            border-left: 4px solid var(--primary-color);
+        }
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+        .stat-card i {
+            font-size: 2rem;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+        .stat-card .stat-number {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--dark-color);
+            margin-bottom: 0.25rem;
+        }
+        .stat-card .stat-label {
+            color: var(--secondary-color);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .btn-group .btn {
+            border-radius: 8px;
+            margin: 0 2px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-group .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+        .btn-group .btn:hover::before {
+            left: 100%;
+        }
+        .btn-group .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        .loading-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 3rem;
+        }
+        .loading-spinner {
+            width: 3rem;
+            height: 3rem;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 1rem;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .error-container {
+            text-align: center;
+            padding: 3rem;
+            color: var(--danger-color);
+        }
+        .error-container i {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            .btn-group {
+                flex-direction: column;
+            }
+            .btn-group .btn {
+                margin: 2px 0;
+            }
+            .modal-body {
+                padding: 1rem;
+            }
+        }
+    </style>
 </head>
 <body class="admin-panel">
     <!-- Admin Sidebar -->
@@ -58,79 +353,81 @@
             </div>
         </section>
         <div class="container my-5">
-            <div class="card mb-4">
-                <div class="card-body">
-                    <form class="row g-3" id="filter-form">
-                        <div class="col-md-3">
-                            <input type="text" class="form-control" id="search" placeholder="Search by name, description...">
+            <div class="filter-card">
+                <form class="row g-3" id="filter-form">
+                    <div class="col-md-3">
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-search"></i></span>
+                            <input type="text" class="form-control" id="search" placeholder="Search stores...">
                         </div>
-                        <div class="col-md-2">
-                            <select class="form-select" id="agentTier">
-                                <option value="">All Agent Tiers</option>
-                                <option value="silver">Silver</option>
-                                <option value="gold">Gold</option>
-                                <option value="diamond">Diamond</option>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-person-badge"></i></span>
+                            <select class="form-select" id="status">
+                                <option value="">All Statuses</option>
+                                <option value="active">Active</option>
+                                <option value="pending">Pending</option>
+                                <option value="rejected">Rejected</option>
+                                <option value="banned">Banned</option>
                             </select>
                         </div>
-                        <div class="col-md-2">
+                    </div>
+                    <div class="col-md-2">
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-shield-check"></i></span>
                             <select class="form-select" id="verificationStatus">
                                 <option value="">All Verification Statuses</option>
                                 <option value="pending">Pending</option>
                                 <option value="verified">Verified</option>
                                 <option value="rejected">Rejected</option>
-                                <option value="not_applicable">Not Applicable</option>
                             </select>
                         </div>
-                        <div class="col-md-2">
-                            <select class="form-select" id="isOfficial">
-                                <option value="">All Official Statuses</option>
-                                <option value="true">Official</option>
-                                <option value="false">Not Official</option>
-                            </select>
-                        </div>
-                        <div class="col-md-2">
-                            <select class="form-select" id="status">
-                                <option value="">All Statuses</option>
-                                <option value="pending">Pending</option>
-                                <option value="verified">Verified</option>
-                                <option value="rejected">Rejected</option>
-                            </select>
-                        </div>
-                        <div class="col-md-1">
-                            <button type="submit" class="btn btn-primary w-100"><i class="bi bi-funnel"></i> Filter</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-            <div class="card card-modern">
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle" id="stores-table">
-                            <thead>
-                                <tr>
-                                    <th>Name</th>
-                                    <th>Agent Tier</th>
-                                    <th>Official</th>
-                                    <th>Verification Status</th>
-                                    <th>Average Rating</th>
-                                    <th>Review Count</th>
-                                    <th>Created</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <!-- Stores will be injected here by JS -->
-                            </tbody>
-                        </table>
                     </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="bi bi-funnel"></i>
+                        </button>
+                    </div>
+                </form>
+            </div>
+            <!-- Bulk Actions -->
+            <div class="mb-3 d-flex flex-wrap gap-2 align-items-center">
+                <button class="btn btn-outline-success" id="bulkApproveBtn"><i class="bi bi-check2-all me-1"></i>Approve Selected</button>
+                <button class="btn btn-outline-danger" id="bulkRejectBtn"><i class="bi bi-x-octagon me-1"></i>Reject Selected</button>
+                <button class="btn btn-outline-secondary" id="bulkDeleteBtn"><i class="bi bi-trash3 me-1"></i>Delete Selected</button>
+                <button class="btn btn-outline-info" id="exportCsvBtn"><i class="bi bi-download me-1"></i>Export to CSV</button>
+                <span class="ms-2 text-muted small" id="selectedCount"></span>
+            </div>
+            <div class="table-container">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle" id="stores-table">
+                        <thead>
+                            <tr>
+                                <th><input type="checkbox" id="selectAllStores"></th>
+                                <th><i class="bi bi-shop me-2"></i>Name</th>
+                                <th><i class="bi bi-person me-2"></i>Owner</th>
+                                <th><i class="bi bi-envelope me-2"></i>Email</th>
+                                <th><i class="bi bi-flag me-2"></i>Status</th>
+                                <th><i class="bi bi-shield-check me-2"></i>Verification</th>
+                                <th><i class="bi bi-calendar me-2"></i>Created</th>
+                                <th><i class="bi bi-gear me-2"></i>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Stores will be injected here by JS -->
+                        </tbody>
+                    </table>
                 </div>
             </div>
-            <!-- Store Details Modal -->
+            <!-- Enhanced Store Details Modal -->
             <div class="modal fade" id="storeDetailsModal" tabindex="-1" aria-labelledby="storeDetailsModalLabel" aria-hidden="true">
-                <div class="modal-dialog modal-lg">
+                <div class="modal-dialog modal-xl">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h5 class="modal-title" id="storeDetailsModalLabel">Store Details</h5>
+                            <h5 class="modal-title" id="storeDetailsModalLabel">
+                                <i class="bi bi-shop me-2"></i>Store Details
+                            </h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
@@ -217,16 +514,41 @@
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
     <script src="../../js/admin.js"></script>
     <script>
-    // --- Admin Stores Management (Schema-Driven) ---
+    // --- Admin Stores Management (Enhanced Firestore Integration) ---
     let allStores = [];
-    const db = firebase.firestore();
-    const auth = firebase.auth();
+    let currentUser = null;
 
-    const agentTierOptions = ['silver', 'gold', 'diamond'];
-    const verificationStatusOptions = ['pending', 'verified', 'rejected', 'not_applicable'];
-
-    requireAdminUser().then(() => {
-      fetchAndRenderStores();
+    // Use db and auth from admin.js
+    document.addEventListener('DOMContentLoaded', function() {
+      if (typeof firebase !== 'undefined') {
+        db = firebase.firestore();
+        auth = firebase.auth();
+        auth.onAuthStateChanged(async user => {
+          if (!user) {
+            window.location.href = '../auth/login.html';
+            return;
+          }
+          currentUser = user;
+          // Check admin
+          try {
+            const userDoc = await db.collection('users').doc(user.uid).get();
+            const userData = userDoc.data();
+            if (userData && userData.role === 'admin') {
+              // ok
+            } else if (user.email === 'admin@starlet.co.ug') {
+              // fallback
+            } else {
+              alert('Admin access required');
+              window.location.href = '../auth/login.html';
+              return;
+            }
+            fetchAndRenderStores();
+          } catch (e) {
+            alert('Error checking admin status');
+            window.location.href = '../auth/login.html';
+          }
+        });
+      }
     });
 
     // Fetch and render stores
@@ -235,18 +557,17 @@
       showLoading(tbody, 'Loading stores...');
       try {
         let ref = db.collection('stores');
-        if (filters.agentTier) ref = ref.where('agentTier', '==', filters.agentTier);
-        if (filters.verificationStatus) ref = ref.where('verificationStatus.status', '==', filters.verificationStatus);
-        if (filters.isOfficial !== undefined && filters.isOfficial !== '') ref = ref.where('isOfficial', '==', filters.isOfficial === 'true');
-        if (filters.status) ref = ref.where('verificationStatus.status', '==', filters.status);
+        if (filters.status) ref = ref.where('status', '==', filters.status);
+        if (filters.verificationStatus) ref = ref.where('verificationStatus', '==', filters.verificationStatus);
         const snapshot = await ref.orderBy('createdAt', 'desc').limit(100).get();
-        let stores = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        let stores = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data(), createdAt: doc.data().createdAt?.toDate ? doc.data().createdAt.toDate() : doc.data().createdAt }));
         // Client-side filter for keyword
         if (filters.keyword) {
           const kw = filters.keyword.toLowerCase();
           stores = stores.filter(s =>
             (s.name && s.name.toLowerCase().includes(kw)) ||
-            (s.description && s.description.toLowerCase().includes(kw))
+            (s.ownerName && s.ownerName.toLowerCase().includes(kw)) ||
+            (s.email && s.email.toLowerCase().includes(kw))
           );
         }
         allStores = stores;
@@ -262,72 +583,69 @@
       tbody.innerHTML = '';
       if (!stores.length) {
         tbody.innerHTML = `<tr><td colspan="8" class="text-center text-muted">No stores found.</td></tr>`;
+        document.getElementById('selectedCount').textContent = '';
         return;
       }
-      stores.forEach(s => {
+      stores.forEach((s, idx) => {
+        const statusBadge = `<span class="badge bg-${s.status==='active'?'success':s.status==='pending'?'warning':s.status==='rejected'?'danger':'secondary'}">${s.status||''}</span>`;
+        const verificationBadge = s.verificationStatus ? `<span class="badge bg-${s.verificationStatus==='verified'?'success':s.verificationStatus==='pending'?'warning':'danger'}">${s.verificationStatus}</span>` : '';
         tbody.innerHTML += `
-          <tr>
-            <td><img src="${s.logo || 'https://via.placeholder.com/40'}" alt="logo" width="40" height="40" class="rounded me-2">${s.name || ''}</td>
-            <td>${s.agentTier || ''}</td>
-            <td>${s.isOfficial ? '<span class="badge bg-info">Official</span>' : ''}</td>
-            <td>${s.verificationStatus ? s.verificationStatus.status : ''}</td>
-            <td>${s.averageRating !== undefined ? s.averageRating : ''}</td>
-            <td>${s.reviewCount !== undefined ? s.reviewCount : ''}</td>
-            <td>${formatDate(s.createdAt)}</td>
+          <tr class="fade-in" style="animation-delay:${idx*0.07}s;">
+            <td><input type="checkbox" class="store-checkbox" data-id="${s.id}"></td>
+            <td><i class="bi bi-shop me-2 text-primary"></i>${s.name||''}</td>
+            <td><i class="bi bi-person-circle me-2 text-secondary"></i>${s.ownerName||''}</td>
+            <td><i class="bi bi-envelope me-2 text-secondary"></i>${s.email||''}</td>
+            <td>${statusBadge}</td>
+            <td>${verificationBadge}</td>
+            <td><i class="bi bi-calendar-event me-2 text-muted"></i>${formatDate(s.createdAt)}</td>
             <td>
-              <button class="btn btn-sm btn-outline-primary me-1" onclick="showStoreDetails('${s.id}')"><i class="bi bi-eye"></i></button>
-              ${s.verificationStatus && s.verificationStatus.status==='pending'?`<button class="btn btn-sm btn-success me-1" onclick="approveStore('${s.id}')"><i class="bi bi-check-lg"></i></button>`:''}
-              ${s.verificationStatus && s.verificationStatus.status!=='rejected'?`<button class="btn btn-sm btn-danger me-1" onclick="rejectStore('${s.id}')"><i class="bi bi-x-lg"></i></button>`:''}
-              <button class="btn btn-sm btn-outline-info me-1" onclick="toggleOfficial('${s.id}')"><i class="bi bi-patch-check"></i></button>
-              <button class="btn btn-sm btn-outline-danger" onclick="deleteStore('${s.id}')"><i class="bi bi-trash"></i></button>
+              <div class="btn-group btn-group-sm" role="group">
+                <button class="btn btn-outline-primary" onclick="showStoreDetails('${s.id}')" title="View Details"><i class="bi bi-eye"></i></button>
+                <button class="btn btn-outline-secondary" onclick="changeStoreStatus('${s.id}')" title="Change Status"><i class="bi bi-flag"></i></button>
+                <button class="btn btn-outline-danger" onclick="deleteStore('${s.id}')" title="Delete Store"><i class="bi bi-trash"></i></button>
+              </div>
             </td>
           </tr>
         `;
       });
+      updateSelectedCount();
+      // Checkbox logic
+      document.getElementById('selectAllStores').onclick = function() {
+        document.querySelectorAll('.store-checkbox').forEach(cb => cb.checked = this.checked);
+        updateSelectedCount();
+      };
+      document.querySelectorAll('.store-checkbox').forEach(cb => {
+        cb.onchange = updateSelectedCount;
+      });
     }
 
     // Filter form
-    const filterForm = document.getElementById('filter-form');
-    filterForm.addEventListener('submit', function(e) {
+    document.getElementById('filter-form').addEventListener('submit', function(e) {
       e.preventDefault();
       const keyword = document.getElementById('search').value.trim();
-      const agentTier = document.getElementById('agentTier') ? document.getElementById('agentTier').value : '';
-      const verificationStatus = document.getElementById('verificationStatus') ? document.getElementById('verificationStatus').value : '';
-      const isOfficial = document.getElementById('isOfficial') ? document.getElementById('isOfficial').value : '';
-      const status = document.getElementById('status') ? document.getElementById('status').value : '';
-      fetchAndRenderStores({ keyword, agentTier, verificationStatus, isOfficial, status });
+      const status = document.getElementById('status').value;
+      const verificationStatus = document.getElementById('verificationStatus').value;
+      fetchAndRenderStores({ keyword, status, verificationStatus });
     });
 
-    // Approve store
-    async function approveStore(id) {
-      if (!confirmAction('Approve this store?')) return;
-      await db.collection('stores').doc(id).update({ 'verificationStatus.status': 'verified' });
-      showToast('Store approved');
-      fetchAndRenderStores();
-    }
-    // Reject store
-    async function rejectStore(id) {
-      if (!confirmAction('Reject this store?')) return;
-      await db.collection('stores').doc(id).update({ 'verificationStatus.status': 'rejected' });
-      showToast('Store rejected');
+    // Change store status
+    async function changeStoreStatus(id) {
+      const store = allStores.find(s => s.id === id);
+      if (!store) return;
+      const newStatus = prompt('Enter new status (active, pending, rejected, banned):', store.status || 'active');
+      if (!newStatus || !['active','pending','rejected','banned'].includes(newStatus)) return alert('Invalid status.');
+      await db.collection('stores').doc(id).update({ status: newStatus });
+      showToast('Store status updated');
       fetchAndRenderStores();
     }
     // Delete store
     async function deleteStore(id) {
-      if (!confirmAction('Delete this store? This cannot be undone.')) return;
+      if (!confirm('Are you sure you want to delete this store? This cannot be undone.')) return;
       await db.collection('stores').doc(id).delete();
       showToast('Store deleted');
       fetchAndRenderStores();
     }
-    // Toggle official status
-    async function toggleOfficial(id) {
-      const store = allStores.find(s => s.id === id);
-      if (!store) return;
-      await db.collection('stores').doc(id).update({ isOfficial: !store.isOfficial });
-      showToast(`Store marked as ${!store.isOfficial ? 'official' : 'not official'}`);
-      fetchAndRenderStores();
-    }
-    // Show store details modal (with agent info, reviews, verification)
+    // Show store details modal
     async function showStoreDetails(id) {
       const store = allStores.find(s => s.id === id);
       const modalBody = document.querySelector('#storeDetailsModal .modal-body');
@@ -335,39 +653,159 @@
         modalBody.innerHTML = '<div class="text-danger">Store not found.</div>';
         return;
       }
-      let reviews = '';
-      if (store.recentReviews && store.recentReviews.length) {
-        reviews = `<div><b>Recent Reviews:</b><ul>${store.recentReviews.map(r=>`<li>${r.rating}★ - ${r.comment || ''} <span class='text-muted small'>${formatDate(r.createdAt)}</span></li>`).join('')}</ul></div>`;
-      }
-      let verification = '';
-      if (store.verificationStatus) {
-        verification = `<div class='mt-2'><b>Verification Status:</b> ${store.verificationStatus.status}
-          ${(store.verificationStatus.documents||[]).map(doc=>`<div class='border rounded p-2 my-1'><b>Type:</b> ${doc.type}<br><b>Status:</b> ${store.verificationStatus.status}<br><b>Notes:</b> ${doc.notes||''}</div>`).join('')}
-        </div>`;
-      }
-      // Fetch agent info
-      let agentInfo = '';
-      if (store.agentId) {
-        const agentDoc = await db.collection('users').doc(store.agentId).get();
-        if (agentDoc.exists) {
-          const agent = agentDoc.data();
-          agentInfo = `<div class='mt-2'><b>Agent:</b> ${agent.firstName || ''} ${agent.lastName || ''} (${agent.agentTier || ''})</div>`;
-        }
-      }
       modalBody.innerHTML = `
-        <h5><img src="${store.logo || 'https://via.placeholder.com/40'}" alt="logo" width="40" height="40" class="rounded me-2">${store.name || ''}</h5>
-        <div><b>Description:</b> ${store.description || ''}</div>
-        <div><b>Agent Tier:</b> ${store.agentTier || ''}</div>
-        <div><b>Official:</b> ${store.isOfficial ? 'Yes' : 'No'}</div>
-        <div><b>Average Rating:</b> ${store.averageRating !== undefined ? store.averageRating : ''} (${store.reviewCount || 0} reviews)</div>
-        <div><b>Created:</b> ${formatDate(store.createdAt)}</div>
-        ${agentInfo}
-        ${reviews}
-        ${verification}
+        <div class="store-profile-section">
+          <img src="${store.logo || 'https://randomuser.me/api/portraits/lego/2.jpg'}" class="store-avatar mb-2">
+          <div class="store-name">${store.name || ''}</div>
+          <div class="store-status ${store.status}">${store.status || ''}</div>
+          <div class="mt-2"><i class="bi bi-person-circle me-1"></i> ${store.ownerName || ''}</div>
+          <div><i class="bi bi-envelope me-1"></i> ${store.email || ''}</div>
+          <div><i class="bi bi-calendar-event me-1"></i> Created: ${formatDate(store.createdAt)}</div>
+        </div>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <i class="bi bi-flag"></i>
+            <div class="stat-number">${store.status || ''}</div>
+            <div class="stat-label">Status</div>
+          </div>
+          <div class="stat-card">
+            <i class="bi bi-shield-check"></i>
+            <div class="stat-number">${store.verificationStatus || '-'}</div>
+            <div class="stat-label">Verification</div>
+          </div>
+          <div class="stat-card">
+            <i class="bi bi-star"></i>
+            <div class="stat-number">${store.averageRating || '-'}</div>
+            <div class="stat-label">Avg. Rating</div>
+          </div>
+          <div class="stat-card">
+            <i class="bi bi-chat-dots"></i>
+            <div class="stat-number">${store.reviewCount || 0}</div>
+            <div class="stat-label">Reviews</div>
+          </div>
+        </div>
+        <div class="mb-3"><b>Description:</b> ${store.description || 'No description provided.'}</div>
+        <div><b>Location:</b> ${store.location || '-'}</div>
       `;
       const modal = new bootstrap.Modal(document.getElementById('storeDetailsModal'));
       modal.show();
     }
+    // Utility functions
+    function formatDate(date) {
+      if (!date) return 'Unknown';
+      const d = new Date(date);
+      return d.toLocaleDateString() + ' ' + d.toLocaleTimeString();
+    }
+    function showLoading(element, message = 'Loading...') {
+      element.innerHTML = `
+        <tr>
+          <td colspan="8" class="text-center py-4">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+            <div class="mt-2">${message}</div>
+          </td>
+        </tr>
+      `;
+    }
+    function showError(element, message) {
+      element.innerHTML = `
+        <tr>
+          <td colspan="8" class="text-center text-danger py-4">
+            <i class="bi bi-exclamation-triangle fs-1 d-block mb-2"></i>
+            ${message}
+          </td>
+        </tr>
+      `;
+    }
+    function showToast(message) {
+      const toast = document.createElement('div');
+      toast.className = 'position-fixed top-0 end-0 p-3';
+      toast.style.zIndex = '9999';
+      toast.innerHTML = `
+        <div class="toast show" role="alert">
+          <div class="toast-header">
+            <strong class="me-auto">Admin</strong>
+            <button type="button" class="btn-close" onclick="this.closest('.toast').remove()"></button>
+          </div>
+          <div class="toast-body">${message}</div>
+        </div>
+      `;
+      document.body.appendChild(toast);
+      setTimeout(() => { if (toast.parentNode) toast.remove(); }, 4000);
+    }
+    // Logout functionality
+    document.querySelector('.logout-link').addEventListener('click', function(e) {
+      e.preventDefault();
+      if (confirm('Are you sure you want to logout?')) {
+        auth.signOut().then(() => {
+          window.location.href = '../auth/login.html';
+        }).catch(error => {
+          console.error('Error signing out:', error);
+        });
+      }
+    });
+    // Add bulk actions and export logic after renderStoresTable
+    function getSelectedStoreIds() {
+      return Array.from(document.querySelectorAll('.store-checkbox:checked')).map(cb => cb.getAttribute('data-id'));
+    }
+    function updateSelectedCount() {
+      const count = getSelectedStoreIds().length;
+      document.getElementById('selectedCount').textContent = count ? `${count} selected` : '';
+    }
+    document.getElementById('bulkApproveBtn').onclick = async function() {
+      const ids = getSelectedStoreIds();
+      if (!ids.length) return showToast('No stores selected');
+      if (!confirm('Approve selected stores?')) return;
+      for (const id of ids) {
+        await db.collection('stores').doc(id).update({ verificationStatus: 'verified', status: 'active' });
+      }
+      showToast('Selected stores approved');
+      fetchAndRenderStores();
+    };
+    document.getElementById('bulkRejectBtn').onclick = async function() {
+      const ids = getSelectedStoreIds();
+      if (!ids.length) return showToast('No stores selected');
+      if (!confirm('Reject selected stores?')) return;
+      for (const id of ids) {
+        await db.collection('stores').doc(id).update({ verificationStatus: 'rejected', status: 'rejected' });
+      }
+      showToast('Selected stores rejected');
+      fetchAndRenderStores();
+    };
+    document.getElementById('bulkDeleteBtn').onclick = async function() {
+      const ids = getSelectedStoreIds();
+      if (!ids.length) return showToast('No stores selected');
+      if (!confirm('Delete selected stores? This cannot be undone.')) return;
+      for (const id of ids) {
+        await db.collection('stores').doc(id).delete();
+      }
+      showToast('Selected stores deleted');
+      fetchAndRenderStores();
+    };
+    document.getElementById('exportCsvBtn').onclick = function() {
+      if (!allStores.length) return showToast('No stores to export');
+      const csvRows = [
+        ['Name','Owner','Email','Status','Verification','Created'],
+        ...allStores.map(s => [
+          s.name||'',
+          s.ownerName||'',
+          s.email||'',
+          s.status||'',
+          s.verificationStatus||'',
+          formatDate(s.createdAt)
+        ])
+      ];
+      const csvContent = csvRows.map(row => row.map(v => '"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\n');
+      const blob = new Blob([csvContent], { type: 'text/csv' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `stores-${new Date().toISOString().split('T')[0]}.csv`;
+      a.click();
+      window.URL.revokeObjectURL(url);
+      showToast('Exported to CSV');
+    };
     </script>
 </body>
 </html>
