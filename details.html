@@ -1,8 +1,20 @@
-<script>
-  // Redirect to the properties details page with the same id
-  const params = new URLSearchParams(window.location.search);
-  const id = params.get('id');
-  if (id) {
-    window.location.replace('pages/properties/details.html?id=' + encodeURIComponent(id));
-  }
-</script> 
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Redirecting...</title>
+  <script>
+    // Redirect to the properties details page with the same id
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get('id');
+    if (id) {
+      window.location.replace('pages/properties/details.html?id=' + encodeURIComponent(id));
+    }
+  </script>
+  <script src="assets/js/firebase-config.js"></script>
+</head>
+<body>
+  <noscript>Please enable JavaScript to view this page.</noscript>
+</body>
+</html> 
