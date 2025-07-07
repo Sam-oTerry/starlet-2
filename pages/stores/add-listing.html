@@ -198,26 +198,61 @@
       const storeId = user.uid;
       const agentId = user.uid;
       const type = document.getElementById('listingType').value;
-      let data = { storeId, agentId, status: 'pending', createdAt: firebase.firestore.FieldValue.serverTimestamp() };
+      // Build data object according to Firestore schema
+      let data = {
+        storeId,
+        agentId,
+        status: 'pending',
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        createdBy: user.uid,
+        agentTier: user.agentTier || 'silver',
+      };
       if (type === 'property') {
-        data.listingType = document.getElementById('propertyType').value;
+        // Map to schema
+        const listingType = document.getElementById('propertyType').value;
+        data.listingType = listingType;
         data.title = document.getElementById('propertyTitle').value;
         data.askingPrice = parseInt(document.getElementById('propertyAskingPrice').value, 10);
-        data.district = document.getElementById('propertyDistrict').value;
-        data.priceType = document.getElementById('propertyPriceType').value;
         data.description = document.getElementById('propertyDescription').value;
+        data.visibility = 'standard';
+        // Location object
+        data.location = {
+          district: document.getElementById('propertyDistrict').value,
+        };
+        // House or Land details (minimal, can be expanded)
+        if (listingType.startsWith('house')) {
+          data.houseDetails = {
+            // Add more fields as needed
+            // bedrooms, bathrooms, totalArea, etc. (not in form yet)
+          };
+        } else if (listingType.startsWith('land')) {
+          data.landDetails = {
+            // Add more fields as needed
+            // subCategory, plotSize, etc. (not in form yet)
+          };
+        }
+        // Price type (not in schema, but can be added as a custom field)
+        data.priceType = document.getElementById('propertyPriceType').value;
       } else if (type === 'vehicle') {
-        data.vehicleCategory = document.getElementById('vehicleCategory').value;
-        data.make = document.getElementById('vehicleMake').value;
-        data.model = document.getElementById('vehicleModel').value;
-        data.year = parseInt(document.getElementById('vehicleYear').value, 10);
-        data.color = document.getElementById('vehicleColor').value;
-        data.price = parseInt(document.getElementById('vehiclePrice').value, 10);
-        data.condition = document.getElementById('vehicleCondition').value;
-        data.transmission = document.getElementById('vehicleTransmission').value;
-        data.fuelType = document.getElementById('vehicleFuelType').value;
-        data.mileage = parseInt(document.getElementById('vehicleMileage').value, 10) || null;
+        // Map to schema
+        data.listingType = 'vehicle_sale';
+        data.title = `${document.getElementById('vehicleYear').value} ${document.getElementById('vehicleMake').value} ${document.getElementById('vehicleModel').value}`;
+        data.askingPrice = parseInt(document.getElementById('vehiclePrice').value, 10);
         data.description = document.getElementById('vehicleDescription').value;
+        data.visibility = 'standard';
+        // Vehicle details object
+        data.vehicleDetails = {
+          vehicleCategory: document.getElementById('vehicleCategory').value,
+          make: document.getElementById('vehicleMake').value,
+          model: document.getElementById('vehicleModel').value,
+          year: parseInt(document.getElementById('vehicleYear').value, 10),
+          color: document.getElementById('vehicleColor').value,
+          condition: document.getElementById('vehicleCondition').value,
+          transmission: document.getElementById('vehicleTransmission').value,
+          fuelType: document.getElementById('vehicleFuelType').value,
+          mileage: parseInt(document.getElementById('vehicleMileage').value, 10) || 0,
+        };
+        // Price type (not in schema, but can be added as a custom field)
         data.priceType = document.getElementById('vehiclePriceType').value;
       }
       try {
