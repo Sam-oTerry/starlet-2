@@ -127,6 +127,19 @@
         </div>
     </section>
 
+    <!-- Add Agent Tier Section with Get Started Button -->
+    <section class="container my-5" id="agent-tier-section">
+      <div class="row justify-content-center">
+        <div class="col-md-8 text-center">
+          <div class="card shadow-sm border-0 rounded-4 p-4 mb-4">
+            <h3 class="mb-3">Become an Agent</h3>
+            <p class="mb-4">Join as an agent to create your own store, list properties and vehicles, and access premium features.</p>
+            <button class="btn btn-lg btn-primary" id="getStartedAgentBtn">Get Started</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <!-- Footer (copied from index.html) -->
     <footer class="footer">
         <div class="container">
@@ -333,6 +346,13 @@ document.getElementById('store-search-form').addEventListener('submit', function
 
 document.addEventListener('DOMContentLoaded', function() {
   renderStores(storeListings);
+  // Add redirect for Get Started button
+  const getStartedBtn = document.getElementById('getStartedAgentBtn');
+  if (getStartedBtn) {
+    getStartedBtn.addEventListener('click', function() {
+      window.location.href = './create.html';
+    });
+  }
 });
     </script>
 </body>

@@ -430,5 +430,11 @@ document.addEventListener('DOMContentLoaded', async function() {
   }
 });
     </script>
+    <script>
+  // Redirect /properties/stores.html to /stores/index.html
+  if (window.location.pathname.endsWith('/properties/stores.html')) {
+    window.location.replace('/pages/stores/index.html');
+  }
+</script>
 </body>
 </html>
