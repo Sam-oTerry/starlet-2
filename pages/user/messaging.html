@@ -444,40 +444,61 @@
       const listingDoc = await db.collection('listings').doc(listingId).get();
       if (!listingDoc.exists) return;
       const listing = listingDoc.data();
-      let agentId = listing.agentId || (listing.agent && listing.agent.id);
-      let agentName = (listing.agent && listing.agent.name) || '';
-      let agentAvatar = (listing.agent && listing.agent.avatar) || '';
-      // Try to fetch agent info from users collection
-      if (agentId) {
-        try {
-          const agentDoc = await db.collection('users').doc(agentId).get();
-          if (agentDoc.exists) {
-            const agentData = agentDoc.data();
-            agentName = (agentData.firstName || '') + ' ' + (agentData.lastName || '');
-            agentAvatar = agentData.avatar || agentAvatar || 'https://via.placeholder.com/40x40/0d6efd/ffffff?text=A';
-          }
-        } catch (err) {
-          // fallback to listing.agent
-        }
+      // Use listerId from query param if present, otherwise fallback to agentId/createdBy/sellerId/ownerId
+      const url = new URL(window.location.href);
+      let listerId = url.searchParams.get('listerId') || listing.agentId || listing.createdBy || listing.sellerId || listing.ownerId || (listing.agent && listing.agent.id);
+      if (!listerId) {
+        alert('Could not determine the seller/lister for this property.');
+        return;
       }
-      // Find or create conversation
+      // Prevent self-chat
+      if (listerId === currentUser.id) {
+        alert('You cannot chat with yourself about your own listing.');
+        return;
+      }
+      // Fetch lister info for metadata
+      let listerName = '', listerAvatar = '';
+      try {
+        const listerDoc = await db.collection('users').doc(listerId).get();
+        if (listerDoc.exists) {
+          const listerData = listerDoc.data();
+          listerName = (listerData.firstName || '') + ' ' + (listerData.lastName || '');
+          listerAvatar = listerData.avatar || listerData.profilePicture || listerData.photoURL || 'https://via.placeholder.com/40x40/0d6efd/ffffff?text=A';
+        }
+      } catch (err) {}
+      // Find or create conversation for this listing and these participants
+      const participants = [currentUser.id, listerId].sort();
       const convSnap = await db.collection('conversations')
         .where('listingId', '==', listingId)
         .where('participants', 'array-contains', currentUser.id)
-        .limit(1).get();
-      let convId;
-      if (!convSnap.empty) {
-        convId = convSnap.docs[0].id;
-      } else {
+        .get();
+      let convId = null;
+      let found = false;
+      convSnap.forEach(doc => {
+        const data = doc.data();
+        // Ensure both participants and listingId match
+        if (data.listingId === listingId &&
+            Array.isArray(data.participants) &&
+            data.participants.length === 2 &&
+            data.participants.includes(currentUser.id) &&
+            data.participants.includes(listerId)) {
+          convId = doc.id;
+          found = true;
+        }
+      });
+      if (!found) {
+        // Create new conversation document with all required metadata
         const convRef = await db.collection('conversations').add({
           listingId,
-          listingTitle: listing.title || 'Listing',
-          agentId: agentId || '',
-          agentName: agentName || 'Agent',
-          agentAvatar: agentAvatar || '',
-          participants: [currentUser.id, agentId || 'agent'],
+          participants,
           lastMessage: '',
-          lastMessageAt: new Date()
+          lastMessageAt: new Date(),
+          listerId,
+          listerName,
+          listerAvatar,
+          listingTitle: listing.title || 'Listing',
+          listingImage: (listing.media && listing.media[0] && listing.media[0].url) || '',
+          status: 'active'
         });
         convId = convRef.id;
       }

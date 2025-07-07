@@ -576,13 +576,11 @@
                         </div>
                         
                         <form>
-                            <div class="mb-3">
-                                <label for="message" class="form-label">Send Message</label>
-                                <textarea class="form-control" id="message" rows="3" placeholder="I'm interested in this property..."></textarea>
+                            <div class="mb-3 d-grid">
+                                <button type="button" class="btn btn-primary btn-lg w-100" id="chatWithSellerBtn">
+                                    <i class="bi bi-chat-dots"></i> Message or Chat with Seller
+                                </button>
                             </div>
-                            <button type="submit" class="btn btn-primary w-100 mb-2">
-                                <i class="bi bi-send"></i> Send Inquiry
-                            </button>
                             <a href="agent.html?id=agent123" class="btn btn-outline-secondary w-100">
                                 <i class="bi bi-person"></i> View Agent Profile
                             </a>
@@ -1472,6 +1470,27 @@
             if (loadMoreBtn) {
                 loadMoreBtn.addEventListener('click', function() {
                     loadSimilarListings(false);
+                });
+            }
+        });
+
+        // Add chat button logic
+        document.addEventListener('DOMContentLoaded', function() {
+            const chatBtn = document.getElementById('chatWithSellerBtn');
+            if (chatBtn) {
+                chatBtn.addEventListener('click', function() {
+                    // Get the current listing ID from URL
+                    const url = new URL(window.location.href);
+                    const listingId = url.searchParams.get('id');
+                    const listerId = window.currentListingListerId;
+                    if (listingId && listerId) {
+                        // Redirect to messaging page with listingId and listerId as query params
+                        window.location.href = '/pages/user/messaging.html?listingId=' + encodeURIComponent(listingId) + '&listerId=' + encodeURIComponent(listerId);
+                    } else if (!listerId) {
+                        alert('Lister (seller) ID not found for this property.');
+                    } else {
+                        alert('Listing ID not found.');
+                    }
                 });
             }
         });
