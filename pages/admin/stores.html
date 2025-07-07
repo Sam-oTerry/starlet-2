@@ -12,6 +12,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- Custom Styles -->
     <link rel="stylesheet" href="../../css/style.css">
+    <link rel="icon" type="image/x-icon" href="../../favicon.ico">
     <style>
         :root {
             --primary-color: #0d6efd;
@@ -517,12 +518,10 @@
     // --- Admin Stores Management (Enhanced Firestore Integration) ---
     let allStores = [];
     let currentUser = null;
-
-    // Use db and auth from admin.js
+    // Use db and auth from admin.js ONLY. Do NOT redeclare let db or let auth here.
     document.addEventListener('DOMContentLoaded', function() {
       if (typeof firebase !== 'undefined') {
-        db = firebase.firestore();
-        auth = firebase.auth();
+        // db and auth are already declared in admin.js
         auth.onAuthStateChanged(async user => {
           if (!user) {
             window.location.href = '../auth/login.html';
@@ -535,7 +534,7 @@
             const userData = userDoc.data();
             if (userData && userData.role === 'admin') {
               // ok
-            } else if (user.email === 'admin@starlet.co.ug') {
+            } else if (user.email === 'admin@starlet.co.ug' || user.email === 'admin@starletproperties.ug') {
               // fallback
             } else {
               alert('Admin access required');
