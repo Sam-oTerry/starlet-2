@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Agent Store Profile</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+<body>
+  <!-- Sidebar -->
+  <aside class="admin-sidebar">
+    <div class="sidebar-brand"><span class="brand-star">★</span> Starlet <span class="brand-let">Let</span></div>
+    <nav class="nav flex-column">
+      <a class="nav-link active" href="profile.html"><i class="bi bi-person"></i> Store Profile</a>
+      <a class="nav-link" href="dashboard.html"><i class="bi bi-house"></i> Dashboard</a>
+      <a class="nav-link" href="edit-profile.html"><i class="bi bi-pencil"></i> Edit Profile</a>
+      <a class="nav-link" href="add-listing.html"><i class="bi bi-plus"></i> Add Listing</a>
+      <a class="nav-link" href="analytics.html"><i class="bi bi-bar-chart"></i> Analytics</a>
+      <a class="nav-link" href="premium.html"><i class="bi bi-gem"></i> Premium Services</a>
+      <a class="nav-link" href="messages.html"><i class="bi bi-chat-dots"></i> Messages</a>
+      <a class="logout-link" href="#"><i class="bi bi-box-arrow-right"></i> Logout</a>
+    </nav>
+  </aside>
+
+  <!-- Store Banner -->
+  <section class="hero-section text-center mb-4">
+    <img src="/images/store-banner-default.jpg" alt="Store Banner" class="img-fluid w-100" style="max-height: 260px; object-fit: cover;">
+  </section>
+
+  <!-- Store Profile Card -->
+  <div class="container mb-5">
+    <div class="row justify-content-center">
+      <div class="col-lg-8">
+        <div class="store-card-modern d-flex align-items-center gap-4 p-4">
+          <img src="/images/agent-avatar-default.png" class="rounded-circle" alt="Agent Avatar">
+          <div>
+            <h2 class="fw-semibold mb-1">Agent Name <span class="badge bg-success ms-2">Verified</span></h2>
+            <div class="mb-2">
+              <span class="me-3"><i class="bi bi-telephone"></i> +123 456 7890</span>
+              <span><i class="bi bi-envelope"></i> agent@email.com</span>
+            </div>
+            <p class="mb-2">Short description about the agent or store. Highlight experience, specialties, or unique selling points.</p>
+            <div class="social-links">
+              <a href="#" class="me-2"><i class="bi bi-facebook"></i></a>
+              <a href="#" class="me-2"><i class="bi bi-twitter"></i></a>
+              <a href="#"><i class="bi bi-instagram"></i></a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Store Listings Grid -->
+  <div class="container">
+    <h3 class="mb-4 section-header">Listings by this Agent</h3>
+    <div class="row g-4">
+      <!-- Example Listing Card (repeat for each listing) -->
+      <div class="col-md-4">
+        <div class="listing-card card-modern">
+          <div class="card-img-wrapper">
+            <img src="/images/listing-default.jpg" class="card-img-top" alt="Listing Image">
+          </div>
+          <div class="card-body">
+            <h5 class="card-title">Property Title</h5>
+            <div class="location mb-2"><i class="bi bi-geo-alt"></i> Location</div>
+            <div class="price-tag mb-2">$100,000</div>
+            <a href="#" class="btn btn-primary btn-sm">View Details</a>
+          </div>
+        </div>
+      </div>
+      <!-- End Example Listing Card -->
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+</body>
+</html> 

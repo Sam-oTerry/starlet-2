@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Agent Messages & Inquiries</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+</head>
+<body class="admin-panel">
+  <aside class="admin-sidebar">
+    <div class="sidebar-brand"><span class="brand-star">★</span> Starlet <span class="brand-let">Let</span></div>
+    <nav class="nav flex-column">
+      <a class="nav-link" href="profile.html"><i class="bi bi-person"></i> Store Profile</a>
+      <a class="nav-link" href="dashboard.html"><i class="bi bi-house"></i> Dashboard</a>
+      <a class="nav-link" href="edit-profile.html"><i class="bi bi-pencil"></i> Edit Profile</a>
+      <a class="nav-link" href="add-listing.html"><i class="bi bi-plus"></i> Add Listing</a>
+      <a class="nav-link" href="analytics.html"><i class="bi bi-bar-chart"></i> Analytics</a>
+      <a class="nav-link" href="premium.html"><i class="bi bi-gem"></i> Premium Services</a>
+      <a class="nav-link active" href="messages.html"><i class="bi bi-chat-dots"></i> Messages</a>
+      <a class="logout-link" href="#"><i class="bi bi-box-arrow-right"></i> Logout</a>
+    </nav>
+  </aside>
+  <nav class="admin-navbar">
+    <div class="navbar-brand"><span class="brand-star">★</span> Messages & Inquiries</div>
+  </nav>
+  <main style="min-height: 100vh;">
+    <section class="hero-section">
+      <div class="container">
+        <h2 class="hero-title">Agent Messages & Notifications</h2>
+        <p class="hero-subtitle">View and manage all inquiries, notifications, and store chat messages</p>
+      </div>
+    </section>
+    <div class="container my-5">
+      <ul class="nav nav-tabs mb-4" id="messagesTab" role="tablist">
+        <li class="nav-item" role="presentation">
+          <button class="nav-link active" id="inquiries-tab" data-bs-toggle="tab" data-bs-target="#inquiries" type="button" role="tab">Inquiries</button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="notifications-tab" data-bs-toggle="tab" data-bs-target="#notifications" type="button" role="tab">Notifications</button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="storechat-tab" data-bs-toggle="tab" data-bs-target="#storechat" type="button" role="tab">Store Chat</button>
+        </li>
+      </ul>
+      <div class="tab-content" id="messagesTabContent">
+        <!-- Inquiries Tab -->
+        <div class="tab-pane fade show active" id="inquiries" role="tabpanel">
+          <div class="table-responsive">
+            <table class="table table-hover align-middle">
+              <thead class="table-light">
+                <tr>
+                  <th>From</th>
+                  <th>Listing</th>
+                  <th>Message</th>
+                  <th>Date</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>John Doe</td>
+                  <td>Property Title 1</td>
+                  <td>Hello, I am interested in your property.</td>
+                  <td>2024-06-01</td>
+                  <td><span class="badge bg-primary">New</span></td>
+                  <td>
+                    <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#replyModal"><i class="bi bi-reply"></i> Reply</button>
+                  </td>
+                </tr>
+                <!-- More rows dynamically loaded here -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <!-- Notifications Tab -->
+        <div class="tab-pane fade" id="notifications" role="tabpanel">
+          <div class="alert alert-info">No new notifications.</div>
+        </div>
+        <!-- Store Chat Tab -->
+        <div class="tab-pane fade" id="storechat" role="tabpanel">
+          <div class="row">
+            <div class="col-md-4">
+              <div class="list-group" id="chatList">
+                <a href="#" class="list-group-item list-group-item-action active">
+                  <div class="fw-semibold">Jane Smith</div>
+                  <div class="text-muted small">Property Title 2</div>
+                </a>
+                <!-- More chat contacts dynamically loaded here -->
+              </div>
+            </div>
+            <div class="col-md-8">
+              <div class="card">
+                <div class="card-header d-flex align-items-center" id="chatHeader">
+                  <img src="https://randomuser.me/api/portraits/women/44.jpg" class="avatar me-2" style="width:40px;height:40px;border-radius:50%;object-fit:cover;">
+                  <div>
+                    <div class="fw-semibold">Jane Smith</div>
+                    <div class="text-muted small">Property Title 2</div>
+                  </div>
+                </div>
+                <div class="card-body" id="chatMessages" style="height:300px;overflow-y:auto;">
+                  <div class="chat-message sent d-flex mb-3">
+                    <img src="https://randomuser.me/api/portraits/men/32.jpg" class="avatar me-2" style="width:32px;height:32px;border-radius:50%;object-fit:cover;">
+                    <div>
+                      <div class="bubble bg-primary text-white">Hi, is this property still available?</div>
+                      <div class="meta small text-muted">You • 2024-06-01</div>
+                    </div>
+                  </div>
+                  <div class="chat-message d-flex mb-3">
+                    <img src="https://randomuser.me/api/portraits/women/44.jpg" class="avatar me-2" style="width:32px;height:32px;border-radius:50%;object-fit:cover;">
+                    <div>
+                      <div class="bubble bg-light">Yes, it is available!</div>
+                      <div class="meta small text-muted">Jane Smith • 2024-06-01</div>
+                    </div>
+                  </div>
+                  <!-- More chat messages dynamically loaded here -->
+                </div>
+                <div class="card-footer">
+                  <form class="d-flex align-items-center">
+                    <input type="text" class="form-control me-2" placeholder="Type your message...">
+                    <button type="submit" class="btn btn-primary"><i class="bi bi-send"></i></button>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Reply Modal -->
+      <div class="modal fade" id="replyModal" tabindex="-1" aria-labelledby="replyModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="replyModalLabel">Reply to Inquiry</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <form>
+                <div class="mb-3">
+                  <label for="replyMessage" class="form-label">Message</label>
+                  <textarea class="form-control" id="replyMessage" rows="4" placeholder="Type your reply..."></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Send Reply</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+  <footer class="footer mt-auto">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-4 mb-4">
+          <h4>About Starlet Properties</h4>
+          <p>Uganda's premier real estate and vehicle marketplace, connecting buyers and sellers across the country.</p>
+          <div class="social-links">
+            <a href="#"><i class="fab fa-facebook"></i></a>
+            <a href="#"><i class="fab fa-twitter"></i></a>
+            <a href="#"><i class="fab fa-instagram"></i></a>
+            <a href="#"><i class="fab fa-linkedin"></i></a>
+          </div>
+        </div>
+        <div class="col-lg-2 col-md-6 mb-4">
+          <h4>Properties</h4>
+          <ul>
+            <li><a href="/properties.html?type=house_sale">Houses for Sale</a></li>
+            <li><a href="/properties.html?type=house_rent">Houses for Rent</a></li>
+            <li><a href="/properties.html?type=land_sale">Land for Sale</a></li>
+            <li><a href="/properties.html?type=land_rent">Land for Rent</a></li>
+            <li><a href="/properties.html?type=commercial">Commercial Property</a></li>
+            <li><a href="/properties.html?type=vacation_short_stay">Vacation & Short Stay</a></li>
+          </ul>
+        </div>
+        <div class="col-lg-2 col-md-6 mb-4">
+          <h4>Vehicles</h4>
+          <ul>
+            <li><a href="/vehicles.html?type=cars">Cars</a></li>
+            <li><a href="/vehicles.html?type=motorcycles">Motorcycles</a></li>
+            <li><a href="/vehicles.html?type=trucks">Trucks</a></li>
+            <li><a href="/vehicles.html?type=buses">Buses</a></li>
+            <li><a href="/vehicles.html?type=heavy_machinery">Heavy Machinery</a></li>
+            <li><a href="/vehicles.html?type=bicycles_ebikes">Bicycles & E-bikes</a></li>
+            <li><a href="/vehicles.html?type=boats_watercraft">Boats & Watercraft</a></li>
+          </ul>
+        </div>
+        <div class="col-lg-2 col-md-6 mb-4">
+          <h4>Company</h4>
+          <ul>
+            <li><a href="/about.html">About Us</a></li>
+            <li><a href="/contact.html">Contact</a></li>
+            <li><a href="/resources.html">Resources</a></li>
+            <li><a href="/stores.html">Our Stores</a></li>
+            <li><a href="/privacy.html">Privacy Policy</a></li>
+          </ul>
+        </div>
+        <div class="col-lg-2 col-md-6 mb-4">
+          <h4>Contact</h4>
+          <ul>
+            <li><a href="tel:+256123456789"><i class="bi bi-telephone"></i> +256 123 456 789</a></li>
+            <li><a href="mailto:info@starlet.co.ug"><i class="bi bi-envelope"></i> info@starlet.co.ug</a></li>
+            <li><a href="#"><i class="bi bi-geo-alt"></i> Kampala, Uganda</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <div class="row">
+          <div class="col-md-6">
+            <p class="mb-0">&copy; 2024 Starlet Properties. All rights reserved.</p>
+          </div>
+          <div class="col-md-6 text-md-end">
+            <a href="/terms.html" class="me-3">Terms of Service</a>
+            <a href="/privacy.html">Privacy Policy</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="/js/agent-messages.js"></script>
+</body>
+</html> 
