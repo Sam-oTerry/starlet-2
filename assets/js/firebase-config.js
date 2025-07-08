@@ -19,4 +19,14 @@ const firebaseConfig = {
   }
   window.firebaseDB = firebase.firestore();
   window.firebaseAuth = firebase.auth();
+  if (firebase.storage) {
+    window.firebaseStorage = firebase.storage();
+  }
+  if (firebase.messaging) {
+    try {
+      window.firebaseMessaging = firebase.messaging();
+    } catch (e) {
+      console.warn('Firebase Messaging not available:', e);
+    }
+  }
 })(); 

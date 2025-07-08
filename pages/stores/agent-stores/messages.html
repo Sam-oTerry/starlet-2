@@ -7,6 +7,95 @@
   <link rel="stylesheet" href="/css/style.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+  <style>
+    /* WhatsApp-style chat UI improvements */
+    .chat-message.sent .bubble { background: #198754; color: #fff; }
+    .chat-message .bubble { border-radius: 1.2em; padding: 0.6em 1em; max-width: 80%; display: inline-block; }
+    .chat-message.sent { flex-direction: row-reverse; }
+    .chat-message.sent .avatar { margin-left: 0.5em; margin-right: 0; }
+    .chat-message .meta { font-size: 0.8em; margin-top: 0.2em; }
+    .chat-message img.chat-img { max-width: 180px; max-height: 180px; border-radius: 0.7em; margin-bottom: 0.2em; }
+    .chat-message .file-link { display: block; margin-top: 0.2em; }
+    .chat-message .bubble.bg-light { background: #f1f1f1; }
+    .chat-footer-tools { display: flex; align-items: center; gap: 0.5em; }
+    .chat-footer-tools input[type=file] { display: none; }
+    .chat-footer-tools label { cursor: pointer; margin-bottom: 0; }
+    .chat-footer-tools .upload-preview { max-width: 60px; max-height: 60px; border-radius: 0.5em; margin-right: 0.5em; }
+    .chat-footer-tools .progress { width: 60px; height: 6px; margin-bottom: 0; }
+    .chat-message .bubble .file-icon { font-size: 1.2em; margin-right: 0.3em; }
+    .chat-message .bubble .file-name { font-size: 0.95em; }
+    .chat-message .bubble .file-size { font-size: 0.8em; color: #888; }
+    .chat-message .bubble .file-link { color: #198754; text-decoration: underline; }
+    .chat-message .bubble .file-link:hover { color: #145c32; }
+    .chat-message .bubble .img-loading { opacity: 0.5; }
+    .chat-message .bubble .img-error { color: #dc3545; font-size: 0.9em; }
+    .chat-message .bubble .img-progress { font-size: 0.8em; color: #888; }
+    .chat-message .bubble .img-done { color: #198754; font-size: 0.9em; }
+    .chat-message .bubble .img-cancel { color: #dc3545; font-size: 0.9em; cursor: pointer; }
+    .chat-message .bubble .img-cancel:hover { text-decoration: underline; }
+    .chat-message .bubble .img-preview { max-width: 120px; max-height: 120px; border-radius: 0.5em; margin-bottom: 0.2em; }
+    .chat-message .bubble .img-caption { font-size: 0.85em; color: #555; margin-top: 0.2em; }
+    .chat-message .bubble .img-meta { font-size: 0.75em; color: #888; margin-top: 0.1em; }
+    .chat-message .bubble .img-actions { margin-top: 0.2em; }
+    .chat-message .bubble .img-actions button { font-size: 0.8em; margin-right: 0.3em; }
+    .chat-message .bubble .img-actions .bi { font-size: 1em; }
+    .chat-message .bubble .img-actions .bi-check { color: #198754; }
+    .chat-message .bubble .img-actions .bi-x { color: #dc3545; }
+    .chat-message .bubble .img-actions .bi-download { color: #007bff; }
+    .chat-message .bubble .img-actions .bi-trash { color: #dc3545; }
+    .chat-message .bubble .img-actions .bi-eye { color: #198754; }
+    .chat-message .bubble .img-actions .bi-pencil { color: #ffc107; }
+    .chat-message .bubble .img-actions .bi-emoji-smile { color: #ffc107; }
+    .chat-message .bubble .img-actions .bi-paperclip { color: #007bff; }
+    .chat-message .bubble .img-actions .bi-image { color: #198754; }
+    .chat-message .bubble .img-actions .bi-file-earmark { color: #6c757d; }
+    .chat-message .bubble .img-actions .bi-file-earmark-arrow-down { color: #007bff; }
+    .chat-message .bubble .img-actions .bi-file-earmark-x { color: #dc3545; }
+    .chat-message .bubble .img-actions .bi-file-earmark-check { color: #198754; }
+    .chat-message .bubble .img-actions .bi-file-earmark-plus { color: #198754; }
+    .chat-message .bubble .img-actions .bi-file-earmark-minus { color: #dc3545; }
+    .chat-message .bubble .img-actions .bi-file-earmark-lock { color: #6c757d; }
+    .chat-message .bubble .img-actions .bi-file-earmark-unlock { color: #198754; }
+    .chat-message .bubble .img-actions .bi-file-earmark-medical { color: #dc3545; }
+    .chat-message .bubble .img-actions .bi-file-earmark-person { color: #007bff; }
+    .chat-message .bubble .img-actions .bi-file-earmark-bar-graph { color: #198754; }
+    .chat-message .bubble .img-actions .bi-file-earmark-play { color: #007bff; }
+    .chat-message .bubble .img-actions .bi-file-earmark-music { color: #198754; }
+    .chat-message .bubble .img-actions .bi-file-earmark-image { color: #198754; }
+    .chat-message .bubble .img-actions .bi-file-earmark-zip { color: #6c757d; }
+    .chat-message .bubble .img-actions .bi-file-earmark-pdf { color: #dc3545; }
+    .chat-message .bubble .img-actions .bi-file-earmark-word { color: #007bff; }
+    .chat-message .bubble .img-actions .bi-file-earmark-excel { color: #198754; }
+    .chat-message .bubble .img-actions .bi-file-earmark-powerpoint { color: #ffc107; }
+    .chat-message .bubble .img-actions .bi-file-earmark-code { color: #6c757d; }
+    .chat-message .bubble .img-actions .bi-file-earmark-richtext { color: #007bff; }
+    .chat-message .bubble .img-actions .bi-file-earmark-slides { color: #ffc107; }
+    .chat-message .bubble .img-actions .bi-file-earmark-text { color: #6c757d; }
+    .chat-message .bubble .img-actions .bi-file-earmark-font { color: #007bff; }
+    .chat-message .bubble .img-actions .bi-file-earmark-graph-up { color: #198754; }
+    .chat-message .bubble .img-actions .bi-file-earmark-graph-down { color: #dc3545; }
+    .chat-message .bubble .img-actions .bi-file-earmark-bar-chart { color: #198754; }
+    .chat-message .bubble .img-actions .bi-file-earmark-pie-chart { color: #ffc107; }
+    .chat-message .bubble .img-actions .bi-file-earmark-presentation { color: #007bff; }
+    .chat-message .bubble .img-actions .bi-file-earmark-clipboard { color: #6c757d; }
+    .chat-message .bubble .img-actions .bi-file-earmark-calendar { color: #198754; }
+    .chat-message .bubble .img-actions .bi-file-earmark-clock { color: #007bff; }
+    .chat-message .bubble .img-actions .bi-file-earmark-alarm { color: #dc3545; }
+    .chat-message .bubble .img-actions .bi-file-earmark-bell { color: #ffc107; }
+    .chat-message .bubble .img-actions .bi-file-earmark-bug { color: #dc3545; }
+    .chat-message .bubble .img-actions .bi-file-earmark-lightbulb { color: #ffc107; }
+    .chat-message .bubble .img-actions .bi-file-earmark-moon { color: #6c757d; }
+    .chat-message .bubble .bi { vertical-align: middle; }
+    .chat-footer-tools .bi { font-size: 1.3em; }
+    .chat-footer-tools .bi-paperclip, .chat-footer-tools .bi-image { color: #198754; }
+    .chat-footer-tools .bi-paperclip:hover, .chat-footer-tools .bi-image:hover { color: #145c32; }
+    .chat-footer-tools .bi-emoji-smile { color: #ffc107; }
+    .chat-footer-tools .bi-emoji-smile:hover { color: #bfa100; }
+    .chat-footer-tools .bi-send { color: #198754; }
+    .chat-footer-tools .bi-send:hover { color: #145c32; }
+    .chat-footer-tools .progress { height: 6px; }
+  </style>
 </head>
 <body class="admin-panel">
   <aside class="admin-sidebar">
@@ -219,6 +308,11 @@
     </div>
   </footer>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+  <script src="/assets/js/firebase-config.js"></script>
   <script src="/js/agent-messages.js"></script>
 </body>
 </html> 
