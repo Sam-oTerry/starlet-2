@@ -10,8 +10,12 @@ function initializeFirebase() {
     return false;
   }
   
-  // Firebase should already be initialized by firebase-config.js
-  if (firebase.apps.length) {
+  // Check if Firebase is already initialized by firebase-config.js
+  if (window.firebaseDB && window.firebaseAuth) {
+    db = window.firebaseDB;
+    auth = window.firebaseAuth;
+    return true;
+  } else if (firebase.apps.length) {
     db = firebase.firestore();
     auth = firebase.auth();
     return true;
@@ -188,16 +192,20 @@ function enforceAdminAuth() {
 
 // Initialize when DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
-  // Initialize Firebase
-  if (!initializeFirebase()) {
-    console.error('Failed to initialize Firebase');
-    return;
-  }
+  // Wait for Firebase to be available
+  const checkFirebase = () => {
+    if (initializeFirebase()) {
+      // Expose utilities globally for use in inline event handlers
+      window.showLoading = showLoading;
+      window.showError = showError;
+      window.showToast = showToast;
+    } else {
+      // Retry after a short delay
+      setTimeout(checkFirebase, 100);
+    }
+  };
   
-  // Expose utilities globally for use in inline event handlers
-  window.showLoading = showLoading;
-  window.showError = showError;
-  window.showToast = showToast;
+  checkFirebase();
   window.requireAdminUser = requireAdminUser;
   window.formatDate = formatDate;
   window.formatPrice = formatPrice;

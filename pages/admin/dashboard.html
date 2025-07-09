@@ -434,15 +434,16 @@
   <script>
     let listingsChart, usersChart;
     let statsData = {};
-    let db, auth;
+    // Use existing db and auth from admin.js or create new ones
+    let dashboardDB, dashboardAuth;
 
     // Initialize dashboard
     document.addEventListener('DOMContentLoaded', function() {
       // Wait for Firebase to be available
       const checkFirebase = () => {
         if (typeof firebase !== 'undefined' && window.firebaseDB) {
-          db = window.firebaseDB;
-          auth = window.firebaseAuth;
+          dashboardDB = window.firebaseDB;
+          dashboardAuth = window.firebaseAuth;
           
           // Load dashboard data
           loadDashboardStats();
@@ -472,31 +473,31 @@
     // Load dashboard statistics
     async function loadDashboardStats() {
       try {
-        if (!db) {
+        if (!dashboardDB) {
           console.error('Firestore not initialized');
           return;
         }
         
         // Get listings count
-        const listingsSnap = await db.collection('listings').get();
+        const listingsSnap = await dashboardDB.collection('listings').get();
         const totalListings = listingsSnap.size;
         
         // Get users count
-        const usersSnap = await db.collection('users').get();
+        const usersSnap = await dashboardDB.collection('users').get();
         const totalUsers = usersSnap.size;
         
         // Get stores count
-        const storesSnap = await db.collection('stores').get();
+        const storesSnap = await dashboardDB.collection('stores').get();
         const totalStores = storesSnap.size;
         
         // Get pending approvals
-        const pendingSnap = await db.collection('listings').where('status', '==', 'pending').get();
+        const pendingSnap = await dashboardDB.collection('listings').where('status', '==', 'pending').get();
         const pendingApprovals = pendingSnap.size;
         
         // Get active conversations (last 24 hours)
         const yesterday = new Date();
         yesterday.setDate(yesterday.getDate() - 1);
-        const conversationsSnap = await db.collection('conversations')
+        const conversationsSnap = await dashboardDB.collection('conversations')
           .where('lastMessageAt', '>=', yesterday)
           .get();
         const activeConversations = conversationsSnap.size;
@@ -505,7 +506,7 @@
         const totalViews = Math.floor(Math.random() * 10000) + 5000;
         
         // Get reviews count and average
-        const reviewsSnap = await db.collection('reviews').get();
+        const reviewsSnap = await dashboardDB.collection('reviews').get();
         const totalReviews = reviewsSnap.size;
         let avgRating = 0;
         if (totalReviews > 0) {
@@ -555,7 +556,7 @@
     // Load recent activity
     async function loadRecentActivity() {
       try {
-        if (!db) {
+        if (!dashboardDB) {
           console.error('Firestore not initialized');
           return;
         }
@@ -563,13 +564,13 @@
         const activityContainer = document.getElementById('recentActivity');
         
         // Get recent listings
-        const recentListings = await db.collection('listings')
+        const recentListings = await dashboardDB.collection('listings')
           .orderBy('createdAt', 'desc')
           .limit(5)
           .get();
         
         // Get recent users
-        const recentUsers = await db.collection('users')
+        const recentUsers = await dashboardDB.collection('users')
           .orderBy('createdAt', 'desc')
           .limit(5)
           .get();
@@ -639,7 +640,7 @@
     // Load system alerts
     async function loadSystemAlerts() {
       try {
-        if (!db) {
+        if (!dashboardDB) {
           console.error('Firestore not initialized');
           return;
         }
@@ -650,7 +651,7 @@
         const alerts = [];
         
         // Check for pending approvals
-        const pendingSnap = await db.collection('listings').where('status', '==', 'pending').get();
+        const pendingSnap = await dashboardDB.collection('listings').where('status', '==', 'pending').get();
         if (pendingSnap.size > 10) {
           alerts.push({
             type: 'warning',
@@ -671,7 +672,7 @@
         // Check for new users (if many new registrations)
         const yesterday = new Date();
         yesterday.setDate(yesterday.getDate() - 1);
-        const newUsersSnap = await db.collection('users')
+        const newUsersSnap = await dashboardDB.collection('users')
           .where('createdAt', '>=', yesterday)
           .get();
         
@@ -777,25 +778,25 @@
     // Update charts with real data
     async function updateCharts() {
       try {
-        if (!db) {
+        if (!dashboardDB) {
           console.error('Firestore not initialized');
           return;
         }
         
         // Get listings by category
-        const propertyListings = await db.collection('listings')
+        const propertyListings = await dashboardDB.collection('listings')
           .where('listingType', 'in', ['house_sale', 'house_rent', 'vacation_short_stay'])
           .get();
         
-        const vehicleListings = await db.collection('listings')
+        const vehicleListings = await dashboardDB.collection('listings')
           .where('listingType', '==', 'vehicle')
           .get();
         
-        const landListings = await db.collection('listings')
+        const landListings = await dashboardDB.collection('listings')
           .where('listingType', 'in', ['land_sale', 'land_rent'])
           .get();
         
-        const commercialListings = await db.collection('listings')
+        const commercialListings = await dashboardDB.collection('listings')
           .where('listingType', '==', 'commercial')
           .get();
         
@@ -809,15 +810,15 @@
         listingsChart.update();
         
         // Get users by role
-        const regularUsers = await db.collection('users')
+        const regularUsers = await dashboardDB.collection('users')
           .where('role', '==', 'user')
           .get();
         
-        const agents = await db.collection('users')
+        const agents = await dashboardDB.collection('users')
           .where('role', '==', 'agent')
           .get();
         
-        const admins = await db.collection('users')
+        const admins = await dashboardDB.collection('users')
           .where('role', '==', 'admin')
           .get();
         
@@ -836,13 +837,13 @@
 
     // Setup real-time listeners
     function setupRealtimeListeners() {
-      if (!db) {
+      if (!dashboardDB) {
         console.error('Firestore not initialized');
         return;
       }
       
       // Listen for new listings
-      db.collection('listings')
+      dashboardDB.collection('listings')
         .orderBy('createdAt', 'desc')
         .limit(1)
         .onSnapshot(snapshot => {
@@ -854,7 +855,7 @@
         });
       
       // Listen for new users
-      db.collection('users')
+      dashboardDB.collection('users')
         .orderBy('createdAt', 'desc')
         .limit(1)
         .onSnapshot(snapshot => {

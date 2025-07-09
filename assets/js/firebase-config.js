@@ -9,19 +9,25 @@ const firebaseConfig = {
   measurementId: "G-F02K9SP07C"
 };
 
-(function() {
+// Wait for Firebase SDK to load
+function initializeFirebase() {
   if (typeof firebase === 'undefined') {
-    console.error('Firebase SDK not loaded');
+    console.warn('Firebase SDK not loaded yet, retrying...');
+    setTimeout(initializeFirebase, 100);
     return;
   }
+  
   if (!firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
   }
+  
   window.firebaseDB = firebase.firestore();
   window.firebaseAuth = firebase.auth();
+  
   if (firebase.storage) {
     window.firebaseStorage = firebase.storage();
   }
+  
   if (firebase.messaging) {
     try {
       window.firebaseMessaging = firebase.messaging();
@@ -29,4 +35,9 @@ const firebaseConfig = {
       console.warn('Firebase Messaging not available:', e);
     }
   }
-})(); 
+  
+  console.log('Firebase initialized successfully');
+}
+
+// Start initialization
+initializeFirebase(); 
