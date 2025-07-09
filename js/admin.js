@@ -1,16 +1,6 @@
 // js/admin.js
 // Firestore config and admin utilities for Starlet Properties Admin
 
-const firebaseConfig = {
-  apiKey: "AIzaSyDH1sMk2NwceMAEfvH07azxaoPXpOI1Sek",
-  authDomain: "starlet-properties-41509.firebaseapp.com",
-  projectId: "starlet-properties-41509",
-  storageBucket: "starlet-properties-41509.appspot.com",
-  messagingSenderId: "393372988481",
-  appId: "1:393372988481:web:c92584d7408296457b02c0",
-  measurementId: "G-F02K9SP07C"
-};
-
 // Initialize Firebase only after DOM is loaded and Firebase is available
 let db, auth;
 
@@ -20,12 +10,15 @@ function initializeFirebase() {
     return false;
   }
   
-  if (!firebase.apps.length) {
-    firebase.initializeApp(firebaseConfig);
+  // Firebase should already be initialized by firebase-config.js
+  if (firebase.apps.length) {
+    db = firebase.firestore();
+    auth = firebase.auth();
+    return true;
+  } else {
+    console.error('Firebase not initialized. Make sure firebase-config.js is loaded first.');
+    return false;
   }
-  db = firebase.firestore();
-  auth = firebase.auth();
-  return true;
 }
 
 // Utility: Show loading spinner in a container
