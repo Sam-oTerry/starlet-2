@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Properties - Starlet Properties</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+    <!-- Navbar (copied from index.html) -->
+    <nav class="navbar navbar-expand-lg navbar-custom">
+        <div class="container">
+            <a class="navbar-brand" href="../../index.html">
+                <span class="brand-star">Star</span> <span class="brand-let">Let</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" href="../../index.html"><i class="bi bi-house-door"></i> Home</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle active" href="#" id="categoriesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-grid"></i> Categories
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="categoriesDropdown">
+                            <li><h6 class="dropdown-header">Properties</h6></li>
+                            <li><a class="dropdown-item" href="./properties.html?type=house_sale">Houses for Sale</a></li>
+                            <li><a class="dropdown-item" href="./properties.html?type=house_rent">Houses for Rent</a></li>
+                            <li><a class="dropdown-item" href="./properties.html?type=land_sale">Land for Sale</a></li>
+                            <li><a class="dropdown-item" href="./properties.html?type=land_rent">Land for Rent</a></li>
+                            <li><a class="dropdown-item" href="./properties.html?type=commercial">Commercial Property</a></li>
+                            <li><a class="dropdown-item" href="./properties.html?type=vacation_short_stay">Vacation & Short Stay</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><h6 class="dropdown-header">Vehicles</h6></li>
+                            <li><a class="dropdown-item" href="../vehicles/index.html?type=cars">Cars</a></li>
+                            <li><a class="dropdown-item" href="../vehicles/index.html?type=motorcycles">Motorcycles</a></li>
+                            <li><a class="dropdown-item" href="../vehicles/index.html?type=trucks">Trucks</a></li>
+                            <li><a class="dropdown-item" href="../vehicles/index.html?type=buses">Buses</a></li>
+                            <li><a class="dropdown-item" href="../vehicles/index.html?type=heavy_machinery">Heavy Machinery</a></li>
+                            <li><a class="dropdown-item" href="../vehicles/index.html?type=bicycles_ebikes">Bicycles & E-bikes</a></li>
+                            <li><a class="dropdown-item" href="../vehicles/index.html?type=boats_watercraft">Boats & Watercraft</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="../dashboard/listings/add.html"><i class="bi bi-tags"></i> Sell</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="moreDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-three-dots"></i> More
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="moreDropdown">
+                            <li><a class="dropdown-item active" href="./properties.html"><i class="bi bi-building"></i> Properties</a></li>
+                            <li><a class="dropdown-item" href="../vehicles/index.html"><i class="bi bi-car-front"></i> Vehicles</a></li>
+                            <li><a class="dropdown-item" href="../stores/index.html"><i class="bi bi-shop"></i> Stores</a></li>
+                            <li><a class="dropdown-item" href="../about/resources.html"><i class="bi bi-book"></i> Resources</a></li>
+                            <li><a class="dropdown-item" href="../about/index.html"><i class="bi bi-info-circle"></i> About</a></li>
+                            <li><a class="dropdown-item" href="../about/contact.html"><i class="bi bi-envelope"></i> Contact</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="../auth/login.html"><i class="bi bi-box-arrow-in-right"></i> Login</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="../auth/register.html"><i class="bi bi-person-plus"></i> Sign Up</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section for Properties -->
+    <section class="hero-section">
+        <div class="container">
+            <h2 class="hero-title">Find Your Perfect Property</h2>
+            <p class="hero-subtitle">Browse the best houses, land, commercial spaces, and vacation rentals in Uganda</p>
+        </div>
+    </section>
+
+    <!-- Search/Filter Bar -->
+    <section class="search-container container my-4">
+        <form id="property-search-form" class="row g-3 align-items-end">
+            <div class="col-lg-3 col-md-6 col-12">
+                <label for="keyword" class="form-label">Keyword</label>
+                <input type="text" class="form-control" id="keyword" name="keyword" placeholder="e.g. 3 bedroom house, garden, pool">
+            </div>
+            <div class="col-lg-2 col-md-6 col-12">
+                <label for="type" class="form-label">Type</label>
+                <select class="form-select" id="type" name="type">
+                    <option value="">All Types</option>
+                    <option value="house_sale">House for Sale</option>
+                    <option value="house_rent">House for Rent</option>
+                    <option value="land_sale">Land for Sale</option>
+                    <option value="land_rent">Land for Rent</option>
+                    <option value="commercial">Commercial Property</option>
+                    <option value="vacation_short_stay">Vacation & Short Stay</option>
+                </select>
+            </div>
+            <div class="col-lg-2 col-md-6 col-12">
+                <label for="location" class="form-label">Location</label>
+                <input type="text" class="form-control" id="location" name="location" placeholder="e.g. Kampala, Gulu">
+            </div>
+            <div class="col-lg-2 col-md-6 col-12">
+                <label for="minPrice" class="form-label">Min Price (USh)</label>
+                <input type="number" class="form-control" id="minPrice" name="minPrice" min="0">
+            </div>
+            <div class="col-lg-2 col-md-6 col-12">
+                <label for="maxPrice" class="form-label">Max Price (USh)</label>
+                <input type="number" class="form-control" id="maxPrice" name="maxPrice" min="0">
+            </div>
+            <div class="col-lg-1 col-md-12 col-12 d-grid">
+                <button type="submit" class="btn btn-primary"><i class="bi bi-search"></i> Search</button>
+            </div>
+        </form>
+    </section>
+
+    <!-- Featured Properties Section -->
+    <section class="py-4">
+        <div class="container">
+            <div class="section-header">
+                <h2>Featured Properties</h2>
+                <p>Handpicked premium properties from trusted agents and official stores</p>
+            </div>
+            <div class="row" id="featured-properties-listings">
+                <!-- Featured property cards will be injected here by JS -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Properties Grid -->
+    <section class="py-5">
+        <div class="container">
+            <div class="section-header">
+                <h2>Available Properties</h2>
+                <p>Browse all properties or use filters to narrow your search</p>
+            </div>
+            <div class="row" id="properties-listings">
+                <!-- Property cards will be injected here by JS -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer (copied from index.html) -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4 mb-4">
+                    <h4>About Starlet Properties</h4>
+                    <p>Uganda's premier real estate and vehicle marketplace, connecting buyers and sellers across the country.</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h4>Properties</h4>
+                    <ul>
+                        <li><a href="./properties.html?type=house_sale">Houses for Sale</a></li>
+                        <li><a href="./properties.html?type=house_rent">Houses for Rent</a></li>
+                        <li><a href="./properties.html?type=land_sale">Land for Sale</a></li>
+                        <li><a href="./properties.html?type=land_rent">Land for Rent</a></li>
+                        <li><a href="./properties.html?type=commercial">Commercial Property</a></li>
+                        <li><a href="./properties.html?type=vacation_short_stay">Vacation & Short Stay</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h4>Vehicles</h4>
+                    <ul>
+                        <li><a href="../vehicles/index.html?type=cars">Cars</a></li>
+                        <li><a href="../vehicles/index.html?type=motorcycles">Motorcycles</a></li>
+                        <li><a href="../vehicles/index.html?type=trucks">Trucks</a></li>
+                        <li><a href="../vehicles/index.html?type=buses">Buses</a></li>
+                        <li><a href="../vehicles/index.html?type=heavy_machinery">Heavy Machinery</a></li>
+                        <li><a href="../vehicles/index.html?type=bicycles_ebikes">Bicycles & E-bikes</a></li>
+                        <li><a href="../vehicles/index.html?type=boats_watercraft">Boats & Watercraft</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h4>Company</h4>
+                    <ul>
+                        <li><a href="../about/index.html">About Us</a></li>
+                        <li><a href="../about/contact.html">Contact</a></li>
+                        <li><a href="../about/resources.html">Resources</a></li>
+                        <li><a href="../stores/index.html">Our Stores</a></li>
+                        <li><a href="../legal/privacy.html">Privacy Policy</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h4>Legal</h4>
+                    <ul>
+                        <li><a href="../legal/privacy.html">Privacy Policy</a></li>
+                        <li><a href="../legal/terms.html">Terms of Service</a></li>
+                        <li><a href="../legal/disclaimer.html">Disclaimer</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="row mt-4">
+                <div class="col-md-6 text-center">
+                    <p>&copy; 2023 Starlet Properties. All rights reserved.</p>
+                </div>
+                <div class="col-md-6 text-center">
+                    <p>Powered by Starlet Technologies</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Firebase SDKs (must be loaded before firebase-config.js) -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+    <script src="../../assets/js/firebase-config.js"></script>
+    <!-- Custom JS -->
+    <script src="../../js/properties.js"></script>
+    <!-- NOTE: Add listing-default.jpg to your /images/ directory for best results -->
+</body>
+</html> 
