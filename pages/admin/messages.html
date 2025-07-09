@@ -12,6 +12,38 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <!-- Custom Styles -->
   <link rel="stylesheet" href="/starlet-2/css/style.css">
+  <style>
+    /* Unread messages badge styling */
+    #unreadMessagesBadge {
+      font-size: 0.7rem;
+      min-width: 18px;
+      height: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+      0% {
+        box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7);
+      }
+      70% {
+        box-shadow: 0 0 0 10px rgba(220, 53, 69, 0);
+      }
+      100% {
+        box-shadow: 0 0 0 0 rgba(220, 53, 69, 0);
+      }
+    }
+    
+    #messagesIcon {
+      transition: transform 0.2s ease;
+    }
+    
+    #messagesIcon:hover {
+      transform: scale(1.1);
+    }
+  </style>
 </head>
 <body class="admin-panel">
   <!-- Admin Sidebar -->
@@ -35,17 +67,26 @@
     <div class="navbar-brand">
       <span class="brand-star">Star</span> <span class="brand-let">Let</span> Admin
     </div>
-    <div class="profile-dropdown dropdown">
-      <a class="d-flex align-items-center text-decoration-none dropdown-toggle" href="#" id="profileDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-        <span class="profile-avatar me-2"><img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Admin"></span>
-        <span>Admin</span>
-      </a>
-      <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
-        <li><a class="dropdown-item" href="#">Profile</a></li>
-        <li><a class="dropdown-item" href="#">Settings</a></li>
-        <li><hr class="dropdown-divider"></li>
-        <li><a class="dropdown-item logout-link" href="#"><i class="bi bi-box-arrow-right"></i> Logout</a></li>
-      </ul>
+    <div class="d-flex align-items-center">
+      <!-- Messages Icon with Unread Counter -->
+      <div class="position-relative me-3">
+        <a href="#" class="text-decoration-none" id="messagesIcon" title="Messages">
+          <i class="bi bi-chat-dots fs-5 text-dark"></i>
+          <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none" id="unreadMessagesBadge">0</span>
+        </a>
+      </div>
+      <div class="profile-dropdown dropdown">
+        <a class="d-flex align-items-center text-decoration-none dropdown-toggle" href="#" id="profileDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+          <span class="profile-avatar me-2"><img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Admin"></span>
+          <span>Admin</span>
+        </a>
+        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
+          <li><a class="dropdown-item" href="#">Profile</a></li>
+          <li><a class="dropdown-item" href="#">Settings</a></li>
+          <li><hr class="dropdown-divider"></li>
+          <li><a class="dropdown-item logout-link" href="#"><i class="bi bi-box-arrow-right"></i> Logout</a></li>
+        </ul>
+      </div>
     </div>
   </nav>
   <!-- Main Content -->
@@ -241,6 +282,8 @@
     let conversations = [];
     let unsubscribeMessages = null;
     let typingTimeout;
+    let totalUnreadCount = 0;
+    let unreadMessagesListener = null;
 
     // Note: Tracking prevention warnings are normal browser privacy features
     // and don't affect functionality. They block some analytics/tracking requests.
@@ -334,6 +377,9 @@
         
         // Load conversations for admin
         await loadAdminConversations();
+        
+        // Start listening for unread messages
+        startUnreadMessagesListener();
       });
     }
 
@@ -413,6 +459,45 @@
       });
     }
 
+    // Start listening for unread messages
+    function startUnreadMessagesListener() {
+      if (!db || !currentUser) return;
+      
+      // Listen to all conversations for unread count changes
+      unreadMessagesListener = db.collection('conversations')
+        .onSnapshot(snap => {
+          let totalUnread = 0;
+          snap.forEach(doc => {
+            const data = doc.data();
+            if (data.unreadCount && data.unreadCount > 0) {
+              totalUnread += data.unreadCount;
+            }
+          });
+          
+          updateUnreadBadge(totalUnread);
+        });
+    }
+
+    // Update the unread messages badge
+    function updateUnreadBadge(count) {
+      const badge = document.getElementById('unreadMessagesBadge');
+      if (!badge) return;
+      
+      totalUnreadCount = count;
+      
+      if (count > 0) {
+        badge.textContent = count > 99 ? '99+' : count.toString();
+        badge.classList.remove('d-none');
+      } else {
+        badge.classList.add('d-none');
+      }
+    }
+
+    // Clear unread badge when messages page is opened
+    function clearUnreadBadge() {
+      updateUnreadBadge(0);
+    }
+
     async function selectConversation(conv) {
       if (!conv || !currentUser) return;
       
@@ -445,6 +530,9 @@
           await db.collection('conversations').doc(conv.id).update({
             unreadCount: 0
           });
+          
+          // Clear unread badge when conversation is opened
+          clearUnreadBadge();
         }
       } catch (err) {
         console.error('Error marking messages as read:', err);
@@ -634,6 +722,21 @@
       waitForFirebase();
       setupTypingIndicator();
       setupMessageSending();
+      
+      // Clear unread badge when messages page is opened
+      clearUnreadBadge();
+      
+      // Add click handler for messages icon
+      const messagesIcon = document.getElementById('messagesIcon');
+      if (messagesIcon) {
+        messagesIcon.addEventListener('click', function(e) {
+          e.preventDefault();
+          // Scroll to messages section
+          document.getElementById('inquiries-tab').click();
+          // Clear unread badge
+          clearUnreadBadge();
+        });
+      }
     });
   </script>
 </body>

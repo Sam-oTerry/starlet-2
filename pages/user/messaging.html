@@ -619,9 +619,10 @@
                             <i class="bi bi-bookmark"></i>
                         </a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link icon-circle" href="../user/messaging.html" title="Messages">
+                    <li class="nav-item position-relative">
+                        <a class="nav-link icon-circle position-relative" href="../user/messaging.html" title="Messages" id="messagesNavLink">
                             <i class="bi bi-chat-dots"></i>
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none" id="unreadMessagesBadge">0</span>
                         </a>
                     </li>
                     <li class="nav-item position-relative" id="nav-notification-bell">
@@ -679,6 +680,29 @@
     .navbar-custom .btn-warning:hover {
         background: #ffd700cc !important;
         color: #03254c !important;
+    }
+    
+    /* Unread messages badge styling */
+    #unreadMessagesBadge {
+        font-size: 0.7rem;
+        min-width: 18px;
+        height: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+        0% {
+            box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7);
+        }
+        70% {
+            box-shadow: 0 0 0 10px rgba(220, 53, 69, 0);
+        }
+        100% {
+            box-shadow: 0 0 0 0 rgba(220, 53, 69, 0);
+        }
     }
     </style>
     <script>
@@ -830,6 +854,8 @@
     let typingTimeout;
     let selectedFiles = [];
     let uploadProgress = {};
+    let totalUnreadCount = 0;
+    let unreadMessagesListener = null;
 
     // Show loading spinner while checking auth
     document.body.insertAdjacentHTML('beforeend', '<div id="authLoading" style="position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:2000;background:rgba(255,255,255,0.9);display:flex;align-items:center;justify-content:center;"><div class="loading-container"><div class="star-loading"><div class="star"></div><div class="star"></div><div class="star"></div></div><div class="loading-text">Loading messaging...</div></div></div>');
@@ -936,6 +962,9 @@
           loadConversations();
         }
       }, 30000); // Refresh every 30 seconds
+      
+      // Start listening for unread messages
+      startUnreadMessagesListener();
     });
 
     function getQueryParam(name) {
@@ -994,6 +1023,46 @@
       }
     }
 
+    // Start listening for unread messages
+    function startUnreadMessagesListener() {
+      if (!db || !currentUser) return;
+      
+      // Listen to conversations where current user is a participant
+      unreadMessagesListener = db.collection('conversations')
+        .where('participants', 'array-contains', currentUser.id)
+        .onSnapshot(snap => {
+          let totalUnread = 0;
+          snap.forEach(doc => {
+            const data = doc.data();
+            if (data.unreadCount && data.unreadCount > 0) {
+              totalUnread += data.unreadCount;
+            }
+          });
+          
+          updateUnreadBadge(totalUnread);
+        });
+    }
+
+    // Update the unread messages badge
+    function updateUnreadBadge(count) {
+      const badge = document.getElementById('unreadMessagesBadge');
+      if (!badge) return;
+      
+      totalUnreadCount = count;
+      
+      if (count > 0) {
+        badge.textContent = count > 99 ? '99+' : count.toString();
+        badge.classList.remove('d-none');
+      } else {
+        badge.classList.add('d-none');
+      }
+    }
+
+    // Clear unread badge when messages page is opened
+    function clearUnreadBadge() {
+      updateUnreadBadge(0);
+    }
+
     async function selectConversation(conv) {
       selectedConversation = conv;
       
@@ -1028,6 +1097,9 @@
           await db.collection('conversations').doc(conv.id).update({
             unreadCount: 0
           });
+          
+          // Clear unread badge when conversation is opened
+          clearUnreadBadge();
         }
       } catch (err) {
         console.error('Error marking messages as read:', err);
@@ -1558,6 +1630,18 @@
 
     // On page load, check for pending offer and send as first message if needed
     document.addEventListener('DOMContentLoaded', async function() {
+      // Clear unread badge when messages page is opened
+      clearUnreadBadge();
+      
+      // Add click handler for messages nav link
+      const messagesNavLink = document.getElementById('messagesNavLink');
+      if (messagesNavLink) {
+        messagesNavLink.addEventListener('click', function(e) {
+          // Clear unread badge when clicking the messages link
+          clearUnreadBadge();
+        });
+      }
+      
       const url = new URL(window.location.href);
       const makeOffer = url.searchParams.get('makeOffer');
       const pendingOfferRaw = localStorage.getItem('pendingOffer');
