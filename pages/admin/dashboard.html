@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cross-Origin-Opener-Policy" content="same-origin">
   <title>Admin Dashboard - Starlet Properties</title>
   <!-- Bootstrap CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -106,7 +107,7 @@
     <div class="profile-dropdown dropdown">
       <a class="d-flex align-items-center text-decoration-none dropdown-toggle" href="#" id="profileDropdown" data-bs-toggle="dropdown" aria-expanded="false">
         <span class="profile-avatar me-2">
-          <img src="https://via.placeholder.com/32x32/0d6efd/ffffff?text=A" alt="Admin">
+          <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiByeD0iNCIgZmlsbD0iIzBkNmVmZCIvPgo8dGV4dCB4PSIxNiIgeT0iMjAiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNCIgZm9udC13ZWlnaHQ9ImJvbGQiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5BPC90ZXh0Pgo8L3N2Zz4K" alt="Admin">
         </span>
         <span id="adminName">Admin</span>
       </a>
@@ -419,6 +420,8 @@
 
   <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- Firebase Config -->
+  <script src="../../assets/js/firebase-config.js"></script>
   <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
@@ -431,20 +434,31 @@
   <script>
     let listingsChart, usersChart;
     let statsData = {};
+    let db, auth;
 
     // Initialize dashboard
     document.addEventListener('DOMContentLoaded', function() {
-      // Initialize Firebase
-      if (typeof firebase !== 'undefined') {
-        // Load dashboard data
-        loadDashboardStats();
-        loadRecentActivity();
-        loadSystemAlerts();
-        initializeCharts();
-        
-        // Set up real-time listeners
-        setupRealtimeListeners();
-      }
+      // Wait for Firebase to be available
+      const checkFirebase = () => {
+        if (typeof firebase !== 'undefined' && window.firebaseDB) {
+          db = window.firebaseDB;
+          auth = window.firebaseAuth;
+          
+          // Load dashboard data
+          loadDashboardStats();
+          loadRecentActivity();
+          loadSystemAlerts();
+          initializeCharts();
+          
+          // Set up real-time listeners
+          setupRealtimeListeners();
+        } else {
+          // Retry after a short delay
+          setTimeout(checkFirebase, 100);
+        }
+      };
+      
+      checkFirebase();
       
       // Display user info
       try {
@@ -458,6 +472,11 @@
     // Load dashboard statistics
     async function loadDashboardStats() {
       try {
+        if (!db) {
+          console.error('Firestore not initialized');
+          return;
+        }
+        
         // Get listings count
         const listingsSnap = await db.collection('listings').get();
         const totalListings = listingsSnap.size;
@@ -536,6 +555,11 @@
     // Load recent activity
     async function loadRecentActivity() {
       try {
+        if (!db) {
+          console.error('Firestore not initialized');
+          return;
+        }
+        
         const activityContainer = document.getElementById('recentActivity');
         
         // Get recent listings
@@ -615,6 +639,11 @@
     // Load system alerts
     async function loadSystemAlerts() {
       try {
+        if (!db) {
+          console.error('Firestore not initialized');
+          return;
+        }
+        
         const alertsContainer = document.getElementById('systemAlerts');
         
         // Check for various system issues
@@ -748,6 +777,11 @@
     // Update charts with real data
     async function updateCharts() {
       try {
+        if (!db) {
+          console.error('Firestore not initialized');
+          return;
+        }
+        
         // Get listings by category
         const propertyListings = await db.collection('listings')
           .where('listingType', 'in', ['house_sale', 'house_rent', 'vacation_short_stay'])
@@ -802,6 +836,11 @@
 
     // Setup real-time listeners
     function setupRealtimeListeners() {
+      if (!db) {
+        console.error('Firestore not initialized');
+        return;
+      }
+      
       // Listen for new listings
       db.collection('listings')
         .orderBy('createdAt', 'desc')

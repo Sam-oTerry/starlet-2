@@ -24,7 +24,7 @@
             <form id="addOfficialListingForm">
               <div class="mb-3">
                 <label class="form-label">Listing Type <span class="text-danger">*</span></label>
-                <select id="listingType" class="form-select" required>
+                <select id="listingType" name="listingType" class="form-select" required>
                   <option value="">Select Type</option>
                   <option value="property">Property</option>
                   <option value="vehicle">Vehicle</option>
@@ -34,32 +34,32 @@
                 <!-- Property Type -->
                 <div class="mb-3">
                   <label class="form-label">Property Type <span class="text-danger">*</span></label>
-                  <select id="propertyType" class="form-select" required></select>
+                  <select id="propertyType" name="propertyType" class="form-select" required></select>
                 </div>
                 <!-- Title, Price, District, Description, Price Type -->
                 <div class="row g-3">
                   <div class="col-md-6">
                     <label class="form-label">Title <span class="text-danger">*</span></label>
-                    <input id="propertyTitle" type="text" class="form-control" required>
+                    <input id="propertyTitle" name="propertyTitle" type="text" class="form-control" required>
                   </div>
                   <div class="col-md-6">
                     <label class="form-label">Asking Price (UGX) <span class="text-danger">*</span></label>
-                    <input id="propertyAskingPrice" type="number" class="form-control" required>
+                    <input id="propertyAskingPrice" name="propertyAskingPrice" type="number" class="form-control" required>
                   </div>
                   <div class="col-md-6">
                     <label class="form-label">District <span class="text-danger">*</span></label>
-                    <input id="propertyDistrict" type="text" class="form-control" required>
+                    <input id="propertyDistrict" name="propertyDistrict" type="text" class="form-control" required>
                   </div>
                   <div class="col-md-6">
                     <label class="form-label">Price Type <span class="text-danger">*</span></label>
-                    <select id="propertyPriceType" class="form-select" required>
+                    <select id="propertyPriceType" name="propertyPriceType" class="form-select" required>
                       <option value="fixed">Fixed</option>
                       <option value="negotiable">Negotiable</option>
                     </select>
                   </div>
                   <div class="col-12">
                     <label class="form-label">Description <span class="text-danger">*</span></label>
-                    <textarea id="propertyDescription" class="form-control" rows="2" required></textarea>
+                    <textarea id="propertyDescription" name="propertyDescription" class="form-control" rows="2" required></textarea>
                   </div>
                 </div>
                 <!-- House Details (shown for house_sale, house_rent, vacation_short_stay) -->
@@ -68,32 +68,32 @@
                   <div class="row g-3">
                     <div class="col-md-6">
                       <label class="form-label">Sub Category <span class="text-danger">*</span></label>
-                      <select id="houseSubCategory" class="form-select" required></select>
+                      <select id="houseSubCategory" name="houseSubCategory" class="form-select" required></select>
                     </div>
                     <div class="col-md-3">
                       <label class="form-label">Bedrooms <span class="text-danger">*</span></label>
-                      <input id="houseBedrooms" type="number" class="form-control" min="0" required>
+                      <input id="houseBedrooms" name="houseBedrooms" type="number" class="form-control" min="0" required>
                     </div>
                     <div class="col-md-3">
                       <label class="form-label">Bathrooms <span class="text-danger">*</span></label>
-                      <input id="houseBathrooms" type="number" class="form-control" min="0" required>
+                      <input id="houseBathrooms" name="houseBathrooms" type="number" class="form-control" min="0" required>
                     </div>
                     <div class="col-md-6">
                       <label class="form-label">Total Area (sqm) <span class="text-danger">*</span></label>
-                      <input id="houseTotalArea" type="number" class="form-control" required>
+                      <input id="houseTotalArea" name="houseTotalArea" type="number" class="form-control" required>
                     </div>
                     <div class="col-md-6">
                       <label class="form-label">Plot Size</label>
                       <div class="row g-2">
-                        <div class="col"><input id="housePlotWidth" type="number" placeholder="Width (ft)" class="form-control"></div>
-                        <div class="col"><input id="housePlotLength" type="number" placeholder="Length (ft)" class="form-control"></div>
-                        <div class="col"><input id="housePlotAcres" type="number" placeholder="Acres" class="form-control"></div>
-                        <div class="col"><input id="housePlotHectares" type="number" placeholder="Hectares" class="form-control"></div>
+                        <div class="col"><input id="housePlotWidth" name="housePlotWidth" type="number" placeholder="Width (ft)" class="form-control"></div>
+                        <div class="col"><input id="housePlotLength" name="housePlotLength" type="number" placeholder="Length (ft)" class="form-control"></div>
+                        <div class="col"><input id="housePlotAcres" name="housePlotAcres" type="number" placeholder="Acres" class="form-control"></div>
+                        <div class="col"><input id="housePlotHectares" name="housePlotHectares" type="number" placeholder="Hectares" class="form-control"></div>
                       </div>
                     </div>
                     <div class="col-md-6">
                       <label class="form-label">Furnishing Status <span class="text-danger">*</span></label>
-                      <select id="houseFurnishingStatus" class="form-select" required>
+                      <select id="houseFurnishingStatus" name="houseFurnishingStatus" class="form-select" required>
                         <option value="">Select</option>
                         <option>Fully Furnished</option>
                         <option>Semi-Furnished</option>
@@ -102,7 +102,7 @@
                     </div>
                     <div class="col-md-6">
                       <label class="form-label">Condition <span class="text-danger">*</span></label>
-                      <select id="houseCondition" class="form-select" required>
+                      <select id="houseCondition" name="houseCondition" class="form-select" required>
                         <option value="">Select</option>
                         <option>New</option>
                         <option>Renovated</option>
@@ -117,20 +117,20 @@
                   <div class="row g-3">
                     <div class="col-md-6">
                       <label class="form-label">Sub Category <span class="text-danger">*</span></label>
-                      <select id="landSubCategory" class="form-select" required></select>
+                      <select id="landSubCategory" name="landSubCategory" class="form-select" required></select>
                     </div>
                     <div class="col-md-6">
                       <label class="form-label">Plot Size</label>
                       <div class="row g-2">
-                        <div class="col"><input id="landPlotAcres" type="number" placeholder="Acres" class="form-control"></div>
-                        <div class="col"><input id="landPlotHectares" type="number" placeholder="Hectares" class="form-control"></div>
-                        <div class="col"><input id="landPlotWidth" type="number" placeholder="Width (m)" class="form-control"></div>
-                        <div class="col"><input id="landPlotLength" type="number" placeholder="Length (m)" class="form-control"></div>
+                        <div class="col"><input id="landPlotAcres" name="landPlotAcres" type="number" placeholder="Acres" class="form-control"></div>
+                        <div class="col"><input id="landPlotHectares" name="landPlotHectares" type="number" placeholder="Hectares" class="form-control"></div>
+                        <div class="col"><input id="landPlotWidth" name="landPlotWidth" type="number" placeholder="Width (m)" class="form-control"></div>
+                        <div class="col"><input id="landPlotLength" name="landPlotLength" type="number" placeholder="Length (m)" class="form-control"></div>
                       </div>
                     </div>
                     <div class="col-md-6">
                       <label class="form-label">Topography <span class="text-danger">*</span></label>
-                      <select id="landTopography" class="form-select" required>
+                      <select id="landTopography" name="landTopography" class="form-select" required>
                         <option value="">Select</option>
                         <option>Flat</option>
                         <option>Sloped</option>
@@ -140,7 +140,7 @@
                     </div>
                     <div class="col-md-6">
                       <label class="form-label">Soil Type</label>
-                      <select id="landSoilType" class="form-select">
+                      <select id="landSoilType" name="landSoilType" class="form-select">
                         <option value="">Select</option>
                         <option>Clay</option>
                         <option>Loam</option>
@@ -150,7 +150,7 @@
                     </div>
                     <div class="col-md-6">
                       <label class="form-label">Current Use <span class="text-danger">*</span></label>
-                      <select id="landCurrentUse" class="form-select" required>
+                      <select id="landCurrentUse" name="landCurrentUse" class="form-select" required>
                         <option value="">Select</option>
                         <option>Vacant</option>
                         <option>Farmland</option>
@@ -166,7 +166,7 @@
                   <div class="row g-3">
                     <div class="col-md-4">
                       <label class="form-label">Ownership Type <span class="text-danger">*</span></label>
-                      <select id="ownershipType" class="form-select" required>
+                      <select id="ownershipType" name="ownershipType" class="form-select" required>
                         <option value="">Select</option>
                         <option>Freehold</option>
                         <option>Leasehold</option>
@@ -176,7 +176,7 @@
                     </div>
                     <div class="col-md-4">
                       <label class="form-label">Title Status <span class="text-danger">*</span></label>
-                      <select id="titleStatus" class="form-select" required>
+                      <select id="titleStatus" name="titleStatus" class="form-select" required>
                         <option value="">Select</option>
                         <option>Registered</option>
                         <option>Unregistered</option>
@@ -185,7 +185,7 @@
                     </div>
                     <div class="col-md-4" id="leaseYearsField">
                       <label class="form-label">Lease Years Remaining</label>
-                      <input id="leaseYearsRemaining" type="number" class="form-control">
+                      <input id="leaseYearsRemaining" name="leaseYearsRemaining" type="number" class="form-control">
                     </div>
                   </div>
                 </div>
@@ -195,7 +195,7 @@
                   <div class="row g-3">
                     <div class="col-md-4">
                       <label class="form-label">Electricity <span class="text-danger">*</span></label>
-                      <select id="amenityElectricity" class="form-select" required>
+                      <select id="amenityElectricity" name="amenityElectricity" class="form-select" required>
                         <option>UMEME</option>
                         <option>Solar</option>
                         <option>Grid</option>
@@ -204,7 +204,7 @@
                     </div>
                     <div class="col-md-4">
                       <label class="form-label">Water Supply <span class="text-danger">*</span></label>
-                      <select id="amenityWater" class="form-select" required>
+                      <select id="amenityWater" name="amenityWater" class="form-select" required>
                         <option>Piped</option>
                         <option>Borehole</option>
                         <option>Water Tank</option>
@@ -214,7 +214,7 @@
                     </div>
                     <div class="col-md-4">
                       <label class="form-label">Toilet Type <span class="text-danger">*</span></label>
-                      <select id="amenityToilet" class="form-select" required>
+                      <select id="amenityToilet" name="amenityToilet" class="form-select" required>
                         <option>Flush</option>
                         <option>Pit Latrine</option>
                         <option>None</option>
@@ -223,21 +223,21 @@
                     <div class="col-md-4">
                       <label class="form-label">Security</label><br>
                       <div id="amenitySecurityCheckboxes" class="form-check">
-                        <input class="form-check-input" type="checkbox" value="Gate" id="securityGate">
+                        <input class="form-check-input" type="checkbox" value="Gate" id="securityGate" name="securityGate">
                         <label class="form-check-label me-2" for="securityGate">Gate</label>
-                        <input class="form-check-input" type="checkbox" value="Guard" id="securityGuard">
+                        <input class="form-check-input" type="checkbox" value="Guard" id="securityGuard" name="securityGuard">
                         <label class="form-check-label me-2" for="securityGuard">Guard</label>
-                        <input class="form-check-input" type="checkbox" value="CCTV" id="securityCCTV">
+                        <input class="form-check-input" type="checkbox" value="CCTV" id="securityCCTV" name="securityCCTV">
                         <label class="form-check-label me-2" for="securityCCTV">CCTV</label>
-                        <input class="form-check-input" type="checkbox" value="Fence" id="securityFence">
+                        <input class="form-check-input" type="checkbox" value="Fence" id="securityFence" name="securityFence">
                         <label class="form-check-label me-2" for="securityFence">Fence</label>
-                        <input class="form-check-input" type="checkbox" value="None" id="securityNone">
+                        <input class="form-check-input" type="checkbox" value="None" id="securityNone" name="securityNone">
                         <label class="form-check-label" for="securityNone">None</label>
                       </div>
                     </div>
                     <div class="col-md-4">
                       <label class="form-label">Parking</label>
-                      <select id="amenityParking" class="form-select">
+                      <select id="amenityParking" name="amenityParking" class="form-select">
                         <option>Garage</option>
                         <option>Carport</option>
                         <option>Open Space</option>
@@ -246,7 +246,7 @@
                     </div>
                     <div class="col-md-4">
                       <label class="form-label">Internet Ready</label>
-                      <select id="amenityInternet" class="form-select">
+                      <select id="amenityInternet" name="amenityInternet" class="form-select">
                         <option>Fibre</option>
                         <option>Airtel Wireless</option>
                         <option>MTN Wireless</option>
@@ -255,7 +255,7 @@
                     </div>
                     <div class="col-md-4">
                       <label class="form-label">Backup Power</label>
-                      <select id="amenityBackup" class="form-select">
+                      <select id="amenityBackup" name="amenityBackup" class="form-select">
                         <option>Generator</option>
                         <option>Solar</option>
                         <option>None</option>
@@ -263,7 +263,7 @@
                     </div>
                     <div class="col-md-4">
                       <label class="form-label">Kitchen</label>
-                      <select id="amenityKitchen" class="form-select">
+                      <select id="amenityKitchen" name="amenityKitchen" class="form-select">
                         <option>Modern</option>
                         <option>Standard</option>
                         <option>Basic</option>
@@ -271,12 +271,12 @@
                       </select>
                     </div>
                     <div class="col-md-4 d-flex align-items-center">
-                      <input id="amenityTiled" type="checkbox" class="form-check-input me-2">
+                      <input id="amenityTiled" name="amenityTiled" type="checkbox" class="form-check-input me-2">
                       <label class="form-label mb-0">Tiled</label>
                     </div>
                     <div class="col-md-4">
                       <label class="form-label">Road Access</label>
-                      <select id="amenityRoadAccess" class="form-select">
+                      <select id="amenityRoadAccess" name="amenityRoadAccess" class="form-select">
                         <option>Tarmac</option>
                         <option>Murram</option>
                         <option>Footpath</option>
@@ -286,15 +286,15 @@
                     <div class="col-md-4">
                       <label class="form-label">Nearby Amenities</label><br>
                       <div id="amenityNearbyCheckboxes" class="form-check">
-                        <input class="form-check-input" type="checkbox" value="Schools" id="nearbySchools">
+                        <input class="form-check-input" type="checkbox" value="Schools" id="nearbySchools" name="nearbySchools">
                         <label class="form-check-label me-2" for="nearbySchools">Schools</label>
-                        <input class="form-check-input" type="checkbox" value="Hospitals" id="nearbyHospitals">
+                        <input class="form-check-input" type="checkbox" value="Hospitals" id="nearbyHospitals" name="nearbyHospitals">
                         <label class="form-check-label me-2" for="nearbyHospitals">Hospitals</label>
-                        <input class="form-check-input" type="checkbox" value="Markets" id="nearbyMarkets">
+                        <input class="form-check-input" type="checkbox" value="Markets" id="nearbyMarkets" name="nearbyMarkets">
                         <label class="form-check-label me-2" for="nearbyMarkets">Markets</label>
-                        <input class="form-check-input" type="checkbox" value="Public Transport" id="nearbyTransport">
+                        <input class="form-check-input" type="checkbox" value="Public Transport" id="nearbyTransport" name="nearbyTransport">
                         <label class="form-check-label me-2" for="nearbyTransport">Public Transport</label>
-                        <input class="form-check-input" type="checkbox" value="None" id="nearbyNone">
+                        <input class="form-check-input" type="checkbox" value="None" id="nearbyNone" name="nearbyNone">
                         <label class="form-check-label" for="nearbyNone">None</label>
                       </div>
                     </div>
@@ -305,32 +305,32 @@
                 <!-- Vehicle Category, Make, Model, Year, etc. -->
                 <div class="mb-3">
                   <label class="form-label">Vehicle Category <span class="text-danger">*</span></label>
-                  <select id="vehicleCategory" class="form-select" required></select>
+                  <select id="vehicleCategory" name="vehicleCategory" class="form-select" required></select>
                 </div>
                 <div class="row g-3">
                   <div class="col-md-6">
                     <label class="form-label">Sub Category <span class="text-danger">*</span></label>
-                    <select id="vehicleSubCategory" class="form-select" required></select>
+                    <select id="vehicleSubCategory" name="vehicleSubCategory" class="form-select" required></select>
                   </div>
                   <div class="col-md-6">
                     <label class="form-label">Make <span class="text-danger">*</span></label>
-                    <select id="vehicleMake" class="form-select" required></select>
+                    <select id="vehicleMake" name="vehicleMake" class="form-select" required></select>
                   </div>
                   <div class="col-md-6">
                     <label class="form-label">Model <span class="text-danger">*</span></label>
-                    <select id="vehicleModel" class="form-select" required></select>
+                    <select id="vehicleModel" name="vehicleModel" class="form-select" required></select>
                   </div>
                   <div class="col-md-3">
                     <label class="form-label">Year <span class="text-danger">*</span></label>
-                    <input id="vehicleYear" type="number" class="form-control" min="1900" max="2025" required>
+                    <input id="vehicleYear" name="vehicleYear" type="number" class="form-control" min="1900" max="2025" required>
                   </div>
                   <div class="col-md-3">
                     <label class="form-label">Color <span class="text-danger">*</span></label>
-                    <input id="vehicleColor" type="text" class="form-control" required>
+                    <input id="vehicleColor" name="vehicleColor" type="text" class="form-control" required>
                   </div>
                   <div class="col-md-4">
                     <label class="form-label">Condition <span class="text-danger">*</span></label>
-                    <select id="vehicleCondition" class="form-select" required>
+                    <select id="vehicleCondition" name="vehicleCondition" class="form-select" required>
                       <option>New</option>
                       <option>Used</option>
                       <option>For Parts</option>
@@ -338,7 +338,7 @@
                   </div>
                   <div class="col-md-4">
                     <label class="form-label">Transmission <span class="text-danger">*</span></label>
-                    <select id="vehicleTransmission" class="form-select" required>
+                    <select id="vehicleTransmission" name="vehicleTransmission" class="form-select" required>
                       <option>Manual</option>
                       <option>Automatic</option>
                       <option>Semi-Automatic</option>
@@ -347,7 +347,7 @@
                   </div>
                   <div class="col-md-4">
                     <label class="form-label">Fuel Type <span class="text-danger">*</span></label>
-                    <select id="vehicleFuelType" class="form-select" required>
+                    <select id="vehicleFuelType" name="vehicleFuelType" class="form-select" required>
                       <option>Petrol</option>
                       <option>Diesel</option>
                       <option>Electric</option>
@@ -357,17 +357,17 @@
                   </div>
                   <div class="col-md-4">
                     <label class="form-label">Mileage (km)</label>
-                    <input id="vehicleMileage" type="number" class="form-control">
+                    <input id="vehicleMileage" name="vehicleMileage" type="number" class="form-control">
                   </div>
                 </div>
                 <div class="row g-3 mt-3">
                   <div class="col-md-8">
                     <label class="form-label">Description <span class="text-danger">*</span></label>
-                    <textarea id="vehicleDescription" class="form-control" rows="2" required></textarea>
+                    <textarea id="vehicleDescription" name="vehicleDescription" class="form-control" rows="2" required></textarea>
                   </div>
                   <div class="col-md-4">
                     <label class="form-label">Price Type <span class="text-danger">*</span></label>
-                    <select id="vehiclePriceType" class="form-select" required>
+                    <select id="vehiclePriceType" name="vehiclePriceType" class="form-select" required>
                       <option value="fixed">Fixed</option>
                       <option value="negotiable">Negotiable</option>
                     </select>

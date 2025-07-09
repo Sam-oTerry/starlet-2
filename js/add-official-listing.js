@@ -147,13 +147,16 @@ listingTypeEl.addEventListener('change', function() {
     propertySection.classList.remove('d-none');
     vehicleSection.classList.add('d-none');
     populatePropertyTypeDropdown();
+    updateRequiredAttributes();
   } else if (listingTypeEl.value === 'vehicle') {
     vehicleSection.classList.remove('d-none');
     propertySection.classList.add('d-none');
     populateVehicleCategories();
+    updateRequiredAttributes();
   } else {
     propertySection.classList.add('d-none');
     vehicleSection.classList.add('d-none');
+    updateRequiredAttributes();
   }
 });
 
@@ -198,6 +201,7 @@ if (propertyTypeEl) {
     ownershipDetailsSection.classList.remove('d-none');
     amenitiesSection.classList.remove('d-none');
     lastPropertyType = propertyType;
+    updateRequiredAttributes();
   });
 }
 
@@ -213,6 +217,7 @@ if (vehicleCategoryEl) {
     populateVehicleSubCategoryDropdown(vehicleCategory);
     populateVehicleMakeDropdown(vehicleCategory);
     if (vehicleModelEl) vehicleModelEl.length = 1;
+    updateRequiredAttributes();
   });
 }
 if (vehicleMakeEl) {
@@ -220,6 +225,7 @@ if (vehicleMakeEl) {
     const vehicleCategory = vehicleCategoryEl.value;
     const vehicleMake = vehicleMakeEl.value;
     populateVehicleModelDropdown(vehicleCategory, vehicleMake);
+    updateRequiredAttributes();
   });
 }
 
@@ -227,12 +233,26 @@ if (vehicleMakeEl) {
 function updateRequiredAttributes() {
   // For all form controls, if hidden, remove required
   document.querySelectorAll('#addOfficialListingForm [required]').forEach(el => {
-    if (el.offsetParent === null) {
+    if (el.offsetParent === null || el.closest('.d-none')) {
       el.required = false;
     } else {
-      el.required = true;
+      // Only add required back if it was originally required
+      const originalRequired = el.getAttribute('data-original-required');
+      if (originalRequired === 'true' || originalRequired === null) {
+        el.required = true;
+      }
     }
   });
+}
+
+// --- Initialize required attributes ---
+function initializeRequiredAttributes() {
+  // Store original required state
+  document.querySelectorAll('#addOfficialListingForm [required]').forEach(el => {
+    el.setAttribute('data-original-required', 'true');
+  });
+  // Update based on current visibility
+  updateRequiredAttributes();
 }
 
 // --- Validation Helper (updated) ---
@@ -241,7 +261,7 @@ function validateRequired(ids) {
   let valid = true;
   ids.forEach(id => {
     const el = document.getElementById(id);
-    if (el && el.offsetParent !== null && !el.value) {
+    if (el && el.offsetParent !== null && !el.closest('.d-none') && !el.value) {
       el.classList.add('is-invalid');
       valid = false;
     } else if (el) {
@@ -282,6 +302,8 @@ function renderAmenityCheckboxes() {
 // --- Form Submission ---
 form.onsubmit = async function(e) {
   e.preventDefault();
+  // Update required attributes before validation
+  updateRequiredAttributes();
   let listing = {};
   let valid = true;
   if (listingTypeEl.value === 'property') {
@@ -416,4 +438,5 @@ document.addEventListener('DOMContentLoaded', function() {
   fetchVehicleMakesModels();
   fetchPropertyMeta();
   renderAmenityCheckboxes();
+  initializeRequiredAttributes();
 }); 
