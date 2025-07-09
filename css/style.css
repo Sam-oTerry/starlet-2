@@ -1248,3 +1248,218 @@ body.admin-panel {
   }
 }
 
+/* Three Star Loading Animation */
+.star-loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    padding: 30px;
+    position: relative;
+}
+
+.star-loading .star {
+    width: 0;
+    height: 0;
+    border-left: 12px solid transparent;
+    border-right: 12px solid transparent;
+    border-bottom: 20px solid var(--accent-gold);
+    position: relative;
+    animation: starPulse 2s cubic-bezier(0.25, 0.46, 0.45, 0.94) infinite;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15)) drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1));
+}
+
+.star-loading .star::after {
+    content: '';
+    position: absolute;
+    top: 6px;
+    left: -12px;
+    width: 0;
+    height: 0;
+    border-left: 12px solid transparent;
+    border-right: 12px solid transparent;
+    border-top: 20px solid var(--accent-gold);
+}
+
+.star-loading .star:nth-child(1) {
+    animation-delay: 0s;
+    border-bottom-color: var(--accent-gold);
+}
+
+.star-loading .star:nth-child(1)::after {
+    border-top-color: var(--accent-gold);
+}
+
+.star-loading .star:nth-child(2) {
+    animation-delay: 0.4s;
+    border-bottom-color: var(--accent-cyan);
+}
+
+.star-loading .star:nth-child(2)::after {
+    border-top-color: var(--accent-cyan);
+}
+
+.star-loading .star:nth-child(3) {
+    animation-delay: 0.8s;
+    border-bottom-color: var(--primary-color);
+}
+
+.star-loading .star:nth-child(3)::after {
+    border-top-color: var(--primary-color);
+}
+
+@keyframes starPulse {
+    0% {
+        transform: scale(1) translateY(0);
+        opacity: 0.7;
+        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15)) drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1)) drop-shadow(0 0 3px currentColor);
+    }
+    20% {
+        transform: scale(1.1) translateY(-8px);
+        opacity: 0.8;
+        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15)) drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1)) drop-shadow(0 0 5px currentColor);
+    }
+    40% {
+        transform: scale(1.2) translateY(-20px);
+        opacity: 0.9;
+        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15)) drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1)) drop-shadow(0 0 8px currentColor);
+    }
+    60% {
+        transform: scale(1.3) translateY(-30px);
+        opacity: 1;
+        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15)) drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1)) drop-shadow(0 0 12px currentColor);
+    }
+    80% {
+        transform: scale(1.2) translateY(-20px);
+        opacity: 0.9;
+        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15)) drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1)) drop-shadow(0 0 8px currentColor);
+    }
+    100% {
+        transform: scale(1) translateY(0);
+        opacity: 0.7;
+        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15)) drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1)) drop-shadow(0 0 3px currentColor);
+    }
+}
+
+/* Alternative star loading with different animation */
+.star-loading-alt {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 18px;
+    padding: 35px;
+    position: relative;
+}
+
+.star-loading-alt .star {
+    font-size: 2rem;
+    color: var(--accent-gold);
+    animation: starTwinkle 2.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) infinite;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15)) drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1));
+}
+
+.star-loading-alt .star:nth-child(1) {
+    animation-delay: 0s;
+    color: var(--accent-gold);
+}
+
+.star-loading-alt .star:nth-child(2) {
+    animation-delay: 0.5s;
+    color: var(--accent-cyan);
+}
+
+.star-loading-alt .star:nth-child(3) {
+    animation-delay: 1s;
+    color: var(--primary-color);
+}
+
+@keyframes starTwinkle {
+    0% {
+        transform: scale(1) translateY(0);
+        opacity: 0.6;
+        filter: brightness(1) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15)) drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1)) drop-shadow(0 0 2px currentColor);
+    }
+    20% {
+        transform: scale(1.15) translateY(-12px);
+        opacity: 0.75;
+        filter: brightness(1.2) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15)) drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1)) drop-shadow(0 0 4px currentColor);
+    }
+    40% {
+        transform: scale(1.25) translateY(-25px);
+        opacity: 0.85;
+        filter: brightness(1.4) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15)) drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1)) drop-shadow(0 0 6px currentColor);
+    }
+    60% {
+        transform: scale(1.35) translateY(-35px);
+        opacity: 1;
+        filter: brightness(1.6) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15)) drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1)) drop-shadow(0 0 10px currentColor);
+    }
+    80% {
+        transform: scale(1.25) translateY(-25px);
+        opacity: 0.85;
+        filter: brightness(1.4) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15)) drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1)) drop-shadow(0 0 6px currentColor);
+    }
+    100% {
+        transform: scale(1) translateY(0);
+        opacity: 0.6;
+        filter: brightness(1) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15)) drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1)) drop-shadow(0 0 2px currentColor);
+    }
+}
+
+/* Loading container styles */
+.loading-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 250px;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08), 0 4px 16px rgba(0, 0, 0, 0.04);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    position: relative;
+}
+
+.loading-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+    border-radius: 16px;
+    pointer-events: none;
+}
+
+.loading-text {
+    margin-top: 20px;
+    color: var(--dark-color);
+    font-weight: 600;
+    font-size: 1rem;
+    opacity: 0.9;
+    letter-spacing: 0.5px;
+}
+
+/* Responsive star loading */
+@media (max-width: 768px) {
+    .star-loading .star {
+        border-left: 8px solid transparent;
+        border-right: 8px solid transparent;
+        border-bottom: 14px solid var(--accent-gold);
+    }
+    
+    .star-loading .star::after {
+        border-left: 8px solid transparent;
+        border-right: 8px solid transparent;
+        border-top: 14px solid var(--accent-gold);
+        top: 4px;
+        left: -8px;
+    }
+    
+    .star-loading-alt .star {
+        font-size: 1.5rem;
+    }
+}
+

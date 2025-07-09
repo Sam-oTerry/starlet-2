@@ -284,7 +284,7 @@ let allProperties = [];
 // Fetch all property listings from Firestore
 async function fetchProperties() {
   const container = document.getElementById('properties-listings');
-  if (container) container.innerHTML = '<div class="col-12 text-center text-muted py-5">Loading properties...</div>';
+  if (container) container.innerHTML = '<div class="col-12 text-center py-5"><div class="loading-container"><div class="star-loading"><div class="star"></div><div class="star"></div><div class="star"></div></div><div class="loading-text">Loading properties...</div></div></div>';
   try {
     const snapshot = await db.collection('listings')
       .where('listingType', '==', 'property')

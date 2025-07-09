@@ -156,48 +156,158 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-messaging-compat.js"></script>
+  <script src="../../assets/js/firebase-config.js"></script>
   <script src="../../js/admin.js"></script>
   <!-- JS for messages page will be added next -->
   <script>
-    let messaging;
-    auth.onAuthStateChanged(async user => {
-      if (!user) {
-        window.location.href = '../auth/login.html';
+    // Initialize Firebase services
+    let db, auth, messaging;
+    let currentUser = null;
+    let selectedConversation = null;
+    let conversations = [];
+    let unsubscribeMessages = null;
+    let typingTimeout;
+
+    // Initialize Firebase after config is loaded
+    function initializeFirebase() {
+      try {
+        // Check if Firebase is available
+        if (typeof firebase === 'undefined') {
+          console.error('Firebase is not loaded');
+          return false;
+        }
+
+        // Initialize Firebase services
+        db = firebase.firestore();
+        auth = firebase.auth();
+        
+        console.log('Firebase initialized successfully');
+        return true;
+      } catch (error) {
+        console.error('Error initializing Firebase:', error);
+        return false;
+      }
+    }
+
+    // Wait for Firebase to be ready
+    function waitForFirebase() {
+      if (typeof firebase !== 'undefined' && firebase.auth) {
+        initializeFirebase();
+        setupAuthListener();
+      } else {
+        console.log('Waiting for Firebase to load...');
+        setTimeout(waitForFirebase, 100);
+      }
+    }
+
+    // Setup authentication listener
+    function setupAuthListener() {
+      if (!auth) {
+        console.error('Auth not initialized');
         return;
       }
-      currentUser = {
-        id: user.uid,
-        name: user.displayName || user.email || 'User',
-        avatar: user.photoURL || 'https://randomuser.me/api/portraits/lego/2.jpg',
-        email: user.email
-      };
-      messaging = firebase.messaging();
+
+      auth.onAuthStateChanged(async user => {
+        if (!user) {
+          console.log('No user logged in, redirecting to login');
+          window.location.href = '../auth/login.html';
+          return;
+        }
+        
+        currentUser = {
+          id: user.uid,
+          name: user.displayName || user.email || 'User',
+          avatar: user.photoURL || 'https://randomuser.me/api/portraits/lego/2.jpg',
+          email: user.email
+        };
+        
+        console.log('Admin authenticated:', currentUser.email);
+        
+        // Initialize messaging
+        try {
+          messaging = firebase.messaging();
+          await Notification.requestPermission();
+          const token = await messaging.getToken({ vapidKey: 'YOUR_PUBLIC_VAPID_KEY' });
+          await db.collection('users').doc(currentUser.id).update({ fcmToken: token });
+        } catch (err) { 
+          console.warn('FCM permission denied or error', err); 
+        }
+        
+        // Load conversations for admin
+        await loadAdminConversations();
+      });
+    }
+
+    // Load conversations for admin view
+    async function loadAdminConversations() {
+      if (!currentUser || !db) return;
+      
       try {
-        await Notification.requestPermission();
-        const token = await messaging.getToken({ vapidKey: 'YOUR_PUBLIC_VAPID_KEY' });
-        await db.collection('users').doc(currentUser.id).update({ fcmToken: token });
-      } catch (err) { console.warn('FCM permission denied or error', err); }
-    });
+        const convSnap = await db.collection('conversations')
+          .orderBy('lastMessageAt', 'desc')
+          .limit(50).get();
+        
+        conversations = [];
+        convSnap.forEach(doc => {
+          conversations.push({ id: doc.id, ...doc.data() });
+        });
+        
+        console.log(`Loaded ${conversations.length} conversations for admin`);
+        
+        // Update UI with conversations
+        updateConversationsUI();
+        
+      } catch (err) {
+        console.error('Error loading conversations:', err);
+      }
+    }
+
+    // Update conversations UI
+    function updateConversationsUI() {
+      // This would update the admin messages interface
+      console.log('Updating conversations UI');
+    }
 
     async function selectConversation(conv) {
+      if (!conv || !currentUser) return;
+      
       selectedConversation = conv;
       renderChatHeader();
       loadMessages();
       loadConversations(); // to update active state
+      
       // Mark all unread messages as read
-      const msgsSnap = await db.collection('conversations').doc(conv.id).collection('messages').where('read', '==', false).where('senderId', '!=', currentUser.id).get();
-      const batch = db.batch();
-      msgsSnap.forEach(doc => batch.update(doc.ref, { read: true }));
-      await batch.commit();
+      try {
+        const msgsSnap = await db.collection('conversations').doc(conv.id)
+          .collection('messages')
+          .where('read', '==', false)
+          .where('senderId', '!=', currentUser.id)
+          .get();
+        
+        if (!msgsSnap.empty) {
+          const batch = db.batch();
+          msgsSnap.forEach(doc => batch.update(doc.ref, { read: true }));
+          await batch.commit();
+        }
+      } catch (err) {
+        console.error('Error marking messages as read:', err);
+      }
     }
 
     function renderMessages(messages) {
       const chat = document.getElementById('chatMessages');
+      if (!chat) return;
+      
       if (!messages.length) {
         chat.innerHTML = '<div class="text-center text-muted py-5">No messages yet. Say hello!</div>';
         return;
       }
-      const filtered = messages.filter(msg => msg.senderId === currentUser.id || (selectedConversation && selectedConversation.participants && selectedConversation.participants.includes(currentUser.id)));
+      
+      const filtered = messages.filter(msg => 
+        msg.senderId === currentUser.id || 
+        (selectedConversation && selectedConversation.participants && selectedConversation.participants.includes(currentUser.id))
+      );
+      
       chat.innerHTML = filtered.map(msg => `
         <div class="chat-message${msg.senderId === currentUser.id ? ' sent' : ''}">
           <img src="${msg.senderAvatar || 'https://randomuser.me/api/portraits/lego/2.jpg'}" class="avatar">
@@ -207,26 +317,19 @@
           </div>
         </div>
       `).join('');
+      
       chat.scrollTop = chat.scrollHeight;
     }
 
-    // Typing indicator logic
-    let typingTimeout;
-    document.getElementById('chatInput').addEventListener('input', function() {
-      if (!selectedConversation) return;
-      db.collection('conversations').doc(selectedConversation.id).update({ ['typing_' + currentUser.id]: true });
-      clearTimeout(typingTimeout);
-      typingTimeout = setTimeout(() => {
-        db.collection('conversations').doc(selectedConversation.id).update({ ['typing_' + currentUser.id]: false });
-      }, 2000);
-    });
-
     function renderChatHeader() {
       const header = document.getElementById('chatHeader');
+      if (!header) return;
+      
       if (!selectedConversation) {
         header.innerHTML = '<span class="text-muted">Select a conversation</span>';
         return;
       }
+      
       header.innerHTML = `
         <img src="${selectedConversation.agentAvatar || 'https://randomuser.me/api/portraits/lego/1.jpg'}" class="avatar">
         <div class="info">
@@ -235,17 +338,45 @@
           <span id="typingIndicator" class="text-primary small"></span>
         </div>
       `;
+      
       // Listen for typing indicator
-      db.collection('conversations').doc(selectedConversation.id).onSnapshot(doc => {
-        const data = doc.data();
-        const otherId = selectedConversation.participants.find(id => id !== currentUser.id);
-        if (data && data['typing_' + otherId]) {
-          document.getElementById('typingIndicator').textContent = 'Typing...';
-        } else {
-          document.getElementById('typingIndicator').textContent = '';
-        }
-      });
+      if (selectedConversation.id) {
+        db.collection('conversations').doc(selectedConversation.id).onSnapshot(doc => {
+          const data = doc.data();
+          const otherId = selectedConversation.participants.find(id => id !== currentUser.id);
+          const typingIndicator = document.getElementById('typingIndicator');
+          if (typingIndicator) {
+            if (data && data['typing_' + otherId]) {
+              typingIndicator.textContent = 'Typing...';
+            } else {
+              typingIndicator.textContent = '';
+            }
+          }
+        });
+      }
     }
+
+    // Typing indicator logic
+    function setupTypingIndicator() {
+      const chatInput = document.getElementById('chatInput');
+      if (chatInput) {
+        chatInput.addEventListener('input', function() {
+          if (!selectedConversation || !currentUser) return;
+          db.collection('conversations').doc(selectedConversation.id).update({ ['typing_' + currentUser.id]: true });
+          clearTimeout(typingTimeout);
+          typingTimeout = setTimeout(() => {
+            db.collection('conversations').doc(selectedConversation.id).update({ ['typing_' + currentUser.id]: false });
+          }, 2000);
+        });
+      }
+    }
+
+    // Initialize when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log('Page loaded, initializing Firebase...');
+      waitForFirebase();
+      setupTypingIndicator();
+    });
   </script>
 </body>
 </html> 

@@ -7,108 +7,566 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/starlet-2/css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <link rel="stylesheet" href="../../css/style.css">
+  <style>
+    body {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    main {
+      flex: 1;
+    }
+    
+    /* Modern card styling */
+    .card-modern {
+      transition: all 0.3s ease;
+      border: 1px solid rgba(0,0,0,0.08);
+    }
+    
+    .card-modern:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.15) !important;
+    }
+    
+    .price-badge {
+      font-weight: 600;
+      font-size: 0.85rem;
+    }
+    
+    .remove-saved-btn {
+      opacity: 0.8;
+      transition: all 0.2s ease;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+    }
+    
+    .remove-saved-btn:hover {
+      opacity: 1;
+      transform: scale(1.1);
+    }
+    
+    /* Loading animation styles */
+    .loading-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+    
+    .star-loading {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+    
+    .star {
+      width: 20px;
+      height: 20px;
+      background: linear-gradient(45deg, #ffd700, #ffed4e);
+      clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+      animation: starJump 1.5s ease-in-out infinite;
+      box-shadow: 0 0 10px rgba(255, 215, 0, 0.5), 0 0 20px rgba(255, 215, 0, 0.3);
+    }
+    
+    .star:nth-child(2) {
+      animation-delay: 0.2s;
+      background: linear-gradient(45deg, #00d4ff, #4ed4ff);
+      box-shadow: 0 0 10px rgba(0, 212, 255, 0.5), 0 0 20px rgba(0, 212, 255, 0.3);
+    }
+    
+    .star:nth-child(3) {
+      animation-delay: 0.4s;
+      background: linear-gradient(45deg, #03254c, #1e3a8a);
+      box-shadow: 0 0 10px rgba(3, 37, 76, 0.5), 0 0 20px rgba(3, 37, 76, 0.3);
+    }
+    
+    @keyframes starJump {
+      0%, 100% {
+        transform: translateY(0) scale(1);
+      }
+      50% {
+        transform: translateY(-15px) scale(1.1);
+      }
+    }
+    
+    .loading-text {
+      color: #6c757d;
+      font-size: 1.1rem;
+      font-weight: 500;
+    }
+    
+    /* Toast notifications */
+    .alert {
+      border-radius: 8px;
+      border: none;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      .col-md-4.col-lg-3 {
+        margin-bottom: 1rem;
+      }
+    }
+  </style>
 </head>
 <body>
-    <!-- Navbar -->
+    <!-- Navbar (copied from index.html) -->
     <nav class="navbar navbar-expand-lg navbar-custom">
         <div class="container">
-            <a class="navbar-brand" href="index.html">
+            <a class="navbar-brand" href="../../index.html">
                 <span class="brand-star">Star</span> <span class="brand-let">Let</span>
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                <ul class="navbar-nav ms-auto mb-2 mb-lg-0 d-flex align-items-center" style="gap: 0.7rem;">
                     <li class="nav-item">
-                        <a class="nav-link active" href="index.html"><i class="bi bi-house-door"></i> Home</a>
+                        <a class="nav-link icon-circle" href="../user/saved.html" title="Saved">
+                            <i class="bi bi-bookmark"></i>
+                        </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="pages/dashboard/addlistings.html"><i class="bi bi-tags"></i> Sell</a>
+                        <a class="nav-link icon-circle" href="../user/messaging.html" title="Messages">
+                            <i class="bi bi-chat-dots"></i>
+                        </a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="saved.html"><i class="bi bi-bookmark-heart"></i> Saved Listings</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="messaging.html"><i class="bi bi-chat-dots"></i> Messages</a>
-                    </li>
-                    <li class="nav-item" id="nav-notification-bell">
-                        <a class="nav-link position-relative" href="notifications.html" title="Notifications">
+                    <li class="nav-item position-relative" id="nav-notification-bell">
+                        <a class="nav-link icon-circle position-relative" href="../user/notifications.html" title="Notifications">
                             <i class="bi bi-bell"></i>
                             <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none" id="notification-badge">0</span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="../auth/login.html"><i class="bi bi-box-arrow-in-right"></i> Login</a>
+                        <a class="nav-link icon-circle" id="myListingsLink" href="#" title="My Listings">
+                            <i class="bi bi-card-list"></i>
+                        </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="register.html"><i class="bi bi-person-plus"></i> Sign Up</a>
+                        <a class="nav-link icon-circle" id="profileLink" href="#" title="Profile">
+                            <i class="bi bi-person"></i>
+                        </a>
+                    </li>
+                    <li class="nav-item ms-2">
+                        <a class="btn btn-warning fw-bold px-4" href="../dashboard/listings/add.html" style="color: #fff; border-radius: 8px;">SELL</a>
                     </li>
                 </ul>
             </div>
         </div>
     </nav>
+    <style>
+    .icon-circle {
+        background: #fff;
+        border-radius: 50%;
+        width: 44px;
+        height: 44px;
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.35rem;
+        color: #03254c;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+        margin: 0 2px;
+        transition: background 0.2s, color 0.2s;
+        position: relative;
+    }
+    .icon-circle:hover, .icon-circle:focus {
+        background: #e3f0ff;
+        color: var(--primary-color);
+        text-decoration: none;
+    }
+    .navbar-custom .btn-warning {
+        background: var(--accent-gold) !important;
+        border: none;
+        color: #fff !important;
+        font-weight: 700;
+        font-size: 1.1rem;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+    }
+    .navbar-custom .btn-warning:hover {
+        background: #ffd700cc !important;
+        color: #03254c !important;
+    }
+    </style>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var agentId = window.currentAgentId || localStorage.getItem('agentId');
+        if (agentId) {
+            var myListings = document.getElementById('myListingsLink');
+            var profile = document.getElementById('profileLink');
+            if (myListings) myListings.href = '../stores/details.html?agentId=' + encodeURIComponent(agentId);
+            if (profile) profile.href = '../agents/profile.html?agentId=' + encodeURIComponent(agentId);
+        }
+    });
+    </script>
   <main class="container py-5">
-    <h2 class="mb-4"><i class="bi bi-bookmark-heart"></i> Saved Listings</h2>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <div>
+        <h2 class="mb-1"><i class="bi bi-bookmark-heart"></i> Saved Listings</h2>
+        <p class="text-muted mb-0" id="user-info">Loading your saved listings...</p>
+      </div>
+      <div class="text-end">
+        <button class="btn btn-outline-primary btn-sm" onclick="refreshSavedListings()">
+          <i class="bi bi-arrow-clockwise"></i> Refresh
+        </button>
+      </div>
+    </div>
     <div id="saved-listings" class="row g-4">
       <!-- Saved listings will be loaded here -->
     </div>
     <div id="no-saved" class="text-center text-muted mt-5 d-none">
       <i class="bi bi-bookmark-heart fs-1"></i>
       <p class="mt-3">You have no saved listings yet.</p>
+      <p class="text-muted">Start browsing properties and vehicles to save your favorites!</p>
+      <a href="../../index.html" class="btn btn-primary mt-3">
+        <i class="bi bi-search"></i> Browse Listings
+      </a>
     </div>
   </main>
-  <footer class="footer mt-auto">
-    <div class="container text-center py-3">
-      &copy; 2024 Starlet Properties. All rights reserved.
-    </div>
-  </footer>
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4 mb-4">
+                    <h4>About Starlet Properties</h4>
+                    <p>Uganda's premier real estate and vehicle marketplace, connecting buyers and sellers across the country.</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                    </div>
+                </div>
+                
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h4>Properties</h4>
+                    <ul>
+                        <li><a href="../properties/index.html?type=house_sale">Houses for Sale</a></li>
+                        <li><a href="../properties/index.html?type=house_rent">Houses for Rent</a></li>
+                        <li><a href="../properties/index.html?type=land_sale">Land for Sale</a></li>
+                        <li><a href="../properties/index.html?type=land_rent">Land for Rent</a></li>
+                        <li><a href="../properties/index.html?type=commercial">Commercial Property</a></li>
+                        <li><a href="../properties/index.html?type=vacation_short_stay">Vacation & Short Stay</a></li>
+                    </ul>
+                </div>
+                
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h4>Vehicles</h4>
+                    <ul>
+                        <li><a href="../vehicles/index.html?type=cars">Cars</a></li>
+                        <li><a href="../vehicles/index.html?type=motorcycles">Motorcycles</a></li>
+                        <li><a href="../vehicles/index.html?type=trucks">Trucks</a></li>
+                        <li><a href="../vehicles/index.html?type=buses">Buses</a></li>
+                        <li><a href="../vehicles/index.html?type=heavy_machinery">Heavy Machinery</a></li>
+                        <li><a href="../vehicles/index.html?type=bicycles_ebikes">Bicycles & E-bikes</a></li>
+                        <li><a href="../vehicles/index.html?type=boats_watercraft">Boats & Watercraft</a></li>
+                    </ul>
+                </div>
+                
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h4>Company</h4>
+                    <ul>
+                        <li><a href="../about/index.html">About Us</a></li>
+                        <li><a href="../about/contact.html">Contact</a></li>
+                        <li><a href="../about/resources.html">Resources</a></li>
+                        <li><a href="../stores/index.html">Our Stores</a></li>
+                        <li><a href="../legal/privacy.html">Privacy Policy</a></li>
+                    </ul>
+                </div>
+                
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h4>Contact</h4>
+                    <ul>
+                        <li><a href="tel:+256123456789"><i class="bi bi-telephone"></i> +256 123 456 789</a></li>
+                        <li><a href="mailto:info@starlet.co.ug"><i class="bi bi-envelope"></i> info@starlet.co.ug</a></li>
+                        <li><a href="#"><i class="bi bi-geo-alt"></i> Kampala, Uganda</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p class="mb-0">&copy; 2024 Starlet Properties. All rights reserved.</p>
+                    </div>
+                    <div class="col-md-6 text-md-end">
+                        <a href="../legal/terms.html" class="me-3">Terms of Service</a>
+                        <a href="../legal/privacy.html">Privacy Policy</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="../../assets/js/firebase-config.js"></script>
   <script>
-    // Redirect to login if not logged in
+    // Initialize Firebase Auth and check user status
+    let currentUser = null;
+    
     firebase.auth().onAuthStateChanged(function(user) {
       if (!user) {
+        // No user logged in, redirect to login
+        console.log('No user logged in, redirecting to login');
         window.location.href = '../auth/login.html';
       } else {
+        // User is logged in, store user info and load saved listings
+        currentUser = user;
+        console.log('User logged in:', user.email);
+        
+        // Update page title to show user's saved listings
+        document.title = `Saved Listings - ${user.email || 'User'} | Starlet Properties`;
+        
+        // Load saved listings for this specific user
         loadSavedListings(user.uid);
+        
+        // Update navbar with user info if needed
+        updateNavbarWithUserInfo(user);
       }
     });
-    function loadSavedListings(uid) {
+    
+    // Function to update navbar with user information
+    function updateNavbarWithUserInfo(user) {
+      // You can add user-specific navbar updates here if needed
+      console.log('User info available for navbar:', user.email);
+    }
+    async function loadSavedListings(uid) {
       const db = firebase.firestore();
-      db.collection('users').doc(uid).collection('savedListings').get().then(snap => {
-        if (snap.empty) {
+      const container = document.getElementById('saved-listings');
+      const userInfoElement = document.getElementById('user-info');
+      
+      try {
+        // Update user info display
+        if (currentUser) {
+          userInfoElement.textContent = `Showing saved listings for ${currentUser.email}`;
+        }
+        
+        // Show star loading animation
+        container.innerHTML = '<div class="col-12 text-center py-5"><div class="loading-container"><div class="star-loading"><div class="star"></div><div class="star"></div><div class="star"></div></div><div class="loading-text">Loading your saved listings...</div></div></div>';
+        
+        // Get user's saved listings
+        const savedSnap = await db.collection('users').doc(uid).collection('savedListings').get();
+        
+        if (savedSnap.empty) {
+          document.getElementById('no-saved').classList.remove('d-none');
+          container.innerHTML = '';
+          userInfoElement.textContent = currentUser ? `No saved listings found for ${currentUser.email}` : 'No saved listings found';
+          return;
+        }
+        
+        // Extract saved listing IDs
+        const savedIds = savedSnap.docs.map(doc => doc.id);
+        
+        if (savedIds.length === 0) {
+          document.getElementById('no-saved').classList.remove('d-none');
+          container.innerHTML = '';
+          userInfoElement.textContent = currentUser ? `No saved listings found for ${currentUser.email}` : 'No saved listings found';
+          return;
+        }
+        
+        // Fetch the actual listing data
+        const listingsSnap = await db.collection('listings')
+          .where(firebase.firestore.FieldPath.documentId(), 'in', savedIds)
+          .get();
+        
+        container.innerHTML = '';
+        
+        if (listingsSnap.empty) {
           document.getElementById('no-saved').classList.remove('d-none');
           return;
         }
-        const savedIds = snap.docs.map(doc => doc.id);
-        if (!savedIds.length) {
-          document.getElementById('no-saved').classList.remove('d-none');
-          return;
-        }
-        db.collection('listings').where(firebase.firestore.FieldPath.documentId(), 'in', savedIds).get().then(listSnap => {
-          const container = document.getElementById('saved-listings');
-          listSnap.forEach(doc => {
-            const l = doc.data();
-            const card = document.createElement('div');
-            card.className = 'col-md-4 col-lg-3';
-            card.innerHTML = `
-              <div class="card h-100 shadow-sm">
-                <img src="${l.image || ''}" class="card-img-top" alt="${l.title || ''}">
-                <div class="card-body">
-                  <h5 class="card-title">${l.title || ''}</h5>
-                  <p class="card-text text-primary fw-bold">USh ${l.price ? l.price.toLocaleString() : ''}</p>
-                  <a href="details.html?id=${doc.id}" class="btn btn-primary w-100">View Details</a>
-                </div>
+        
+        // Render saved listings
+        listingsSnap.forEach(doc => {
+          const listing = doc.data();
+          const card = document.createElement('div');
+          card.className = 'col-md-4 col-lg-3 mb-4';
+          card.innerHTML = `
+            <div class="card h-100 shadow-sm border-0 rounded-4 overflow-hidden position-relative card-modern">
+              <div class="position-relative" style="aspect-ratio: 4/3; background: #f5f5f5;">
+                <img src="${listing.image || listing.images?.[0] || 'https://via.placeholder.com/400x300?text=No+Image'}" 
+                     class="card-img-top w-100 h-100 object-fit-cover" 
+                     alt="${listing.title || 'Listing'}" 
+                     style="object-fit: cover; min-height: 180px;"
+                     onerror="this.src='https://via.placeholder.com/400x300?text=No+Image'">
+                <span class="position-absolute top-0 start-0 m-2 px-3 py-1 badge bg-dark bg-opacity-75 text-white rounded-pill fs-6 shadow-sm">
+                  ${getListingTypeBadge(listing.listingType || listing.type)}
+                </span>
+                <span class="position-absolute bottom-0 end-0 m-2 px-3 py-1 badge bg-primary bg-opacity-90 text-white rounded-pill fs-6 shadow price-badge">
+                  ${formatPrice(listing.price || listing.askingPrice)}
+                </span>
+                <button class="btn btn-sm btn-danger position-absolute top-0 end-0 m-2 remove-saved-btn" 
+                        onclick="removeFromSaved('${doc.id}', '${uid}')" 
+                        title="Remove from saved">
+                  <i class="bi bi-heart-fill"></i>
+                </button>
               </div>
-            `;
-            container.appendChild(card);
-          });
+              <div class="card-body d-flex flex-column p-3">
+                <h5 class="card-title fw-bold mb-1 fs-5">${listing.title || listing.name || 'Untitled'}</h5>
+                <div class="mb-2 text-muted small">
+                  <i class="bi bi-geo-alt"></i> 
+                  ${formatLocation(listing.location)}
+                </div>
+                <div class="mb-2 text-secondary small">
+                  ${formatListingDetails(listing)}
+                </div>
+                <div class="mb-2 text-truncate" title="${listing.description || ''}">
+                  <span class="small">${listing.description && listing.description.length > 60 ? listing.description.slice(0, 60) + '…' : (listing.description || '')}</span>
+                </div>
+                <a href="../properties/details.html?id=${doc.id}" class="btn btn-primary mt-auto w-100 rounded-pill">View Details</a>
+              </div>
+            </div>
+          `;
+          container.appendChild(card);
         });
-      });
+        
+        // Hide no-saved message if we have listings
+        document.getElementById('no-saved').classList.add('d-none');
+        
+        // Update user info with count
+        const listingCount = listingsSnap.size;
+        userInfoElement.textContent = currentUser ? 
+          `Showing ${listingCount} saved listing${listingCount !== 1 ? 's' : ''} for ${currentUser.email}` : 
+          `Showing ${listingCount} saved listing${listingCount !== 1 ? 's' : ''}`;
+        
+      } catch (error) {
+        console.error('Error loading saved listings:', error);
+        container.innerHTML = `
+          <div class="col-12 text-center py-5">
+            <div class="alert alert-danger">
+              <i class="bi bi-exclamation-triangle"></i>
+              Error loading saved listings. Please try again.
+            </div>
+          </div>
+        `;
+        userInfoElement.textContent = 'Error loading saved listings';
+      }
+    }
+    
+    // Function to refresh saved listings
+    function refreshSavedListings() {
+      if (currentUser) {
+        loadSavedListings(currentUser.uid);
+        showToast('Refreshing saved listings...', 'info');
+      } else {
+        showToast('Please log in to view saved listings', 'error');
+      }
+    }
+    
+    // Helper function to format price
+    function formatPrice(price) {
+      if (!price) return 'Price on request';
+      return `USh ${Number(price).toLocaleString()}`;
+    }
+    
+    // Helper function to format location
+    function formatLocation(location) {
+      if (!location) return 'Location not specified';
+      if (typeof location === 'string') return location;
+      if (location.district && location.town) {
+        return `${location.district}, ${location.town}`;
+      }
+      if (location.district) return location.district;
+      if (location.town) return location.town;
+      return 'Location not specified';
+    }
+    
+    // Helper function to format listing details
+    function formatListingDetails(listing) {
+      const details = [];
+      
+      if (listing.bedrooms) {
+        details.push(`<i class="bi bi-house-door"></i> ${listing.bedrooms} bd`);
+      }
+      if (listing.bathrooms) {
+        details.push(`<i class="bi bi-droplet"></i> ${listing.bathrooms} ba`);
+      }
+      if (listing.year) {
+        details.push(`<i class="bi bi-calendar"></i> ${listing.year}`);
+      }
+      if (listing.mileage) {
+        details.push(`<i class="bi bi-speedometer2"></i> ${Number(listing.mileage).toLocaleString()} km`);
+      }
+      if (listing.size) {
+        details.push(`<i class="bi bi-rulers"></i> ${listing.size}`);
+      }
+      if (listing.landSize) {
+        details.push(`<i class="bi bi-geo"></i> ${listing.landSize}`);
+      }
+      
+      return details.join(' ');
+    }
+    
+    // Helper function to get listing type badge
+    function getListingTypeBadge(type) {
+      if (!type) return 'Property';
+      
+      const typeMap = {
+        'house_sale': 'House for Sale',
+        'house_rent': 'House for Rent',
+        'land_sale': 'Land for Sale',
+        'land_rent': 'Land for Rent',
+        'commercial': 'Commercial',
+        'vacation_short_stay': 'Vacation',
+        'car': 'Car',
+        'motorcycle': 'Motorcycle',
+        'truck': 'Truck',
+        'bus': 'Bus',
+        'heavy_machinery': 'Heavy Machinery',
+        'bicycle_ebike': 'Bicycle',
+        'boat_watercraft': 'Boat'
+      };
+      
+      return typeMap[type] || type.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+    }
+    
+    // Function to remove listing from saved
+    async function removeFromSaved(listingId, userId) {
+      try {
+        await firebase.firestore()
+          .collection('users')
+          .doc(userId)
+          .collection('savedListings')
+          .doc(listingId)
+          .delete();
+        
+        // Reload saved listings
+        loadSavedListings(userId);
+        
+        // Show success message
+        showToast('Listing removed from saved', 'success');
+      } catch (error) {
+        console.error('Error removing from saved:', error);
+        showToast('Error removing listing from saved', 'error');
+      }
+    }
+    
+    // Toast notification function
+    function showToast(message, type = 'info') {
+      const toast = document.createElement('div');
+      toast.className = `alert alert-${type === 'error' ? 'danger' : type === 'success' ? 'success' : 'info'} position-fixed`;
+      toast.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+      toast.innerHTML = `
+        <i class="bi bi-${type === 'error' ? 'exclamation-triangle' : type === 'success' ? 'check-circle' : 'info-circle'}"></i>
+        ${message}
+      `;
+      
+      document.body.appendChild(toast);
+      
+      setTimeout(() => {
+        toast.remove();
+      }, 3000);
     }
   </script>
 </body>

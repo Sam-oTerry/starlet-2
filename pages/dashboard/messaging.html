@@ -232,7 +232,7 @@
     const auth = firebase.auth();
 
     // Show loading spinner while checking auth
-    document.body.insertAdjacentHTML('beforeend', '<div id="authLoading" style="position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:2000;background:rgba(255,255,255,0.7);display:flex;align-items:center;justify-content:center;"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div></div>');
+    document.body.insertAdjacentHTML('beforeend', '<div id="authLoading" style="position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:2000;background:rgba(255,255,255,0.9);display:flex;align-items:center;justify-content:center;"><div class="loading-container"><div class="star-loading"><div class="star"></div><div class="star"></div><div class="star"></div></div><div class="loading-text">Loading...</div></div></div>');
 
     let currentUser = null;
     let messaging;
@@ -288,7 +288,7 @@
     async function loadConversations() {
       if (!currentUser) return;
       const sidebar = document.getElementById('chatSidebar');
-      sidebar.innerHTML = '<div class="text-center w-100 py-4">Loading...</div>';
+      sidebar.innerHTML = '<div class="text-center w-100 py-4"><div class="loading-container"><div class="star-loading"><div class="star"></div><div class="star"></div><div class="star"></div></div><div class="loading-text">Loading conversations...</div></div></div>';
       try {
         const convSnap = await db.collection('conversations')
           .where('participants', 'array-contains', currentUser.id)

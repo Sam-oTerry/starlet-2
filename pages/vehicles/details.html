@@ -763,7 +763,7 @@
     async function loadSimilarListings(currentListing) {
       // Find up to 3 similar listings (same listingType, not current)
       const container = document.getElementById('similarListingsContainer');
-      container.innerHTML = '<div class="text-center w-100 py-4">Loading similar listings...</div>';
+      container.innerHTML = '<div class="text-center w-100 py-4"><div class="loading-container"><div class="star-loading"><div class="star"></div><div class="star"></div><div class="star"></div></div><div class="loading-text">Loading similar listings...</div></div></div>';
       try {
         const querySnap = await db.collection('listings')
           .where('listingType', '==', currentListing.listingType)

@@ -7,48 +7,109 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/starlet-2/css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <link rel="stylesheet" href="../../css/style.css">
+  <style>
+    body {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    main {
+      flex: 1;
+    }
+  </style>
 </head>
 <body>
-    <!-- Navbar -->
+    <!-- Navbar (copied from index.html) -->
     <nav class="navbar navbar-expand-lg navbar-custom">
         <div class="container">
-            <a class="navbar-brand" href="index.html">
+            <a class="navbar-brand" href="../../index.html">
                 <span class="brand-star">Star</span> <span class="brand-let">Let</span>
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                <ul class="navbar-nav ms-auto mb-2 mb-lg-0 d-flex align-items-center" style="gap: 0.7rem;">
                     <li class="nav-item">
-                        <a class="nav-link active" href="index.html"><i class="bi bi-house-door"></i> Home</a>
+                        <a class="nav-link icon-circle" href="../user/saved.html" title="Saved">
+                            <i class="bi bi-bookmark"></i>
+                        </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="pages/dashboard/addlistings.html"><i class="bi bi-tags"></i> Sell</a>
+                        <a class="nav-link icon-circle" href="../user/messaging.html" title="Messages">
+                            <i class="bi bi-chat-dots"></i>
+                        </a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="saved.html"><i class="bi bi-bookmark-heart"></i> Saved Listings</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="messaging.html"><i class="bi bi-chat-dots"></i> Messages</a>
-                    </li>
-                    <li class="nav-item" id="nav-notification-bell">
-                        <a class="nav-link position-relative" href="notifications.html" title="Notifications">
+                    <li class="nav-item position-relative" id="nav-notification-bell">
+                        <a class="nav-link icon-circle position-relative" href="../user/notifications.html" title="Notifications">
                             <i class="bi bi-bell"></i>
                             <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none" id="notification-badge">0</span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="../auth/login.html"><i class="bi bi-box-arrow-in-right"></i> Login</a>
+                        <a class="nav-link icon-circle" id="myListingsLink" href="#" title="My Listings">
+                            <i class="bi bi-card-list"></i>
+                        </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="register.html"><i class="bi bi-person-plus"></i> Sign Up</a>
+                        <a class="nav-link icon-circle" id="profileLink" href="#" title="Profile">
+                            <i class="bi bi-person"></i>
+                        </a>
+                    </li>
+                    <li class="nav-item ms-2">
+                        <a class="btn btn-warning fw-bold px-4" href="../dashboard/listings/add.html" style="color: #fff; border-radius: 8px;">SELL</a>
                     </li>
                 </ul>
             </div>
         </div>
     </nav>
+    <style>
+    .icon-circle {
+        background: #fff;
+        border-radius: 50%;
+        width: 44px;
+        height: 44px;
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.35rem;
+        color: #03254c;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+        margin: 0 2px;
+        transition: background 0.2s, color 0.2s;
+        position: relative;
+    }
+    .icon-circle:hover, .icon-circle:focus {
+        background: #e3f0ff;
+        color: var(--primary-color);
+        text-decoration: none;
+    }
+    .navbar-custom .btn-warning {
+        background: var(--accent-gold) !important;
+        border: none;
+        color: #fff !important;
+        font-weight: 700;
+        font-size: 1.1rem;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+    }
+    .navbar-custom .btn-warning:hover {
+        background: #ffd700cc !important;
+        color: #03254c !important;
+    }
+    </style>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var agentId = window.currentAgentId || localStorage.getItem('agentId');
+        if (agentId) {
+            var myListings = document.getElementById('myListingsLink');
+            var profile = document.getElementById('profileLink');
+            if (myListings) myListings.href = '../stores/details.html?agentId=' + encodeURIComponent(agentId);
+            if (profile) profile.href = '../agents/profile.html?agentId=' + encodeURIComponent(agentId);
+        }
+    });
+    </script>
   <main class="container py-5">
     <h2 class="mb-4"><i class="bi bi-bell"></i> Notifications</h2>
     <div id="notifications-list" class="list-group mb-5">
@@ -59,11 +120,80 @@
       <p class="mt-3">You have no notifications yet.</p>
     </div>
   </main>
-  <footer class="footer mt-auto">
-    <div class="container text-center py-3">
-      &copy; 2024 Starlet Properties. All rights reserved.
-    </div>
-  </footer>
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4 mb-4">
+                    <h4>About Starlet Properties</h4>
+                    <p>Uganda's premier real estate and vehicle marketplace, connecting buyers and sellers across the country.</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                    </div>
+                </div>
+                
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h4>Properties</h4>
+                    <ul>
+                        <li><a href="../properties/index.html?type=house_sale">Houses for Sale</a></li>
+                        <li><a href="../properties/index.html?type=house_rent">Houses for Rent</a></li>
+                        <li><a href="../properties/index.html?type=land_sale">Land for Sale</a></li>
+                        <li><a href="../properties/index.html?type=land_rent">Land for Rent</a></li>
+                        <li><a href="../properties/index.html?type=commercial">Commercial Property</a></li>
+                        <li><a href="../properties/index.html?type=vacation_short_stay">Vacation & Short Stay</a></li>
+                    </ul>
+                </div>
+                
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h4>Vehicles</h4>
+                    <ul>
+                        <li><a href="../vehicles/index.html?type=cars">Cars</a></li>
+                        <li><a href="../vehicles/index.html?type=motorcycles">Motorcycles</a></li>
+                        <li><a href="../vehicles/index.html?type=trucks">Trucks</a></li>
+                        <li><a href="../vehicles/index.html?type=buses">Buses</a></li>
+                        <li><a href="../vehicles/index.html?type=heavy_machinery">Heavy Machinery</a></li>
+                        <li><a href="../vehicles/index.html?type=bicycles_ebikes">Bicycles & E-bikes</a></li>
+                        <li><a href="../vehicles/index.html?type=boats_watercraft">Boats & Watercraft</a></li>
+                    </ul>
+                </div>
+                
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h4>Company</h4>
+                    <ul>
+                        <li><a href="../about/index.html">About Us</a></li>
+                        <li><a href="../about/contact.html">Contact</a></li>
+                        <li><a href="../about/resources.html">Resources</a></li>
+                        <li><a href="../stores/index.html">Our Stores</a></li>
+                        <li><a href="../legal/privacy.html">Privacy Policy</a></li>
+                    </ul>
+                </div>
+                
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h4>Contact</h4>
+                    <ul>
+                        <li><a href="tel:+256123456789"><i class="bi bi-telephone"></i> +256 123 456 789</a></li>
+                        <li><a href="mailto:info@starlet.co.ug"><i class="bi bi-envelope"></i> info@starlet.co.ug</a></li>
+                        <li><a href="#"><i class="bi bi-geo-alt"></i> Kampala, Uganda</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p class="mb-0">&copy; 2024 Starlet Properties. All rights reserved.</p>
+                    </div>
+                    <div class="col-md-6 text-md-end">
+                        <a href="../legal/terms.html" class="me-3">Terms of Service</a>
+                        <a href="../legal/privacy.html">Privacy Policy</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>

@@ -55,6 +55,55 @@
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
     }
+    
+    /* Star Loading for Admin Dashboard */
+    .admin-loading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+    }
+    .admin-loading .star {
+      width: 0;
+      height: 0;
+      border-left: 6px solid transparent;
+      border-right: 6px solid transparent;
+      border-bottom: 10px solid var(--accent-gold);
+      position: relative;
+      animation: starPulse 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) infinite;
+    }
+    .admin-loading .star::after {
+      content: '';
+      position: absolute;
+      top: 3px;
+      left: -6px;
+      width: 0;
+      height: 0;
+      border-left: 6px solid transparent;
+      border-right: 6px solid transparent;
+      border-top: 10px solid var(--accent-gold);
+    }
+    .admin-loading .star:nth-child(1) {
+      animation-delay: 0s;
+      border-bottom-color: var(--accent-gold);
+    }
+    .admin-loading .star:nth-child(1)::after {
+      border-top-color: var(--accent-gold);
+    }
+    .admin-loading .star:nth-child(2) {
+      animation-delay: 0.3s;
+      border-bottom-color: var(--accent-cyan);
+    }
+    .admin-loading .star:nth-child(2)::after {
+      border-top-color: var(--accent-cyan);
+    }
+    .admin-loading .star:nth-child(3) {
+      animation-delay: 0.6s;
+      border-bottom-color: var(--primary-color);
+    }
+    .admin-loading .star:nth-child(3)::after {
+      border-top-color: var(--primary-color);
+    }
   </style>
 </head>
 <body class="admin-panel">
@@ -129,7 +178,11 @@
               <div class="mb-2"><i class="bi bi-list-ul fs-2 text-primary"></i></div>
               <h5 class="card-title">Total Listings</h5>
               <div class="fs-4 fw-bold" id="totalListings">
-                <span class="loading-spinner"></span>
+                <div class="admin-loading">
+                  <div class="star"></div>
+                  <div class="star"></div>
+                  <div class="star"></div>
+                </div>
               </div>
               <small class="text-muted" id="listingsChange">--</small>
             </div>
@@ -141,7 +194,11 @@
               <div class="mb-2"><i class="bi bi-people fs-2 text-success"></i></div>
               <h5 class="card-title">Total Users</h5>
               <div class="fs-4 fw-bold" id="totalUsers">
-                <span class="loading-spinner"></span>
+                <div class="admin-loading">
+                  <div class="star"></div>
+                  <div class="star"></div>
+                  <div class="star"></div>
+                </div>
               </div>
               <small class="text-muted" id="usersChange">--</small>
             </div>
@@ -153,7 +210,11 @@
               <div class="mb-2"><i class="bi bi-shop fs-2 text-warning"></i></div>
               <h5 class="card-title">Total Stores</h5>
               <div class="fs-4 fw-bold" id="totalStores">
-                <span class="loading-spinner"></span>
+                <div class="admin-loading">
+                  <div class="star"></div>
+                  <div class="star"></div>
+                  <div class="star"></div>
+                </div>
               </div>
               <small class="text-muted" id="storesChange">--</small>
             </div>
@@ -165,7 +226,11 @@
               <div class="mb-2"><i class="bi bi-hourglass-split fs-2 text-danger"></i></div>
               <h5 class="card-title">Pending Approvals</h5>
               <div class="fs-4 fw-bold" id="pendingApprovals">
-                <span class="loading-spinner"></span>
+                <div class="admin-loading">
+                  <div class="star"></div>
+                  <div class="star"></div>
+                  <div class="star"></div>
+                </div>
               </div>
               <small class="text-muted" id="approvalsChange">--</small>
             </div>
@@ -181,7 +246,11 @@
               <div class="mb-2"><i class="bi bi-chat-dots fs-2 text-info"></i></div>
               <h5 class="card-title">Active Conversations</h5>
               <div class="fs-4 fw-bold" id="activeConversations">
-                <span class="loading-spinner"></span>
+                <div class="admin-loading">
+                  <div class="star"></div>
+                  <div class="star"></div>
+                  <div class="star"></div>
+                </div>
               </div>
               <small class="text-muted">Last 24 hours</small>
             </div>
@@ -193,7 +262,11 @@
               <div class="mb-2"><i class="bi bi-eye fs-2 text-purple"></i></div>
               <h5 class="card-title">Total Views</h5>
               <div class="fs-4 fw-bold" id="totalViews">
-                <span class="loading-spinner"></span>
+                <div class="admin-loading">
+                  <div class="star"></div>
+                  <div class="star"></div>
+                  <div class="star"></div>
+                </div>
               </div>
               <small class="text-muted">This month</small>
             </div>
@@ -205,7 +278,11 @@
               <div class="mb-2"><i class="bi bi-star fs-2 text-warning"></i></div>
               <h5 class="card-title">Reviews</h5>
               <div class="fs-4 fw-bold" id="totalReviews">
-                <span class="loading-spinner"></span>
+                <div class="admin-loading">
+                  <div class="star"></div>
+                  <div class="star"></div>
+                  <div class="star"></div>
+                </div>
               </div>
               <small class="text-muted">Average: <span id="avgRating">--</span></small>
             </div>
@@ -217,7 +294,11 @@
               <div class="mb-2"><i class="bi bi-currency-dollar fs-2 text-success"></i></div>
               <h5 class="card-title">Revenue</h5>
               <div class="fs-4 fw-bold" id="totalRevenue">
-                <span class="loading-spinner"></span>
+                <div class="admin-loading">
+                  <div class="star"></div>
+                  <div class="star"></div>
+                  <div class="star"></div>
+                </div>
               </div>
               <small class="text-muted">This month</small>
             </div>
@@ -302,7 +383,12 @@
             <div class="card-body">
               <div id="recentActivity">
                 <div class="text-center py-3">
-                  <span class="loading-spinner"></span> Loading...
+                  <div class="admin-loading">
+                    <div class="star"></div>
+                    <div class="star"></div>
+                    <div class="star"></div>
+                  </div>
+                  <div class="mt-2">Loading...</div>
                 </div>
               </div>
             </div>
@@ -316,7 +402,12 @@
             <div class="card-body">
               <div id="systemAlerts">
                 <div class="text-center py-3">
-                  <span class="loading-spinner"></span> Loading...
+                  <div class="admin-loading">
+                    <div class="star"></div>
+                    <div class="star"></div>
+                    <div class="star"></div>
+                  </div>
+                  <div class="mt-2">Loading...</div>
                 </div>
               </div>
             </div>

@@ -374,7 +374,7 @@ let allVehicles = [];
 // Fetch all vehicle listings from Firestore
 async function fetchVehicles() {
   const container = document.getElementById('vehicles-listings');
-  if (container) container.innerHTML = '<div class="col-12 text-center text-muted py-5">Loading vehicles...';
+  if (container) container.innerHTML = '<div class="col-12 text-center py-5"><div class="loading-container"><div class="star-loading"><div class="star"></div><div class="star"></div><div class="star"></div></div><div class="loading-text">Loading vehicles...</div></div></div>';
   try {
     const snapshot = await db.collection('listings')
       .where('listingType', '==', 'vehicle')

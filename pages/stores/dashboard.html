@@ -338,7 +338,7 @@ async function manageListings(storeId, storeName) {
     return;
   }
   section.style.display = 'block';
-  section.innerHTML = '<div class="text-center py-3"><div class="spinner-border"></div> Loading listings...</div>';
+  section.innerHTML = '<div class="text-center py-3"><div class="loading-container"><div class="star-loading"><div class="star"></div><div class="star"></div><div class="star"></div></div><div class="loading-text">Loading listings...</div></div></div>';
   try {
     const snap = await window.firebaseDB.collection('listings').where('storeId', '==', storeId).get();
     let html = `<div class='mb-2 d-flex justify-content-between align-items-center'><strong>Listings for ${storeName}</strong><button class='btn btn-sm btn-success' onclick='addListing("${storeId}")'><i class='bi bi-plus-circle'></i> Add Listing</button></div>`;
