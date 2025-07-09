@@ -501,7 +501,15 @@ async function loadUserStores() {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-  loadUserStores();
+  // loadUserStores(); // Remove this line
+  function waitForFirebaseAndLoadStores() {
+    if (window.firebaseDB && window.firebaseAuth) {
+      loadUserStores();
+    } else {
+      setTimeout(waitForFirebaseAndLoadStores, 100);
+    }
+  }
+  waitForFirebaseAndLoadStores();
 });
   </script>
 </body>

@@ -914,7 +914,7 @@
               showToast('Notifications enabled successfully!', 'success');
             }
           } catch (err) { 
-            console.warn('FCM permission denied or error', err);
+            console.warn('FCM permission denied or error', err); 
             showToast('Failed to enable notifications', 'error');
           }
         };
@@ -938,7 +938,7 @@
         document.getElementById('logoutBtn').onclick = function(e) {
           e.preventDefault();
           if (confirm('Are you sure you want to logout?')) {
-            auth.signOut();
+          auth.signOut();
             showToast('Logging out...', 'info');
           }
         };
@@ -998,16 +998,16 @@
           const lastMessageTime = conv.lastMessageAt ? new Date(conv.lastMessageAt.seconds ? conv.lastMessageAt.seconds * 1000 : conv.lastMessageAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '';
           
           return `
-            <div class="chat-listing${selectedConversation && selectedConversation.id === conv.id ? ' active' : ''}" data-idx="${idx}">
+          <div class="chat-listing${selectedConversation && selectedConversation.id === conv.id ? ' active' : ''}" data-idx="${idx}">
               <img src="${conv.agentAvatar || conv.listerAvatar || 'https://via.placeholder.com/40x40/0d6efd/ffffff?text=A'}" class="rounded-circle" width="40" height="40" alt="Agent">
               <div style="flex: 1; min-width: 0;">
-                <div class="chat-listing-title">${conv.listingTitle || 'Listing'}</div>
+              <div class="chat-listing-title">${conv.listingTitle || 'Listing'}</div>
                 <div class="chat-listing-agent">${conv.agentName || conv.listerName || 'Agent'}</div>
                 <div class="small text-muted d-flex justify-content-between align-items-center">
                   <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${conv.lastMessage ? conv.lastMessage.slice(0, 25) : 'No messages yet'}</span>
                   <span class="ms-2">${lastMessageTime}</span>
-                </div>
-              </div>
+            </div>
+          </div>
               ${unreadCount > 0 ? `<div class="unread-badge">${unreadCount}</div>` : ''}
             </div>
           `;
@@ -1089,9 +1089,9 @@
           .get();
         
         if (!msgsSnap.empty) {
-          const batch = db.batch();
-          msgsSnap.forEach(doc => batch.update(doc.ref, { read: true }));
-          await batch.commit();
+      const batch = db.batch();
+      msgsSnap.forEach(doc => batch.update(doc.ref, { read: true }));
+      await batch.commit();
           
           // Update conversation unread count
           await db.collection('conversations').doc(conv.id).update({
@@ -1183,17 +1183,17 @@
         }
         
         return `
-          <div class="chat-message${msg.senderId === currentUser.id ? ' sent' : ' received'}">
-            <img src="${msg.senderAvatar || 'https://via.placeholder.com/36x36/0d6efd/ffffff?text=U'}" class="avatar">
-            <div>
+        <div class="chat-message${msg.senderId === currentUser.id ? ' sent' : ' received'}">
+          <img src="${msg.senderAvatar || 'https://via.placeholder.com/36x36/0d6efd/ffffff?text=U'}" class="avatar">
+          <div>
               <div class="bubble">
                 ${msg.text ? `<div>${msg.text}</div>` : ''}
                 ${mediaContent ? `<div class="media-content">${mediaContent}</div>` : ''}
-              </div>
+          </div>
               <div class="meta">
                 ${msg.senderName} • ${isToday ? timeString : dateString + ' ' + timeString}
                 ${statusIcon}
-              </div>
+        </div>
             </div>
           </div>
         `;
@@ -1260,11 +1260,11 @@
         }
         
         // Create message object
-        const msg = {
+      const msg = {
           text: text || '',
-          senderId: currentUser.id,
-          senderName: currentUser.name,
-          senderAvatar: currentUser.avatar,
+        senderId: currentUser.id,
+        senderName: currentUser.name,
+        senderAvatar: currentUser.avatar,
           createdAt: new Date(),
           read: false,
           delivered: false
@@ -1292,7 +1292,7 @@
         setTimeout(async () => {
           try {
             await messageRef.update({ delivered: true });
-          } catch (err) {
+      } catch (err) {
             console.error('Error marking message as delivered:', err);
           }
         }, 1000);
