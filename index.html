@@ -920,13 +920,10 @@
     });
     </script>
     <script>
-    // Enhanced My Listings logic
-    // Requires Firebase Auth and Firestore to be loaded
-
+    // Enhanced My Listings logic (updated for agent-stores dashboard)
     document.addEventListener('DOMContentLoaded', function() {
       var myListingsLink = document.getElementById('myListingsLink');
       if (!myListingsLink) return;
-
       myListingsLink.addEventListener('click', function(e) {
         if (!(window.firebase && firebase.auth && firebase.firestore)) return;
         var user = firebase.auth().currentUser;
@@ -941,22 +938,19 @@
         db.collection('stores').where('ownerId', '==', user.uid).limit(1).get()
           .then(function(querySnapshot) {
             if (!querySnapshot.empty) {
-              // User has a store, go to their store page
-              var storeDoc = querySnapshot.docs[0];
-              window.location.href = './pages/stores/details.html?storeId=' + encodeURIComponent(storeDoc.id);
+              // User has a store, go to the agent-stores dashboard
+              window.location.href = './pages/stores/agent-stores/dashboard.html';
             } else {
               // Check if user is an agent (in users collection, role: 'agent')
               db.collection('users').doc(user.uid).get().then(function(userDoc) {
                 var userData = userDoc.exists ? userDoc.data() : {};
                 if (userData.role === 'agent') {
-                  // Agent but no store, prompt to create store
-                  if (confirm('You are an agent but have not created a store yet. Would you like to create your store now?')) {
-                    window.location.href = './pages/stores/create.html';
-                  }
+                  // Agent but no store, go to the agent-stores dashboard
+                  window.location.href = './pages/stores/agent-stores/dashboard.html';
                 } else {
                   // Not an agent, prompt to become agent and create store
                   if (confirm('To list your properties, you need to create a store and select an agent tier. Would you like to get started?')) {
-                    window.location.href = './pages/stores/create.html';
+                    window.location.href = './pages/stores/agent-stores/dashboard.html';
                   }
                 }
               });

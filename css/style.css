@@ -522,18 +522,18 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .tier-content li {
-    padding: 0.75rem 0;
+    padding: 0.7em 0 0.7em 0.1em;
     border-bottom: 1px solid var(--light-color);
     position: relative;
     padding-left: 1.5rem;
 }
 
 .tier-content li::before {
-    content: '✓';
-    position: absolute;
-    left: 0;
-    color: var(--success-color);
+    content: '\2714';
+    color: #20c997;
     font-weight: bold;
+    margin-right: 0.85em;
+    font-size: 1.1em;
 }
 
 .tier-content li:last-child {
