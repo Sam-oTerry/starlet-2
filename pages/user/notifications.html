@@ -18,6 +18,104 @@
     main {
       flex: 1;
     }
+    
+    /* Notification item styles */
+    .notification-item {
+      transition: all 0.2s ease;
+      border-left: 4px solid transparent;
+      cursor: pointer;
+    }
+    
+    .notification-item:hover {
+      background-color: #f8f9fa;
+      transform: translateX(2px);
+    }
+    
+    .notification-item.unread {
+      border-left-color: var(--primary-color);
+      background-color: #e3f0ff;
+    }
+    
+    .notification-item.unread:hover {
+      background-color: #d1e7ff;
+    }
+    
+    /* Mark as read button */
+    .mark-read-btn {
+      opacity: 0.7;
+      transition: opacity 0.2s ease;
+    }
+    
+    .mark-read-btn:hover {
+      opacity: 1;
+    }
+    
+    .mark-read-btn:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+    }
+    
+    /* Toast notification styles */
+    .toast-notification {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 9999;
+      background: white;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      min-width: 300px;
+      max-width: 400px;
+      animation: slideInRight 0.3s ease;
+    }
+    
+    .toast-notification .toast-header {
+      background: var(--primary-color);
+      color: white;
+      padding: 0.75rem 1rem;
+      border-radius: 8px 8px 0 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .toast-notification .toast-body {
+      padding: 1rem;
+      color: #333;
+    }
+    
+    .toast-notification .btn-close {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 1.2rem;
+      cursor: pointer;
+      padding: 0;
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    @keyframes slideInRight {
+      from {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+    
+    /* Star loading styles are already included in style.css */
+    
+    /* Error state */
+    #error-notifications .btn {
+      margin-top: 1rem;
+    }
   </style>
 </head>
 <body>
@@ -112,12 +210,33 @@
     </script>
   <main class="container py-5">
     <h2 class="mb-4"><i class="bi bi-bell"></i> Notifications</h2>
+    
+    <!-- Loading state -->
+    <div id="loading-notifications" class="text-center py-5">
+      <div class="loading-container">
+        <div class="star-loading">
+          <div class="star"></div>
+          <div class="star"></div>
+          <div class="star"></div>
+        </div>
+        <div class="loading-text">Loading notifications...</div>
+      </div>
+    </div>
+    
     <div id="notifications-list" class="list-group mb-5">
       <!-- Notifications will be loaded here -->
     </div>
+    
     <div id="no-notifications" class="text-center text-muted mt-5 d-none">
       <i class="bi bi-bell fs-1"></i>
       <p class="mt-3">You have no notifications yet.</p>
+    </div>
+    
+    <!-- Error state -->
+    <div id="error-notifications" class="text-center text-danger mt-5 d-none">
+      <i class="bi bi-exclamation-triangle fs-1"></i>
+      <p class="mt-3">Failed to load notifications. Please try again.</p>
+      <button class="btn btn-primary" onclick="retryLoadNotifications()">Retry</button>
     </div>
   </main>
     <!-- Footer -->
@@ -198,53 +317,276 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="../../assets/js/firebase-config.js"></script>
+  <script src="../../js/star-loading.js"></script>
   <script>
-    // Redirect to login if not logged in
-    firebase.auth().onAuthStateChanged(function(user) {
-      if (!user) {
-        window.location.href = '../auth/login.html';
-      } else {
-        loadNotifications(user.uid);
+    let currentUser = null;
+    let notificationsListener = null;
+
+    // Wait for Firebase to be initialized
+    function waitForFirebase() {
+      if (typeof firebase === 'undefined' || !firebase.apps.length) {
+        console.log('Waiting for Firebase to initialize...');
+        setTimeout(waitForFirebase, 100);
+        return;
       }
-    });
-    function loadNotifications(uid) {
-      const db = firebase.firestore();
-      const notifList = document.getElementById('notifications-list');
-      const badge = document.getElementById('notification-badge');
-      notifList.innerHTML = '';
-      db.collection('users').doc(uid).collection('notifications').orderBy('createdAt', 'desc').get().then(snap => {
-        if (snap.empty) {
-          document.getElementById('no-notifications').classList.remove('d-none');
-          badge && badge.classList.add('d-none');
-          return;
-        }
-        let unreadCount = 0;
-        snap.forEach(doc => {
-          const n = doc.data();
-          const item = document.createElement('a');
-          item.className = 'list-group-item list-group-item-action flex-column align-items-start';
-          item.innerHTML = `
-            <div class="d-flex w-100 justify-content-between">
-              <h5 class="mb-1">${n.title || 'Notification'}</h5>
-              <small class="text-muted">${n.createdAt && n.createdAt.toDate ? n.createdAt.toDate().toLocaleString() : ''}</small>
-            </div>
-            <p class="mb-1">${n.body || ''}</p>
-            ${n.read === false ? '<span class="badge bg-primary">Unread</span>' : ''}
-          `;
-          if (n.read === false) unreadCount++;
-          notifList.appendChild(item);
-        });
-        document.getElementById('no-notifications').classList.add('d-none');
-        if (badge) {
-          if (unreadCount > 0) {
-            badge.textContent = unreadCount;
-            badge.classList.remove('d-none');
-          } else {
-            badge.classList.add('d-none');
-          }
+      
+      console.log('Firebase is ready, setting up auth listener...');
+      
+      // Redirect to login if not logged in
+      firebase.auth().onAuthStateChanged(function(user) {
+        if (!user) {
+          window.location.href = '../auth/login.html';
+        } else {
+          currentUser = user;
+          loadNotifications(user.uid);
+          setupRealTimeNotifications(user.uid);
         }
       });
     }
+
+    // Start the process
+    waitForFirebase();
+
+    function loadNotifications(uid) {
+      console.log('Loading notifications for user:', uid);
+      
+      const db = firebase.firestore();
+      const notifList = document.getElementById('notifications-list');
+      const badge = document.getElementById('notification-badge');
+      const loading = document.getElementById('loading-notifications');
+      const error = document.getElementById('error-notifications');
+      
+      // Show star loading animation
+      if (window.StarLoading) {
+        window.StarLoading.showInElement(loading, 'Loading notifications...', 'py-5');
+      } else {
+        loading.classList.remove('d-none');
+      }
+      
+      notifList.innerHTML = '';
+      error.classList.add('d-none');
+      document.getElementById('no-notifications').classList.add('d-none');
+      
+      // Test Firestore connection
+      console.log('Testing Firestore connection...');
+      
+      db.collection('users').doc(uid).collection('notifications')
+        .orderBy('createdAt', 'desc')
+        .limit(50) // Limit to 50 most recent notifications
+        .get()
+        .then(snap => {
+          console.log('Successfully fetched notifications, count:', snap.size);
+          
+          if (snap.empty) {
+            console.log('No notifications found');
+            document.getElementById('no-notifications').classList.remove('d-none');
+            badge && badge.classList.add('d-none');
+            loading.classList.add('d-none');
+            return;
+          }
+          
+          let unreadCount = 0;
+          snap.forEach(doc => {
+            const n = doc.data();
+            console.log('Notification data:', n);
+            const item = createNotificationItem(doc.id, n);
+            if (n.read === false) unreadCount++;
+            notifList.appendChild(item);
+          });
+          
+          console.log('Unread notifications:', unreadCount);
+          document.getElementById('no-notifications').classList.add('d-none');
+          updateNotificationBadge(unreadCount);
+          loading.classList.add('d-none');
+        })
+        .catch(err => {
+          console.error("Error loading notifications:", err);
+          console.error("Error details:", {
+            code: err.code,
+            message: err.message,
+            stack: err.stack
+          });
+          loading.classList.add('d-none');
+          error.classList.remove('d-none');
+        });
+    }
+
+    function createNotificationItem(docId, notification) {
+      const item = document.createElement('div');
+      item.className = `list-group-item list-group-item-action flex-column align-items-start notification-item ${notification.read === false ? 'unread' : ''}`;
+      item.dataset.notificationId = docId;
+      
+      const timestamp = notification.createdAt && notification.createdAt.toDate ? 
+        notification.createdAt.toDate().toLocaleString() : 
+        (notification.createdAt ? new Date(notification.createdAt).toLocaleString() : '');
+      
+      item.innerHTML = `
+        <div class="d-flex w-100 justify-content-between align-items-start">
+          <div class="flex-grow-1">
+            <h6 class="mb-1 fw-bold">${notification.title || 'Notification'}</h6>
+            <p class="mb-1 text-muted">${notification.body || ''}</p>
+            <small class="text-muted">${timestamp}</small>
+          </div>
+          <div class="ms-3">
+            ${notification.read === false ? '<span class="badge bg-primary">Unread</span>' : ''}
+            <button class="btn btn-sm btn-outline-secondary mt-1 mark-read-btn" onclick="markAsRead('${docId}')" ${notification.read === true ? 'disabled' : ''}>
+              <i class="bi bi-check"></i>
+            </button>
+          </div>
+        </div>
+      `;
+      
+      // Add click handler to mark as read
+      item.addEventListener('click', function(e) {
+        if (!e.target.classList.contains('mark-read-btn')) {
+          markAsRead(docId);
+        }
+      });
+      
+      return item;
+    }
+
+    function markAsRead(notificationId) {
+      if (!currentUser) return;
+      
+      const db = firebase.firestore();
+      db.collection('users').doc(currentUser.uid).collection('notifications')
+        .doc(notificationId)
+        .update({
+          read: true,
+          readAt: firebase.firestore.FieldValue.serverTimestamp()
+        })
+        .then(() => {
+          // Update UI
+          const item = document.querySelector(`[data-notification-id="${notificationId}"]`);
+          if (item) {
+            item.classList.remove('unread');
+            const badge = item.querySelector('.badge');
+            if (badge) badge.remove();
+            const markReadBtn = item.querySelector('.mark-read-btn');
+            if (markReadBtn) markReadBtn.disabled = true;
+          }
+          
+          // Update notification count
+          updateNotificationCount();
+        })
+        .catch(err => {
+          console.error("Error marking notification as read:", err);
+        });
+    }
+
+    function updateNotificationCount() {
+      const unreadItems = document.querySelectorAll('.notification-item.unread');
+      updateNotificationBadge(unreadItems.length);
+    }
+
+    function updateNotificationBadge(count) {
+      const badge = document.getElementById('notification-badge');
+      if (badge) {
+        if (count > 0) {
+          badge.textContent = count;
+          badge.classList.remove('d-none');
+        } else {
+          badge.classList.add('d-none');
+        }
+      }
+    }
+
+    function setupRealTimeNotifications(uid) {
+      const db = firebase.firestore();
+      
+      // Listen for new notifications
+      notificationsListener = db.collection('users').doc(uid).collection('notifications')
+        .orderBy('createdAt', 'desc')
+        .limit(1) // Only listen for the most recent notification
+        .onSnapshot(snapshot => {
+          snapshot.docChanges().forEach(change => {
+            if (change.type === 'added') {
+              // New notification added
+              const notification = change.doc.data();
+              const notifList = document.getElementById('notifications-list');
+              const noNotifications = document.getElementById('no-notifications');
+              
+              // Hide "no notifications" message if it's showing
+              noNotifications.classList.add('d-none');
+              
+              // Add new notification at the top
+              const newItem = createNotificationItem(change.doc.id, notification);
+              notifList.insertBefore(newItem, notifList.firstChild);
+              
+              // Update badge count
+              updateNotificationCount();
+              
+              // Show a toast notification
+              showToastNotification(notification.title || 'New notification', notification.body || '');
+            }
+          });
+        }, err => {
+          console.error("Error listening for notifications:", err);
+        });
+    }
+
+    function showToastNotification(title, body) {
+      // Create a simple toast notification
+      const toast = document.createElement('div');
+      toast.className = 'toast-notification';
+      toast.innerHTML = `
+        <div class="toast-header">
+          <strong>${title}</strong>
+          <button type="button" class="btn-close" onclick="this.parentElement.parentElement.remove()"></button>
+        </div>
+        <div class="toast-body">
+          ${body}
+        </div>
+      `;
+      
+      document.body.appendChild(toast);
+      
+      // Auto-remove after 5 seconds
+      setTimeout(() => {
+        if (toast.parentElement) {
+          toast.remove();
+        }
+      }, 5000);
+    }
+
+    function retryLoadNotifications() {
+      if (currentUser) {
+        loadNotifications(currentUser.uid);
+      } else {
+        window.location.href = '../auth/login.html';
+      }
+    }
+
+    // Test Firestore connection
+    function testFirestoreConnection() {
+      console.log('Testing Firestore connection...');
+      const db = firebase.firestore();
+      
+      // Try to read a test document
+      db.collection('test').doc('connection-test').get()
+        .then(doc => {
+          console.log('✅ Firestore connection successful');
+        })
+        .catch(err => {
+          console.error('❌ Firestore connection failed:', err);
+        });
+    }
+
+    // Clean up listener when page unloads
+    window.addEventListener('beforeunload', () => {
+      if (notificationsListener) {
+        notificationsListener();
+      }
+    });
+
+    // Test connection after Firebase is ready
+    setTimeout(() => {
+      if (typeof firebase !== 'undefined' && firebase.apps.length) {
+        testFirestoreConnection();
+      }
+    }, 2000);
   </script>
 </body>
 </html> 

@@ -3,72 +3,807 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Redirecting to Login - Starlet Properties</title>
-    <meta http-equiv="refresh" content="0; url=../auth/login.html">
-    <link rel="canonical" href="../auth/login.html">
+    <title>Login - Starlet Properties</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../css/style.css">
     <style>
+        :root {
+            --primary-color: #0d6efd;
+            --accent-gold: #ffd700;
+            --accent-cyan: #00ffff;
+            --light-color: #f8f9fa;
+            --dark-color: #212529;
+        }
+        
         body {
             font-family: 'Inter', Arial, sans-serif;
-            background: linear-gradient(135deg, #f8f9fa 0%, #e3f0ff 100%);
+            background: linear-gradient(135deg, var(--light-color) 0%, #e3f0ff 100%);
+            height: 100vh;
+            margin: 0;
             display: flex;
             align-items: center;
             justify-content: center;
-            min-height: 100vh;
-            margin: 0;
-            color: #333;
+            padding: 10px;
+            overflow: hidden;
         }
-        .redirect-container {
+        
+        .auth-container {
+            display: flex;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(12px);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            max-width: 900px;
+            width: 100%;
+            height: 90vh;
+            max-height: 600px;
+            animation: fadeInUp 0.6s ease-out;
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .auth-left {
+            flex: 1;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-cyan) 100%);
+            padding: 40px 30px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
             text-align: center;
-            background: rgba(255, 255, 255, 0.9);
-            padding: 2rem;
-            border-radius: 1rem;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-            max-width: 400px;
+            color: white;
+            position: relative;
+            overflow: hidden;
+            min-height: 0;
         }
-        .redirect-container h1 {
-            color: #0d6efd;
-            margin-bottom: 1rem;
+        
+        .auth-left::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+            animation: float 6s ease-in-out infinite;
         }
-        .redirect-container p {
-            margin-bottom: 1.5rem;
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+        }
+        
+        .auth-right {
+            flex: 1;
+            padding: 40px 30px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            overflow-y: auto;
+            min-height: 0;
+        }
+        
+        .brand-logo {
+            width: clamp(40px, 8vw, 60px);
+            height: clamp(40px, 8vw, 60px);
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: clamp(10px, 2vw, 20px);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            flex-shrink: 0;
+        }
+        
+        .brand-logo i {
+            font-size: clamp(1.5rem, 4vw, 2rem);
+            color: var(--accent-gold);
+        }
+        
+        .brand-title {
+            font-size: clamp(1.5rem, 5vw, 2rem);
+            font-weight: 700;
+            margin-bottom: clamp(8px, 1.5vw, 15px);
+            letter-spacing: -0.02em;
+            line-height: 1.2;
+        }
+        
+        .brand-title .brand-star {
+            color: var(--accent-gold);
+        }
+        
+        .brand-title .brand-let {
+            color: var(--accent-cyan);
+        }
+        
+        .brand-subtitle {
+            font-size: clamp(0.8rem, 2.5vw, 1rem);
+            margin-bottom: clamp(10px, 3vw, 20px);
+            opacity: 0.9;
+            font-weight: 400;
+            line-height: 1.3;
+        }
+        
+        .brand-features {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            text-align: left;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: clamp(6px, 1.5vw, 10px);
+        }
+        
+        .brand-features li {
+            display: flex;
+            align-items: center;
+            font-size: clamp(0.7rem, 2vw, 0.9rem);
+            opacity: 0.9;
+            line-height: 1.2;
+        }
+        
+        .brand-features li i {
+            margin-right: clamp(6px, 1.5vw, 10px);
+            color: var(--accent-gold);
+            font-size: clamp(0.8rem, 2vw, 1rem);
+            flex-shrink: 0;
+        }
+        
+        .form-title {
+            font-size: clamp(1.4rem, 4vw, 1.8rem);
+            font-weight: 700;
+            color: var(--dark-color);
+            margin-bottom: clamp(5px, 1vw, 8px);
+            line-height: 1.2;
+        }
+        
+        .form-subtitle {
+            font-size: clamp(0.8rem, 2.5vw, 0.9rem);
             color: #666;
+            margin-bottom: clamp(15px, 4vw, 25px);
+            line-height: 1.3;
         }
-        .redirect-container a {
-            color: #0d6efd;
+        
+        .form-group {
+            margin-bottom: clamp(8px, 2vw, 12px);
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: clamp(4px, 1.2vw, 6px);
+            font-weight: 600;
+            color: var(--dark-color);
+            font-size: clamp(0.75rem, 2.2vw, 0.85rem);
+            line-height: 1.2;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: clamp(5px, 1.8vw, 8px) clamp(8px, 2.2vw, 12px);
+            border: 1.5px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: clamp(0.7rem, 2vw, 0.8rem);
+            transition: all 0.3s ease;
+            background: #fff;
+            height: clamp(28px, 7vw, 36px);
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(13, 110, 253, 0.1);
+        }
+        
+        .form-control::placeholder {
+            color: #adb5bd;
+            font-size: clamp(0.7rem, 2vw, 0.8rem);
+        }
+        
+        .input-group {
+            position: relative;
+        }
+        
+        .input-icon {
+            position: absolute;
+            left: clamp(6px, 1.5vw, 10px);
+            top: 50%;
+            transform: translateY(-50%);
+            color: #adb5bd;
+            z-index: 2;
+            font-size: clamp(0.7rem, 1.8vw, 0.8rem);
+        }
+        
+        .input-icon + .form-control {
+            padding-left: clamp(24px, 5vw, 32px);
+        }
+        
+        .password-toggle {
+            position: absolute;
+            right: clamp(6px, 1.5vw, 10px);
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #adb5bd;
+            cursor: pointer;
+            z-index: 2;
+            font-size: clamp(0.7rem, 1.8vw, 0.8rem);
+            padding: 2px;
+        }
+        
+        .password-toggle:hover {
+            color: var(--primary-color);
+        }
+        
+        .form-options {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: clamp(8px, 2vw, 12px);
+        }
+        
+        .form-check {
+            display: flex;
+            align-items: center;
+        }
+        
+        .form-check-input {
+            margin-right: clamp(4px, 1.2vw, 6px);
+            accent-color: var(--primary-color);
+        }
+        
+        .form-check-label {
+            font-size: clamp(0.6rem, 1.8vw, 0.75rem);
+            color: #666;
+            line-height: 1.2;
+        }
+        
+        .forgot-link {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-size: clamp(0.6rem, 1.8vw, 0.75rem);
+            font-weight: 500;
+        }
+        
+        .forgot-link:hover {
+            text-decoration: underline;
+        }
+        
+        .btn-primary {
+            width: 100%;
+            padding: clamp(5px, 1.8vw, 8px);
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-cyan) 100%);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-size: clamp(0.7rem, 2vw, 0.8rem);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: clamp(5px, 1.2vw, 8px);
+            height: clamp(28px, 7vw, 36px);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(13, 110, 253, 0.3);
+        }
+        
+        .btn-outline {
+            width: 100%;
+            padding: clamp(5px, 1.8vw, 8px);
+            background: transparent;
+            border: 1.5px solid var(--primary-color);
+            border-radius: 8px;
+            color: var(--primary-color);
+            font-size: clamp(0.7rem, 2vw, 0.8rem);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: clamp(5px, 1.2vw, 8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: clamp(3px, 1vw, 5px);
+            height: clamp(28px, 7vw, 36px);
+        }
+        
+        .btn-outline:hover {
+            background: var(--primary-color);
+            color: white;
+        }
+        
+        .btn-outline img {
+            width: clamp(14px, 3vw, 18px);
+            height: clamp(14px, 3vw, 18px);
+        }
+        
+        .register-link {
+            text-align: center;
+            margin-top: clamp(8px, 2vw, 12px);
+            font-size: clamp(0.6rem, 1.8vw, 0.7rem);
+            color: #666;
+            line-height: 1.3;
+        }
+        
+        .register-link a {
+            color: var(--primary-color);
             text-decoration: none;
             font-weight: 600;
         }
-        .redirect-container a:hover {
+        
+        .register-link a:hover {
             text-decoration: underline;
         }
-        .spinner {
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #0d6efd;
-            border-radius: 50%;
-            width: 30px;
-            height: 30px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 1rem auto;
+        
+        .brand-content,
+        .form-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        
+        /* Register form specific styles */
+        .register-brand {
+            text-align: center;
+            margin-bottom: clamp(1rem, 2.5vw, 1.5rem);
+        }
+        
+        .register-brand .brand-star {
+            color: var(--accent-gold);
+            font-weight: 700;
+            font-size: clamp(1.2rem, 3.5vw, 1.8rem);
+        }
+        
+        .register-brand .brand-let {
+            color: var(--accent-cyan);
+            font-weight: 700;
+            font-size: clamp(1.2rem, 3.5vw, 1.8rem);
+        }
+        
+        .register-title {
+            font-size: clamp(1rem, 3vw, 1.3rem);
+            font-weight: 700;
+            margin-bottom: clamp(0.8rem, 2.5vw, 1rem);
+            text-align: center;
+            letter-spacing: 0.01em;
+            color: var(--primary-color);
+        }
+        
+        .form-label {
+            font-weight: 600;
+            color: var(--dark-color);
+            font-size: clamp(0.7rem, 2vw, 0.8rem);
+            margin-bottom: clamp(3px, 1vw, 5px);
+        }
+        
+        .show-hide-toggle {
+            position: absolute;
+            right: clamp(8px, 2vw, 10px);
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #888;
+            font-size: clamp(0.8rem, 2.2vw, 0.9rem);
+            z-index: 2;
+            padding: 2px;
+        }
+        
+        .login-link {
+            color: var(--accent-cyan);
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.2s;
+        }
+        
+        .login-link:hover {
+            color: var(--accent-gold);
+            text-decoration: underline;
+        }
+        
+        .divider {
+            text-align: center;
+            margin: clamp(6px, 1.5vw, 10px) 0;
+            position: relative;
+            color: #adb5bd;
+            font-size: clamp(0.6rem, 1.8vw, 0.7rem);
+        }
+        
+        .divider::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: #e1e5e9;
+        }
+        
+        .divider span {
+            background: white;
+            padding: 0 clamp(6px, 1.5vw, 10px);
+        }
+        
+        @media (max-width: 768px) {
+            body {
+                padding: 5px;
+            }
+            
+            .auth-container {
+                flex-direction: column;
+                max-width: 100%;
+                height: 95vh;
+                max-height: none;
+            }
+            
+            .auth-left {
+                padding: clamp(15px, 4vw, 25px) clamp(15px, 4vw, 20px);
+                flex: 0 0 auto;
+            }
+            
+            .auth-right {
+                padding: clamp(15px, 4vw, 25px) clamp(15px, 4vw, 20px);
+                flex: 1;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            body {
+                padding: 2px;
+            }
+            
+            .auth-container {
+                height: 98vh;
+                border-radius: 15px;
+            }
+            
+            .auth-left,
+            .auth-right {
+                padding: clamp(10px, 3vw, 20px) clamp(10px, 3vw, 15px);
+            }
+        }
+        
+        @media (max-height: 600px) {
+            .auth-container {
+                height: 95vh;
+                max-height: none;
+            }
+            
+            .auth-left {
+                padding: clamp(15px, 4vw, 20px) clamp(15px, 4vw, 25px);
+            }
+            
+            .auth-right {
+                padding: clamp(15px, 4vw, 20px) clamp(15px, 4vw, 25px);
+            }
         }
     </style>
 </head>
 <body>
-    <div class="redirect-container">
-        <div class="spinner"></div>
-        <h1>Redirecting...</h1>
-        <p>You are being redirected to the login page.</p>
-        <p>If you are not redirected automatically, <a href="../auth/login.html">click here</a>.</p>
+    <div class="auth-container">
+        <!-- Left Card - Brand & Info (Login) / Form (Register) -->
+        <div class="auth-left" id="leftCard">
+            <div class="brand-content" id="brandContent">
+                <div class="brand-logo">
+                    <i class="bi bi-star-fill"></i>
+                </div>
+                <h1 class="brand-title">
+                    <span class="brand-star">Star</span><span class="brand-let">Let</span>
+                </h1>
+                <p class="brand-subtitle">Uganda's Premier Real Estate & Vehicle Marketplace</p>
+                <ul class="brand-features">
+                    <li><i class="bi bi-check-circle-fill"></i> Find your dream property</li>
+                    <li><i class="bi bi-check-circle-fill"></i> Browse quality vehicles</li>
+                    <li><i class="bi bi-check-circle-fill"></i> Connect with trusted agents</li>
+                    <li><i class="bi bi-check-circle-fill"></i> Secure transactions</li>
+                    <li><i class="bi bi-check-circle-fill"></i> 24/7 customer support</li>
+                </ul>
+            </div>
+            
+            <!-- Registration Form (Hidden by default) -->
+            <div class="form-content" id="registerFormContent" style="display: none;">
+                <div class="register-brand mb-2">
+                    <span class="brand-star">Star</span><span class="brand-let">let</span>
+                </div>
+                <div class="register-title">Create your account</div>
+                
+                <form id="registerForm" autocomplete="on">
+                    <div class="row g-2">
+                        <div class="col-6 mb-3">
+                            <label for="firstName" class="form-label">First Name</label>
+                            <input type="text" class="form-control" id="firstName" placeholder="First Name" required>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <label for="lastName" class="form-label">Last Name</label>
+                            <input type="text" class="form-control" id="lastName" placeholder="Last Name" required>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="registerEmail" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="registerEmail" placeholder="e.g. johndoe@email.com" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="registerPhone" class="form-label">Phone</label>
+                        <input type="tel" class="form-control" id="registerPhone" placeholder="e.g. +256..." required>
+                    </div>
+                    
+                    <div class="mb-3 position-relative">
+                        <label for="registerPassword" class="form-label">Password</label>
+                        <input type="password" class="form-control" id="registerPassword" placeholder="Create a password" required>
+                        <span class="show-hide-toggle" id="toggleRegisterPassword"><i class="bi bi-eye"></i></span>
+                    </div>
+                    
+                    <div class="mb-3 position-relative">
+                        <label for="registerConfirmPassword" class="form-label">Confirm Password</label>
+                        <input type="password" class="form-control" id="registerConfirmPassword" placeholder="Confirm password" required>
+                        <span class="show-hide-toggle" id="toggleRegisterConfirmPassword"><i class="bi bi-eye"></i></span>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary w-100 mb-2">Register</button>
+                </form>
+                
+                <div class="text-center mt-3">
+                    <span>Already have an account? <a href="#" onclick="switchToLogin()" class="login-link">Login</a></span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Right Card - Login Form (Login) / Brand & Info (Register) -->
+        <div class="auth-right" id="rightCard">
+            <div class="form-content" id="loginFormContent">
+                <h2 class="form-title">Welcome Back</h2>
+                <p class="form-subtitle">Sign in to your account to continue</p>
+                
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <div class="input-group">
+                            <i class="bi bi-envelope input-icon"></i>
+                            <input type="email" id="email" class="form-control" placeholder="Enter your email" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <div class="input-group">
+                            <i class="bi bi-lock input-icon"></i>
+                            <input type="password" id="password" class="form-control" placeholder="Enter your password" required>
+                            <button type="button" class="password-toggle" onclick="togglePassword()">
+                                <i class="bi bi-eye" id="passwordToggleIcon"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="form-options">
+                        <div class="form-check">
+                            <input type="checkbox" id="remember" class="form-check-input">
+                            <label for="remember" class="form-check-label">Remember me</label>
+                        </div>
+                        <a href="#" class="forgot-link">Forgot password?</a>
+                    </div>
+                    
+                    <button type="submit" class="btn-primary">Sign In</button>
+                    
+                    <div class="divider">
+                        <span>or continue with</span>
+                    </div>
+                    
+                    <button type="button" class="btn-outline">
+                        <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google">
+                        Sign in with Google
+                    </button>
+                    
+                    <button type="button" class="btn-outline" style="background: #f8f9fa; border-color: #dee2e6; color: #6c757d;">
+                        <i class="bi bi-person-circle"></i>
+                        Continue as Guest
+                    </button>
+                </form>
+                
+                <div class="register-link">
+                    Don't have an account? <a href="#" onclick="switchToRegister()">Sign up here</a>
+                </div>
+            </div>
+            
+            <!-- Brand Content (Hidden by default) -->
+            <div class="brand-content" id="registerBrandContent" style="display: none;">
+                <div class="brand-logo">
+                    <i class="bi bi-star-fill"></i>
+                </div>
+                <h1 class="brand-title">
+                    <span class="brand-star">Star</span><span class="brand-let">Let</span>
+                </h1>
+                <p class="brand-subtitle">Join Uganda's Premier Real Estate & Vehicle Marketplace</p>
+                <ul class="brand-features">
+                    <li><i class="bi bi-check-circle-fill"></i> Create your account in minutes</li>
+                    <li><i class="bi bi-check-circle-fill"></i> Access exclusive listings</li>
+                    <li><i class="bi bi-check-circle-fill"></i> Connect with verified agents</li>
+                    <li><i class="bi bi-check-circle-fill"></i> Save your favorite properties</li>
+                    <li><i class="bi bi-check-circle-fill"></i> Get personalized recommendations</li>
+                </ul>
+            </div>
+        </div>
     </div>
     
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Fallback redirect in case meta refresh doesn't work
-        setTimeout(function() {
-            window.location.href = '../auth/login.html';
-        }, 1000);
+        let currentMode = 'login'; // 'login' or 'register'
+        
+        function togglePassword() {
+            const passwordInput = document.getElementById('password');
+            const toggleIcon = document.getElementById('passwordToggleIcon');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleIcon.classList.remove('bi-eye');
+                toggleIcon.classList.add('bi-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                toggleIcon.classList.remove('bi-eye-slash');
+                toggleIcon.classList.add('bi-eye');
+            }
+        }
+        
+        function toggleRegPassword() {
+            const passwordInput = document.getElementById('registerPassword');
+            const toggleIcon = document.getElementById('toggleRegisterPassword');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleIcon.innerHTML = '<i class="bi bi-eye-slash"></i>';
+            } else {
+                passwordInput.type = 'password';
+                toggleIcon.innerHTML = '<i class="bi bi-eye"></i>';
+            }
+        }
+        
+        function toggleRegConfirmPassword() {
+            const passwordInput = document.getElementById('registerConfirmPassword');
+            const toggleIcon = document.getElementById('toggleRegisterConfirmPassword');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleIcon.innerHTML = '<i class="bi bi-eye-slash"></i>';
+            } else {
+                passwordInput.type = 'password';
+                toggleIcon.innerHTML = '<i class="bi bi-eye"></i>';
+            }
+        }
+        
+        function switchToRegister() {
+            currentMode = 'register';
+            
+            // Hide login content
+            document.getElementById('loginFormContent').style.display = 'none';
+            document.getElementById('brandContent').style.display = 'none';
+            
+            // Show registration content
+            document.getElementById('registerFormContent').style.display = 'flex';
+            document.getElementById('registerBrandContent').style.display = 'flex';
+            
+            // Switch card backgrounds
+            document.getElementById('leftCard').classList.remove('auth-left');
+            document.getElementById('leftCard').classList.add('auth-right');
+            document.getElementById('rightCard').classList.remove('auth-right');
+            document.getElementById('rightCard').classList.add('auth-left');
+            
+            console.log('Switched to registration mode');
+        }
+        
+        function switchToLogin() {
+            currentMode = 'login';
+            
+            // Hide registration content
+            document.getElementById('registerFormContent').style.display = 'none';
+            document.getElementById('registerBrandContent').style.display = 'none';
+            
+            // Show login content
+            document.getElementById('loginFormContent').style.display = 'flex';
+            document.getElementById('brandContent').style.display = 'flex';
+            
+            // Switch card backgrounds back
+            document.getElementById('leftCard').classList.remove('auth-right');
+            document.getElementById('leftCard').classList.add('auth-left');
+            document.getElementById('rightCard').classList.remove('auth-left');
+            document.getElementById('rightCard').classList.add('auth-right');
+            
+            console.log('Switched to login mode');
+        }
+        
+        // Login form submission
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const remember = document.getElementById('remember').checked;
+            
+            // Here you would typically handle the login logic
+            console.log('Login attempt:', { email, password, remember });
+            
+            // For demo purposes, redirect to dashboard
+            window.location.href = '../dashboard/index.html';
+        });
+        
+        // Registration form submission
+        document.getElementById('registerForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const firstName = document.getElementById('firstName').value;
+            const lastName = document.getElementById('lastName').value;
+            const email = document.getElementById('registerEmail').value;
+            const phone = document.getElementById('registerPhone').value;
+            const password = document.getElementById('registerPassword').value;
+            const confirmPassword = document.getElementById('registerConfirmPassword').value;
+            
+            // Basic validation
+            if (password !== confirmPassword) {
+                alert('Passwords do not match!');
+                return;
+            }
+            
+            if (password.length < 6) {
+                alert('Password must be at least 6 characters long!');
+                return;
+            }
+            
+            // Here you would typically handle the registration logic
+            console.log('Registration attempt:', { 
+                firstName, 
+                lastName, 
+                email, 
+                phone, 
+                password 
+            });
+            
+            // For demo purposes, redirect to dashboard
+            window.location.href = '../dashboard/index.html';
+        });
+        
+        // Google sign in/up
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('.btn-outline') && e.target.closest('.btn-outline').textContent.includes('Google')) {
+                console.log('Google sign ' + (currentMode === 'login' ? 'in' : 'up') + ' clicked');
+                // Implement Google sign in/up logic
+            }
+        });
+        
+        // Guest login
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('.btn-outline') && e.target.closest('.btn-outline').textContent.includes('Guest')) {
+                console.log('Guest login clicked');
+                window.location.href = '../../index.html';
+            }
+        });
+        
+        // Password toggle event listeners
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('#toggleRegisterPassword')) {
+                toggleRegPassword();
+            }
+            if (e.target.closest('#toggleRegisterConfirmPassword')) {
+                toggleRegConfirmPassword();
+            }
+        });
     </script>
 </body>
 </html> 
