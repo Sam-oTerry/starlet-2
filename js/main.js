@@ -404,8 +404,6 @@ if (window.firebase && firebase.auth) {
     // Optionally, update UI for logged-in state here
     // e.g., show/hide login/signup buttons
     renderFeaturedListings(); // re-render listings to show save/message buttons
-    updateNavbarForAuth(user);
-    restrictGuestFeatures();
   });
 }
 
@@ -526,44 +524,6 @@ function restrictGuestFeatures() {
       alert('You must be signed in to use this feature.');
     };
   });
-}
-
-function updateNavbarForAuth(user) {
-  const nav = document.querySelector('.navbar-nav');
-  if (!nav) return;
-  // Remove any previously added custom nav items
-  nav.querySelectorAll('.auth-nav-item').forEach(el => el.remove());
-  // Hide notification bell by default
-  const notifBell = document.getElementById('nav-notification-bell');
-  if (notifBell) notifBell.classList.add('d-none');
-  if (!user || user.isAnonymous) return;
-  // Find the first login or register nav-item to insert before
-  const loginItem = nav.querySelector('a[href="login.html"]')?.closest('li');
-  const registerItem = nav.querySelector('a[href="register.html"]')?.closest('li');
-  const insertBefore = loginItem || registerItem || null;
-  // Notification Bell
-  if (notifBell) {
-    notifBell.classList.remove('d-none');
-    nav.insertBefore(notifBell, insertBefore);
-  }
-  // Messages
-  const msgLi = document.createElement('li');
-  msgLi.className = 'nav-item auth-nav-item';
-  msgLi.innerHTML = '<a class="nav-link" href="messaging.html"><i class="bi bi-chat-dots"></i> Messages</a>';
-  nav.insertBefore(msgLi, insertBefore);
-  // My Store
-  const storeLi = document.createElement('li');
-  storeLi.className = 'nav-item auth-nav-item';
-  storeLi.innerHTML = '<a class="nav-link" href="stores.html"><i class="bi bi-shop"></i> My Store</a>';
-  nav.insertBefore(storeLi, insertBefore);
-  // Saved Listings
-  const savedLi = document.createElement('li');
-  savedLi.className = 'nav-item auth-nav-item';
-  savedLi.innerHTML = '<a class="nav-link" href="saved.html"><i class="bi bi-bookmark-heart"></i> Saved Listings</a>';
-  nav.insertBefore(savedLi, insertBefore);
-  // Hide the static #nav-messaging-link if present
-  const staticMsg = document.getElementById('nav-messaging-link');
-  if (staticMsg) staticMsg.style.display = 'none';
 }
 
 async function enforceAuth(requiredRole) {
