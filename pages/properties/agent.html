@@ -4,14 +4,18 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Redirecting...</title>
+  <script src="../../js/main.js"></script>
   <script>
     const params = new URLSearchParams(window.location.search);
     const id = params.get('id');
     if (id) {
       window.location.replace(`../agents/profile.html?id=${encodeURIComponent(id)}`);
     } else {
+      // Enforce authentication on this page
+      enforceAuth('../../auth/login.html');
+      // Setup My Listings link logic
       document.addEventListener('DOMContentLoaded', function() {
-        document.body.innerHTML = '<div class="container text-center py-5"><h2>Agent ID Required</h2><p>Please provide a valid agent ID in the URL.</p></div>';
+        setupMyListingsLink('#myListingsLink', '../../auth/login.html', '../../stores/agent-stores/dashboard.html', '../../stores/agent-stores/create.html');
       });
     }
   </script>

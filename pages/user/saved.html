@@ -197,7 +197,14 @@
         color: #03254c !important;
     }
     </style>
+    <script src="../../js/main.js"></script>
     <script>
+    // Enforce authentication on this page
+    enforceAuth('../../auth/login.html');
+    // Setup My Listings link logic
+    document.addEventListener('DOMContentLoaded', function() {
+        setupMyListingsLink('#myListingsLink', '../../auth/login.html', '../../stores/agent-stores/dashboard.html', '../../stores/agent-stores/create.html');
+    });
     // Enhanced My Listings logic (updated for agent-stores dashboard)
     document.addEventListener('DOMContentLoaded', function() {
       var myListingsLink = document.getElementById('myListingsLink');

@@ -526,24 +526,56 @@ function restrictGuestFeatures() {
   });
 }
 
-async function enforceAuth(requiredRole) {
-  return new Promise((resolve, reject) => {
-    firebase.auth().onAuthStateChanged(async user => {
-      if (!user || user.isAnonymous) {
-        window.location.href = 'pages/auth/login.html';
-        return reject('Not logged in');
-      }
-      if (requiredRole) {
-        // Check user role in Firestore
-        const userDoc = await firebase.firestore().collection('users').doc(user.uid).get();
-        if (!userDoc.exists || userDoc.data().role !== requiredRole) {
-          alert('You do not have permission to access this page.');
-          window.location.href = 'index.html';
-          return reject('Not authorized');
-        }
-      }
-      resolve(user);
-    });
-  });
+// --- Auth Enforcement and My Listings Logic ---
+function getStarletUser() {
+    // Try localStorage first
+    let user = null;
+    try {
+        user = JSON.parse(localStorage.getItem('starletUser'));
+    } catch (e) {}
+    return user;
 }
-window.enforceAuth = enforceAuth;
+
+function enforceAuth(loginPath = '/pages/auth/login.html') {
+    const user = getStarletUser();
+    if (user && user.uid) return;
+    // Try Firebase Auth as fallback
+    if (window.firebaseAuth && window.firebaseAuth.currentUser && window.firebaseAuth.currentUser.uid) return;
+    // Not logged in, redirect to login with returnUrl
+    const returnUrl = encodeURIComponent(window.location.pathname + window.location.search + window.location.hash);
+    window.location.href = loginPath + '?returnUrl=' + returnUrl;
+}
+
+function setupMyListingsLink(myListingsSelector = '#myListingsLink', loginPath = '/pages/auth/login.html', agentDashboardPath = '/pages/stores/agent-stores/dashboard.html', createStorePath = '/pages/stores/agent-stores/create.html') {
+    const link = document.querySelector(myListingsSelector);
+    if (!link) return;
+    link.addEventListener('click', async function(e) {
+        e.preventDefault();
+        let user = getStarletUser();
+        if (!user || !user.uid) {
+            // Not logged in, go to login
+            window.location.href = loginPath + '?returnUrl=' + encodeURIComponent(window.location.pathname);
+            return;
+        }
+        // If we already know the role
+        if (user.role === 'agent') {
+            window.location.href = agentDashboardPath;
+            return;
+        }
+        // Otherwise, check Firestore for up-to-date role
+        if (window.firebaseDB) {
+            try {
+                const userDoc = await window.firebaseDB.collection('users').doc(user.uid).get();
+                if (userDoc.exists && userDoc.data().role === 'agent') {
+                    // Update localStorage for next time
+                    user.role = 'agent';
+                    localStorage.setItem('starletUser', JSON.stringify(user));
+                    window.location.href = agentDashboardPath;
+                    return;
+                }
+            } catch (err) {}
+        }
+        // Not an agent, go to create store
+        window.location.href = createStorePath;
+    });
+}

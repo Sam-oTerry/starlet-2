@@ -515,7 +515,14 @@
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
     <script src="../../js/admin.js"></script>
+    <script src="../../js/main.js"></script>
     <script>
+    // Enforce authentication on this page
+    enforceAuth('../../auth/login.html');
+    // Setup My Listings link logic
+    document.addEventListener('DOMContentLoaded', function() {
+        setupMyListingsLink('#myListingsLink', '../../auth/login.html', '../../stores/agent-stores/dashboard.html', '../../stores/agent-stores/create.html');
+    });
     // --- Admin Stores Management (Enhanced Firestore Integration) ---
     let allStores = [];
     let currentUser = null;

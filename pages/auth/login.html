@@ -730,18 +730,58 @@
         }
         
         // Login form submission
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
             const remember = document.getElementById('remember').checked;
             
-            // Here you would typically handle the login logic
-            console.log('Login attempt:', { email, password, remember });
-            
-            // For demo purposes, redirect to dashboard
-            window.location.href = '../dashboard/index.html';
+            if (!window.firebaseAuth || !window.firebaseDB) {
+                alert('Firebase not initialized. Please try again later.');
+                return;
+            }
+            try {
+                // Sign in with Firebase Auth
+                const userCredential = await window.firebaseAuth.signInWithEmailAndPassword(email, password);
+                const user = userCredential.user;
+                if (!user) throw new Error('No user returned from Firebase.');
+                // Fetch user role from Firestore
+                const userDoc = await window.firebaseDB.collection('users').doc(user.uid).get();
+                let role = 'user';
+                if (userDoc.exists && userDoc.data().role) {
+                    role = userDoc.data().role;
+                }
+                // Store user info in localStorage
+                localStorage.setItem('starletUser', JSON.stringify({
+                    email: user.email,
+                    uid: user.uid,
+                    role: role
+                }));
+                // Redirect based on role
+                if (role === 'admin') {
+                    window.location.href = '../admin/dashboard.html';
+                } else {
+                    // Get returnUrl from query param or fallback to referrer or dashboard
+                    const params = new URLSearchParams(window.location.search);
+                    let returnUrl = params.get('returnUrl');
+                    if (!returnUrl) {
+                        // Use document.referrer if it's from the same origin
+                        try {
+                            const ref = document.referrer;
+                            if (ref && ref.startsWith(window.location.origin)) {
+                                returnUrl = ref.replace(window.location.origin, '');
+                            }
+                        } catch (e) {}
+                    }
+                    if (!returnUrl || returnUrl.includes('login.html')) {
+                        returnUrl = '../dashboard/index.html';
+                    }
+                    window.location.href = returnUrl;
+                }
+            } catch (error) {
+                alert('Login failed: ' + (error.message || error));
+            }
         });
         
         // Registration form submission

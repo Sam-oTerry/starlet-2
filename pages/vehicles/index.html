@@ -117,93 +117,6 @@
         }
     }
     </style>
-    <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        var agentId = window.currentAgentId || localStorage.getItem('agentId');
-        if (agentId) {
-            var myListings = document.getElementById('myListingsLink');
-            var profile = document.getElementById('profileLink');
-            if (myListings) myListings.href = '../stores/details.html?agentId=' + encodeURIComponent(agentId);
-            if (profile) profile.href = '../agents/profile.html?agentId=' + encodeURIComponent(agentId);
-        }
-        
-        // Initialize unread messages counter
-        initializeUnreadMessagesCounter();
-    });
-    
-    // Unread messages counter functionality
-    let totalUnreadCount = 0;
-    let unreadMessagesListener = null;
-    
-    function initializeUnreadMessagesCounter() {
-        // Check if user is logged in (you can modify this based on your auth system)
-        const currentUser = getCurrentUser();
-        if (!currentUser) return;
-        
-        // Start listening for unread messages
-        startUnreadMessagesListener();
-        
-        // Add click handler for messages nav link
-        const messagesNavLink = document.getElementById('messagesNavLink');
-        if (messagesNavLink) {
-            messagesNavLink.addEventListener('click', function(e) {
-                // Clear unread badge when clicking the messages link
-                clearUnreadBadge();
-            });
-        }
-    }
-    
-    function getCurrentUser() {
-        // Replace this with your actual user authentication logic
-        // For now, we'll check if there's a user in localStorage
-        const userData = localStorage.getItem('user');
-        if (userData) {
-            try {
-                return JSON.parse(userData);
-            } catch (e) {
-                return null;
-            }
-        }
-        return null;
-    }
-    
-    function startUnreadMessagesListener() {
-        // This would connect to Firebase to listen for unread messages
-        // For now, we'll simulate the functionality
-        console.log('Unread messages listener initialized');
-        
-        // Simulate checking for unread messages every 30 seconds
-        setInterval(() => {
-            checkForUnreadMessages();
-        }, 30000);
-    }
-    
-    function checkForUnreadMessages() {
-        // This would query Firebase for unread messages
-        // For now, we'll simulate with a random number
-        const mockUnreadCount = Math.floor(Math.random() * 5); // 0-4 messages
-        updateUnreadBadge(mockUnreadCount);
-    }
-    
-    function updateUnreadBadge(count) {
-        const badge = document.getElementById('unreadMessagesBadge');
-        if (!badge) return;
-        
-        totalUnreadCount = count;
-        
-        if (count > 0) {
-            badge.textContent = count > 99 ? '99+' : count.toString();
-            badge.classList.remove('d-none');
-        } else {
-            badge.classList.add('d-none');
-        }
-    }
-    
-    function clearUnreadBadge() {
-        updateUnreadBadge(0);
-    }
-    </script>
-
     <!-- Hero Section for Vehicles -->
     <section class="hero-section">
         <div class="container">
@@ -634,6 +547,19 @@ function renderFeaturedVehicles() {
     container.appendChild(card);
   });
 }
+    </script>
+    <script src="../../js/main.js"></script>
+    <script>
+    // Enforce authentication on this page
+    enforceAuth('../../auth/login.html');
+    // Setup My Listings link logic
+    document.addEventListener('DOMContentLoaded', function() {
+        setupMyListingsLink('#myListingsLink', '../../auth/login.html', '../../stores/agent-stores/dashboard.html', '../../stores/agent-stores/create.html');
+        // Initialize unread messages counter (if needed)
+        if (typeof initializeUnreadMessagesCounter === 'function') {
+            initializeUnreadMessagesCounter();
+        }
+    });
     </script>
 </body>
 </html>

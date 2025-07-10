@@ -172,26 +172,31 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-  <script src="../../js/admin.js"></script>
-  <!-- Firebase Initialization (ensure this is before any custom JS) -->
+  <script src="../../js/main.js"></script>
   <script>
-    // Only initialize Firebase if not already initialized by admin.js
-    if (typeof firebase !== 'undefined' && typeof db === 'undefined') {
-      const firebaseConfig = {
-        apiKey: "AIzaSyDH1sMk2NwceMAEfvH07azxaoPXpOI1Sek",
-        authDomain: "starlet-properties-41509.firebaseapp.com",
-        projectId: "starlet-properties-41509",
-        storageBucket: "starlet-properties-41509.appspot.com",
-        messagingSenderId: "393372988481",
-        appId: "1:393372988481:web:c92584d7408296457b02c0",
-        measurementId: "G-F02K9SP07C"
-      };
-      if (!firebase.apps.length) {
-        firebase.initializeApp(firebaseConfig);
-      }
-      window.db = firebase.firestore();
-      window.auth = firebase.auth();
+  // Enforce authentication on this page
+  enforceAuth('../../auth/login.html');
+  // Setup My Listings link logic
+  document.addEventListener('DOMContentLoaded', function() {
+      setupMyListingsLink('#myListingsLink', '../../auth/login.html', '../../stores/agent-stores/dashboard.html', '../../stores/agent-stores/create.html');
+  });
+  // Only initialize Firebase if not already initialized by admin.js
+  if (typeof firebase !== 'undefined' && typeof db === 'undefined') {
+    const firebaseConfig = {
+      apiKey: "AIzaSyDH1sMk2NwceMAEfvH07azxaoPXpOI1Sek",
+      authDomain: "starlet-properties-41509.firebaseapp.com",
+      projectId: "starlet-properties-41509",
+      storageBucket: "starlet-properties-41509.appspot.com",
+      messagingSenderId: "393372988481",
+      appId: "1:393372988481:web:c92584d7408296457b02c0",
+      measurementId: "G-F02K9SP07C"
+    };
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
     }
+    window.db = firebase.firestore();
+    window.auth = firebase.auth();
+  }
   </script>
   <!-- JS for reviews moderation will be added next -->
 </body>

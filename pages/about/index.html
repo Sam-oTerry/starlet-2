@@ -199,41 +199,13 @@
       </div>
     </div>
   </nav>
+  <script src="../../js/main.js"></script>
   <script>
-    // Enhanced My Listings logic (updated for agent-stores dashboard)
+    // Enforce authentication on this page
+    enforceAuth('../../auth/login.html');
+    // Setup My Listings link logic
     document.addEventListener('DOMContentLoaded', function() {
-      var myListingsLink = document.getElementById('myListingsLink');
-      if (!myListingsLink) return;
-      myListingsLink.addEventListener('click', function(e) {
-        if (!(window.firebase && firebase.auth && firebase.firestore)) return;
-        var user = firebase.auth().currentUser;
-        if (!user || user.isAnonymous) {
-          window.location.href = '../auth/login.html';
-          return;
-        }
-        e.preventDefault();
-        var db = firebase.firestore();
-        db.collection('stores').where('ownerId', '==', user.uid).limit(1).get()
-          .then(function(querySnapshot) {
-            if (!querySnapshot.empty) {
-              window.location.href = '../stores/agent-stores/dashboard.html';
-            } else {
-              db.collection('users').doc(user.uid).get().then(function(userDoc) {
-                var userData = userDoc.exists ? userDoc.data() : {};
-                if (userData.role === 'agent') {
-                  window.location.href = '../stores/agent-stores/create.html';
-                } else {
-                  if (confirm('To list your properties, you need to create a store and select an agent tier. Would you like to get started?')) {
-                    window.location.href = '../stores/agent-stores/create.html';
-                  }
-                }
-              });
-            }
-          })
-          .catch(function(err) {
-            alert('Error checking your store status: ' + err.message);
-          });
-      });
+        setupMyListingsLink('#myListingsLink', '../../auth/login.html', '../../stores/agent-stores/dashboard.html', '../../stores/agent-stores/create.html');
     });
     // Auth button logic
     document.addEventListener('DOMContentLoaded', function() {

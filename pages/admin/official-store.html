@@ -245,9 +245,14 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="../../js/admin.js"></script>
-  
-  <!-- Official Store JS will be added next -->
+  <script src="../../js/main.js"></script>
   <script>
+  // Enforce authentication on this page
+  enforceAuth('../../auth/login.html');
+  // Setup My Listings link logic
+  document.addEventListener('DOMContentLoaded', function() {
+      setupMyListingsLink('#myListingsLink', '../../auth/login.html', '../../stores/agent-stores/dashboard.html', '../../stores/agent-stores/create.html');
+  });
   // Wait for admin.js to load and then use the proper admin authentication
   document.addEventListener('DOMContentLoaded', function() {
     if (window.enforceAuth) {

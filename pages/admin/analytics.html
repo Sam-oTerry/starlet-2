@@ -261,6 +261,10 @@
           }
         }
         waitForFirebaseInit();
+        // Enforce authentication on this page
+        enforceAuth('../../auth/login.html');
+        // Setup My Listings link logic
+        setupMyListingsLink('#myListingsLink', '../../auth/login.html', '../../stores/agent-stores/dashboard.html', '../../stores/agent-stores/create.html');
       });
 
       // Fetch and display stats
