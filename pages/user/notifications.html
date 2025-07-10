@@ -333,16 +333,16 @@
       
       console.log('Firebase is ready, setting up auth listener...');
       
-      // Redirect to login if not logged in
-      firebase.auth().onAuthStateChanged(function(user) {
-        if (!user) {
-          window.location.href = '../auth/login.html';
-        } else {
+    // Redirect to login if not logged in
+    firebase.auth().onAuthStateChanged(function(user) {
+      if (!user) {
+        window.location.href = '../auth/login.html';
+      } else {
           currentUser = user;
-          loadNotifications(user.uid);
+        loadNotifications(user.uid);
           setupRealTimeNotifications(user.uid);
-        }
-      });
+      }
+    });
     }
 
     // Start the process
@@ -378,25 +378,25 @@
         .then(snap => {
           console.log('Successfully fetched notifications, count:', snap.size);
           
-          if (snap.empty) {
+        if (snap.empty) {
             console.log('No notifications found');
-            document.getElementById('no-notifications').classList.remove('d-none');
-            badge && badge.classList.add('d-none');
+          document.getElementById('no-notifications').classList.remove('d-none');
+          badge && badge.classList.add('d-none');
             loading.classList.add('d-none');
-            return;
-          }
+          return;
+        }
           
-          let unreadCount = 0;
-          snap.forEach(doc => {
-            const n = doc.data();
+        let unreadCount = 0;
+        snap.forEach(doc => {
+          const n = doc.data();
             console.log('Notification data:', n);
             const item = createNotificationItem(doc.id, n);
-            if (n.read === false) unreadCount++;
-            notifList.appendChild(item);
-          });
+          if (n.read === false) unreadCount++;
+          notifList.appendChild(item);
+        });
           
           console.log('Unread notifications:', unreadCount);
-          document.getElementById('no-notifications').classList.add('d-none');
+        document.getElementById('no-notifications').classList.add('d-none');
           updateNotificationBadge(unreadCount);
           loading.classList.add('d-none');
         })
@@ -483,14 +483,14 @@
 
     function updateNotificationBadge(count) {
       const badge = document.getElementById('notification-badge');
-      if (badge) {
+        if (badge) {
         if (count > 0) {
           badge.textContent = count;
-          badge.classList.remove('d-none');
-        } else {
-          badge.classList.add('d-none');
+            badge.classList.remove('d-none');
+          } else {
+            badge.classList.add('d-none');
+          }
         }
-      }
     }
 
     function setupRealTimeNotifications(uid) {
@@ -610,10 +610,10 @@ document.addEventListener('DOMContentLoaded', function() {
           db.collection('users').doc(user.uid).get().then(function(userDoc) {
             var userData = userDoc.exists ? userDoc.data() : {};
             if (userData.role === 'agent') {
-              window.location.href = '../stores/agent-stores/dashboard.html';
+              window.location.href = '../stores/agent-stores/create.html';
             } else {
               if (confirm('To list your properties, you need to create a store and select an agent tier. Would you like to get started?')) {
-                window.location.href = '../stores/agent-stores/dashboard.html';
+                window.location.href = '../stores/agent-stores/create.html';
               }
             }
           });
@@ -624,6 +624,6 @@ document.addEventListener('DOMContentLoaded', function() {
       });
   });
 });
-</script>
+  </script>
 </body>
 </html> 
