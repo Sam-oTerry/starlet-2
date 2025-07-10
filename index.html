@@ -502,6 +502,9 @@
                     <li class="nav-item ms-2">
                         <a class="btn btn-warning fw-bold px-4" href="./pages/dashboard/listings/add.html" style="color: #fff; border-radius: 8px;">SELL</a>
                     </li>
+                    <li class="nav-item ms-2" id="authButtonContainer">
+                        <a class="btn btn-outline-primary fw-bold px-4" id="authButton" href="./pages/auth/login.html" style="border-radius: 8px;">Login / Signup</a>
+                    </li>
                 </ul>
             </div>
         </div>
@@ -963,6 +966,33 @@
           .catch(function(err) {
             alert('Error checking your store status: ' + err.message);
           });
+      });
+    });
+    </script>
+    <script>
+    // Auth button logic
+    document.addEventListener('DOMContentLoaded', function() {
+      var authButton = document.getElementById('authButton');
+      if (!window.firebase || !firebase.auth) return;
+      firebase.auth().onAuthStateChanged(function(user) {
+        if (user && !user.isAnonymous) {
+          authButton.textContent = 'Logout';
+          authButton.classList.remove('btn-outline-primary');
+          authButton.classList.add('btn-danger');
+          authButton.href = '#';
+          authButton.onclick = function(e) {
+            e.preventDefault();
+            firebase.auth().signOut().then(function() {
+              window.location.reload();
+            });
+          };
+        } else {
+          authButton.textContent = 'Login / Signup';
+          authButton.classList.remove('btn-danger');
+          authButton.classList.add('btn-outline-primary');
+          authButton.href = './pages/auth/login.html';
+          authButton.onclick = null;
+        }
       });
     });
     </script>

@@ -432,51 +432,260 @@
     </style>
 </head>
 <body>
-    <!-- Header -->
-    <header class="bg text-white py-3">
+    <!-- Navbar (copied from index.html, paths adjusted for /pages/properties/) -->
+    <nav class="navbar navbar-expand-lg navbar-custom">
         <div class="container">
-            <div class="d-flex justify-content-between align-items-center">
-                <h1 class="mb-0">
-                    <span style="color: var(--accent-gold);">Star</span>
-                    <span style="color: var(--accent-cyan);">Let</span>
-                </h1>
-                <nav class="navbar navbar-expand-lg navbar-dark">
-                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                        <span class="navbar-toggler-icon"></span>
-                    </button>
-                    <div class="collapse navbar-collapse" id="navbarNav">
-                        <ul class="navbar-nav ms-auto">
-                            <li class="nav-item">
-                                <a href="index.html" class="nav-link">
-                                    <i class="bi bi-house-door"></i> Home
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="properties.html" class="nav-link active">
-                                    <i class="bi bi-grid"></i> Properties
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="/pages/vehicles/index.html" class="nav-link">
-                                    <i class="bi bi-car-front"></i> Vehicles
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="../auth/login.html" class="nav-link">
-                                    <i class="bi bi-box-arrow-in-right"></i> Login
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="register.html" class="nav-link">
-                                    <i class="bi bi-person-plus"></i> Sign Up
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-                </nav>
+            <a class="navbar-brand" href="../../index.html">
+                <span class="brand-star">Star</span> <span class="brand-let">Let</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto mb-2 mb-lg-0 d-flex align-items-center" style="gap: 0.7rem;">
+                    <li class="nav-item">
+                        <a class="nav-link icon-circle" href="../user/saved.html" title="Saved">
+                            <i class="bi bi-bookmark"></i>
+                        </a>
+                    </li>
+                    <li class="nav-item position-relative">
+                        <a class="nav-link icon-circle position-relative" href="../user/messaging.html" title="Messages" id="messagesNavLink">
+                            <i class="bi bi-chat-dots"></i>
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none" id="unreadMessagesBadge">0</span>
+                        </a>
+                    </li>
+                    <li class="nav-item position-relative" id="nav-notification-bell">
+                        <a class="nav-link icon-circle position-relative" href="../user/notifications.html" title="Notifications">
+                            <i class="bi bi-bell"></i>
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none" id="notification-badge">0</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link icon-circle" id="myListingsLink" href="../stores/index.html" title="My Listings">
+                            <i class="bi bi-card-list"></i>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link icon-circle" id="profileLink" href="#" title="Profile">
+                            <i class="bi bi-person"></i>
+                        </a>
+                    </li>
+                    <li class="nav-item ms-2">
+                        <a class="btn btn-warning fw-bold px-4" href="../dashboard/listings/add.html" style="color: #fff; border-radius: 8px;">SELL</a>
+                    </li>
+                    <li class="nav-item ms-2" id="authButtonContainer">
+                        <a class="btn btn-outline-primary fw-bold px-4" id="authButton" href="../auth/login.html" style="border-radius: 8px;">Login / Signup</a>
+                    </li>
+                </ul>
             </div>
         </div>
-    </header>
+    </nav>
+    <style>
+    .navbar-custom {
+        background: #03254c !important;
+        border-bottom: 3px solid #ffd700;
+        box-shadow: none;
+        padding-top: 0.5rem;
+        padding-bottom: 0.5rem;
+    }
+    .navbar-brand {
+        font-weight: 700;
+        font-size: 2.2rem;
+        letter-spacing: 1px;
+        display: flex;
+        align-items: center;
+        gap: 0.2em;
+    }
+    .brand-star { color: #ffd700; }
+    .brand-let { color: #00e6ff; }
+    .icon-circle {
+        background: #fff;
+        border-radius: 50%;
+        width: 44px;
+        height: 44px;
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.35rem;
+        color: #03254c;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+        margin: 0 2px;
+        transition: background 0.2s, color 0.2s;
+        position: relative;
+    }
+    .icon-circle:hover, .icon-circle:focus {
+        background: #e3f0ff;
+        color: var(--primary-color);
+        text-decoration: none;
+    }
+    .navbar-custom .btn-warning {
+        background: var(--accent-gold) !important;
+        border: none;
+        color: #fff !important;
+        font-weight: 700;
+        font-size: 1.1rem;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+    }
+    .navbar-custom .btn-warning:hover {
+        background: #ffd700cc !important;
+        color: #03254c !important;
+    }
+    /* Unread messages badge styling */
+    #unreadMessagesBadge {
+        font-size: 0.7rem;
+        min-width: 18px;
+        height: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+        0% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7); }
+        70% { box-shadow: 0 0 0 10px rgba(220, 53, 69, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); }
+    }
+    </style>
+    <script src="../../js/main.js"></script>
+    <script>
+    // Example: Replace with your actual agent ID logic
+    document.addEventListener('DOMContentLoaded', function() {
+        var agentId = window.currentAgentId || localStorage.getItem('agentId'); // Replace with your logic
+        if (agentId) {
+            var myListings = document.getElementById('myListingsLink');
+            var profile = document.getElementById('profileLink');
+            if (myListings) myListings.href = '../stores/details.html?agentId=' + encodeURIComponent(agentId);
+            if (profile) profile.href = '../agents/profile.html?agentId=' + encodeURIComponent(agentId);
+        }
+        // Initialize unread messages counter
+        initializeUnreadMessagesCounter();
+    });
+    // Unread messages counter functionality
+    let totalUnreadCount = 0;
+    let unreadMessagesListener = null;
+    function initializeUnreadMessagesCounter() {
+        // Check if user is logged in (you can modify this based on your auth system)
+        const currentUser = getCurrentUser();
+        if (!currentUser) return;
+        // Start listening for unread messages
+        startUnreadMessagesListener();
+        // Add click handler for messages nav link
+        const messagesNavLink = document.getElementById('messagesNavLink');
+        if (messagesNavLink) {
+            messagesNavLink.addEventListener('click', function(e) {
+                clearUnreadBadge();
+            });
+        }
+    }
+    function getCurrentUser() {
+        // Replace this with your actual user authentication logic
+        // For now, we'll check if there's a user in localStorage
+        const userData = localStorage.getItem('user');
+        if (userData) {
+            try {
+                return JSON.parse(userData);
+            } catch (e) {
+                return null;
+            }
+        }
+        return null;
+    }
+    function startUnreadMessagesListener() {
+        // This would connect to Firebase to listen for unread messages
+        // For now, we'll simulate the functionality
+        console.log('Unread messages listener initialized');
+        // Simulate checking for unread messages every 30 seconds
+        setInterval(() => {
+            checkForUnreadMessages();
+        }, 30000);
+    }
+    function checkForUnreadMessages() {
+        // This would query Firebase for unread messages
+        // For now, we'll simulate with a random number
+        const mockUnreadCount = Math.floor(Math.random() * 5); // 0-4 messages
+        updateUnreadBadge(mockUnreadCount);
+    }
+    function updateUnreadBadge(count) {
+        const badge = document.getElementById('unreadMessagesBadge');
+        if (!badge) return;
+        totalUnreadCount = count;
+        if (count > 0) {
+            badge.textContent = count > 99 ? '99+' : count.toString();
+            badge.classList.remove('d-none');
+        } else {
+            badge.classList.add('d-none');
+        }
+    }
+    function clearUnreadBadge() {
+        updateUnreadBadge(0);
+    }
+    // Enhanced My Listings logic (updated for agent-stores dashboard)
+    document.addEventListener('DOMContentLoaded', function() {
+      var myListingsLink = document.getElementById('myListingsLink');
+      if (!myListingsLink) return;
+      myListingsLink.addEventListener('click', function(e) {
+        if (!(window.firebase && firebase.auth && firebase.firestore)) return;
+        var user = firebase.auth().currentUser;
+        if (!user || user.isAnonymous) {
+          // Not logged in, go to login
+          window.location.href = '../auth/login.html';
+          return;
+        }
+        e.preventDefault();
+        // Check if user has a store or is an agent
+        var db = firebase.firestore();
+        db.collection('stores').where('ownerId', '==', user.uid).limit(1).get()
+          .then(function(querySnapshot) {
+            if (!querySnapshot.empty) {
+              // User has a store, go to the agent-stores dashboard
+              window.location.href = '../stores/agent-stores/dashboard.html';
+            } else {
+              // Check if user is an agent (in users collection, role: 'agent')
+              db.collection('users').doc(user.uid).get().then(function(userDoc) {
+                var userData = userDoc.exists ? userDoc.data() : {};
+                if (userData.role === 'agent') {
+                  // Agent but no store, go to the agent-stores dashboard
+                  window.location.href = '../stores/agent-stores/dashboard.html';
+                } else {
+                  // Not an agent, prompt to become agent and create store
+                  if (confirm('To list your properties, you need to create a store and select an agent tier. Would you like to get started?')) {
+                    window.location.href = '../stores/agent-stores/dashboard.html';
+                  }
+                }
+              });
+            }
+          })
+          .catch(function(err) {
+            alert('Error checking your store status: ' + err.message);
+          });
+      });
+    });
+    // Auth button logic
+    document.addEventListener('DOMContentLoaded', function() {
+      var authButton = document.getElementById('authButton');
+      if (!window.firebase || !firebase.auth) return;
+      firebase.auth().onAuthStateChanged(function(user) {
+        if (user && !user.isAnonymous) {
+          authButton.textContent = 'Logout';
+          authButton.classList.remove('btn-outline-primary');
+          authButton.classList.add('btn-danger');
+          authButton.href = '#';
+          authButton.onclick = function(e) {
+            e.preventDefault();
+            firebase.auth().signOut().then(function() {
+              window.location.reload();
+            });
+          };
+        } else {
+          authButton.textContent = 'Login / Signup';
+          authButton.classList.remove('btn-danger');
+          authButton.classList.add('btn-outline-primary');
+          authButton.href = '../auth/login.html';
+          authButton.onclick = null;
+        }
+      });
+    });
+    </script>
 
     <!-- Product Section -->
     <section class="py-5">
