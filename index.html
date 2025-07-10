@@ -490,7 +490,7 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link icon-circle" id="myListingsLink" href="#" title="My Listings">
+                        <a class="nav-link icon-circle" id="myListingsLink" href="./pages/stores/index.html" title="My Listings">
                             <i class="bi bi-card-list"></i>
                         </a>
                     </li>
@@ -917,6 +917,55 @@
           }
         });
       }
+    });
+    </script>
+    <script>
+    // Enhanced My Listings logic
+    // Requires Firebase Auth and Firestore to be loaded
+
+    document.addEventListener('DOMContentLoaded', function() {
+      var myListingsLink = document.getElementById('myListingsLink');
+      if (!myListingsLink) return;
+
+      myListingsLink.addEventListener('click', function(e) {
+        if (!(window.firebase && firebase.auth && firebase.firestore)) return;
+        var user = firebase.auth().currentUser;
+        if (!user || user.isAnonymous) {
+          // Not logged in, go to login
+          window.location.href = './pages/auth/login.html';
+          return;
+        }
+        e.preventDefault();
+        // Check if user has a store or is an agent
+        var db = firebase.firestore();
+        db.collection('stores').where('ownerId', '==', user.uid).limit(1).get()
+          .then(function(querySnapshot) {
+            if (!querySnapshot.empty) {
+              // User has a store, go to their store page
+              var storeDoc = querySnapshot.docs[0];
+              window.location.href = './pages/stores/details.html?storeId=' + encodeURIComponent(storeDoc.id);
+            } else {
+              // Check if user is an agent (in users collection, role: 'agent')
+              db.collection('users').doc(user.uid).get().then(function(userDoc) {
+                var userData = userDoc.exists ? userDoc.data() : {};
+                if (userData.role === 'agent') {
+                  // Agent but no store, prompt to create store
+                  if (confirm('You are an agent but have not created a store yet. Would you like to create your store now?')) {
+                    window.location.href = './pages/stores/create.html';
+                  }
+                } else {
+                  // Not an agent, prompt to become agent and create store
+                  if (confirm('To list your properties, you need to create a store and select an agent tier. Would you like to get started?')) {
+                    window.location.href = './pages/stores/create.html';
+                  }
+                }
+              });
+            }
+          })
+          .catch(function(err) {
+            alert('Error checking your store status: ' + err.message);
+          });
+      });
     });
     </script>
 </body>
