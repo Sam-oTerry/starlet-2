@@ -177,6 +177,44 @@
       #tierCards { padding: 0.5rem 0.2rem; }
     }
     @media (max-width: 600px) { .tier-card { width: 100%; min-width: 0; } .tier-content li { white-space: normal; } }
+    .icon-circle {
+      background: #fff;
+      border-radius: 50%;
+      width: 44px;
+      height: 44px;
+      display: flex !important;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.35rem;
+      color: #ffd700;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+      margin: 0 2px;
+      transition: background 0.2s, color 0.2s;
+      position: relative;
+    }
+    .icon-circle:hover, .icon-circle:focus {
+      background: #e3f0ff;
+      color: #ffd700;
+      text-decoration: none;
+    }
+    .navbar-custom .brand-star {
+      color: #ffd700;
+    }
+    .navbar-custom .brand-let {
+      color: #00e6ff;
+    }
+    .navbar-custom .btn-warning {
+      background: #ffd700 !important;
+      border: none;
+      color: #fff !important;
+      font-weight: 700;
+      font-size: 1.1rem;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+    }
+    .navbar-custom .btn-warning:hover {
+      background: #ffd700cc !important;
+      color: #03254c !important;
+    }
   </style>
 </head>
 <body>
@@ -506,5 +544,73 @@
 
     document.addEventListener('DOMContentLoaded', fetchTierFees);
   </script>
+  <footer class="footer">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-4 mb-4">
+          <h4>About Starlet Properties</h4>
+          <p>Uganda's premier real estate and vehicle marketplace, connecting buyers and sellers across the country.</p>
+          <div class="social-links">
+            <a href="#"><i class="fab fa-facebook"></i></a>
+            <a href="#"><i class="fab fa-twitter"></i></a>
+            <a href="#"><i class="fab fa-instagram"></i></a>
+            <a href="#"><i class="fab fa-linkedin"></i></a>
+          </div>
+        </div>
+        <div class="col-lg-2 col-md-6 mb-4">
+          <h4>Properties</h4>
+          <ul>
+            <li><a href="../../properties/index.html?type=house_sale">Houses for Sale</a></li>
+            <li><a href="../../properties/index.html?type=house_rent">Houses for Rent</a></li>
+            <li><a href="../../properties/index.html?type=land_sale">Land for Sale</a></li>
+            <li><a href="../../properties/index.html?type=land_rent">Land for Rent</a></li>
+            <li><a href="../../properties/index.html?type=commercial">Commercial Property</a></li>
+            <li><a href="../../properties/index.html?type=vacation_short_stay">Vacation & Short Stay</a></li>
+          </ul>
+        </div>
+        <div class="col-lg-2 col-md-6 mb-4">
+          <h4>Vehicles</h4>
+          <ul>
+            <li><a href="../../vehicles/index.html?type=cars">Cars</a></li>
+            <li><a href="../../vehicles/index.html?type=motorcycles">Motorcycles</a></li>
+            <li><a href="../../vehicles/index.html?type=trucks">Trucks</a></li>
+            <li><a href="../../vehicles/index.html?type=buses">Buses</a></li>
+            <li><a href="../../vehicles/index.html?type=heavy_machinery">Heavy Machinery</a></li>
+            <li><a href="../../vehicles/index.html?type=bicycles_ebikes">Bicycles & E-bikes</a></li>
+            <li><a href="../../vehicles/index.html?type=boats_watercraft">Boats & Watercraft</a></li>
+          </ul>
+        </div>
+        <div class="col-lg-2 col-md-6 mb-4">
+          <h4>Company</h4>
+          <ul>
+            <li><a href="../../about/index.html">About Us</a></li>
+            <li><a href="../../about/contact.html">Contact</a></li>
+            <li><a href="../../about/resources.html">Resources</a></li>
+            <li><a href="../index.html">Our Stores</a></li>
+            <li><a href="../../legal/privacy.html">Privacy Policy</a></li>
+          </ul>
+        </div>
+        <div class="col-lg-2 col-md-6 mb-4">
+          <h4>Contact</h4>
+          <ul>
+            <li><a href="tel:+256123456789"><i class="bi bi-telephone"></i> +256 123 456 789</a></li>
+            <li><a href="mailto:info@starlet.co.ug"><i class="bi bi-envelope"></i> info@starlet.co.ug</a></li>
+            <li><a href="#"><i class="bi bi-geo-alt"></i> Kampala, Uganda</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <div class="row">
+          <div class="col-md-6">
+            <p class="mb-0">&copy; 2024 Starlet Properties. All rights reserved.</p>
+          </div>
+          <div class="col-md-6 text-md-end">
+            <a href="../../legal/terms.html" class="me-3">Terms of Service</a>
+            <a href="../../legal/privacy.html">Privacy Policy</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
 </body>
 </html> 
