@@ -859,7 +859,21 @@
                     if (role === 'admin') {
                         window.location.href = '../admin/dashboard.html';
                     } else {
-                        window.location.href = '../dashboard/index.html';
+                        // Get returnUrl from query param or fallback to referrer or dashboard
+                        const params = new URLSearchParams(window.location.search);
+                        let returnUrl = params.get('returnUrl');
+                        if (!returnUrl) {
+                            try {
+                                const ref = document.referrer;
+                                if (ref && ref.startsWith(window.location.origin)) {
+                                    returnUrl = ref.replace(window.location.origin, '');
+                                }
+                            } catch (e) {}
+                        }
+                        if (!returnUrl || returnUrl.includes('login.html')) {
+                            returnUrl = '../dashboard/index.html';
+                        }
+                        window.location.href = returnUrl;
                     }
                 } catch (error) {
                     alert('Google sign-in failed: ' + (error.message || error));
