@@ -652,6 +652,27 @@
             </div>
         </div>
     </nav>
+    <!-- Chat Container (inserted to fix missing elements) -->
+    <div class="chat-container">
+      <div class="chat-sidebar" id="chatSidebar">
+        <!-- Conversations will be loaded here -->
+      </div>
+      <div class="chat-main">
+        <div class="chat-header" id="chatHeader">
+          <!-- Chat header will be rendered here -->
+        </div>
+        <div class="chat-messages" id="chatMessages">
+          <!-- Messages will be rendered here -->
+        </div>
+        <form class="chat-input-bar" id="chatInputForm">
+          <textarea id="chatInput" placeholder="Type a message..." rows="1" disabled></textarea>
+          <button type="button" class="attachment-btn" id="attachmentBtn" title="Attach file" disabled><i class="bi bi-paperclip"></i></button>
+          <input type="file" id="fileInput" class="file-input" multiple style="display:none;">
+          <div id="filePreview" class="file-preview" style="display:none;"></div>
+          <button type="submit" class="send-btn btn btn-primary" disabled><i class="bi bi-send"></i></button>
+        </form>
+      </div>
+    </div>
     <style>
     .icon-circle {
         background: #fff;
