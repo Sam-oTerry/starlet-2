@@ -825,10 +825,45 @@
         });
         
         // Google sign in/up
-        document.addEventListener('click', function(e) {
+        document.addEventListener('click', async function(e) {
             if (e.target.closest('.btn-outline') && e.target.closest('.btn-outline').textContent.includes('Google')) {
-                console.log('Google sign ' + (currentMode === 'login' ? 'in' : 'up') + ' clicked');
-                // Implement Google sign in/up logic
+                if (!window.firebaseAuth) {
+                    alert('Firebase not initialized. Please try again later.');
+                    return;
+                }
+                try {
+                    const provider = new firebase.auth.GoogleAuthProvider();
+                    const result = await window.firebaseAuth.signInWithPopup(provider);
+                    const user = result.user;
+                    if (!user) throw new Error('No user returned from Google sign-in.');
+                    // Optionally, check if user exists in Firestore and create if not
+                    const userDoc = await window.firebaseDB.collection('users').doc(user.uid).get();
+                    let role = 'user';
+                    if (userDoc.exists && userDoc.data().role) {
+                        role = userDoc.data().role;
+                    } else {
+                        // Create user doc if not exists
+                        await window.firebaseDB.collection('users').doc(user.uid).set({
+                            email: user.email,
+                            role: 'user',
+                            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                        }, { merge: true });
+                    }
+                    // Store user info in localStorage
+                    localStorage.setItem('starletUser', JSON.stringify({
+                        email: user.email,
+                        uid: user.uid,
+                        role: role
+                    }));
+                    // Redirect based on role
+                    if (role === 'admin') {
+                        window.location.href = '../admin/dashboard.html';
+                    } else {
+                        window.location.href = '../dashboard/index.html';
+                    }
+                } catch (error) {
+                    alert('Google sign-in failed: ' + (error.message || error));
+                }
             }
         });
         
