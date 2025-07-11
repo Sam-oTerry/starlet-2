@@ -870,24 +870,73 @@ const db = firebase.firestore();
       document.getElementById('authLoading').remove();
       
       // Load conversations and handle initial state
-      await loadConversations();
-      const listingId = getQueryParam('listingId');
-      if (listingId) {
-        await startConversationForListing(listingId);
-      } else if (conversations.length) {
-        selectConversation(conversations[0]);
+      // --- Real-time Conversation List ---
+      let unsubscribeConversations = null;
+      function listenForConversations() {
+        if (unsubscribeConversations) unsubscribeConversations();
+        if (!messagingCurrentUser) return;
+        const sidebar = document.getElementById('chatSidebar');
+        if (!sidebar) return;
+        sidebar.innerHTML = '<div class="text-center w-100 py-4"><div class="loading-container"><div class="star-loading"><div class="star"></div><div class="star"></div><div class="star"></div></div><div class="loading-text">Loading conversations...</div></div></div>';
+        unsubscribeConversations = db.collection('conversations')
+          .where('participants', 'array-contains', messagingCurrentUser.id)
+          .orderBy('lastMessageAt', 'desc')
+          .limit(20)
+          .onSnapshot(snap => {
+            conversations = [];
+            snap.forEach(doc => {
+              conversations.push({ id: doc.id, ...doc.data() });
+            });
+            if (conversations.length === 0) {
+              sidebar.innerHTML = '<div class="text-center w-100 py-4 text-muted">No conversations yet.</div>';
+              return;
+            }
+            sidebar.innerHTML = conversations.map((conv, idx) => {
+              const unreadCount = conv.unreadCount || 0;
+              const lastMessageTime = conv.lastMessageAt ? new Date(conv.lastMessageAt.seconds ? conv.lastMessageAt.seconds * 1000 : conv.lastMessageAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '';
+              return `
+              <div class="chat-listing${selectedConversation && selectedConversation.id === conv.id ? ' active' : ''}" data-idx="${idx}">
+                  <img src="${conv.agentAvatar || conv.listerAvatar || 'https://via.placeholder.com/40x40/0d6efd/ffffff?text=A'}" class="rounded-circle" width="40" height="40" alt="Agent">
+                  <div style="flex: 1; min-width: 0;">
+                  <div class="chat-listing-title">${conv.listingTitle || 'Listing'}</div>
+                    <div class="chat-listing-agent">${conv.agentName || conv.listerName || 'Agent'}</div>
+                    <div class="small text-muted d-flex justify-content-between align-items-center">
+                      <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${conv.lastMessage ? conv.lastMessage.slice(0, 25) : 'No messages yet'}</span>
+                      <span class="ms-2">${lastMessageTime}</span>
+                </div>
+              </div>
+                  ${unreadCount > 0 ? `<div class="unread-badge">${unreadCount}</div>` : ''}
+                </div>
+              `;
+            }).join('');
+            document.querySelectorAll('.chat-listing').forEach(el => {
+              el.onclick = () => selectConversation(conversations[parseInt(el.dataset.idx)]);
+            });
+          });
       }
-      
-      // Set up auto-refresh for conversations
-      setInterval(() => {
-        if (messagingCurrentUser) {
-          loadConversations();
+      // --- Real-time Message Listener (already present, but ensure always used) ---
+      // (listenForMessages is already real-time)
+      // --- Real-time Typing Indicator ---
+      // (already present, but ensure both users see it)
+      // --- Real-time Read Receipts ---
+      // (already present, but ensure updates are instant)
+      // --- Hook up listeners on auth state ---
+      auth.onAuthStateChanged(async user => {
+        if (!user) {
+          window.location.href = '../auth/login.html';
+          return;
         }
-      }, 30000); // Refresh every 30 seconds
-      
-      // Start listening for unread messages
-      startUnreadMessagesListener();
-    });
+        messagingCurrentUser = {
+          id: user.uid,
+          name: user.displayName || user.email?.split('@')[0] || 'User',
+          avatar: user.photoURL || `https://via.placeholder.com/36x36/0d6efd/ffffff?text=${user.email?.charAt(0).toUpperCase() || 'U'}`,
+          email: user.email
+        };
+        document.title = `Messaging - ${messagingCurrentUser.name} | Starlet Properties`;
+        // Start real-time listeners
+        listenForConversations();
+        startUnreadMessagesListener();
+      });
 
     function getQueryParam(name) {
       const url = new URL(window.location.href);
