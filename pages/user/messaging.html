@@ -1425,20 +1425,24 @@ const db = firebase.firestore();
     }
 
     // Add click handlers for admin chat buttons
-    document.getElementById('chatWithAdminBtn').onclick = startAdminConversation;
+    const chatWithAdminBtn = document.getElementById('chatWithAdminBtn');
+    if (chatWithAdminBtn) {
+      chatWithAdminBtn.onclick = startAdminConversation;
+    }
     
     // Enhanced floating support button with click animation
     const floatingSupportBtn = document.getElementById('floatingSupportBtn');
-    floatingSupportBtn.onclick = function() {
-      // Add click animation
-      this.classList.add('clicked');
-      setTimeout(() => {
-        this.classList.remove('clicked');
-      }, 300);
-      
-      // Start admin conversation
-      startAdminConversation();
-    };
+    if (floatingSupportBtn) {
+      floatingSupportBtn.onclick = function() {
+        // Add click animation
+        this.classList.add('clicked');
+        setTimeout(() => {
+          this.classList.remove('clicked');
+        }, 300);
+        // Start admin conversation
+        startAdminConversation();
+      };
+    }
     
     // File handling functionality
     // Trigger file input when attachment button is clicked
