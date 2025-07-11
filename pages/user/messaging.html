@@ -717,7 +717,7 @@
         setupMyListingsLink('#myListingsLink', '../../auth/login.html', '../../stores/agent-stores/dashboard.html', '../../stores/agent-stores/create.html');
     });
     // Initialize variables
-    let currentUser = null;
+    let messagingCurrentUser = null;
     let messaging;
     let conversations = [];
     let selectedConversation = null;
@@ -750,17 +750,17 @@
       }
       
       // Set current user with enhanced info
-      currentUser = {
+      messagingCurrentUser = {
         id: user.uid,
         name: user.displayName || user.email?.split('@')[0] || 'User',
         avatar: user.photoURL || `https://via.placeholder.com/36x36/0d6efd/ffffff?text=${user.email?.charAt(0).toUpperCase() || 'U'}`,
         email: user.email
       };
       
-      console.log('User authenticated:', currentUser.email);
+      console.log('User authenticated:', messagingCurrentUser.email);
       
       // Update page title
-      document.title = `Messaging - ${currentUser.name} | Starlet Properties`;
+      document.title = `Messaging - ${messagingCurrentUser.name} | Starlet Properties`;
       
       // Initialize messaging notifications
       try {
@@ -773,7 +773,7 @@
             const permission = await Notification.requestPermission();
             if (permission === 'granted') {
               const token = await messaging.getToken({ vapidKey: 'YOUR_PUBLIC_VAPID_KEY' });
-              await db.collection('users').doc(currentUser.id).update({ 
+              await db.collection('users').doc(messagingCurrentUser.id).update({ 
                 fcmToken: token,
                 notificationSettings: {
                   enabled: true,
@@ -829,7 +829,7 @@
       
       // Set up auto-refresh for conversations
       setInterval(() => {
-        if (currentUser) {
+        if (messagingCurrentUser) {
           loadConversations();
         }
       }, 30000); // Refresh every 30 seconds
@@ -844,13 +844,13 @@
     }
 
     async function loadConversations() {
-      if (!currentUser) return;
+      if (!messagingCurrentUser) return;
       const sidebar = document.getElementById('chatSidebar');
       sidebar.innerHTML = '<div class="text-center w-100 py-4"><div class="loading-container"><div class="star-loading"><div class="star"></div><div class="star"></div><div class="star"></div></div><div class="loading-text">Loading conversations...</div></div></div>';
       
       try {
         const convSnap = await db.collection('conversations')
-          .where('participants', 'array-contains', currentUser.id)
+          .where('participants', 'array-contains', messagingCurrentUser.id)
           .orderBy('lastMessageAt', 'desc')
           .limit(20).get();
         
@@ -896,11 +896,11 @@
 
     // Start listening for unread messages
     function startUnreadMessagesListener() {
-      if (!db || !currentUser) return;
+      if (!db || !messagingCurrentUser) return;
       
       // Listen to conversations where current user is a participant
       unreadMessagesListener = db.collection('conversations')
-        .where('participants', 'array-contains', currentUser.id)
+        .where('participants', 'array-contains', messagingCurrentUser.id)
         .onSnapshot(snap => {
           let totalUnread = 0;
           snap.forEach(doc => {
@@ -956,7 +956,7 @@
         const msgsSnap = await db.collection('conversations').doc(conv.id)
           .collection('messages')
           .where('read', '==', false)
-          .where('senderId', '!=', currentUser.id)
+          .where('senderId', '!=', messagingCurrentUser.id)
           .get();
         
         if (!msgsSnap.empty) {
@@ -996,7 +996,7 @@
       // Listen for typing indicator
       db.collection('conversations').doc(selectedConversation.id).onSnapshot(doc => {
         const data = doc.data();
-        const otherId = selectedConversation.participants.find(id => id !== currentUser.id);
+        const otherId = selectedConversation.participants.find(id => id !== messagingCurrentUser.id);
         if (data && data['typing_' + otherId]) {
           document.getElementById('typingIndicator').textContent = 'Typing...';
         } else {
@@ -1013,8 +1013,8 @@
       }
       
       const filtered = messages.filter(msg => 
-        msg.senderId === currentUser.id || 
-        (selectedConversation && selectedConversation.participants && selectedConversation.participants.includes(currentUser.id))
+        msg.senderId === messagingCurrentUser.id || 
+        (selectedConversation && selectedConversation.participants && selectedConversation.participants.includes(messagingCurrentUser.id))
       );
       
       chat.innerHTML = filtered.map(msg => {
@@ -1024,7 +1024,7 @@
         const isToday = new Date().toDateString() === messageTime.toDateString();
         
         let statusIcon = '';
-        if (msg.senderId === currentUser.id) {
+        if (msg.senderId === messagingCurrentUser.id) {
           if (msg.read) {
             statusIcon = '<i class="bi bi-check2-all text-success"></i>';
           } else if (msg.delivered) {
@@ -1054,7 +1054,7 @@
         }
         
         return `
-        <div class="chat-message${msg.senderId === currentUser.id ? ' sent' : ' received'}">
+        <div class="chat-message${msg.senderId === messagingCurrentUser.id ? ' sent' : ' received'}">
           <img src="${msg.senderAvatar || 'https://via.placeholder.com/36x36/0d6efd/ffffff?text=U'}" class="avatar">
           <div>
               <div class="bubble">
@@ -1133,9 +1133,9 @@
         // Create message object
       const msg = {
           text: text || '',
-        senderId: currentUser.id,
-        senderName: currentUser.name,
-        senderAvatar: currentUser.avatar,
+        senderId: messagingCurrentUser.id,
+        senderName: messagingCurrentUser.name,
+        senderAvatar: messagingCurrentUser.avatar,
           createdAt: new Date(),
           read: false,
           delivered: false
@@ -1182,7 +1182,7 @@
     async function uploadFile(file) {
       const storage = firebase.storage();
       const storageRef = storage.ref();
-      const fileRef = storageRef.child(`chat-files/${currentUser.id}/${Date.now()}-${file.name}`);
+      const fileRef = storageRef.child(`chat-files/${messagingCurrentUser.id}/${Date.now()}-${file.name}`);
       
       const snapshot = await fileRef.put(file);
       const downloadURL = await snapshot.ref.getDownloadURL();
@@ -1221,7 +1221,7 @@
         return;
       }
       // Prevent self-chat
-      if (listerId === currentUser.id) {
+      if (listerId === messagingCurrentUser.id) {
         alert('You cannot chat with yourself about your own listing.');
         return;
       }
@@ -1236,10 +1236,10 @@
         }
       } catch (err) {}
       // Find or create conversation for this listing and these participants
-      const participants = [currentUser.id, listerId].sort();
+      const participants = [messagingCurrentUser.id, listerId].sort();
       const convSnap = await db.collection('conversations')
         .where('listingId', '==', listingId)
-        .where('participants', 'array-contains', currentUser.id)
+        .where('participants', 'array-contains', messagingCurrentUser.id)
         .get();
       let convId = null;
       let found = false;
@@ -1249,7 +1249,7 @@
         if (data.listingId === listingId &&
             Array.isArray(data.participants) &&
             data.participants.length === 2 &&
-            data.participants.includes(currentUser.id) &&
+            data.participants.includes(messagingCurrentUser.id) &&
             data.participants.includes(listerId)) {
           convId = doc.id;
           found = true;
@@ -1279,7 +1279,7 @@
 
     // Function to start conversation with admin
     async function startAdminConversation() {
-      if (!currentUser) {
+      if (!messagingCurrentUser) {
         showToast('Please log in to chat with support', 'error');
         return;
       }
@@ -1309,7 +1309,7 @@
       // Find or create conversation with admin
       let convId;
       const convSnap = await db.collection('conversations')
-        .where('participants', 'array-contains', currentUser.id)
+        .where('participants', 'array-contains', messagingCurrentUser.id)
         .get();
       let found = false;
       convSnap.forEach(doc => {
@@ -1322,7 +1322,7 @@
       
       if (!found) {
         const convRef = await db.collection('conversations').add({
-          participants: [currentUser.id, adminId],
+          participants: [messagingCurrentUser.id, adminId],
           agentId: adminId,
           agentName: adminName,
           agentAvatar: adminAvatar,
@@ -1492,10 +1492,10 @@
     // Typing indicator logic
     document.getElementById('chatInput').addEventListener('input', function() {
       if (!selectedConversation) return;
-      db.collection('conversations').doc(selectedConversation.id).update({ ['typing_' + currentUser.id]: true });
+      db.collection('conversations').doc(selectedConversation.id).update({ ['typing_' + messagingCurrentUser.id]: true });
       clearTimeout(typingTimeout);
       typingTimeout = setTimeout(() => {
-        db.collection('conversations').doc(selectedConversation.id).update({ ['typing_' + currentUser.id]: false });
+        db.collection('conversations').doc(selectedConversation.id).update({ ['typing_' + messagingCurrentUser.id]: false });
       }, 2000);
     });
 
@@ -1525,7 +1525,7 @@
       if (makeOffer && pendingOffer && pendingOffer.listingId && pendingOffer.listerId && pendingOffer.offerAmount) {
         // Wait for auth and conversation to be ready
         const waitForConv = async () => {
-          if (!currentUser) return setTimeout(waitForConv, 200);
+          if (!messagingCurrentUser) return setTimeout(waitForConv, 200);
           await startConversationForListing(pendingOffer.listingId);
           // Wait for selectedConversation to be set
           const waitForSelected = async () => {
@@ -1533,9 +1533,9 @@
             // Send the offer as the first message
             const offerMsg = {
               text: `I would like to make an offer of UGX ${Number(pendingOffer.offerAmount).toLocaleString()}.`,
-              senderId: currentUser.id,
-              senderName: currentUser.name,
-              senderAvatar: currentUser.avatar,
+              senderId: messagingCurrentUser.id,
+              senderName: messagingCurrentUser.name,
+              senderAvatar: messagingCurrentUser.avatar,
               createdAt: new Date(),
               isOffer: true,
               offerAmount: Number(pendingOffer.offerAmount)

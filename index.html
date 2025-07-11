@@ -969,33 +969,6 @@
       });
     });
     </script>
-    <script>
-    // Auth button logic
-    document.addEventListener('DOMContentLoaded', function() {
-      var authButton = document.getElementById('authButton');
-      if (!window.firebase || !firebase.auth) return;
-      firebase.auth().onAuthStateChanged(function(user) {
-        if (user && !user.isAnonymous) {
-          authButton.textContent = 'Logout';
-          authButton.classList.remove('btn-outline-primary');
-          authButton.classList.add('btn-danger');
-          authButton.href = '#';
-          authButton.onclick = function(e) {
-            e.preventDefault();
-            firebase.auth().signOut().then(function() {
-              window.location.reload();
-            });
-          };
-        } else {
-          authButton.textContent = 'Login / Signup';
-          authButton.classList.remove('btn-danger');
-          authButton.classList.add('btn-outline-primary');
-          authButton.href = './pages/auth/login.html';
-          authButton.onclick = null;
-        }
-      });
-    });
-    </script>
 </body>
 </html> 
  
