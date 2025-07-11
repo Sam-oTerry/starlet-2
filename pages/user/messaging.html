@@ -923,7 +923,7 @@ const db = firebase.firestore();
       // --- Hook up listeners on auth state ---
       // (Removed duplicate auth.onAuthStateChanged block to fix syntax error)
     }
-
+  );
 function getQueryParam(name) {
       const url = new URL(window.location.href);
       return url.searchParams.get(name);
