@@ -825,59 +825,62 @@
         });
         
         // Google sign in/up
-        document.addEventListener('click', async function(e) {
-            if (e.target.closest('.btn-outline') && e.target.closest('.btn-outline').textContent.includes('Google')) {
+        document.addEventListener('click', function(e) {
+            const btn = e.target.closest('.btn-outline');
+            if (btn && btn.textContent.includes('Google')) {
                 if (!window.firebaseAuth) {
                     alert('Firebase not initialized. Please try again later.');
                     return;
                 }
-                try {
-                    const provider = new firebase.auth.GoogleAuthProvider();
-                    const result = await window.firebaseAuth.signInWithPopup(provider);
-                    const user = result.user;
-                    if (!user) throw new Error('No user returned from Google sign-in.');
-                    // Optionally, check if user exists in Firestore and create if not
-                    const userDoc = await window.firebaseDB.collection('users').doc(user.uid).get();
-                    let role = 'user';
-                    if (userDoc.exists && userDoc.data().role) {
-                        role = userDoc.data().role;
-                    } else {
-                        // Create user doc if not exists
-                        await window.firebaseDB.collection('users').doc(user.uid).set({
+                // Call signInWithPopup synchronously in the click event
+                const provider = new firebase.auth.GoogleAuthProvider();
+                window.firebaseAuth.signInWithPopup(provider)
+                    .then(async (result) => {
+                        const user = result.user;
+                        if (!user) throw new Error('No user returned from Google sign-in.');
+                        // Optionally, check if user exists in Firestore and create if not
+                        const userDoc = await window.firebaseDB.collection('users').doc(user.uid).get();
+                        let role = 'user';
+                        if (userDoc.exists && userDoc.data().role) {
+                            role = userDoc.data().role;
+                        } else {
+                            // Create user doc if not exists
+                            await window.firebaseDB.collection('users').doc(user.uid).set({
+                                email: user.email,
+                                role: 'user',
+                                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                            }, { merge: true });
+                        }
+                        // Store user info in localStorage
+                        localStorage.setItem('starletUser', JSON.stringify({
                             email: user.email,
-                            role: 'user',
-                            createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                        }, { merge: true });
-                    }
-                    // Store user info in localStorage
-                    localStorage.setItem('starletUser', JSON.stringify({
-                        email: user.email,
-                        uid: user.uid,
-                        role: role
-                    }));
-                    // Redirect based on role
-                    if (role === 'admin') {
-                        window.location.href = '../admin/dashboard.html';
-                    } else {
-                        // Get returnUrl from query param or fallback to referrer or dashboard
-                        const params = new URLSearchParams(window.location.search);
-                        let returnUrl = params.get('returnUrl');
-                        if (!returnUrl) {
-                            try {
-                                const ref = document.referrer;
-                                if (ref && ref.startsWith(window.location.origin)) {
-                                    returnUrl = ref.replace(window.location.origin, '');
-                                }
-                            } catch (e) {}
+                            uid: user.uid,
+                            role: role
+                        }));
+                        // Redirect based on role
+                        if (role === 'admin') {
+                            window.location.href = '../admin/dashboard.html';
+                        } else {
+                            // Get returnUrl from query param or fallback to referrer or dashboard
+                            const params = new URLSearchParams(window.location.search);
+                            let returnUrl = params.get('returnUrl');
+                            if (!returnUrl) {
+                                try {
+                                    const ref = document.referrer;
+                                    if (ref && ref.startsWith(window.location.origin)) {
+                                        returnUrl = ref.replace(window.location.origin, '');
+                                    }
+                                } catch (e) {}
+                            }
+                            if (!returnUrl || returnUrl.includes('login.html')) {
+                                returnUrl = '../dashboard/index.html';
+                            }
+                            window.location.href = returnUrl;
                         }
-                        if (!returnUrl || returnUrl.includes('login.html')) {
-                            returnUrl = '../dashboard/index.html';
-                        }
-                        window.location.href = returnUrl;
-                    }
-                } catch (error) {
-                    alert('Google sign-in failed: ' + (error.message || error));
-                }
+                    })
+                    .catch((error) => {
+                        alert('Google sign-in failed: ' + (error.message || error));
+                    });
             }
         });
         
