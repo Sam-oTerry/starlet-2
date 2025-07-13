@@ -195,6 +195,8 @@ function initializeNavbar() {
     const navbarToggler = document.querySelector('.navbar-toggler');
     const navbarCollapse = document.querySelector('.navbar-collapse');
     
+    if (!navbar) return; // Add this line to prevent errors if navbar is missing
+    
     // Navbar scroll effect
     window.addEventListener('scroll', function() {
         if (window.scrollY > 100) {
