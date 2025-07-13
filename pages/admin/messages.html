@@ -283,7 +283,7 @@
     });
     // Initialize Firebase services
     // Use window.firebaseDB, window.firebaseAuth, window.firebaseMessaging from firebase-config.js
-    let currentUser = null;
+    // Use window.currentUser as set by main.js
     let selectedConversation = null;
     let conversations = [];
     let unsubscribeMessages = null;
@@ -346,14 +346,14 @@
           return;
         }
         
-        currentUser = {
+        window.currentUser = {
           id: user.uid,
           name: user.displayName || user.email || 'User',
           avatar: user.photoURL || 'https://randomuser.me/api/portraits/lego/2.jpg',
           email: user.email
         };
         
-        console.log('Admin authenticated:', currentUser.email);
+        console.log('Admin authenticated:', window.currentUser.email);
         
         // Initialize messaging with better error handling
         try {
@@ -362,14 +362,14 @@
           // Check if notifications are already granted
           if (Notification.permission === 'granted') {
             const token = await window.firebaseMessaging.getToken({ vapidKey: 'YOUR_PUBLIC_VAPID_KEY' });
-            await window.firebaseDB.collection('users').doc(currentUser.id).update({ fcmToken: token });
+            await window.firebaseDB.collection('users').doc(window.currentUser.id).update({ fcmToken: token });
             console.log('FCM token obtained successfully');
           } else if (Notification.permission === 'default') {
             // Only request permission if not already blocked
             const permission = await Notification.requestPermission();
             if (permission === 'granted') {
               const token = await window.firebaseMessaging.getToken({ vapidKey: 'YOUR_PUBLIC_VAPID_KEY' });
-              await window.firebaseDB.collection('users').doc(currentUser.id).update({ fcmToken: token });
+              await window.firebaseDB.collection('users').doc(window.currentUser.id).update({ fcmToken: token });
               console.log('FCM token obtained after permission request');
             } else {
               console.log('Notification permission denied by user');
@@ -391,7 +391,7 @@
 
     // Load conversations for admin view
     async function loadAdminConversations() {
-      if (!currentUser || !window.firebaseDB) return;
+      if (!window.currentUser || !window.firebaseDB) return;
       
       try {
         const convSnap = await window.firebaseDB.collection('conversations')
@@ -467,7 +467,7 @@
 
     // Start listening for unread messages
     function startUnreadMessagesListener() {
-      if (!window.firebaseDB || !currentUser) return;
+      if (!window.firebaseDB || !window.currentUser) return;
       
       // Listen to all conversations for unread count changes
       unreadMessagesListener = window.firebaseDB.collection('conversations')
@@ -505,7 +505,7 @@
     }
 
     async function selectConversation(conv) {
-      if (!conv || !currentUser) return;
+      if (!conv || !window.currentUser) return;
       
       selectedConversation = conv;
       
@@ -524,7 +524,7 @@
         const msgsSnap = await window.firebaseDB.collection('conversations').doc(conv.id)
           .collection('messages')
           .where('read', '==', false)
-          .where('senderId', '!=', currentUser.id)
+          .where('senderId', '!=', window.currentUser.id)
           .get();
         
         if (!msgsSnap.empty) {
@@ -555,8 +555,8 @@
       }
       
       const filtered = messages.filter(msg => 
-        msg.senderId === currentUser.id || 
-        (selectedConversation && selectedConversation.participants && selectedConversation.participants.includes(currentUser.id))
+        msg.senderId === window.currentUser.id || 
+        (selectedConversation && selectedConversation.participants && selectedConversation.participants.includes(window.currentUser.id))
       );
       
       chat.innerHTML = filtered.map(msg => {
@@ -565,7 +565,7 @@
         const isToday = new Date().toDateString() === messageTime.toDateString();
         
         let statusIcon = '';
-        if (msg.senderId === currentUser.id) {
+        if (msg.senderId === window.currentUser.id) {
           if (msg.read) {
             statusIcon = '<i class="bi bi-check2-all text-success ms-1"></i>';
           } else if (msg.delivered) {
@@ -576,14 +576,14 @@
         }
         
         return `
-          <div class="d-flex ${msg.senderId === currentUser.id ? 'justify-content-end' : 'justify-content-start'} mb-3">
-            <div class="d-flex align-items-end ${msg.senderId === currentUser.id ? 'flex-row-reverse' : ''}" style="max-width: 70%;">
+          <div class="d-flex ${msg.senderId === window.currentUser.id ? 'justify-content-end' : 'justify-content-start'} mb-3">
+            <div class="d-flex align-items-end ${msg.senderId === window.currentUser.id ? 'flex-row-reverse' : ''}" style="max-width: 70%;">
               <img src="${msg.senderAvatar || 'https://via.placeholder.com/32x32/0d6efd/ffffff?text=U'}" 
-                   class="rounded-circle ${msg.senderId === currentUser.id ? 'ms-2' : 'me-2'}" 
+                   class="rounded-circle ${msg.senderId === window.currentUser.id ? 'ms-2' : 'me-2'}" 
                    width="32" height="32" alt="User">
-              <div class="bg-${msg.senderId === currentUser.id ? 'primary' : 'light'} text-${msg.senderId === currentUser.id ? 'white' : 'dark'} rounded p-2">
+              <div class="bg-${msg.senderId === window.currentUser.id ? 'primary' : 'light'} text-${msg.senderId === window.currentUser.id ? 'white' : 'dark'} rounded p-2">
                 <div class="mb-1">${msg.text}</div>
-                <small class="text-${msg.senderId === currentUser.id ? 'white-50' : 'muted'}">
+                <small class="text-${msg.senderId === window.currentUser.id ? 'white-50' : 'muted'}">
                   ${isToday ? timeString : messageTime.toLocaleDateString() + ' ' + timeString}
                   ${statusIcon}
                 </small>
@@ -621,7 +621,7 @@
       if (selectedConversation.id) {
         window.firebaseDB.collection('conversations').doc(selectedConversation.id).onSnapshot(doc => {
           const data = doc.data();
-          const otherId = selectedConversation.participants.find(id => id !== currentUser.id);
+          const otherId = selectedConversation.participants.find(id => id !== window.currentUser.id);
           const typingIndicator = document.getElementById('typingIndicator');
           if (typingIndicator) {
             if (data && data['typing_' + otherId]) {
@@ -667,9 +667,9 @@
           try {
             const msg = {
               text: text,
-              senderId: currentUser.id,
-              senderName: currentUser.name,
-              senderAvatar: currentUser.avatar,
+              senderId: window.currentUser.id,
+              senderName: window.currentUser.name,
+              senderAvatar: window.currentUser.avatar,
               createdAt: new Date(),
               read: false,
               delivered: false
@@ -712,11 +712,11 @@
       const chatInput = document.getElementById('chatInput');
       if (chatInput) {
         chatInput.addEventListener('input', function() {
-          if (!selectedConversation || !currentUser) return;
-          window.firebaseDB.collection('conversations').doc(selectedConversation.id).update({ ['typing_' + currentUser.id]: true });
+          if (!selectedConversation || !window.currentUser) return;
+          window.firebaseDB.collection('conversations').doc(selectedConversation.id).update({ ['typing_' + window.currentUser.id]: true });
           clearTimeout(typingTimeout);
           typingTimeout = setTimeout(() => {
-            window.firebaseDB.collection('conversations').doc(selectedConversation.id).update({ ['typing_' + currentUser.id]: false });
+            window.firebaseDB.collection('conversations').doc(selectedConversation.id).update({ ['typing_' + window.currentUser.id]: false });
           }, 2000);
         });
       }
