@@ -1522,7 +1522,7 @@ body.admin-panel {
 
 @media (min-width: 992px) {
   body.admin-panel {
-    padding-left: clamp(180px, 18vw, 300px) !important;
+    padding-left: 300px !important;
   }
   main, .container, .container-fluid {
     margin-left: 0 !important;
@@ -1533,13 +1533,13 @@ body.admin-panel {
 
 .admin-sidebar,
 .offcanvas.admin-sidebar {
-  width: clamp(180px, 18vw, 300px) !important;
-  min-width: 180px;
+  width: 300px !important;
+  min-width: 300px;
   max-width: 300px;
 }
 @media (min-width: 992px) {
   body.admin-panel {
-    padding-left: clamp(180px, 18vw, 300px) !important;
+    padding-left: 300px !important;
   }
 }
 
