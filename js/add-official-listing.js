@@ -291,6 +291,16 @@ function renderAmenityCheckboxes() {
   }
 }
 
+// Helper to safely get value or checked state
+function getValue(id) {
+  const el = document.getElementById(id);
+  return el ? el.value : '';
+}
+function getChecked(id) {
+  const el = document.getElementById(id);
+  return el ? el.checked : false;
+}
+
 // --- Form Submission ---
 form.addEventListener('submit', function(e) {
   updateRequiredAttributes();
@@ -301,7 +311,7 @@ form.addEventListener('submit', function(e) {
     valid = validateRequired([
       'propertyType','propertyTitle','propertyAskingPrice','propertyDistrict','propertyPriceType','propertyDescription'
     ]);
-    const propertyType = document.getElementById('propertyType').value;
+    const propertyType = getValue('propertyType');
     if (["house_sale","house_rent","vacation_short_stay"].includes(propertyType)) {
       valid = validateRequired([
         'houseSubCategory','houseBedrooms','houseBathrooms','houseTotalArea','houseFurnishingStatus','houseCondition'
@@ -316,68 +326,68 @@ form.addEventListener('submit', function(e) {
     if (!valid) return;
     // Build property listing object
     listing.listingType = 'property';
-    listing.propertyType = document.getElementById('propertyType').value;
-    listing.title = document.getElementById('propertyTitle').value;
-    listing.askingPrice = Number(document.getElementById('propertyAskingPrice').value.replace(/,/g, ''));
-    listing.location = { district: document.getElementById('propertyDistrict').value };
-    listing.description = document.getElementById('propertyDescription').value;
-    listing.priceType = document.getElementById('propertyPriceType').value;
+    listing.propertyType = getValue('propertyType');
+    listing.title = getValue('propertyTitle');
+    listing.askingPrice = Number(getValue('propertyAskingPrice').replace(/,/g, ''));
+    listing.location = { district: getValue('propertyDistrict') };
+    listing.description = getValue('propertyDescription');
+    listing.priceType = getValue('propertyPriceType');
     // House details
     if (["house_sale","house_rent","vacation_short_stay"].includes(listing.propertyType)) {
       listing.houseDetails = {
-        subCategory: document.getElementById('houseSubCategory').value,
-        bedrooms: Number(document.getElementById('houseBedrooms').value),
-        bathrooms: Number(document.getElementById('houseBathrooms').value),
-        totalArea: Number(document.getElementById('houseTotalArea').value),
+        subCategory: getValue('houseSubCategory'),
+        bedrooms: Number(getValue('houseBedrooms')),
+        bathrooms: Number(getValue('houseBathrooms')),
+        totalArea: Number(getValue('houseTotalArea')),
         plotSize: {
-          width: Number(document.getElementById('housePlotWidth').value),
-          length: Number(document.getElementById('housePlotLength').value),
-          acres: Number(document.getElementById('housePlotAcres').value),
-          hectares: Number(document.getElementById('housePlotHectares').value)
+          width: Number(getValue('housePlotWidth')),
+          length: Number(getValue('housePlotLength')),
+          acres: Number(getValue('housePlotAcres')),
+          hectares: Number(getValue('housePlotHectares'))
         },
-        furnishingStatus: document.getElementById('houseFurnishingStatus').value,
-        condition: document.getElementById('houseCondition').value
+        furnishingStatus: getValue('houseFurnishingStatus'),
+        condition: getValue('houseCondition')
       };
     }
     // Land details
     if (["land_sale","land_rent"].includes(listing.propertyType)) {
       listing.landDetails = {
-        subCategory: document.getElementById('landSubCategory').value,
+        subCategory: getValue('landSubCategory'),
         plotSize: {
-          acres: Number(document.getElementById('landPlotAcres').value),
-          hectares: Number(document.getElementById('landPlotHectares').value),
+          acres: Number(getValue('landPlotAcres')),
+          hectares: Number(getValue('landPlotHectares')),
           dimensions: {
-            width: Number(document.getElementById('landPlotWidth').value),
-            length: Number(document.getElementById('landPlotLength').value)
+            width: Number(getValue('landPlotWidth')),
+            length: Number(getValue('landPlotLength'))
           }
         },
-        topography: document.getElementById('landTopography').value,
-        soilType: document.getElementById('landSoilType').value,
-        currentUse: document.getElementById('landCurrentUse').value
+        topography: getValue('landTopography'),
+        soilType: getValue('landSoilType'),
+        currentUse: getValue('landCurrentUse')
       };
     }
     // Ownership details
     listing.ownershipDetails = {
-      ownershipType: document.getElementById('ownershipType').value,
-      titleStatus: document.getElementById('titleStatus').value,
-      leaseYearsRemaining: Number(document.getElementById('leaseYearsRemaining').value)
+      ownershipType: getValue('ownershipType'),
+      titleStatus: getValue('titleStatus'),
+      leaseYearsRemaining: Number(getValue('leaseYearsRemaining'))
     };
     // Amenities
     listing.amenities = {
       essentialUtilities: {
-        electricity: document.getElementById('amenityElectricity').value,
-        waterSupply: document.getElementById('amenityWater').value,
-        toiletType: document.getElementById('amenityToilet').value
+        electricity: getValue('amenityElectricity'),
+        waterSupply: getValue('amenityWater'),
+        toiletType: getValue('amenityToilet')
       },
       additionalFeatures: {
         security: Array.from(document.querySelectorAll('#amenitySecurityCheckboxes input[type=checkbox]:checked')).map(cb => cb.value),
-        parking: document.getElementById('amenityParking').value,
-        internetReady: document.getElementById('amenityInternet').value,
-        backupPower: document.getElementById('amenityBackup').value,
-        kitchen: document.getElementById('amenityKitchen').value,
-        tiled: document.getElementById('amenityTiled').checked
+        parking: getValue('amenityParking'),
+        internetReady: getValue('amenityInternet'),
+        backupPower: getValue('amenityBackup'),
+        kitchen: getValue('amenityKitchen'),
+        tiled: getChecked('amenityTiled')
       },
-      roadAccess: document.getElementById('amenityRoadAccess').value,
+      roadAccess: getValue('amenityRoadAccess'),
       nearbyAmenities: Array.from(document.querySelectorAll('#amenityNearbyCheckboxes input[type=checkbox]:checked')).map(cb => cb.value)
     };
   } else if (listingTypeEl.value === 'vehicle') {
@@ -389,24 +399,28 @@ form.addEventListener('submit', function(e) {
     // Build vehicle listing object
     listing.listingType = 'vehicle';
     listing.vehicleDetails = {
-      vehicleCategory: document.getElementById('vehicleCategory').value,
-      subCategory: document.getElementById('vehicleSubCategory').value,
-      make: document.getElementById('vehicleMake').value,
-      model: document.getElementById('vehicleModel').value,
-      year: Number(document.getElementById('vehicleYear').value),
-      color: document.getElementById('vehicleColor').value,
-      condition: document.getElementById('vehicleCondition').value,
-      transmission: document.getElementById('vehicleTransmission').value,
-      fuelType: document.getElementById('vehicleFuelType').value,
-      mileage: Number(document.getElementById('vehicleMileage').value)
+      vehicleCategory: getValue('vehicleCategory'),
+      subCategory: getValue('vehicleSubCategory'),
+      make: getValue('vehicleMake'),
+      model: getValue('vehicleModel'),
+      year: Number(getValue('vehicleYear')),
+      color: getValue('vehicleColor'),
+      condition: getValue('vehicleCondition'),
+      transmission: getValue('vehicleTransmission'),
+      fuelType: getValue('vehicleFuelType'),
+      mileage: Number(getValue('vehicleMileage'))
     };
-    listing.title = document.getElementById('vehicleTitle').value;
-    listing.askingPrice = Number(document.getElementById('vehicleAskingPrice').value.replace(/,/g, ''));
-    listing.description = document.getElementById('vehicleDescription').value;
-    listing.priceType = document.getElementById('vehiclePriceType').value;
+    listing.title = getValue('vehicleTitle');
+    listing.askingPrice = Number(getValue('vehicleAskingPrice').replace(/,/g, ''));
+    listing.description = getValue('vehicleDescription');
+    listing.priceType = getValue('vehiclePriceType');
   }
   listing.isOfficial = true;
+  listing.officialStore = true;
   listing.status = 'pending';
+  // Set createdBy to admin's UID and email if available
+  let adminUser = (window.firebaseAuth && window.firebaseAuth.currentUser) ? window.firebaseAuth.currentUser : null;
+  listing.createdBy = adminUser ? { uid: adminUser.uid, email: adminUser.email } : { uid: 'admin', email: 'admin@starlet.co.ug' };
   listing.createdAt = new Date();
   try {
     db.collection('listings').add(listing);
