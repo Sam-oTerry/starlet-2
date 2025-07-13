@@ -282,7 +282,7 @@
         setupMyListingsLink('#myListingsLink', '../../auth/login.html', '../../stores/agent-stores/dashboard.html', '../../stores/agent-stores/create.html');
     });
     // Initialize Firebase services
-    let db, auth, messaging;
+    // Use window.firebaseDB, window.firebaseAuth, window.firebaseMessaging from firebase-config.js
     let currentUser = null;
     let selectedConversation = null;
     let conversations = [];
@@ -309,9 +309,9 @@
           return false;
         }
 
-        // Initialize Firebase services
-        db = firebase.firestore();
-        auth = firebase.auth();
+        // Use shared Firebase services
+        window.firebaseDB = firebase.firestore();
+        window.firebaseAuth = firebase.auth();
         
         console.log('Firebase initialized successfully');
         return true;
@@ -334,12 +334,12 @@
 
     // Setup authentication listener
     function setupAuthListener() {
-      if (!auth) {
+      if (!window.firebaseAuth) {
         console.error('Auth not initialized');
         return;
       }
 
-      auth.onAuthStateChanged(async user => {
+      window.firebaseAuth.onAuthStateChanged(async user => {
         if (!user) {
           console.log('No user logged in, redirecting to login');
           window.location.href = '../auth/login.html';
@@ -357,19 +357,19 @@
         
         // Initialize messaging with better error handling
         try {
-          messaging = firebase.messaging();
+          window.firebaseMessaging = firebase.messaging();
           
           // Check if notifications are already granted
           if (Notification.permission === 'granted') {
-            const token = await messaging.getToken({ vapidKey: 'YOUR_PUBLIC_VAPID_KEY' });
-            await db.collection('users').doc(currentUser.id).update({ fcmToken: token });
+            const token = await window.firebaseMessaging.getToken({ vapidKey: 'YOUR_PUBLIC_VAPID_KEY' });
+            await window.firebaseDB.collection('users').doc(currentUser.id).update({ fcmToken: token });
             console.log('FCM token obtained successfully');
           } else if (Notification.permission === 'default') {
             // Only request permission if not already blocked
             const permission = await Notification.requestPermission();
             if (permission === 'granted') {
-              const token = await messaging.getToken({ vapidKey: 'YOUR_PUBLIC_VAPID_KEY' });
-              await db.collection('users').doc(currentUser.id).update({ fcmToken: token });
+              const token = await window.firebaseMessaging.getToken({ vapidKey: 'YOUR_PUBLIC_VAPID_KEY' });
+              await window.firebaseDB.collection('users').doc(currentUser.id).update({ fcmToken: token });
               console.log('FCM token obtained after permission request');
             } else {
               console.log('Notification permission denied by user');
@@ -391,10 +391,10 @@
 
     // Load conversations for admin view
     async function loadAdminConversations() {
-      if (!currentUser || !db) return;
+      if (!currentUser || !window.firebaseDB) return;
       
       try {
-        const convSnap = await db.collection('conversations')
+        const convSnap = await window.firebaseDB.collection('conversations')
           .orderBy('lastMessageAt', 'desc')
           .limit(50).get();
         
@@ -467,10 +467,10 @@
 
     // Start listening for unread messages
     function startUnreadMessagesListener() {
-      if (!db || !currentUser) return;
+      if (!window.firebaseDB || !currentUser) return;
       
       // Listen to all conversations for unread count changes
-      unreadMessagesListener = db.collection('conversations')
+      unreadMessagesListener = window.firebaseDB.collection('conversations')
         .onSnapshot(snap => {
           let totalUnread = 0;
           snap.forEach(doc => {
@@ -521,19 +521,19 @@
       
       // Mark all unread messages as read
       try {
-        const msgsSnap = await db.collection('conversations').doc(conv.id)
+        const msgsSnap = await window.firebaseDB.collection('conversations').doc(conv.id)
           .collection('messages')
           .where('read', '==', false)
           .where('senderId', '!=', currentUser.id)
           .get();
         
         if (!msgsSnap.empty) {
-          const batch = db.batch();
+          const batch = window.firebaseDB.batch();
           msgsSnap.forEach(doc => batch.update(doc.ref, { read: true }));
           await batch.commit();
           
           // Update conversation unread count
-          await db.collection('conversations').doc(conv.id).update({
+          await window.firebaseDB.collection('conversations').doc(conv.id).update({
             unreadCount: 0
           });
           
@@ -619,7 +619,7 @@
       
       // Listen for typing indicator
       if (selectedConversation.id) {
-        db.collection('conversations').doc(selectedConversation.id).onSnapshot(doc => {
+        window.firebaseDB.collection('conversations').doc(selectedConversation.id).onSnapshot(doc => {
           const data = doc.data();
           const otherId = selectedConversation.participants.find(id => id !== currentUser.id);
           const typingIndicator = document.getElementById('typingIndicator');
@@ -641,7 +641,7 @@
 
     function listenForMessages(convId) {
       if (unsubscribeMessages) unsubscribeMessages();
-      unsubscribeMessages = db.collection('conversations').doc(convId)
+      unsubscribeMessages = window.firebaseDB.collection('conversations').doc(convId)
         .collection('messages').orderBy('createdAt')
         .onSnapshot(snap => {
           const messages = [];
@@ -676,11 +676,11 @@
             };
             
             // Add message to Firestore
-            const messageRef = await db.collection('conversations').doc(selectedConversation.id)
+            const messageRef = await window.firebaseDB.collection('conversations').doc(selectedConversation.id)
               .collection('messages').add(msg);
             
             // Update conversation metadata
-            await db.collection('conversations').doc(selectedConversation.id).update({
+            await window.firebaseDB.collection('conversations').doc(selectedConversation.id).update({
               lastMessage: text,
               lastMessageAt: new Date(),
               unreadCount: firebase.firestore.FieldValue.increment(1)
@@ -713,10 +713,10 @@
       if (chatInput) {
         chatInput.addEventListener('input', function() {
           if (!selectedConversation || !currentUser) return;
-          db.collection('conversations').doc(selectedConversation.id).update({ ['typing_' + currentUser.id]: true });
+          window.firebaseDB.collection('conversations').doc(selectedConversation.id).update({ ['typing_' + currentUser.id]: true });
           clearTimeout(typingTimeout);
           typingTimeout = setTimeout(() => {
-            db.collection('conversations').doc(selectedConversation.id).update({ ['typing_' + currentUser.id]: false });
+            window.firebaseDB.collection('conversations').doc(selectedConversation.id).update({ ['typing_' + currentUser.id]: false });
           }, 2000);
         });
       }
