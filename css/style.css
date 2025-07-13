@@ -1520,3 +1520,14 @@ body.admin-panel {
     color: #03254c !important;
 }
 
+@media (min-width: 992px) {
+  body.admin-panel {
+    padding-left: 230px !important;
+  }
+  main, .container, .container-fluid {
+    margin-left: 0 !important;
+    width: auto !important;
+    max-width: 100% !important;
+  }
+}
+
