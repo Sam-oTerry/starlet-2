@@ -1260,6 +1260,17 @@ body.admin-panel {
   }
 }
 
+.offcanvas.admin-sidebar {
+  z-index: 1200 !important;
+  pointer-events: auto !important;
+}
+.offcanvas-backdrop {
+  z-index: 1100 !important;
+}
+.offcanvas.admin-sidebar .nav-link {
+  pointer-events: auto !important;
+}
+
 /* Three Star Loading Animation */
 .star-loading {
     display: flex;
