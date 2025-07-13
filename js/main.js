@@ -11,40 +11,6 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeTooltips();
     initializePopovers();
     renderFeaturedListings();
-
-    // Navbar Auth Button Logic
-    const authBtn = document.getElementById('authButton');
-    if (authBtn) {
-        const user = getStarletUser();
-        if (user && user.uid) {
-            // User is logged in
-            authBtn.textContent = 'Logout';
-            authBtn.href = '#';
-            authBtn.addEventListener('click', function(e) {
-                e.preventDefault();
-                localStorage.removeItem('starletUser');
-                // Optionally, sign out from Firebase as well:
-                if (window.firebaseAuth && window.firebaseAuth.signOut) {
-                    window.firebaseAuth.signOut();
-                }
-                window.location.href = '/index.html'; // or login page
-            });
-        } else {
-            // User is not logged in
-            authBtn.textContent = 'Login / Signup';
-            // Set correct login path based on current location
-            let loginPath = '/pages/auth/login.html';
-            if (window.location.pathname.includes('/pages/')) {
-                loginPath = '../auth/login.html';
-                if (window.location.pathname.includes('/pages/properties/') || window.location.pathname.includes('/pages/vehicles/') || window.location.pathname.includes('/pages/user/') || window.location.pathname.includes('/pages/dashboard/') || window.location.pathname.includes('/pages/admin/') || window.location.pathname.includes('/pages/stores/agent-stores/')) {
-                    loginPath = '../../auth/login.html';
-                }
-            } else if (window.location.pathname === '/index.html' || window.location.pathname === '/' ) {
-                loginPath = './pages/auth/login.html';
-            }
-            authBtn.href = loginPath;
-        }
-    }
 });
 
 // Animation Initialization
@@ -613,33 +579,3 @@ function setupMyListingsLink(myListingsSelector = '#myListingsLink', loginPath =
         window.location.href = createStorePath;
     });
 }
-
-/**
- * Dynamically loads firebase-config.js with the correct relative path.
- * Call this at the top of your HTML <body> or before using Firebase.
- * Usage: loadFirebaseConfig();
- */
-function loadFirebaseConfig() {
-    // Prevent duplicate loading
-    if (window.firebaseConfigLoaded) return;
-    // Determine relative path based on current location
-    let path = '';
-    const loc = window.location.pathname;
-    if (loc.includes('/pages/auth/')) {
-        path = '../../assets/js/firebase-config.js';
-    } else if (loc.includes('/pages/properties/') || loc.includes('/pages/vehicles/') || loc.includes('/pages/user/') || loc.includes('/pages/dashboard/') || loc.includes('/pages/admin/') || loc.includes('/pages/stores/agent-stores/')) {
-        path = '../../assets/js/firebase-config.js';
-    } else if (loc.includes('/pages/stores/')) {
-        path = '../../assets/js/firebase-config.js';
-    } else {
-        path = 'assets/js/firebase-config.js';
-    }
-    // Inject script
-    const script = document.createElement('script');
-    script.src = path;
-    script.onload = function() { window.firebaseConfigLoaded = true; };
-    document.head.appendChild(script);
-}
-
-// Export for use in HTML
-window.loadFirebaseConfig = loadFirebaseConfig;

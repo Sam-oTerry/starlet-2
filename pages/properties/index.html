@@ -393,10 +393,10 @@ const db = firebase.firestore();
     <script src="../../js/main.js"></script>
     <script>
     // Enforce authentication on this page
-    enforceAuth('../auth/login.html');
+    enforceAuth('../../auth/login.html');
     // Setup My Listings link logic
     document.addEventListener('DOMContentLoaded', function() {
-        setupMyListingsLink('#myListingsLink', '../auth/login.html', '../../stores/agent-stores/dashboard.html', '../../stores/agent-stores/create.html');
+        setupMyListingsLink('#myListingsLink', '../../auth/login.html', '../../stores/agent-stores/dashboard.html', '../../stores/agent-stores/create.html');
     });
 // Utility: get query param
 function getQueryParam(name) {
@@ -598,15 +598,15 @@ document.addEventListener('DOMContentLoaded', function() {
     db.collection('stores').where('ownerId', '==', user.uid).limit(1).get()
       .then(function(querySnapshot) {
         if (!querySnapshot.empty) {
-          window.location.href = '../../stores/agent-stores/dashboard.html';
+          window.location.href = '../stores/agent-stores/dashboard.html';
         } else {
           db.collection('users').doc(user.uid).get().then(function(userDoc) {
             var userData = userDoc.exists ? userDoc.data() : {};
             if (userData.role === 'agent') {
-              window.location.href = '../../stores/agent-stores/create.html';
+              window.location.href = '../stores/agent-stores/create.html';
             } else {
               if (confirm('To list your properties, you need to create a store and select an agent tier. Would you like to get started?')) {
-                window.location.href = '../../stores/agent-stores/create.html';
+                window.location.href = '../stores/agent-stores/create.html';
               }
             }
           });

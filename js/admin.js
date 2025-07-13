@@ -198,6 +198,8 @@ document.addEventListener('DOMContentLoaded', function() {
       // Expose utilities globally for use in inline event handlers
       window.showLoading = showLoading;
       window.showError = showError;
+      window.firebaseDB = db;
+      window.firebaseAuth = auth;
       window.showToast = showToast;
     } else {
       // Retry after a short delay
