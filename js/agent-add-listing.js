@@ -1,10 +1,16 @@
 // agent-add-listing.js
 // Dynamic logic for Add Listing page (property/vehicle) for agents
 
+// Use window.firebaseDB and window.firebaseAuth for db and auth
 let db, auth, currentUser;
-if (typeof firebase !== 'undefined') {
-  db = firebase.firestore();
-  auth = firebase.auth();
+function waitForFirebaseReady(callback) {
+  if (window.firebaseDB && window.firebaseAuth) {
+    db = window.firebaseDB;
+    auth = window.firebaseAuth;
+    callback();
+  } else {
+    setTimeout(() => waitForFirebaseReady(callback), 100);
+  }
 }
 
 let vehicleMakesModels = [];
@@ -57,12 +63,15 @@ const landRoadAccess = [
   'Tarmac', 'Murram', 'Footpath', 'None'
 ];
 
-document.addEventListener('DOMContentLoaded', async () => {
-  enforceAgentAuth();
-  await fetchVehicleMakesModels();
-  setupListingTypeSwitcher();
-  setupImageUpload();
-  setupFormSubmission();
+document.addEventListener('DOMContentLoaded', () => {
+  waitForFirebaseReady(() => {
+    enforceAgentAuth();
+    fetchVehicleMakesModels().then(() => {
+      setupListingTypeSwitcher();
+      setupImageUpload();
+      setupFormSubmission();
+    });
+  });
 });
 
 async function fetchVehicleMakesModels() {

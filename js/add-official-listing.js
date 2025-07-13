@@ -1,15 +1,6 @@
-const firebaseConfig = {
-  apiKey: "AIzaSyDH1sMk2NwceMAEfvH07azxaoPXpOI1Sek",
-  authDomain: "starlet-properties-41509.firebaseapp.com",
-  projectId: "starlet-properties-41509",
-  storageBucket: "starlet-properties-41509.appspot.com",
-  messagingSenderId: "393372988481",
-  appId: "1:393372988481:web:c92584d7408296457b02c0",
-  measurementId: "G-F02K9SP07C"
-};
-let db;
-if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-db = firebase.firestore();
+// Remove Firebase config and initialization
+// Use window.firebaseDB and window.firebaseAuth from firebase-config.js
+let db = window.firebaseDB;
 
 const form = document.getElementById('addOfficialListingForm');
 const listingTypeEl = document.getElementById('listingType');
@@ -229,17 +220,18 @@ if (vehicleMakeEl) {
   });
 }
 
-// --- Helper: Remove required from hidden fields before validation ---
+// --- Only require visible fields before submit ---
 function updateRequiredAttributes() {
-  // For all form controls, if hidden, remove required
-  document.querySelectorAll('#addOfficialListingForm [required]').forEach(el => {
-    if (el.offsetParent === null || el.closest('.d-none')) {
-      el.required = false;
-    } else {
-      // Only add required back if it was originally required
-      const originalRequired = el.getAttribute('data-original-required');
-      if (originalRequired === 'true' || originalRequired === null) {
-        el.required = true;
+  // Remove required from all fields first
+  form.querySelectorAll('[required]').forEach(el => el.removeAttribute('required'));
+  // Add required only to visible fields
+  form.querySelectorAll('input, select, textarea').forEach(el => {
+    if (el.offsetParent !== null && el.hasAttribute('data-always-required')) {
+      el.setAttribute('required', 'required');
+    } else if (el.offsetParent !== null && el.getAttribute('data-always-required') === null && el.getAttribute('type') !== 'checkbox') {
+      // Only set required if not a checkbox and not data-always-required
+      if (el.getAttribute('name')) {
+        el.setAttribute('required', 'required');
       }
     }
   });
@@ -300,9 +292,7 @@ function renderAmenityCheckboxes() {
 }
 
 // --- Form Submission ---
-form.onsubmit = async function(e) {
-  e.preventDefault();
-  // Update required attributes before validation
+form.addEventListener('submit', function(e) {
   updateRequiredAttributes();
   let listing = {};
   let valid = true;
@@ -419,7 +409,7 @@ form.onsubmit = async function(e) {
   listing.status = 'pending';
   listing.createdAt = new Date();
   try {
-    await db.collection('listings').add(listing);
+    db.collection('listings').add(listing);
     form.reset();
     propertySection.classList.add('d-none');
     vehicleSection.classList.add('d-none');
@@ -430,7 +420,7 @@ form.onsubmit = async function(e) {
     successMsg.textContent = 'Error adding listing.';
     successMsg.classList.remove('d-none');
   }
-};
+});
 
 // Call this after DOMContentLoaded and after amenitiesSection is shown
 // --- Init ---
