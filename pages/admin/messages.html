@@ -47,8 +47,9 @@
 </head>
 <body class="admin-panel">
   <!-- Admin Sidebar -->
-  <nav class="admin-sidebar">
+  <nav class="admin-sidebar" id="adminSidebar">
     <div class="sidebar-brand mb-4"><span class="brand-star">Star</span><span class="brand-let">Let</span> Admin</div>
+    <button class="btn btn-outline-primary d-lg-none d-block mb-3 ms-2" id="sidebarCloseBtn" style="display:none;position:absolute;top:10px;right:10px;z-index:1200;"><i class="bi bi-x-lg"></i></button>
     <div class="nav flex-column">
       <a href="dashboard.html" class="nav-link"><i class="bi bi-speedometer2"></i> Dashboard</a>
       <a href="listings.html" class="nav-link"><i class="bi bi-list-ul"></i> Listings</a>
@@ -64,8 +65,11 @@
   </nav>
   <!-- Admin Navbar -->
   <nav class="admin-navbar">
-    <div class="navbar-brand">
-      <span class="brand-star">Star</span> <span class="brand-let">Let</span> Admin
+    <div class="d-flex align-items-center">
+      <button class="btn btn-outline-primary d-lg-none me-2" id="sidebarToggleBtn" type="button" aria-label="Toggle sidebar"><i class="bi bi-list"></i></button>
+      <div class="navbar-brand">
+        <span class="brand-star">Star</span> <span class="brand-let">Let</span> Admin
+      </div>
     </div>
     <div class="d-flex align-items-center">
       <!-- Messages Icon with Unread Counter -->
@@ -743,6 +747,43 @@
           clearUnreadBadge();
         });
       }
+    });
+
+    // Mobile sidebar toggler logic
+    document.addEventListener('DOMContentLoaded', function() {
+      const sidebar = document.getElementById('adminSidebar');
+      const sidebarToggleBtn = document.getElementById('sidebarToggleBtn');
+      const sidebarCloseBtn = document.getElementById('sidebarCloseBtn');
+      function openSidebar() {
+        sidebar.style.transform = 'translateX(0)';
+        sidebar.style.boxShadow = '0 0 0 100vw rgba(0,0,0,0.2)';
+        sidebar.style.zIndex = '2000';
+        sidebarCloseBtn.style.display = 'block';
+        document.body.style.overflow = 'hidden';
+      }
+      function closeSidebar() {
+        sidebar.style.transform = '';
+        sidebar.style.boxShadow = '';
+        sidebar.style.zIndex = '';
+        sidebarCloseBtn.style.display = 'none';
+        document.body.style.overflow = '';
+      }
+      if (sidebarToggleBtn) {
+        sidebarToggleBtn.addEventListener('click', openSidebar);
+      }
+      if (sidebarCloseBtn) {
+        sidebarCloseBtn.addEventListener('click', closeSidebar);
+      }
+      // Close sidebar on nav link click (mobile only)
+      sidebar.querySelectorAll('.nav-link').forEach(link => {
+        link.addEventListener('click', function() {
+          if (window.innerWidth < 992) closeSidebar();
+        });
+      });
+      // Close sidebar on resize
+      window.addEventListener('resize', function() {
+        if (window.innerWidth >= 992) closeSidebar();
+      });
     });
   </script>
 </body>
