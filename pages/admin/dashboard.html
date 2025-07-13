@@ -80,29 +80,33 @@
   </style>
 </head>
 <body class="admin-panel">
-  <!-- Admin Sidebar -->
-  <nav class="admin-sidebar">
-    <div class="sidebar-brand mb-4">
-      <span class="brand-star">Star</span><span class="brand-let">Let</span> Admin
+  <!-- Admin Sidebar as Bootstrap Offcanvas -->
+  <div class="offcanvas offcanvas-start admin-sidebar d-lg-flex flex-column flex-shrink-0 p-3" tabindex="-1" id="adminSidebar" aria-labelledby="adminSidebarLabel">
+    <div class="offcanvas-header d-lg-none">
+      <h5 class="offcanvas-title sidebar-brand" id="adminSidebarLabel"><span class="brand-star">Star</span><span class="brand-let">Let</span> Admin</h5>
+      <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
     </div>
-    <div class="nav flex-column">
-      <a href="dashboard.html" class="nav-link active"><i class="bi bi-speedometer2"></i> Dashboard</a>
-      <a href="listings.html" class="nav-link"><i class="bi bi-list-ul"></i> Listings</a>
-      <a href="users.html" class="nav-link"><i class="bi bi-people"></i> Users</a>
-      <a href="stores.html" class="nav-link"><i class="bi bi-shop"></i> Stores</a>
-      <a href="official-store.html" class="nav-link"><i class="bi bi-patch-check"></i> Official Store</a>
-      <a href="analytics.html" class="nav-link"><i class="bi bi-bar-chart"></i> Analytics</a>
-      <a href="messages.html" class="nav-link"><i class="bi bi-chat-dots"></i> Messages</a>
-      <a href="reviews.html" class="nav-link"><i class="bi bi-star"></i> Reviews</a>
-      <a href="settings.html" class="nav-link"><i class="bi bi-gear"></i> Settings</a>
-      <a href="#" class="logout-link"><i class="bi bi-box-arrow-right"></i> Logout</a>
-    </div>
-  </nav>
-
+    <div class="sidebar-brand mb-4 d-none d-lg-block"><span class="brand-star">Star</span><span class="brand-let">Let</span> Admin</div>
+    <ul class="nav nav-pills flex-column mb-auto">
+      <li class="nav-item"><a href="dashboard.html" class="nav-link active"><i class="bi bi-speedometer2"></i> Dashboard</a></li>
+      <li><a href="listings.html" class="nav-link"><i class="bi bi-list-ul"></i> Listings</a></li>
+      <li><a href="users.html" class="nav-link"><i class="bi bi-people"></i> Users</a></li>
+      <li><a href="stores.html" class="nav-link"><i class="bi bi-shop"></i> Stores</a></li>
+      <li><a href="official-store.html" class="nav-link"><i class="bi bi-patch-check"></i> Official Store</a></li>
+      <li><a href="analytics.html" class="nav-link"><i class="bi bi-bar-chart"></i> Analytics</a></li>
+      <li><a href="messages.html" class="nav-link"><i class="bi bi-chat-dots"></i> Messages</a></li>
+      <li><a href="reviews.html" class="nav-link"><i class="bi bi-star"></i> Reviews</a></li>
+      <li><a href="settings.html" class="nav-link"><i class="bi bi-gear"></i> Settings</a></li>
+      <li><a href="#" class="logout-link nav-link"><i class="bi bi-box-arrow-right"></i> Logout</a></li>
+    </ul>
+  </div>
   <!-- Admin Navbar -->
-  <nav class="admin-navbar">
-    <div class="navbar-brand">
-      <span class="brand-star">Star</span><span class="brand-let">Let</span> Admin
+  <nav class="admin-navbar d-flex align-items-center justify-content-between">
+    <div class="d-flex align-items-center">
+      <button class="btn btn-outline-primary d-lg-none me-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#adminSidebar" aria-controls="adminSidebar" aria-label="Open sidebar"><i class="bi bi-list"></i></button>
+      <div class="navbar-brand">
+        <span class="brand-star">Star</span> <span class="brand-let">Let</span> Admin
+      </div>
     </div>
     <div class="profile-dropdown dropdown">
       <a class="d-flex align-items-center text-decoration-none dropdown-toggle" href="#" id="profileDropdown" data-bs-toggle="dropdown" aria-expanded="false">
@@ -122,842 +126,843 @@
 
   <!-- Main Content -->
   <main style="min-height: 100vh;">
-    <!-- Hero Section -->
-    <section class="hero-section">
-      <div class="container">
-        <div class="d-flex justify-content-between align-items-center">
-          <div>
-            <h2 class="hero-title">Admin Dashboard</h2>
-            <p class="hero-subtitle">Manage listings, users, stores, and analytics for Starlet Properties</p>
-          </div>
-          <div class="d-flex gap-2">
-            <button class="btn btn-outline-primary" onclick="refreshStats()">
-              <i class="bi bi-arrow-clockwise"></i> Refresh
-            </button>
-            <button class="btn btn-primary" onclick="exportData()">
-              <i class="bi bi-download"></i> Export Data
-            </button>
+    <div class="container-fluid">
+      <!-- Hero Section -->
+      <section class="hero-section">
+        <div class="container">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h2 class="hero-title">Admin Dashboard</h2>
+              <p class="hero-subtitle">Manage listings, users, stores, and analytics for Starlet Properties</p>
+            </div>
+            <div class="d-flex gap-2">
+              <button class="btn btn-outline-primary" onclick="refreshStats()">
+                <i class="bi bi-arrow-clockwise"></i> Refresh
+              </button>
+              <button class="btn btn-primary" onclick="exportData()">
+                <i class="bi bi-download"></i> Export Data
+              </button>
+            </div>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <!-- Metrics Cards -->
-    <div class="container my-5">
-      <div class="row g-4 mb-4">
-        <div class="col-6 col-md-3">
-          <div class="card card-modern stat-card text-center p-3 h-100">
-            <div class="card-body">
-              <div class="mb-2"><i class="bi bi-list-ul fs-2 text-primary"></i></div>
-              <h5 class="card-title">Total Listings</h5>
-              <div class="fs-4 fw-bold" id="totalListings">
-                <span class="loading-spinner"></span>
+      <!-- Metrics Cards -->
+      <div class="container my-5">
+        <div class="row g-4 mb-4">
+          <div class="col-6 col-md-3">
+            <div class="card card-modern stat-card text-center p-3 h-100">
+              <div class="card-body">
+                <div class="mb-2"><i class="bi bi-list-ul fs-2 text-primary"></i></div>
+                <h5 class="card-title">Total Listings</h5>
+                <div class="fs-4 fw-bold" id="totalListings">
+                  <span class="loading-spinner"></span>
+                </div>
+                <small class="text-muted" id="listingsChange">--</small>
               </div>
-              <small class="text-muted" id="listingsChange">--</small>
+            </div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="card card-modern stat-card text-center p-3 h-100">
+              <div class="card-body">
+                <div class="mb-2"><i class="bi bi-people fs-2 text-success"></i></div>
+                <h5 class="card-title">Total Users</h5>
+                <div class="fs-4 fw-bold" id="totalUsers">
+                  <span class="loading-spinner"></span>
+                </div>
+                <small class="text-muted" id="usersChange">--</small>
+              </div>
+            </div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="card card-modern stat-card text-center p-3 h-100">
+              <div class="card-body">
+                <div class="mb-2"><i class="bi bi-shop fs-2 text-warning"></i></div>
+                <h5 class="card-title">Total Stores</h5>
+                <div class="fs-4 fw-bold" id="totalStores">
+                  <span class="loading-spinner"></span>
+                </div>
+                <small class="text-muted" id="storesChange">--</small>
+              </div>
+            </div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="card card-modern stat-card text-center p-3 h-100">
+              <div class="card-body">
+                <div class="mb-2"><i class="bi bi-hourglass-split fs-2 text-danger"></i></div>
+                <h5 class="card-title">Pending Approvals</h5>
+                <div class="fs-4 fw-bold" id="pendingApprovals">
+                  <span class="loading-spinner"></span>
+                </div>
+                <small class="text-muted" id="approvalsChange">--</small>
+              </div>
             </div>
           </div>
         </div>
-        <div class="col-6 col-md-3">
-          <div class="card card-modern stat-card text-center p-3 h-100">
-            <div class="card-body">
-              <div class="mb-2"><i class="bi bi-people fs-2 text-success"></i></div>
-              <h5 class="card-title">Total Users</h5>
-              <div class="fs-4 fw-bold" id="totalUsers">
-                <span class="loading-spinner"></span>
-              </div>
-              <small class="text-muted" id="usersChange">--</small>
-            </div>
-          </div>
-        </div>
-        <div class="col-6 col-md-3">
-          <div class="card card-modern stat-card text-center p-3 h-100">
-            <div class="card-body">
-              <div class="mb-2"><i class="bi bi-shop fs-2 text-warning"></i></div>
-              <h5 class="card-title">Total Stores</h5>
-              <div class="fs-4 fw-bold" id="totalStores">
-                <span class="loading-spinner"></span>
-              </div>
-              <small class="text-muted" id="storesChange">--</small>
-            </div>
-          </div>
-        </div>
-        <div class="col-6 col-md-3">
-          <div class="card card-modern stat-card text-center p-3 h-100">
-            <div class="card-body">
-              <div class="mb-2"><i class="bi bi-hourglass-split fs-2 text-danger"></i></div>
-              <h5 class="card-title">Pending Approvals</h5>
-              <div class="fs-4 fw-bold" id="pendingApprovals">
-                <span class="loading-spinner"></span>
-              </div>
-              <small class="text-muted" id="approvalsChange">--</small>
-            </div>
-          </div>
-        </div>
-      </div>
 
-      <!-- Additional Stats Row -->
-      <div class="row g-4 mb-4">
-        <div class="col-6 col-md-3">
-          <div class="card card-modern stat-card text-center p-3 h-100">
-            <div class="card-body">
-              <div class="mb-2"><i class="bi bi-chat-dots fs-2 text-info"></i></div>
-              <h5 class="card-title">Active Conversations</h5>
-              <div class="fs-4 fw-bold" id="activeConversations">
-                <span class="loading-spinner"></span>
+        <!-- Additional Stats Row -->
+        <div class="row g-4 mb-4">
+          <div class="col-6 col-md-3">
+            <div class="card card-modern stat-card text-center p-3 h-100">
+              <div class="card-body">
+                <div class="mb-2"><i class="bi bi-chat-dots fs-2 text-info"></i></div>
+                <h5 class="card-title">Active Conversations</h5>
+                <div class="fs-4 fw-bold" id="activeConversations">
+                  <span class="loading-spinner"></span>
+                </div>
+                <small class="text-muted">Last 24 hours</small>
               </div>
-              <small class="text-muted">Last 24 hours</small>
+            </div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="card card-modern stat-card text-center p-3 h-100">
+              <div class="card-body">
+                <div class="mb-2"><i class="bi bi-eye fs-2 text-purple"></i></div>
+                <h5 class="card-title">Total Views</h5>
+                <div class="fs-4 fw-bold" id="totalViews">
+                  <span class="loading-spinner"></span>
+                </div>
+                <small class="text-muted">This month</small>
+              </div>
+            </div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="card card-modern stat-card text-center p-3 h-100">
+              <div class="card-body">
+                <div class="mb-2"><i class="bi bi-star fs-2 text-warning"></i></div>
+                <h5 class="card-title">Reviews</h5>
+                <div class="fs-4 fw-bold" id="totalReviews">
+                  <span class="loading-spinner"></span>
+                </div>
+                <small class="text-muted">Average: <span id="avgRating">--</span></small>
+              </div>
+            </div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="card card-modern stat-card text-center p-3 h-100">
+              <div class="card-body">
+                <div class="mb-2"><i class="bi bi-currency-dollar fs-2 text-success"></i></div>
+                <h5 class="card-title">Revenue</h5>
+                <div class="fs-4 fw-bold" id="totalRevenue">
+                  <span class="loading-spinner"></span>
+                </div>
+                <small class="text-muted">This month</small>
+              </div>
             </div>
           </div>
         </div>
-        <div class="col-6 col-md-3">
-          <div class="card card-modern stat-card text-center p-3 h-100">
-            <div class="card-body">
-              <div class="mb-2"><i class="bi bi-eye fs-2 text-purple"></i></div>
-              <h5 class="card-title">Total Views</h5>
-              <div class="fs-4 fw-bold" id="totalViews">
-                <span class="loading-spinner"></span>
-              </div>
-              <small class="text-muted">This month</small>
-            </div>
-          </div>
-        </div>
-        <div class="col-6 col-md-3">
-          <div class="card card-modern stat-card text-center p-3 h-100">
-            <div class="card-body">
-              <div class="mb-2"><i class="bi bi-star fs-2 text-warning"></i></div>
-              <h5 class="card-title">Reviews</h5>
-              <div class="fs-4 fw-bold" id="totalReviews">
-                <span class="loading-spinner"></span>
-              </div>
-              <small class="text-muted">Average: <span id="avgRating">--</span></small>
-            </div>
-          </div>
-        </div>
-        <div class="col-6 col-md-3">
-          <div class="card card-modern stat-card text-center p-3 h-100">
-            <div class="card-body">
-              <div class="mb-2"><i class="bi bi-currency-dollar fs-2 text-success"></i></div>
-              <h5 class="card-title">Revenue</h5>
-              <div class="fs-4 fw-bold" id="totalRevenue">
-                <span class="loading-spinner"></span>
-              </div>
-              <small class="text-muted">This month</small>
-            </div>
-          </div>
-        </div>
-      </div>
 
-      <!-- Quick Actions -->
-      <div class="row mb-4">
-        <div class="col-12">
-          <div class="card card-modern">
-            <div class="card-header">
-              <h5 class="mb-0"><i class="bi bi-lightning"></i> Quick Actions</h5>
-            </div>
-            <div class="card-body">
-              <div class="row g-3">
-                <div class="col-md-2 col-sm-4 col-6">
-                  <button class="btn btn-outline-primary w-100 quick-action-btn" onclick="window.location.href='listings.html'">
-                    <i class="bi bi-plus-circle mb-2"></i><br>
-                    Add Listing
-                  </button>
-                </div>
-                <div class="col-md-2 col-sm-4 col-6">
-                  <button class="btn btn-outline-success w-100 quick-action-btn" onclick="approveAllPending()">
-                    <i class="bi bi-check-all mb-2"></i><br>
-                    Approve All
-                  </button>
-                </div>
-                <div class="col-md-2 col-sm-4 col-6">
-                  <button class="btn btn-outline-info w-100 quick-action-btn" onclick="window.location.href='messages.html'">
-                    <i class="bi bi-chat mb-2"></i><br>
-                    View Messages
-                  </button>
-                </div>
-                <div class="col-md-2 col-sm-4 col-6">
-                  <button class="btn btn-outline-warning w-100 quick-action-btn" onclick="window.location.href='users.html'">
-                    <i class="bi bi-person-plus mb-2"></i><br>
-                    Manage Users
-                  </button>
-                </div>
-                <div class="col-md-2 col-sm-4 col-6">
-                  <button class="btn btn-outline-secondary w-100 quick-action-btn" onclick="generateReport()">
-                    <i class="bi bi-file-earmark-text mb-2"></i><br>
-                    Generate Report
-                  </button>
-                </div>
-                <div class="col-md-2 col-sm-4 col-6">
-                  <button class="btn btn-outline-danger w-100 quick-action-btn" onclick="backupData()">
-                    <i class="bi bi-cloud-upload mb-2"></i><br>
-                    Backup Data
-                  </button>
+        <!-- Quick Actions -->
+        <div class="row mb-4">
+          <div class="col-12">
+            <div class="card card-modern">
+              <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-lightning"></i> Quick Actions</h5>
+              </div>
+              <div class="card-body">
+                <div class="row g-3">
+                  <div class="col-md-2 col-sm-4 col-6">
+                    <button class="btn btn-outline-primary w-100 quick-action-btn" onclick="window.location.href='listings.html'">
+                      <i class="bi bi-plus-circle mb-2"></i><br>
+                      Add Listing
+                    </button>
+                  </div>
+                  <div class="col-md-2 col-sm-4 col-6">
+                    <button class="btn btn-outline-success w-100 quick-action-btn" onclick="approveAllPending()">
+                      <i class="bi bi-check-all mb-2"></i><br>
+                      Approve All
+                    </button>
+                  </div>
+                  <div class="col-md-2 col-sm-4 col-6">
+                    <button class="btn btn-outline-info w-100 quick-action-btn" onclick="window.location.href='messages.html'">
+                      <i class="bi bi-chat mb-2"></i><br>
+                      View Messages
+                    </button>
+                  </div>
+                  <div class="col-md-2 col-sm-4 col-6">
+                    <button class="btn btn-outline-warning w-100 quick-action-btn" onclick="window.location.href='users.html'">
+                      <i class="bi bi-person-plus mb-2"></i><br>
+                      Manage Users
+                    </button>
+                  </div>
+                  <div class="col-md-2 col-sm-4 col-6">
+                    <button class="btn btn-outline-secondary w-100 quick-action-btn" onclick="generateReport()">
+                      <i class="bi bi-file-earmark-text mb-2"></i><br>
+                      Generate Report
+                    </button>
+                  </div>
+                  <div class="col-md-2 col-sm-4 col-6">
+                    <button class="btn btn-outline-danger w-100 quick-action-btn" onclick="backupData()">
+                      <i class="bi bi-cloud-upload mb-2"></i><br>
+                      Backup Data
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
 
-      <!-- Charts and Analytics -->
-      <div class="row">
-        <div class="col-12 col-lg-6 mb-4 mb-lg-0 d-flex justify-content-center">
-          <div class="chart-container">
-            <h5 class="mb-3"><i class="bi bi-bar-chart"></i> Listings by Category</h5>
-            <canvas id="listingsChart"></canvas>
-          </div>
-        </div>
-        <div class="col-12 col-lg-6 d-flex justify-content-center">
-          <div class="chart-container">
-            <h5 class="mb-3"><i class="bi bi-pie-chart"></i> User Distribution</h5>
-            <canvas id="usersChart"></canvas>
-          </div>
-        </div>
-      </div>
-
-      <!-- Recent Activity -->
-      <div class="row">
-        <div class="col-lg-6">
-          <div class="card card-modern">
-            <div class="card-header">
-              <h5 class="mb-0"><i class="bi bi-clock-history"></i> Recent Activity</h5>
-            </div>
-            <div class="card-body">
-              <div id="recentActivity">
-                <div class="text-center py-3">
-                  <span class="loading-spinner"></span> Loading...
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="col-lg-6">
-          <div class="card card-modern">
-            <div class="card-header">
-              <h5 class="mb-0"><i class="bi bi-exclamation-triangle"></i> System Alerts</h5>
-            </div>
-            <div class="card-body">
-              <div id="systemAlerts">
-                <div class="text-center py-3">
-                  <span class="loading-spinner"></span> Loading...
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </main>
-
-  <!-- Footer -->
-  <footer class="footer">
-    <div class="container">
-      <div class="row">
-        <div class="col-lg-4 mb-4">
-          <h4>About Starlet Properties</h4>
-          <p>Uganda's premier real estate and vehicle marketplace, connecting buyers and sellers across the country.</p>
-          <div class="social-links">
-            <a href="#"><i class="fab fa-facebook"></i></a>
-            <a href="#"><i class="fab fa-twitter"></i></a>
-            <a href="#"><i class="fab fa-instagram"></i></a>
-            <a href="#"><i class="fab fa-linkedin"></i></a>
-          </div>
-        </div>
-        <div class="col-lg-2 col-md-6 mb-4">
-          <h4>Properties</h4>
-          <ul>
-            <li><a href="../../pages/properties/index.html?type=house_sale">Houses for Sale</a></li>
-            <li><a href="../../pages/properties/index.html?type=house_rent">Houses for Rent</a></li>
-            <li><a href="../../pages/properties/index.html?type=land_sale">Land for Sale</a></li>
-            <li><a href="../../pages/properties/index.html?type=land_rent">Land for Rent</a></li>
-            <li><a href="../../pages/properties/index.html?type=commercial">Commercial Property</a></li>
-            <li><a href="../../pages/properties/index.html?type=vacation_short_stay">Vacation & Short Stay</a></li>
-          </ul>
-        </div>
-        <div class="col-lg-2 col-md-6 mb-4">
-          <h4>Vehicles</h4>
-          <ul>
-            <li><a href="../../pages/vehicles/index.html?type=cars">Cars</a></li>
-            <li><a href="../../pages/vehicles/index.html?type=motorcycles">Motorcycles</a></li>
-            <li><a href="../../pages/vehicles/index.html?type=trucks">Trucks</a></li>
-            <li><a href="../../pages/vehicles/index.html?type=buses">Buses</a></li>
-            <li><a href="../../pages/vehicles/index.html?type=heavy_machinery">Heavy Machinery</a></li>
-            <li><a href="../../pages/vehicles/index.html?type=bicycles_ebikes">Bicycles & E-bikes</a></li>
-            <li><a href="../../pages/vehicles/index.html?type=boats_watercraft">Boats & Watercraft</a></li>
-          </ul>
-        </div>
-        <div class="col-lg-2 col-md-6 mb-4">
-          <h4>Company</h4>
-          <ul>
-            <li><a href="../../pages/about/index.html">About Us</a></li>
-            <li><a href="../../pages/about/contact.html">Contact</a></li>
-            <li><a href="../../pages/about/resources.html">Resources</a></li>
-            <li><a href="../../pages/stores/index.html">Our Stores</a></li>
-            <li><a href="../../pages/legal/privacy.html">Privacy Policy</a></li>
-          </ul>
-        </div>
-        <div class="col-lg-2 col-md-6 mb-4">
-          <h4>Contact</h4>
-          <ul>
-            <li><a href="tel:+256123456789"><i class="bi bi-telephone"></i> +256 123 456 789</a></li>
-            <li><a href="mailto:info@starlet.co.ug"><i class="bi bi-envelope"></i> info@starlet.co.ug</a></li>
-            <li><a href="#"><i class="bi bi-geo-alt"></i> Kampala, Uganda</a></li>
-          </ul>
-        </div>
-      </div>
-      <div class="footer-bottom">
+        <!-- Charts and Analytics -->
         <div class="row">
-          <div class="col-md-6">
-            <p class="mb-0">&copy; 2024 Starlet Properties. All rights reserved.</p>
+          <div class="col-12 col-lg-6 mb-4 mb-lg-0 d-flex justify-content-center">
+            <div class="chart-container">
+              <h5 class="mb-3"><i class="bi bi-bar-chart"></i> Listings by Category</h5>
+              <canvas id="listingsChart"></canvas>
+            </div>
           </div>
-          <div class="col-md-6 text-md-end">
-            <a href="../../pages/legal/terms.html" class="me-3">Terms of Service</a>
-            <a href="../../pages/legal/privacy.html">Privacy Policy</a>
+          <div class="col-12 col-lg-6 d-flex justify-content-center">
+            <div class="chart-container">
+              <h5 class="mb-3"><i class="bi bi-pie-chart"></i> User Distribution</h5>
+              <canvas id="usersChart"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="row">
+          <div class="col-lg-6">
+            <div class="card card-modern">
+              <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-clock-history"></i> Recent Activity</h5>
+              </div>
+              <div class="card-body">
+                <div id="recentActivity">
+                  <div class="text-center py-3">
+                    <span class="loading-spinner"></span> Loading...
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-6">
+            <div class="card card-modern">
+              <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-exclamation-triangle"></i> System Alerts</h5>
+              </div>
+              <div class="card-body">
+                <div id="systemAlerts">
+                  <div class="text-center py-3">
+                    <span class="loading-spinner"></span> Loading...
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
-    </div>
-  </footer>
+    </main>
 
-  <!-- Bootstrap JS -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-  <!-- Firebase Config -->
-  <script src="../../assets/js/firebase-config.js"></script>
-  <!-- Firebase SDKs -->
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-  <!-- Chart.js -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <!-- Admin JS -->
-  <script src="../../js/admin.js"></script>
-  <!-- Dashboard JS -->
-  <script>
-    let listingsChart, usersChart;
-    let statsData = {};
-    // Use existing db and auth from admin.js or create new ones
-    let dashboardDB, dashboardAuth;
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-4 mb-4">
+            <h4>About Starlet Properties</h4>
+            <p>Uganda's premier real estate and vehicle marketplace, connecting buyers and sellers across the country.</p>
+            <div class="social-links">
+              <a href="#"><i class="fab fa-facebook"></i></a>
+              <a href="#"><i class="fab fa-twitter"></i></a>
+              <a href="#"><i class="fab fa-instagram"></i></a>
+              <a href="#"><i class="fab fa-linkedin"></i></a>
+            </div>
+          </div>
+          <div class="col-lg-2 col-md-6 mb-4">
+            <h4>Properties</h4>
+            <ul>
+              <li><a href="../../pages/properties/index.html?type=house_sale">Houses for Sale</a></li>
+              <li><a href="../../pages/properties/index.html?type=house_rent">Houses for Rent</a></li>
+              <li><a href="../../pages/properties/index.html?type=land_sale">Land for Sale</a></li>
+              <li><a href="../../pages/properties/index.html?type=land_rent">Land for Rent</a></li>
+              <li><a href="../../pages/properties/index.html?type=commercial">Commercial Property</a></li>
+              <li><a href="../../pages/properties/index.html?type=vacation_short_stay">Vacation & Short Stay</a></li>
+            </ul>
+          </div>
+          <div class="col-lg-2 col-md-6 mb-4">
+            <h4>Vehicles</h4>
+            <ul>
+              <li><a href="../../pages/vehicles/index.html?type=cars">Cars</a></li>
+              <li><a href="../../pages/vehicles/index.html?type=motorcycles">Motorcycles</a></li>
+              <li><a href="../../pages/vehicles/index.html?type=trucks">Trucks</a></li>
+              <li><a href="../../pages/vehicles/index.html?type=buses">Buses</a></li>
+              <li><a href="../../pages/vehicles/index.html?type=heavy_machinery">Heavy Machinery</a></li>
+              <li><a href="../../pages/vehicles/index.html?type=bicycles_ebikes">Bicycles & E-bikes</a></li>
+              <li><a href="../../pages/vehicles/index.html?type=boats_watercraft">Boats & Watercraft</a></li>
+            </ul>
+          </div>
+          <div class="col-lg-2 col-md-6 mb-4">
+            <h4>Company</h4>
+            <ul>
+              <li><a href="../../pages/about/index.html">About Us</a></li>
+              <li><a href="../../pages/about/contact.html">Contact</a></li>
+              <li><a href="../../pages/about/resources.html">Resources</a></li>
+              <li><a href="../../pages/stores/index.html">Our Stores</a></li>
+              <li><a href="../../pages/legal/privacy.html">Privacy Policy</a></li>
+            </ul>
+          </div>
+          <div class="col-lg-2 col-md-6 mb-4">
+            <h4>Contact</h4>
+            <ul>
+              <li><a href="tel:+256123456789"><i class="bi bi-telephone"></i> +256 123 456 789</a></li>
+              <li><a href="mailto:info@starlet.co.ug"><i class="bi bi-envelope"></i> info@starlet.co.ug</a></li>
+              <li><a href="#"><i class="bi bi-geo-alt"></i> Kampala, Uganda</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="footer-bottom">
+          <div class="row">
+            <div class="col-md-6">
+              <p class="mb-0">&copy; 2024 Starlet Properties. All rights reserved.</p>
+            </div>
+            <div class="col-md-6 text-md-end">
+              <a href="../../pages/legal/terms.html" class="me-3">Terms of Service</a>
+              <a href="../../pages/legal/privacy.html">Privacy Policy</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </footer>
 
-    // Initialize dashboard
-    document.addEventListener('DOMContentLoaded', function() {
-      // Wait for Firebase to be available
-      const checkFirebase = () => {
-        if (typeof firebase !== 'undefined' && window.firebaseDB) {
-          dashboardDB = window.firebaseDB;
-          dashboardAuth = window.firebaseAuth;
-          
-          // Load dashboard data
-          loadDashboardStats();
-          loadRecentActivity();
-          loadSystemAlerts();
-          initializeCharts();
-          
-          // Set up real-time listeners
-          setupRealtimeListeners();
-        } else {
-          // Retry after a short delay
-          setTimeout(checkFirebase, 100);
-        }
-      };
-      
-      checkFirebase();
-      
-      // Display user info
-      try {
-        const user = JSON.parse(localStorage.getItem('starletUser'));
-        if (user && (user.displayName || user.firstName || user.email)) {
-          document.getElementById('adminName').textContent = user.displayName || (user.firstName ? user.firstName + ' ' + (user.lastName || '') : user.email);
-        }
-      } catch (e) {}
-    });
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Firebase Config -->
+    <script src="../../assets/js/firebase-config.js"></script>
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Admin JS -->
+    <script src="../../js/admin.js"></script>
+    <!-- Dashboard JS -->
+    <script>
+      let listingsChart, usersChart;
+      let statsData = {};
+      // Use existing db and auth from admin.js or create new ones
+      let dashboardDB, dashboardAuth;
 
-    // Load dashboard statistics
-    async function loadDashboardStats() {
-      try {
-        if (!dashboardDB) {
-          console.error('Firestore not initialized');
-          return;
-        }
-        
-        // Get listings count
-        const listingsSnap = await dashboardDB.collection('listings').get();
-        const totalListings = listingsSnap.size;
-        
-        // Get users count
-        const usersSnap = await dashboardDB.collection('users').get();
-        const totalUsers = usersSnap.size;
-        
-        // Get stores count
-        const storesSnap = await dashboardDB.collection('stores').get();
-        const totalStores = storesSnap.size;
-        
-        // Get pending approvals
-        const pendingSnap = await dashboardDB.collection('listings').where('status', '==', 'pending').get();
-        const pendingApprovals = pendingSnap.size;
-        
-        // Get active conversations (last 24 hours)
-        const yesterday = new Date();
-        yesterday.setDate(yesterday.getDate() - 1);
-        const conversationsSnap = await dashboardDB.collection('conversations')
-          .where('lastMessageAt', '>=', yesterday)
-          .get();
-        const activeConversations = conversationsSnap.size;
-        
-        // Get total views (placeholder - would need tracking implementation)
-        const totalViews = Math.floor(Math.random() * 10000) + 5000;
-        
-        // Get reviews count and average
-        const reviewsSnap = await dashboardDB.collection('reviews').get();
-        const totalReviews = reviewsSnap.size;
-        let avgRating = 0;
-        if (totalReviews > 0) {
-          let totalRating = 0;
-          reviewsSnap.forEach(doc => {
-            const review = doc.data();
-            totalRating += review.rating || 0;
-          });
-          avgRating = (totalRating / totalReviews).toFixed(1);
-        }
-        
-        // Get revenue (placeholder - would need payment tracking)
-        const totalRevenue = Math.floor(Math.random() * 50000) + 10000;
-        
-        // Update UI
-        document.getElementById('totalListings').textContent = totalListings.toLocaleString();
-        document.getElementById('totalUsers').textContent = totalUsers.toLocaleString();
-        document.getElementById('totalStores').textContent = totalStores.toLocaleString();
-        document.getElementById('pendingApprovals').textContent = pendingApprovals.toLocaleString();
-        document.getElementById('activeConversations').textContent = activeConversations.toLocaleString();
-        document.getElementById('totalViews').textContent = totalViews.toLocaleString();
-        document.getElementById('totalReviews').textContent = totalReviews.toLocaleString();
-        document.getElementById('avgRating').textContent = avgRating;
-        document.getElementById('totalRevenue').textContent = 'USh ' + totalRevenue.toLocaleString();
-        
-        // Store data for charts
-        statsData = {
-          totalListings,
-          totalUsers,
-          totalStores,
-          pendingApprovals,
-          activeConversations,
-          totalViews,
-          totalReviews,
-          avgRating,
-          totalRevenue
+      // Initialize dashboard
+      document.addEventListener('DOMContentLoaded', function() {
+        // Wait for Firebase to be available
+        const checkFirebase = () => {
+          if (typeof firebase !== 'undefined' && window.firebaseDB) {
+            dashboardDB = window.firebaseDB;
+            dashboardAuth = window.firebaseAuth;
+            
+            // Load dashboard data
+            loadDashboardStats();
+            loadRecentActivity();
+            loadSystemAlerts();
+            initializeCharts();
+            
+            // Set up real-time listeners
+            setupRealtimeListeners();
+          } else {
+            // Retry after a short delay
+            setTimeout(checkFirebase, 100);
+          }
         };
         
-        updateCharts();
+        checkFirebase();
         
-      } catch (error) {
-        console.error('Error loading dashboard stats:', error);
-        showError('Failed to load dashboard statistics');
-      }
-    }
+        // Display user info
+        try {
+          const user = JSON.parse(localStorage.getItem('starletUser'));
+          if (user && (user.displayName || user.firstName || user.email)) {
+            document.getElementById('adminName').textContent = user.displayName || (user.firstName ? user.firstName + ' ' + (user.lastName || '') : user.email);
+          }
+        } catch (e) {}
+      });
 
-    // Load recent activity
-    async function loadRecentActivity() {
-      try {
-        if (!dashboardDB) {
-          console.error('Firestore not initialized');
-          return;
-        }
-        
-        const activityContainer = document.getElementById('recentActivity');
-        
-        // Get recent listings
-        const recentListings = await dashboardDB.collection('listings')
-          .orderBy('createdAt', 'desc')
-          .limit(5)
-          .get();
-        
-        // Get recent users
-        const recentUsers = await dashboardDB.collection('users')
-          .orderBy('createdAt', 'desc')
-          .limit(5)
-          .get();
-        
-        let activityHTML = '';
-        
-        // Combine and sort activities
-        const activities = [];
-        
-        recentListings.forEach(doc => {
-          const listing = doc.data();
-          activities.push({
-            type: 'listing',
-            title: listing.title || 'New Listing',
-            time: listing.createdAt,
-            user: listing.agentName || 'Unknown',
-            id: doc.id
-          });
-        });
-        
-        recentUsers.forEach(doc => {
-          const user = doc.data();
-          activities.push({
-            type: 'user',
-            title: 'New User Registration',
-            time: user.createdAt,
-            user: user.displayName || user.email || 'Unknown',
-            id: doc.id
-          });
-        });
-        
-        // Sort by time
-        activities.sort((a, b) => b.time - a.time);
-        
-        // Display activities
-        activities.slice(0, 8).forEach(activity => {
-          const timeAgo = getTimeAgo(activity.time);
-          const icon = activity.type === 'listing' ? 'bi-list-ul' : 'bi-person-plus';
-          const color = activity.type === 'listing' ? 'text-primary' : 'text-success';
+      // Load dashboard statistics
+      async function loadDashboardStats() {
+        try {
+          if (!dashboardDB) {
+            console.error('Firestore not initialized');
+            return;
+          }
           
-          activityHTML += `
-            <div class="recent-activity-item">
-              <div class="d-flex align-items-center">
-                <i class="bi ${icon} ${color} me-2"></i>
-                <div class="flex-grow-1">
-                  <div class="fw-semibold">${activity.title}</div>
-                  <div class="text-muted small">by ${activity.user}</div>
-                </div>
-                <div class="activity-time">${timeAgo}</div>
-              </div>
-            </div>
-          `;
-        });
-        
-        if (activities.length === 0) {
-          activityHTML = '<div class="text-muted text-center py-3">No recent activity</div>';
+          // Get listings count
+          const listingsSnap = await dashboardDB.collection('listings').get();
+          const totalListings = listingsSnap.size;
+          
+          // Get users count
+          const usersSnap = await dashboardDB.collection('users').get();
+          const totalUsers = usersSnap.size;
+          
+          // Get stores count
+          const storesSnap = await dashboardDB.collection('stores').get();
+          const totalStores = storesSnap.size;
+          
+          // Get pending approvals
+          const pendingSnap = await dashboardDB.collection('listings').where('status', '==', 'pending').get();
+          const pendingApprovals = pendingSnap.size;
+          
+          // Get active conversations (last 24 hours)
+          const yesterday = new Date();
+          yesterday.setDate(yesterday.getDate() - 1);
+          const conversationsSnap = await dashboardDB.collection('conversations')
+            .where('lastMessageAt', '>=', yesterday)
+            .get();
+          const activeConversations = conversationsSnap.size;
+          
+          // Get total views (placeholder - would need tracking implementation)
+          const totalViews = Math.floor(Math.random() * 10000) + 5000;
+          
+          // Get reviews count and average
+          const reviewsSnap = await dashboardDB.collection('reviews').get();
+          const totalReviews = reviewsSnap.size;
+          let avgRating = 0;
+          if (totalReviews > 0) {
+            let totalRating = 0;
+            reviewsSnap.forEach(doc => {
+              const review = doc.data();
+              totalRating += review.rating || 0;
+            });
+            avgRating = (totalRating / totalReviews).toFixed(1);
+          }
+          
+          // Get revenue (placeholder - would need payment tracking)
+          const totalRevenue = Math.floor(Math.random() * 50000) + 10000;
+          
+          // Update UI
+          document.getElementById('totalListings').textContent = totalListings.toLocaleString();
+          document.getElementById('totalUsers').textContent = totalUsers.toLocaleString();
+          document.getElementById('totalStores').textContent = totalStores.toLocaleString();
+          document.getElementById('pendingApprovals').textContent = pendingApprovals.toLocaleString();
+          document.getElementById('activeConversations').textContent = activeConversations.toLocaleString();
+          document.getElementById('totalViews').textContent = totalViews.toLocaleString();
+          document.getElementById('totalReviews').textContent = totalReviews.toLocaleString();
+          document.getElementById('avgRating').textContent = avgRating;
+          document.getElementById('totalRevenue').textContent = 'USh ' + totalRevenue.toLocaleString();
+          
+          // Store data for charts
+          statsData = {
+            totalListings,
+            totalUsers,
+            totalStores,
+            pendingApprovals,
+            activeConversations,
+            totalViews,
+            totalReviews,
+            avgRating,
+            totalRevenue
+          };
+          
+          updateCharts();
+          
+        } catch (error) {
+          console.error('Error loading dashboard stats:', error);
+          showError('Failed to load dashboard statistics');
         }
-        
-        activityContainer.innerHTML = activityHTML;
-        
-      } catch (error) {
-        console.error('Error loading recent activity:', error);
-        document.getElementById('recentActivity').innerHTML = '<div class="text-danger text-center py-3">Failed to load activity</div>';
       }
-    }
 
-    // Load system alerts
-    async function loadSystemAlerts() {
-      try {
-        if (!dashboardDB) {
-          console.error('Firestore not initialized');
-          return;
-        }
-        
-        const alertsContainer = document.getElementById('systemAlerts');
-        
-        // Check for various system issues
-        const alerts = [];
-        
-        // Check for pending approvals
-        const pendingSnap = await dashboardDB.collection('listings').where('status', '==', 'pending').get();
-        if (pendingSnap.size > 10) {
-          alerts.push({
-            type: 'warning',
-            message: `${pendingSnap.size} listings pending approval`,
-            icon: 'bi-exclamation-triangle'
+      // Load recent activity
+      async function loadRecentActivity() {
+        try {
+          if (!dashboardDB) {
+            console.error('Firestore not initialized');
+            return;
+          }
+          
+          const activityContainer = document.getElementById('recentActivity');
+          
+          // Get recent listings
+          const recentListings = await dashboardDB.collection('listings')
+            .orderBy('createdAt', 'desc')
+            .limit(5)
+            .get();
+          
+          // Get recent users
+          const recentUsers = await dashboardDB.collection('users')
+            .orderBy('createdAt', 'desc')
+            .limit(5)
+            .get();
+          
+          let activityHTML = '';
+          
+          // Combine and sort activities
+          const activities = [];
+          
+          recentListings.forEach(doc => {
+            const listing = doc.data();
+            activities.push({
+              type: 'listing',
+              title: listing.title || 'New Listing',
+              time: listing.createdAt,
+              user: listing.agentName || 'Unknown',
+              id: doc.id
+            });
           });
-        }
-        
-        // Check for system errors (placeholder)
-        if (Math.random() > 0.8) {
-          alerts.push({
-            type: 'danger',
-            message: 'High server load detected',
-            icon: 'bi-exclamation-circle'
+          
+          recentUsers.forEach(doc => {
+            const user = doc.data();
+            activities.push({
+              type: 'user',
+              title: 'New User Registration',
+              time: user.createdAt,
+              user: user.displayName || user.email || 'Unknown',
+              id: doc.id
+            });
           });
-        }
-        
-        // Check for new users (if many new registrations)
-        const yesterday = new Date();
-        yesterday.setDate(yesterday.getDate() - 1);
-        const newUsersSnap = await dashboardDB.collection('users')
-          .where('createdAt', '>=', yesterday)
-          .get();
-        
-        if (newUsersSnap.size > 20) {
-          alerts.push({
-            type: 'info',
-            message: `${newUsersSnap.size} new users in 24h`,
-            icon: 'bi-info-circle'
-          });
-        }
-        
-        let alertsHTML = '';
-        
-        if (alerts.length === 0) {
-          alertsHTML = '<div class="text-success text-center py-3"><i class="bi bi-check-circle"></i> All systems operational</div>';
-        } else {
-          alerts.forEach(alert => {
-            alertsHTML += `
-              <div class="alert alert-${alert.type} alert-sm mb-2">
-                <i class="bi ${alert.icon} me-2"></i>
-                ${alert.message}
+          
+          // Sort by time
+          activities.sort((a, b) => b.time - a.time);
+          
+          // Display activities
+          activities.slice(0, 8).forEach(activity => {
+            const timeAgo = getTimeAgo(activity.time);
+            const icon = activity.type === 'listing' ? 'bi-list-ul' : 'bi-person-plus';
+            const color = activity.type === 'listing' ? 'text-primary' : 'text-success';
+            
+            activityHTML += `
+              <div class="recent-activity-item">
+                <div class="d-flex align-items-center">
+                  <i class="bi ${icon} ${color} me-2"></i>
+                  <div class="flex-grow-1">
+                    <div class="fw-semibold">${activity.title}</div>
+                    <div class="text-muted small">by ${activity.user}</div>
+                  </div>
+                  <div class="activity-time">${timeAgo}</div>
+                </div>
               </div>
             `;
           });
+          
+          if (activities.length === 0) {
+            activityHTML = '<div class="text-muted text-center py-3">No recent activity</div>';
+          }
+          
+          activityContainer.innerHTML = activityHTML;
+          
+        } catch (error) {
+          console.error('Error loading recent activity:', error);
+          document.getElementById('recentActivity').innerHTML = '<div class="text-danger text-center py-3">Failed to load activity</div>';
         }
-        
-        alertsContainer.innerHTML = alertsHTML;
-        
-      } catch (error) {
-        console.error('Error loading system alerts:', error);
-        document.getElementById('systemAlerts').innerHTML = '<div class="text-danger text-center py-3">Failed to load alerts</div>';
       }
-    }
 
-    // Initialize charts
-    function initializeCharts() {
-      // Listings by category chart
-      const listingsCtx = document.getElementById('listingsChart').getContext('2d');
-      listingsChart = new Chart(listingsCtx, {
-        type: 'bar',
-        data: {
-          labels: ['Properties', 'Vehicles', 'Land', 'Commercial'],
-          datasets: [{
-            label: 'Listings',
-            data: [0, 0, 0, 0],
-            backgroundColor: [
-              'rgba(13, 110, 253, 0.8)',
-              'rgba(25, 135, 84, 0.8)',
-              'rgba(255, 193, 7, 0.8)',
-              'rgba(220, 53, 69, 0.8)'
-            ]
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: true,
-          aspectRatio: 2,
-          plugins: {
-            legend: { display: false },
-            tooltip: { enabled: true, mode: 'index', intersect: false }
+      // Load system alerts
+      async function loadSystemAlerts() {
+        try {
+          if (!dashboardDB) {
+            console.error('Firestore not initialized');
+            return;
+          }
+          
+          const alertsContainer = document.getElementById('systemAlerts');
+          
+          // Check for various system issues
+          const alerts = [];
+          
+          // Check for pending approvals
+          const pendingSnap = await dashboardDB.collection('listings').where('status', '==', 'pending').get();
+          if (pendingSnap.size > 10) {
+            alerts.push({
+              type: 'warning',
+              message: `${pendingSnap.size} listings pending approval`,
+              icon: 'bi-exclamation-triangle'
+            });
+          }
+          
+          // Check for system errors (placeholder)
+          if (Math.random() > 0.8) {
+            alerts.push({
+              type: 'danger',
+              message: 'High server load detected',
+              icon: 'bi-exclamation-circle'
+            });
+          }
+          
+          // Check for new users (if many new registrations)
+          const yesterday = new Date();
+          yesterday.setDate(yesterday.getDate() - 1);
+          const newUsersSnap = await dashboardDB.collection('users')
+            .where('createdAt', '>=', yesterday)
+            .get();
+          
+          if (newUsersSnap.size > 20) {
+            alerts.push({
+              type: 'info',
+              message: `${newUsersSnap.size} new users in 24h`,
+              icon: 'bi-info-circle'
+            });
+          }
+          
+          let alertsHTML = '';
+          
+          if (alerts.length === 0) {
+            alertsHTML = '<div class="text-success text-center py-3"><i class="bi bi-check-circle"></i> All systems operational</div>';
+          } else {
+            alerts.forEach(alert => {
+              alertsHTML += `
+                <div class="alert alert-${alert.type} alert-sm mb-2">
+                  <i class="bi ${alert.icon} me-2"></i>
+                  ${alert.message}
+                </div>
+              `;
+            });
+          }
+          
+          alertsContainer.innerHTML = alertsHTML;
+          
+        } catch (error) {
+          console.error('Error loading system alerts:', error);
+          document.getElementById('systemAlerts').innerHTML = '<div class="text-danger text-center py-3">Failed to load alerts</div>';
+        }
+      }
+
+      // Initialize charts
+      function initializeCharts() {
+        // Listings by category chart
+        const listingsCtx = document.getElementById('listingsChart').getContext('2d');
+        listingsChart = new Chart(listingsCtx, {
+          type: 'bar',
+          data: {
+            labels: ['Properties', 'Vehicles', 'Land', 'Commercial'],
+            datasets: [{
+              label: 'Listings',
+              data: [0, 0, 0, 0],
+              backgroundColor: [
+                'rgba(13, 110, 253, 0.8)',
+                'rgba(25, 135, 84, 0.8)',
+                'rgba(255, 193, 7, 0.8)',
+                'rgba(220, 53, 69, 0.8)'
+              ]
+            }]
           },
-          scales: {
-            x: {
-              grid: { display: false },
-              title: { display: true, text: 'Category', font: { weight: 'bold' } }
+          options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            aspectRatio: 2,
+            plugins: {
+              legend: { display: false },
+              tooltip: { enabled: true, mode: 'index', intersect: false }
             },
-            y: {
-              beginAtZero: true,
-              grid: { color: '#e9ecef' },
-              title: { display: true, text: 'Listings', font: { weight: 'bold' } }
+            scales: {
+              x: {
+                grid: { display: false },
+                title: { display: true, text: 'Category', font: { weight: 'bold' } }
+              },
+              y: {
+                beginAtZero: true,
+                grid: { color: '#e9ecef' },
+                title: { display: true, text: 'Listings', font: { weight: 'bold' } }
+              }
             }
           }
-        }
-      });
-      
-      // Users distribution chart
-      const usersCtx = document.getElementById('usersChart').getContext('2d');
-      usersChart = new Chart(usersCtx, {
-        type: 'doughnut',
-        data: {
-          labels: ['Regular Users', 'Agents', 'Admins'],
-          datasets: [{
-            data: [0, 0, 0],
-            backgroundColor: [
-              'rgba(13, 110, 253, 0.8)',
-              'rgba(25, 135, 84, 0.8)',
-              'rgba(255, 193, 7, 0.8)'
-            ]
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: true,
-          aspectRatio: 1.2,
-          plugins: {
-            legend: { display: true, position: 'bottom' },
-            tooltip: { enabled: true, mode: 'index', intersect: false }
+        });
+        
+        // Users distribution chart
+        const usersCtx = document.getElementById('usersChart').getContext('2d');
+        usersChart = new Chart(usersCtx, {
+          type: 'doughnut',
+          data: {
+            labels: ['Regular Users', 'Agents', 'Admins'],
+            datasets: [{
+              data: [0, 0, 0],
+              backgroundColor: [
+                'rgba(13, 110, 253, 0.8)',
+                'rgba(25, 135, 84, 0.8)',
+                'rgba(255, 193, 7, 0.8)'
+              ]
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            aspectRatio: 1.2,
+            plugins: {
+              legend: { display: true, position: 'bottom' },
+              tooltip: { enabled: true, mode: 'index', intersect: false }
+            }
           }
-        }
-      });
-    }
+        });
+      }
 
-    // Update charts with real data
-    async function updateCharts() {
-      try {
+      // Update charts with real data
+      async function updateCharts() {
+        try {
+          if (!dashboardDB) {
+            console.error('Firestore not initialized');
+            return;
+          }
+          
+          // Get listings by category
+          const propertyListings = await dashboardDB.collection('listings')
+            .where('listingType', 'in', ['house_sale', 'house_rent', 'vacation_short_stay'])
+            .get();
+          
+          const vehicleListings = await dashboardDB.collection('listings')
+            .where('listingType', '==', 'vehicle')
+            .get();
+          
+          const landListings = await dashboardDB.collection('listings')
+            .where('listingType', 'in', ['land_sale', 'land_rent'])
+            .get();
+          
+          const commercialListings = await dashboardDB.collection('listings')
+            .where('listingType', '==', 'commercial')
+            .get();
+          
+          // Update listings chart
+          listingsChart.data.datasets[0].data = [
+            propertyListings.size,
+            vehicleListings.size,
+            landListings.size,
+            commercialListings.size
+          ];
+          listingsChart.update();
+          
+          // Get users by role
+          const regularUsers = await dashboardDB.collection('users')
+            .where('role', '==', 'user')
+            .get();
+          
+          const agents = await dashboardDB.collection('users')
+            .where('role', '==', 'agent')
+            .get();
+          
+          const admins = await dashboardDB.collection('users')
+            .where('role', '==', 'admin')
+            .get();
+          
+          // Update users chart
+          usersChart.data.datasets[0].data = [
+            regularUsers.size,
+            agents.size,
+            admins.size
+          ];
+          usersChart.update();
+          
+        } catch (error) {
+          console.error('Error updating charts:', error);
+        }
+      }
+
+      // Setup real-time listeners
+      function setupRealtimeListeners() {
         if (!dashboardDB) {
           console.error('Firestore not initialized');
           return;
         }
         
-        // Get listings by category
-        const propertyListings = await dashboardDB.collection('listings')
-          .where('listingType', 'in', ['house_sale', 'house_rent', 'vacation_short_stay'])
-          .get();
+        // Listen for new listings
+        dashboardDB.collection('listings')
+          .orderBy('createdAt', 'desc')
+          .limit(1)
+          .onSnapshot(snapshot => {
+            if (!snapshot.empty) {
+              // Refresh stats when new listing is added
+              loadDashboardStats();
+              loadRecentActivity();
+            }
+          });
         
-        const vehicleListings = await dashboardDB.collection('listings')
-          .where('listingType', '==', 'vehicle')
-          .get();
+        // Listen for new users
+        dashboardDB.collection('users')
+          .orderBy('createdAt', 'desc')
+          .limit(1)
+          .onSnapshot(snapshot => {
+            if (!snapshot.empty) {
+              // Refresh stats when new user is added
+              loadDashboardStats();
+              loadRecentActivity();
+            }
+          });
+      }
+
+      // Utility functions
+      function getTimeAgo(timestamp) {
+        if (!timestamp) return 'Unknown';
         
-        const landListings = await dashboardDB.collection('listings')
-          .where('listingType', 'in', ['land_sale', 'land_rent'])
-          .get();
+        const now = new Date();
+        const time = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+        const diffInSeconds = Math.floor((now - time) / 1000);
         
-        const commercialListings = await dashboardDB.collection('listings')
-          .where('listingType', '==', 'commercial')
-          .get();
-        
-        // Update listings chart
-        listingsChart.data.datasets[0].data = [
-          propertyListings.size,
-          vehicleListings.size,
-          landListings.size,
-          commercialListings.size
+        if (diffInSeconds < 60) return 'Just now';
+        if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`;
+        if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`;
+        return `${Math.floor(diffInSeconds / 86400)}d ago`;
+      }
+
+      function refreshStats() {
+        loadDashboardStats();
+        loadRecentActivity();
+        loadSystemAlerts();
+        showToast('Dashboard refreshed');
+      }
+
+      function exportData() {
+        // Create CSV data
+        const csvData = [
+          ['Metric', 'Value'],
+          ['Total Listings', statsData.totalListings || 0],
+          ['Total Users', statsData.totalUsers || 0],
+          ['Total Stores', statsData.totalStores || 0],
+          ['Pending Approvals', statsData.pendingApprovals || 0],
+          ['Active Conversations', statsData.activeConversations || 0],
+          ['Total Views', statsData.totalViews || 0],
+          ['Total Reviews', statsData.totalReviews || 0],
+          ['Average Rating', statsData.avgRating || 0],
+          ['Total Revenue', statsData.totalRevenue || 0]
         ];
-        listingsChart.update();
         
-        // Get users by role
-        const regularUsers = await dashboardDB.collection('users')
-          .where('role', '==', 'user')
-          .get();
+        const csvContent = csvData.map(row => row.join(',')).join('\n');
+        const blob = new Blob([csvContent], { type: 'text/csv' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `starlet-dashboard-${new Date().toISOString().split('T')[0]}.csv`;
+        a.click();
+        window.URL.revokeObjectURL(url);
         
-        const agents = await dashboardDB.collection('users')
-          .where('role', '==', 'agent')
-          .get();
-        
-        const admins = await dashboardDB.collection('users')
-          .where('role', '==', 'admin')
-          .get();
-        
-        // Update users chart
-        usersChart.data.datasets[0].data = [
-          regularUsers.size,
-          agents.size,
-          admins.size
-        ];
-        usersChart.update();
-        
-      } catch (error) {
-        console.error('Error updating charts:', error);
+        showToast('Data exported successfully');
       }
-    }
 
-    // Setup real-time listeners
-    function setupRealtimeListeners() {
-      if (!dashboardDB) {
-        console.error('Firestore not initialized');
-        return;
-      }
-      
-      // Listen for new listings
-      dashboardDB.collection('listings')
-        .orderBy('createdAt', 'desc')
-        .limit(1)
-        .onSnapshot(snapshot => {
-          if (!snapshot.empty) {
-            // Refresh stats when new listing is added
-            loadDashboardStats();
-            loadRecentActivity();
-          }
-        });
-      
-      // Listen for new users
-      dashboardDB.collection('users')
-        .orderBy('createdAt', 'desc')
-        .limit(1)
-        .onSnapshot(snapshot => {
-          if (!snapshot.empty) {
-            // Refresh stats when new user is added
-            loadDashboardStats();
-            loadRecentActivity();
-          }
-        });
-    }
-
-    // Utility functions
-    function getTimeAgo(timestamp) {
-      if (!timestamp) return 'Unknown';
-      
-      const now = new Date();
-      const time = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
-      const diffInSeconds = Math.floor((now - time) / 1000);
-      
-      if (diffInSeconds < 60) return 'Just now';
-      if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`;
-      if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`;
-      return `${Math.floor(diffInSeconds / 86400)}d ago`;
-    }
-
-    function refreshStats() {
-      loadDashboardStats();
-      loadRecentActivity();
-      loadSystemAlerts();
-      showToast('Dashboard refreshed');
-    }
-
-    function exportData() {
-      // Create CSV data
-      const csvData = [
-        ['Metric', 'Value'],
-        ['Total Listings', statsData.totalListings || 0],
-        ['Total Users', statsData.totalUsers || 0],
-        ['Total Stores', statsData.totalStores || 0],
-        ['Pending Approvals', statsData.pendingApprovals || 0],
-        ['Active Conversations', statsData.activeConversations || 0],
-        ['Total Views', statsData.totalViews || 0],
-        ['Total Reviews', statsData.totalReviews || 0],
-        ['Average Rating', statsData.avgRating || 0],
-        ['Total Revenue', statsData.totalRevenue || 0]
-      ];
-      
-      const csvContent = csvData.map(row => row.join(',')).join('\n');
-      const blob = new Blob([csvContent], { type: 'text/csv' });
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `starlet-dashboard-${new Date().toISOString().split('T')[0]}.csv`;
-      a.click();
-      window.URL.revokeObjectURL(url);
-      
-      showToast('Data exported successfully');
-    }
-
-    function approveAllPending() {
-      if (confirm('Are you sure you want to approve all pending listings?')) {
-        // This would need to be implemented with proper batch operations
-        showToast('Approval process started');
-      }
-    }
-
-    function generateReport() {
-      showToast('Report generation started');
-      // This would generate a comprehensive report
-    }
-
-    function backupData() {
-      showToast('Backup process started');
-      // This would trigger a data backup
-    }
-
-    function showToast(message) {
-      // Simple toast implementation
-      const toast = document.createElement('div');
-      toast.className = 'position-fixed top-0 end-0 p-3';
-      toast.style.zIndex = '9999';
-      toast.innerHTML = `
-        <div class="toast show" role="alert">
-          <div class="toast-header">
-            <strong class="me-auto">Admin Dashboard</strong>
-            <button type="button" class="btn-close" onclick="this.closest('.toast').remove()"></button>
-          </div>
-          <div class="toast-body">${message}</div>
-        </div>
-      `;
-      document.body.appendChild(toast);
-      
-      setTimeout(() => {
-        if (toast.parentNode) {
-          toast.remove();
+      function approveAllPending() {
+        if (confirm('Are you sure you want to approve all pending listings?')) {
+          // This would need to be implemented with proper batch operations
+          showToast('Approval process started');
         }
-      }, 3000);
-    }
+      }
 
-    function showError(message) {
-      showToast('Error: ' + message);
-    }
-  </script>
-</body>
-</html> 
+      function generateReport() {
+        showToast('Report generation started');
+        // This would generate a comprehensive report
+      }
+
+      function backupData() {
+        showToast('Backup process started');
+        // This would trigger a data backup
+      }
+
+      function showToast(message) {
+        // Simple toast implementation
+        const toast = document.createElement('div');
+        toast.className = 'position-fixed top-0 end-0 p-3';
+        toast.style.zIndex = '9999';
+        toast.innerHTML = `
+          <div class="toast show" role="alert">
+            <div class="toast-header">
+              <strong class="me-auto">Admin Dashboard</strong>
+              <button type="button" class="btn-close" onclick="this.closest('.toast').remove()"></button>
+            </div>
+            <div class="toast-body">${message}</div>
+          </div>
+        `;
+        document.body.appendChild(toast);
+        
+        setTimeout(() => {
+          if (toast.parentNode) {
+            toast.remove();
+          }
+        }, 3000);
+      }
+
+      function showError(message) {
+        showToast('Error: ' + message);
+      }
+    </script>
+  </body>
+  </html> 
