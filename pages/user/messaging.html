@@ -1082,7 +1082,9 @@ body {
 @media (max-width: 900px) {
   .chat-container {
     flex-direction: column;
-    min-height: 70vh;
+    min-height: 60vh;
+    max-height: none;
+    height: auto;
   }
   .chat-sidebar {
     max-width: 100vw;
@@ -1090,9 +1092,15 @@ body {
     border-right: none;
     border-bottom: 1px solid #e3e6ee;
     box-shadow: none;
+    height: 180px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    display: flex;
+    flex-direction: row;
   }
   .chat-main {
     border-radius: 0 0 1.5rem 1.5rem;
+    min-height: 300px;
   }
 }
 @media (max-width: 600px) {
@@ -1107,6 +1115,10 @@ body {
   }
   .chat-input-bar {
     padding: 0.7rem 0.5rem;
+  }
+  .chat-sidebar {
+    height: 120px;
+    font-size: 0.95em;
   }
 }
 </style>
@@ -1307,19 +1319,21 @@ body {
     // Start listening for unread messages
     function startUnreadMessagesListener() {
       if (!db || !window.currentUser) return;
-      
       // Listen to conversations where current user is a participant
       unreadMessagesListener = db.collection('conversations')
         .where('participants', 'array-contains', window.currentUser.id)
-        .onSnapshot(snap => {
+        .onSnapshot(async snap => {
           let totalUnread = 0;
-          snap.forEach(doc => {
-            const data = doc.data();
-            if (data.unreadCount && data.unreadCount > 0) {
-              totalUnread += data.unreadCount;
-            }
-          });
-          
+          // For each conversation, count unread messages not sent by the current user
+          for (const doc of snap.docs) {
+            const convId = doc.id;
+            const messagesSnap = await db.collection('conversations').doc(convId)
+              .collection('messages')
+              .where('read', '==', false)
+              .where('senderId', '!=', window.currentUser.id)
+              .get();
+            totalUnread += messagesSnap.size;
+          }
           updateUnreadBadge(totalUnread);
         });
     }
@@ -1328,9 +1342,7 @@ body {
     function updateUnreadBadge(count) {
       const badge = document.getElementById('unreadMessagesBadge');
       if (!badge) return;
-      
       totalUnreadCount = count;
-      
       if (count > 0) {
         badge.textContent = count > 99 ? '99+' : count.toString();
         badge.classList.remove('d-none');
