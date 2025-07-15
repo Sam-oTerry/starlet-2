@@ -600,6 +600,32 @@
         padding: 0.5rem; 
       } 
     }
+    
+    /* Unread message badge (WhatsApp style) */
+    #unreadMessagesBadge {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: #dc3545 !important;
+      color: #fff !important;
+      font-size: 0.85rem !important;
+      font-weight: 700;
+      border-radius: 50%;
+      min-width: 20px;
+      height: 20px;
+      line-height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 6px;
+      box-shadow: 0 2px 8px rgba(220,53,69,0.15);
+      z-index: 2;
+      border: 2px solid #fff;
+    }
+
+    #unreadMessagesBadge.d-none {
+      display: none !important;
+    }
   </style>
 </head>
 <body>
@@ -876,8 +902,10 @@ body {
   border-radius: 1.5rem;
   overflow: hidden;
   background: #f4f6fb;
-  min-height: 80vh;
+  min-height: 60vh; /* Reduced from 80vh */
+  max-height: 70vh; /* Add a max height for compactness */
   margin-bottom: 2rem;
+  height: 60vh;
 }
 
 .chat-sidebar {
