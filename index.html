@@ -36,8 +36,26 @@
 
         /* Header */
         .navbar-brand {
-            font-weight: 700;
-            font-size: 1.5rem;
+            font-weight: 800;
+            font-size: 1.7rem;
+            letter-spacing: 1px;
+            margin-right: 2rem;
+            padding-right: 0.5rem;
+        }
+
+        .navbar-actions {
+            margin-left: auto !important;
+            gap: 0.85rem !important;
+        }
+
+        @media (max-width: 991.98px) {
+            .navbar-brand {
+                margin-right: 0.5rem;
+                padding-right: 0;
+            }
+            .navbar-actions {
+                gap: 0.6rem !important;
+            }
         }
 
         .navbar-brand .star {
@@ -462,53 +480,56 @@
 </head>
 <body>
     <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-custom">
-        <div class="container">
-            <a class="navbar-brand" href="./index.html">
-                <span class="brand-star">Star</span> <span class="brand-let">Let</span>
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto mb-2 mb-lg-0 d-flex align-items-center" style="gap: 0.7rem;">
-                    <li class="nav-item">
-                        <a class="nav-link icon-circle" href="./pages/user/saved.html" title="Saved">
-                            <i class="bi bi-bookmark"></i>
-                        </a>
-                    </li>
-                    <li class="nav-item position-relative">
-                        <a class="nav-link icon-circle position-relative" href="./pages/user/messaging.html" title="Messages" id="messagesNavLink">
-                            <i class="bi bi-chat-dots"></i>
-                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none" id="unreadMessagesBadge">0</span>
-                        </a>
-                    </li>
-                    <li class="nav-item position-relative" id="nav-notification-bell">
-                        <a class="nav-link icon-circle position-relative" href="./pages/user/notifications.html" title="Notifications">
-                            <i class="bi bi-bell"></i>
-                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none" id="notification-badge">0</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link icon-circle" id="myListingsLink" href="./pages/stores/index.html" title="My Listings">
-                            <i class="bi bi-card-list"></i>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link icon-circle" id="profileLink" href="#" title="Profile">
-                            <i class="bi bi-person"></i>
-                        </a>
-                    </li>
-                    <li class="nav-item ms-2">
-                        <a class="btn btn-warning fw-bold px-4" href="./pages/dashboard/listings/add.html" style="color: #fff; border-radius: 8px;">SELL</a>
-                    </li>
-                    <li class="nav-item ms-2" id="authButtonContainer">
-                        <a class="btn btn-outline-primary fw-bold px-4" id="authButton" href="./pages/auth/login.html" style="border-radius: 8px;">Login / Signup</a>
-                    </li>
-                </ul>
-            </div>
+    <nav class="navbar navbar-expand-lg navbar-custom modern-navbar shadow-sm">
+      <div class="container d-flex align-items-center justify-content-between">
+        <!-- Brand Left -->
+        <a class="navbar-brand" href="./index.html">
+          <span class="brand-star">Star</span> <span class="brand-let">Let</span>
+        </a>
+        <!-- Toggler for mobile -->
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+          <ul class="navbar-nav navbar-actions d-flex align-items-center gap-3 mb-2 mb-lg-0">
+            <li class="nav-item">
+              <a class="nav-link icon-circle" href="./pages/user/saved.html" title="Saved">
+                <i class="bi bi-bookmark"></i>
+              </a>
+            </li>
+            <li class="nav-item position-relative">
+              <a class="nav-link icon-circle position-relative" href="./pages/user/messaging.html" title="Messages" id="messagesNavLink">
+                <i class="bi bi-chat-dots"></i>
+                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none" id="unreadMessagesBadge">0</span>
+              </a>
+            </li>
+            <li class="nav-item position-relative" id="nav-notification-bell">
+              <a class="nav-link icon-circle position-relative" href="./pages/user/notifications.html" title="Notifications">
+                <i class="bi bi-bell"></i>
+                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none" id="notification-badge">0</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link icon-circle" id="myListingsLink" href="./pages/stores/index.html" title="My Listings">
+                <i class="bi bi-card-list"></i>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link icon-circle" id="profileLink" href="#" title="Profile">
+                <i class="bi bi-person"></i>
+              </a>
+            </li>
+            <li class="nav-item ms-2">
+              <a class="btn btn-warning fw-bold px-4" href="./pages/dashboard/listings/add.html" style="color: #fff; border-radius: 8px;">SELL</a>
+            </li>
+            <li class="nav-item ms-2" id="authButtonContainer">
+              <a class="btn btn-outline-primary fw-bold px-4" id="authButton" href="./pages/auth/login.html" style="border-radius: 8px;">Login / Signup</a>
+            </li>
+          </ul>
         </div>
+      </div>
     </nav>
+
     <style>
     .icon-circle {
         background: #fff;
@@ -525,11 +546,14 @@
         transition: background 0.2s, color 0.2s;
         position: relative;
     }
-    .icon-circle:hover, .icon-circle:focus {
+
+    .navbar-custom .icon-circle:hover, .navbar-custom .icon-circle:focus {
         background: #e3f0ff;
         color: var(--primary-color);
         text-decoration: none;
+        box-shadow: 0 2px 8px rgba(13,110,253,0.08);
     }
+
     .navbar-custom .btn-warning {
         background: var(--accent-gold) !important;
         border: none;
@@ -538,6 +562,7 @@
         font-size: 1.1rem;
         box-shadow: 0 1px 4px rgba(0,0,0,0.07);
     }
+
     .navbar-custom .btn-warning:hover {
         background: #ffd700cc !important;
         color: #03254c !important;
