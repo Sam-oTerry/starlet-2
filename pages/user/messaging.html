@@ -800,7 +800,7 @@
     }
 
     // Enhanced authentication with better user experience
-    auth.onAuthStateChanged(async user => {
+    firebase.auth().onAuthStateChanged(async user => {
       if (!user) {
         console.log('No user logged in, redirecting to login');
         window.location.href = '/pages/auth/login.html';
@@ -867,7 +867,7 @@
         document.getElementById('logoutBtn').onclick = function(e) {
           e.preventDefault();
           if (confirm('Are you sure you want to logout?')) {
-          auth.signOut();
+          firebase.auth().signOut();
             showToast('Logging out...', 'info');
           }
         };

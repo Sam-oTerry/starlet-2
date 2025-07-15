@@ -825,10 +825,65 @@
         });
         
         // Google sign in/up
-        document.addEventListener('click', function(e) {
+        document.addEventListener('click', async function(e) {
             if (e.target.closest('.btn-outline') && e.target.closest('.btn-outline').textContent.includes('Google')) {
                 console.log('Google sign ' + (currentMode === 'login' ? 'in' : 'up') + ' clicked');
-                // Implement Google sign in/up logic
+                if (!window.firebaseAuth || !window.firebaseDB) {
+                    alert('Firebase not initialized. Please try again later.');
+                    return;
+                }
+                try {
+                    // Use Firebase Auth Google provider
+                    const provider = new firebase.auth.GoogleAuthProvider();
+                    const result = await window.firebaseAuth.signInWithPopup(provider);
+                    const user = result.user;
+                    if (!user) throw new Error('No user returned from Google sign-in.');
+                    // Fetch user role from Firestore
+                    let role = 'user';
+                    let userDoc = await window.firebaseDB.collection('users').doc(user.uid).get();
+                    if (!userDoc.exists) {
+                        // If user doc doesn't exist, create it (first time Google login)
+                        await window.firebaseDB.collection('users').doc(user.uid).set({
+                            email: user.email,
+                            displayName: user.displayName || '',
+                            photoURL: user.photoURL || '',
+                            role: 'user',
+                            createdAt: new Date()
+                        });
+                        userDoc = await window.firebaseDB.collection('users').doc(user.uid).get();
+                    }
+                    if (userDoc.exists && userDoc.data().role) {
+                        role = userDoc.data().role;
+                    }
+                    // Store user info in localStorage
+                    localStorage.setItem('starletUser', JSON.stringify({
+                        email: user.email,
+                        uid: user.uid,
+                        role: role
+                    }));
+                    // Redirect based on role
+                    if (role === 'admin') {
+                        window.location.href = '../admin/dashboard.html';
+                    } else {
+                        // Get returnUrl from query param or fallback to referrer or dashboard
+                        const params = new URLSearchParams(window.location.search);
+                        let returnUrl = params.get('returnUrl');
+                        if (!returnUrl) {
+                            try {
+                                const ref = document.referrer;
+                                if (ref && ref.startsWith(window.location.origin)) {
+                                    returnUrl = ref.replace(window.location.origin, '');
+                                }
+                            } catch (e) {}
+                        }
+                        if (!returnUrl || returnUrl.includes('login.html')) {
+                            returnUrl = '../dashboard/index.html';
+                        }
+                        window.location.href = returnUrl;
+                    }
+                } catch (error) {
+                    alert('Google sign-in failed: ' + (error.message || error));
+                }
             }
         });
         
