@@ -480,117 +480,181 @@
 </head>
 <body>
     <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-custom modern-navbar shadow-sm">
-      <div class="container d-flex align-items-center justify-content-between">
-        <!-- Brand Left -->
-        <a class="navbar-brand" href="./index.html">
-          <span class="brand-star">Star</span> <span class="brand-let">Let</span>
-        </a>
-        <!-- Toggler for mobile -->
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-          <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
-          <ul class="navbar-nav navbar-actions d-flex align-items-center gap-3 mb-2 mb-lg-0">
-            <li class="nav-item">
-              <a class="nav-link icon-circle" href="./pages/user/saved.html" title="Saved">
-                <i class="bi bi-bookmark"></i>
-              </a>
-            </li>
-            <li class="nav-item position-relative">
-              <a class="nav-link icon-circle position-relative" href="./pages/user/messaging.html" title="Messages" id="messagesNavLink">
-                <i class="bi bi-chat-dots"></i>
-                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none" id="unreadMessagesBadge">0</span>
-              </a>
-            </li>
-            <li class="nav-item position-relative" id="nav-notification-bell">
-              <a class="nav-link icon-circle position-relative" href="./pages/user/notifications.html" title="Notifications">
-                <i class="bi bi-bell"></i>
-                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none" id="notification-badge">0</span>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link icon-circle" id="myListingsLink" href="./pages/stores/index.html" title="My Listings">
-                <i class="bi bi-card-list"></i>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link icon-circle" id="profileLink" href="#" title="Profile">
-                <i class="bi bi-person"></i>
-              </a>
-            </li>
-            <li class="nav-item ms-2">
-              <a class="btn btn-warning fw-bold px-4" href="./pages/dashboard/listings/add.html" style="color: #fff; border-radius: 8px;">SELL</a>
-            </li>
-            <li class="nav-item ms-2" id="authButtonContainer">
-              <a class="btn btn-outline-primary fw-bold px-4" id="authButton" href="./pages/auth/login.html" style="border-radius: 8px;">Login / Signup</a>
-            </li>
-          </ul>
-        </div>
-      </div>
-    </nav>
+    <nav class="navbar navbar-expand-lg navbar-custom modern-navbar shadow-sm py-3 sticky-top w-100">
+  <div class="d-flex flex-row align-items-center justify-content-between w-100 px-3 px-md-4">
+    <!-- Brand Left -->
+    <a class="navbar-brand d-flex align-items-center gap-2 me-4 py-0" href="./index.html">
+      <span class="brand-star">Star</span> <span class="brand-let">Let</span>
+    </a>
+    <!-- Toggler for mobile -->
+    <button class="navbar-toggler ms-auto" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse flex-grow-1" id="navbarNav">
+      <ul class="navbar-nav d-flex align-items-center gap-2 ms-auto mb-2 mb-lg-0 w-100 justify-content-end">
+        <!-- Nav Icons Group -->
+        <li class="nav-item">
+          <a class="nav-link icon-circle" href="./pages/user/saved.html" title="Saved" aria-label="Saved">
+            <i class="bi bi-bookmark"></i>
+          </a>
+        </li>
+        <li class="nav-item position-relative">
+          <a class="nav-link icon-circle position-relative" href="./pages/user/messaging.html" title="Messages" aria-label="Messages" id="messagesNavLink">
+            <i class="bi bi-chat-dots"></i>
+            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none" id="unreadMessagesBadge">0</span>
+          </a>
+        </li>
+        <li class="nav-item position-relative" id="nav-notification-bell">
+          <a class="nav-link icon-circle position-relative" href="./pages/user/notifications.html" title="Notifications" aria-label="Notifications">
+            <i class="bi bi-bell"></i>
+            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none" id="notification-badge">0</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link icon-circle" id="myListingsLink" href="./pages/stores/index.html" title="My Listings" aria-label="My Listings">
+            <i class="bi bi-card-list"></i>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link icon-circle" id="profileLink" href="#" title="Profile" aria-label="Profile">
+            <i class="bi bi-person"></i>
+          </a>
+        </li>
+        <!-- Divider -->
+        <li class="vr mx-3 d-none d-lg-block" style="height: 32px; opacity: 0.15;"></li>
+        <!-- Action Buttons Group -->
+        <li class="nav-item ms-lg-2">
+          <a class="btn btn-warning fw-bold px-4 rounded-pill shadow-sm" href="./pages/dashboard/listings/add.html" style="color: #fff;">SELL</a>
+        </li>
+        <li class="nav-item ms-lg-2" id="authButtonContainer">
+          <a class="btn btn-outline-primary fw-bold px-4 rounded-pill shadow-sm" id="authButton" href="./pages/auth/login.html">Login / Signup</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
 
-    <style>
-    .icon-circle {
-        background: #fff;
-        border-radius: 50%;
-        width: 44px;
-        height: 44px;
-        display: flex !important;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.35rem;
-        color: #03254c;
-        box-shadow: 0 1px 4px rgba(0,0,0,0.07);
-        margin: 0 2px;
-        transition: background 0.2s, color 0.2s;
-        position: relative;
-    }
+<style>
+/* Modern Navbar Enhancements */
+.navbar-custom.modern-navbar {
+  background: #03254c !important;
+  border-bottom: 3px solid #ffd700;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.04) !important;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  z-index: 1030;
+}
 
-    .navbar-custom .icon-circle:hover, .navbar-custom .icon-circle:focus {
-        background: #e3f0ff;
-        color: var(--primary-color);
-        text-decoration: none;
-        box-shadow: 0 2px 8px rgba(13,110,253,0.08);
-    }
+.navbar-custom .navbar-brand {
+  font-weight: 800;
+  font-size: 1.7rem;
+  letter-spacing: 1px;
+  display: flex;
+  align-items: center;
+  gap: 0.2em;
+  margin-right: 0 !important;
+  padding-right: 0 !important;
+  padding-top: 0.1rem;
+  padding-bottom: 0.1rem;
+}
 
-    .navbar-custom .btn-warning {
-        background: var(--accent-gold) !important;
-        border: none;
-        color: #fff !important;
-        font-weight: 700;
-        font-size: 1.1rem;
-        box-shadow: 0 1px 4px rgba(0,0,0,0.07);
-    }
+.navbar-custom .navbar-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
 
-    .navbar-custom .btn-warning:hover {
-        background: #ffd700cc !important;
-        color: #03254c !important;
-    }
-    
-    /* Unread messages badge styling */
-    #unreadMessagesBadge {
-        font-size: 0.7rem;
-        min-width: 18px;
-        height: 18px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        animation: pulse 2s infinite;
-    }
-    
-    @keyframes pulse {
-        0% {
-            box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7);
-        }
-        70% {
-            box-shadow: 0 0 0 10px rgba(220, 53, 69, 0);
-        }
-        100% {
-            box-shadow: 0 0 0 0 rgba(220, 53, 69, 0);
-        }
-    }
-    </style>
+.icon-circle {
+  background: #fff;
+  border-radius: 50%;
+  width: 44px;
+  height: 44px;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.35rem;
+  color: #03254c;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+  margin: 0 2px;
+  transition: background 0.2s, color 0.2s;
+  position: relative;
+}
+
+.icon-circle:hover, .icon-circle:focus {
+  background: #e3f0ff;
+  color: var(--primary-color);
+  text-decoration: none;
+  box-shadow: 0 2px 8px rgba(13,110,253,0.08);
+}
+
+.navbar-custom .btn-warning {
+  background: var(--accent-gold) !important;
+  border: none;
+  color: #fff !important;
+  font-weight: 700;
+  font-size: 1.1rem;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+  border-radius: 50px;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+}
+
+.navbar-custom .btn-warning:hover {
+  background: #ffd700cc !important;
+  color: #03254c !important;
+}
+
+.navbar-custom .btn-outline-primary {
+  border-radius: 50px;
+  font-weight: 700;
+  font-size: 1.1rem;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+}
+
+.vr {
+  border-left: 2px solid #fff;
+  opacity: 0.15;
+  height: 32px;
+}
+
+@media (max-width: 991.98px) {
+  .navbar-custom .navbar-brand {
+    font-size: 1.4rem;
+  }
+  .navbar-custom .navbar-nav {
+    gap: 0.5rem !important;
+  }
+  .vr {
+    display: none !important;
+  }
+  .navbar-custom .btn-warning,
+  .navbar-custom .btn-outline-primary {
+    padding-top: 0.4rem;
+    padding-bottom: 0.4rem;
+    font-size: 1rem;
+  }
+  .navbar-custom.modern-navbar {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+}
+@media (max-width: 575.98px) {
+  .navbar-custom .navbar-brand {
+    font-size: 1.1rem;
+    padding-left: 0.2rem;
+  }
+  .navbar-custom.modern-navbar {
+    padding-left: 0.2rem;
+    padding-right: 0.2rem;
+  }
+}
+</style>
     <script>
     // Example: Replace with your actual agent ID logic
     document.addEventListener('DOMContentLoaded', function() {
@@ -924,7 +988,7 @@
     // Show/hide messaging link in navbar based on auth state
     (function() {
       function updateMessagingLink(user) {
-        var link = document.getElementById('nav-messaging-link');
+        var link = document.getElementById('messagesNavLink');
         if (!link) return;
         link.style.display = user ? '' : 'none';
       }
