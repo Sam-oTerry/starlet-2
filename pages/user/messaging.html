@@ -1795,16 +1795,11 @@ body {
     
     // Enhanced floating support button with click animation
     const floatingSupportBtn = document.getElementById('floatingSupportBtn');
-    floatingSupportBtn.onclick = function() {
-      // Add click animation
-      this.classList.add('clicked');
-      setTimeout(() => {
-        this.classList.remove('clicked');
-      }, 300);
-      
-      // Start admin conversation
-      startAdminConversation();
-    };
+    if (floatingSupportBtn) {
+      floatingSupportBtn.onclick = function() {
+        window.location.href = '/pages/user/messaging.html?support=1';
+      };
+    }
     
     // File handling functionality
     // Trigger file input when attachment button is clicked
@@ -1979,6 +1974,21 @@ body {
         waitForConv();
       }
     });
+
+    // On page load, if ?support=1, start chat with admin
+    if (window.location.search.includes('support=1')) {
+      document.addEventListener('DOMContentLoaded', function() {
+        // Wait for user to be authenticated and conversations loaded
+        const tryStartSupport = () => {
+          if (window.currentUser && typeof startAdminConversation === 'function') {
+            startAdminConversation();
+          } else {
+            setTimeout(tryStartSupport, 200);
+          }
+        };
+        tryStartSupport();
+      });
+    }
   </script>
   <script>
 // Enhanced My Listings logic (updated for agent-stores dashboard)
