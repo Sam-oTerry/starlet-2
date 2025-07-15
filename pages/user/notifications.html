@@ -326,7 +326,7 @@
   <script src="../../assets/js/firebase-config.js"></script>
   <script src="../../js/star-loading.js"></script>
   <script>
-    let currentUser = null;
+    window.currentUser = null;
     let notificationsListener = null;
 
     // Wait for Firebase to be initialized
@@ -344,7 +344,7 @@
       if (!user) {
         window.location.href = '/pages/auth/login.html';
       } else {
-          currentUser = user;
+          window.currentUser = user;
         loadNotifications(user.uid);
           setupRealTimeNotifications(user.uid);
       }
@@ -454,10 +454,10 @@
     }
 
     function markAsRead(notificationId) {
-      if (!currentUser) return;
+      if (!window.currentUser) return;
       
       const db = firebase.firestore();
-      db.collection('users').doc(currentUser.uid).collection('notifications')
+      db.collection('users').doc(window.currentUser.uid).collection('notifications')
         .doc(notificationId)
         .update({
           read: true,
@@ -558,8 +558,8 @@
     }
 
     function retryLoadNotifications() {
-      if (currentUser) {
-        loadNotifications(currentUser.uid);
+      if (window.currentUser) {
+        loadNotifications(window.currentUser.uid);
       } else {
         window.location.href = '/pages/auth/login.html';
       }

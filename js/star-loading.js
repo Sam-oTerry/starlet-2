@@ -110,7 +110,8 @@ function replaceSpinnersWithStars() {
     });
     
     // Replace text loading messages
-    const loadingTexts = document.querySelectorAll('div:contains("Loading..."), div:contains("Loading")');
+    // const loadingTexts = document.querySelectorAll('div:contains("Loading..."), div:contains("Loading")');
+    const loadingTexts = Array.from(document.querySelectorAll('div')).filter(element => /Loading/.test(element.textContent));
     loadingTexts.forEach(element => {
         if (element.textContent.includes('Loading')) {
             showStarLoading(element, element.textContent);
