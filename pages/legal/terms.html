@@ -413,5 +413,15 @@
       </div>
     </div>
   </footer>
+  <!-- Floating Support Button -->
+  <button id="floatingSupportBtn" class="floating-support-btn" title="Chat with Support">
+    <i class="bi bi-headset"></i>
+    <span class="tooltip">Chat with Support</span>
+  </button>
+  <script>
+  document.getElementById('floatingSupportBtn').onclick = function() {
+    window.location.href = '/pages/user/messaging.html?support=1';
+  };
+  </script>
 </body>
 </html>
