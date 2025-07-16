@@ -50,60 +50,57 @@
   </style>
 </head>
 <body class="bg-light">
-  <!-- Navbar -->
-<nav class="navbar navbar-expand-lg navbar-custom modern-navbar shadow-sm py-3 sticky-top w-100">
-  
-    <!-- Brand Left -->
-    <a class="navbar-brand d-flex align-items-center gap-2 me-4 py-0" href="../../index.html">
-      <span class="brand-star">Star</span> <span class="brand-let">Let</span>
-    </a>
-    <!-- Toggler for mobile -->
-    <button class="navbar-toggler ms-auto" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse flex-grow-1" id="navbarNav">
-      <ul class="navbar-nav d-flex align-items-center gap-2 ms-auto mb-2 mb-lg-0 w-100 justify-content-end">
-        <!-- Nav Icons Group -->
-        <li class="nav-item">
-          <a class="nav-link icon-circle" href="../user/saved.html" title="Saved" aria-label="Saved">
-            <i class="bi bi-bookmark"></i>
-          </a>
-        </li>
-        <li class="nav-item position-relative">
-          <a class="nav-link icon-circle position-relative" href="../user/messaging.html" title="Messages" aria-label="Messages" id="messagesNavLink">
-            <i class="bi bi-chat-dots"></i>
-            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none" id="unreadMessagesBadge">0</span>
-          </a>
-        </li>
-        <li class="nav-item position-relative" id="nav-notification-bell">
-          <a class="nav-link icon-circle position-relative" href="../user/notifications.html" title="Notifications" aria-label="Notifications">
-            <i class="bi bi-bell"></i>
-            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none" id="notification-badge">0</span>
-          </a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link icon-circle" id="myListingsLink" href="../stores/index.html" title="My Listings" aria-label="My Listings">
-            <i class="bi bi-card-list"></i>
-          </a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link icon-circle" id="profileLink" href="#" title="Profile" aria-label="Profile">
-            <i class="bi bi-person"></i>
-          </a>
-        </li>
-        <!-- Divider -->
-        <li class="vr mx-3 d-none d-lg-block" style="height: 32px; opacity: 0.15;"></li>
-        <!-- Action Buttons Group -->
-        <li class="nav-item ms-lg-2">
-          <a class="btn btn-warning fw-bold px-4 rounded-pill shadow-sm" href="../dashboard/listings/add.html" style="color: #fff;">SELL</a>
-        </li>
-        <li class="nav-item ms-lg-2" id="authButtonContainer">
-          <a class="btn btn-outline-primary fw-bold px-4 rounded-pill shadow-sm" id="authButton" href="../auth/login.html">Login / Signup</a>
-        </li>
-      </ul>
-    </div>
-  </div>
-</nav>
+     <!-- Navbar (copied from index.html) -->
+     <nav class="navbar navbar-expand-lg navbar-custom modern-navbar shadow-sm py-3 sticky-top w-100">
+      <div class="d-flex flex-row align-items-center justify-content-between w-100 px-3 px-md-4">
+        <!-- Brand Left -->
+        <a class="navbar-brand d-flex align-items-center gap-2 me-4 py-0" href="../../index.html">
+          <span class="brand-star">Star</span> <span class="brand-let">Let</span>
+        </a>
+        <!-- Toggler for mobile -->
+        <button class="navbar-toggler ms-auto" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse flex-grow-1" id="navbarNav">
+          <ul class="navbar-nav d-flex align-items-center gap-2 ms-auto mb-2 mb-lg-0 w-100 justify-content-end">
+            <li class="nav-item">
+              <a class="nav-link icon-circle" href="../user/saved.html" title="Saved" aria-label="Saved">
+                <i class="bi bi-bookmark"></i>
+              </a>
+            </li>
+            <li class="nav-item position-relative">
+              <a class="nav-link icon-circle position-relative" href="../user/messaging.html" title="Messages" aria-label="Messages" id="messagesNavLink">
+                <i class="bi bi-chat-dots"></i>
+                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none" id="unreadMessagesBadge">0</span>
+              </a>
+            </li>
+            <li class="nav-item position-relative" id="nav-notification-bell">
+              <a class="nav-link icon-circle position-relative" href="../user/notifications.html" title="Notifications" aria-label="Notifications">
+                <i class="bi bi-bell"></i>
+                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none" id="notification-badge">0</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link icon-circle" id="myListingsLink" href="../stores/index.html" title="My Listings" aria-label="My Listings">
+                <i class="bi bi-card-list"></i>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link icon-circle" id="profileLink" href="#" title="Profile" aria-label="Profile">
+                <i class="bi bi-person"></i>
+              </a>
+            </li>
+            <li class="vr mx-3 d-none d-lg-block" style="height: 32px; opacity: 0.15;"></li>
+            <li class="nav-item ms-lg-2">
+              <a class="btn btn-warning fw-bold px-4 rounded-pill shadow-sm" href="../dashboard/listings/add.html" style="color: #fff;">SELL</a>
+            </li>
+            <li class="nav-item ms-lg-2" id="authButtonContainer">
+              <a class="btn btn-outline-primary fw-bold px-4 rounded-pill shadow-sm" id="authButton" href="../auth/login.html">Login / Signup</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
   <style>
     .icon-circle {
       background: #fff;
