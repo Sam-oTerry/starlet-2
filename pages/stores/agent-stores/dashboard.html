@@ -126,7 +126,7 @@
       left: var(--sidebar-width);
       right: 0;
       height: 64px;
-      background: #fff;
+      background: var(--sidebar-bg); /* Match sidebar color */
       border-bottom: 1.5px solid #e3eaf5;
       display: flex;
       align-items: center;
@@ -134,21 +134,19 @@
       padding: 0 2rem;
       z-index: 1200;
       box-shadow: 0 2px 8px rgba(44,62,80,0.05);
-      transition: left var(--transition);
+      transition: left var(--transition), background 0.3s;
     }
-    .admin-sidebar.collapsed ~ .admin-navbar {
-      left: var(--sidebar-collapsed-width);
+    .admin-navbar .navbar-brand, .admin-navbar .brand-star {
+      color: var(--accent-gold);
     }
     .admin-navbar .navbar-brand {
       font-size: 1.3rem;
       font-weight: 700;
-      color: var(--primary-color);
       display: flex;
       align-items: center;
       gap: 0.3em;
     }
     .admin-navbar .brand-star {
-      color: var(--accent-gold);
       font-size: 1.3em;
       margin-right: 0.2em;
       filter: drop-shadow(0 0 4px #f1c40f88);
@@ -157,6 +155,7 @@
       position: relative;
       margin-right: 1.5rem;
       cursor: pointer;
+      color: #fff;
     }
     .admin-navbar .notification-bell .badge {
       position: absolute;
@@ -173,6 +172,7 @@
       display: flex;
       align-items: center;
       gap: 0.7em;
+      color: #fff;
     }
     .admin-navbar .profile-avatar {
       width: 36px;
@@ -188,6 +188,14 @@
       width: 100%;
       height: 100%;
       object-fit: cover;
+    }
+    .admin-navbar .navbar-toggler {
+      border: none;
+      background: none;
+      color: var(--accent-gold);
+      font-size: 1.7rem;
+      margin-left: 1rem;
+      display: none;
     }
     /* Main Content */
     body.admin-panel {
@@ -333,9 +341,11 @@
       body.admin-panel { padding-left: 200px !important; }
     }
     @media (max-width: 900px) {
-      .admin-sidebar, .admin-navbar { position: static !important; width: 100vw !important; left: 0 !important; }
-      body.admin-panel { padding-left: 0 !important; padding-top: 128px; }
-      .admin-navbar { top: 64px; }
+      .admin-sidebar { position: fixed; left: -100vw; top: 0; width: var(--sidebar-width); min-width: var(--sidebar-width); height: 100vh; z-index: 1300; transition: left var(--transition); }
+      .admin-sidebar.show { left: 0; }
+      .admin-navbar { left: 0; width: 100vw; }
+      body.admin-panel { padding-left: 0 !important; padding-top: 64px; }
+      .admin-navbar .navbar-toggler { display: inline-block; }
     }
     @media (max-width: 767.98px) {
       .admin-navbar { flex-direction: column; align-items: flex-start; padding: 0.5rem 1rem; height: auto; }
@@ -388,6 +398,13 @@
       background: linear-gradient(90deg, #f1c40f, #23272f);
       color: #23272f !important;
     }
+    body.dark-mode .admin-navbar {
+      background: #181d23 !important;
+      color: #fff !important;
+    }
+    body.dark-mode .admin-navbar .navbar-brand, body.dark-mode .admin-navbar .profile-dropdown, body.dark-mode .admin-navbar .notification-bell {
+      color: #f1c40f !important;
+    }
     body.dark-mode .card-header,
     body.dark-mode .card-body {
       background: #23272f !important;
@@ -409,7 +426,7 @@
   <aside class="admin-sidebar" id="sidebar">
     <div class="sidebar-brand">
       <span class="brand-star" aria-label="Starlet">★</span> Starlet
-      <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle sidebar"><i class="bi bi-list"></i></button>
+      <button class="sidebar-toggle d-none d-lg-inline" id="sidebarToggle" aria-label="Toggle sidebar"><i class="bi bi-list"></i></button>
     </div>
     <nav class="nav flex-column" aria-label="Sidebar navigation">
       <a class="nav-link active" href="dashboard.html"><i class="bi bi-house"></i> <span>Dashboard</span></a>
@@ -423,19 +440,24 @@
     </nav>
   </aside>
   <!-- Top Navbar -->
-  <nav class="admin-navbar">
-    <div class="navbar-brand">
-      <span class="brand-star" aria-label="Starlet">★</span> Agent Dashboard
-    </div>
-    <div class="d-flex align-items-center">
-      <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark/light mode"><i class="bi bi-moon-stars"></i></button>
-      <div class="notification-bell" tabindex="0" aria-label="Notifications">
-        <i class="bi bi-bell"></i>
-        <span class="badge" id="notificationBadge" style="display:none;">1</span>
-      </div>
-      <div class="profile-dropdown">
-        <div class="profile-avatar"><img src="/starlet-2/images/agent-avatar-default.png" alt="Agent Avatar"></div>
-        <span>Agent Name</span>
+  <nav class="admin-navbar navbar navbar-expand-lg" id="adminNavbar">
+    <div class="container-fluid px-0">
+      <a class="navbar-brand d-flex align-items-center" href="#">
+        <span class="brand-star" aria-label="Starlet">★</span> Agent Dashboard
+      </a>
+      <button class="navbar-toggler ms-auto d-lg-none" type="button" aria-label="Toggle navigation" id="navbarSidebarToggler">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="d-flex align-items-center ms-auto gap-3 flex-shrink-0">
+        <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark/light mode"><i class="bi bi-moon-stars"></i></button>
+        <div class="notification-bell" tabindex="0" aria-label="Notifications">
+          <i class="bi bi-bell"></i>
+          <span class="badge" id="notificationBadge" style="display:none;">1</span>
+        </div>
+        <div class="profile-dropdown">
+          <div class="profile-avatar"><img src="/starlet-2/images/agent-avatar-default.png" alt="Agent Avatar"></div>
+          <span>Agent Name</span>
+        </div>
       </div>
     </div>
   </nav>
@@ -568,10 +590,40 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.3.0/dist/chart.umd.min.js"></script>
   <script>
-    // Sidebar toggle
+    // Sidebar toggle for desktop
     document.getElementById('sidebarToggle').addEventListener('click', function() {
       document.getElementById('sidebar').classList.toggle('collapsed');
       document.body.classList.toggle('sidebar-collapsed');
+    });
+    // Sidebar toggle for mobile (hamburger)
+    document.getElementById('navbarSidebarToggler').addEventListener('click', function() {
+      document.getElementById('sidebar').classList.toggle('show');
+      // Overlay for closing sidebar
+      if (!document.getElementById('sidebarOverlay')) {
+        const overlay = document.createElement('div');
+        overlay.id = 'sidebarOverlay';
+        overlay.style.position = 'fixed';
+        overlay.style.top = '0';
+        overlay.style.left = '0';
+        overlay.style.width = '100vw';
+        overlay.style.height = '100vh';
+        overlay.style.background = 'rgba(30,40,50,0.4)';
+        overlay.style.zIndex = '1299';
+        overlay.onclick = function() {
+          document.getElementById('sidebar').classList.remove('show');
+          overlay.remove();
+        };
+        document.body.appendChild(overlay);
+      } else {
+        document.getElementById('sidebarOverlay').remove();
+      }
+    });
+    // Hide sidebar on resize if >900px
+    window.addEventListener('resize', function() {
+      if (window.innerWidth > 900) {
+        document.getElementById('sidebar').classList.remove('show');
+        if (document.getElementById('sidebarOverlay')) document.getElementById('sidebarOverlay').remove();
+      }
     });
 
     // Theme toggle (dark/light)
@@ -590,7 +642,7 @@
     }
 
     // Tooltips
-    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle=\"tooltip\"]'));
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
     tooltipTriggerList.forEach(function (tooltipTriggerEl) {
       new bootstrap.Tooltip(tooltipTriggerEl);
     });
