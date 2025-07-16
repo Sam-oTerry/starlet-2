@@ -591,7 +591,7 @@ function setupMyListingsLink(myListingsSelector = '#myListingsLink', loginPath =
     btn.title = 'Chat with Support';
     btn.innerHTML = '<i class="bi bi-headset"></i><span class="tooltip">Chat with Support</span>';
     btn.onclick = function() {
-      window.location.href = '/pages/user/messaging.html?support=1';
+      window.location.href = 'pages/user/messaging.html?support=1';
     };
     document.body.appendChild(btn);
   }
