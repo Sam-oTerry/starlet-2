@@ -644,10 +644,10 @@ document.addEventListener('DOMContentLoaded', function() {
           db.collection('users').doc(user.uid).get().then(function(userDoc) {
             var userData = userDoc.exists ? userDoc.data() : {};
             if (userData.role === 'agent') {
-              window.location.href = '../stores/agent-stores/create.html';
+              window.location.href = '/stores/agent-stores/create.html';
             } else {
               if (confirm('To list your properties, you need to create a store and select an agent tier. Would you like to get started?')) {
-                window.location.href = '../stores/agent-stores/create.html';
+                window.location.href = '/stores/agent-stores/create.html';
               }
             }
           });
