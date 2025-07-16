@@ -591,7 +591,10 @@ function setupMyListingsLink(myListingsSelector = '#myListingsLink', loginPath =
     btn.title = 'Chat with Support';
     btn.innerHTML = '<i class="bi bi-headset"></i><span class="tooltip">Chat with Support</span>';
     btn.onclick = function() {
-      window.location.href = 'pages/user/messaging.html?support=1';
+      // Dynamically detect base path for GitHub Pages subfolder support
+      var path = window.location.pathname;
+      var base = path.substring(0, path.indexOf('/', 1) + 1); // e.g. '/starlet-2/'
+      window.location.href = base + 'pages/user/messaging.html?support=1';
     };
     document.body.appendChild(btn);
   }
