@@ -372,6 +372,27 @@
     body.dark-mode .badge.bg-danger {
       color: #23272f !important;
     }
+    @media (min-width: 992px) {
+      .admin-sidebar { left: 0 !important; width: 240px !important; }
+      .main-content-with-sidebar { margin-left: 240px !important; }
+    }
+    @media (max-width: 991.98px) {
+      .admin-sidebar { left: -240px; }
+      .admin-sidebar.show { left: 0 !important; }
+      .main-content-with-sidebar { margin-left: 0 !important; }
+    }
+    .admin-sidebar .nav-link.active, .admin-sidebar .nav-link:hover, .admin-sidebar .nav-link:focus {
+      background: linear-gradient(90deg, var(--accent-gold) 0%, var(--accent-cyan) 100%);
+      color: var(--dark-color) !important;
+      font-weight: 600;
+      box-shadow: 0 2px 12px #ffd70033, 0 1.5px 8px #fff2;
+      outline: none;
+    }
+    .admin-sidebar .logout-link:hover, .admin-sidebar .logout-link:focus {
+      background: var(--accent-gold);
+      color: var(--dark-color) !important;
+      font-weight: 700;
+    }
   </style>
 </head>
 <body class="admin-panel">
@@ -426,8 +447,60 @@
       </div>
     </div>
   </nav>
+  <!-- Sidebar -->
+  <aside class="admin-sidebar" id="sidebar" style="top: 72px; background: var(--dark-color); color: #fff; position: fixed; left: 0; height: 100vh; width: 240px; z-index: 1200; box-shadow: 2px 0 16px 0 #0002; border-right: 1.5px solid #232f3e44; display: flex; flex-direction: column; transition: left 0.25s cubic-bezier(.4,2,.6,1);">
+    <div class="sidebar-brand d-flex align-items-center gap-2 py-4 px-3 mb-2" style="font-size: 1.3rem; font-weight: 700; color: var(--accent-gold); border-bottom: 1px solid #232f3e33;">
+      <span class="brand-star">★</span> <span>Starlet</span>
+      <button class="sidebar-toggle d-lg-none ms-auto btn btn-link text-light p-0" id="sidebarToggle" aria-label="Toggle sidebar"><i class="bi bi-list"></i></button>
+    </div>
+    <nav class="nav flex-column gap-1 px-2 mt-2" aria-label="Sidebar navigation">
+      <a class="nav-link d-flex align-items-center gap-2 text-white py-2 px-3 rounded-3" href="dashboard.html"><i class="bi bi-house"></i> <span>Dashboard</span></a>
+      <a class="nav-link d-flex align-items-center gap-2 text-white py-2 px-3 rounded-3" href="profile.html"><i class="bi bi-person"></i> <span>Store Profile</span></a>
+      <a class="nav-link d-flex align-items-center gap-2 text-white py-2 px-3 rounded-3" href="edit-profile.html"><i class="bi bi-pencil"></i> <span>Edit Profile</span></a>
+      <a class="nav-link d-flex align-items-center gap-2 text-white py-2 px-3 rounded-3" href="add-listing.html"><i class="bi bi-plus"></i> <span>Add Listing</span></a>
+      <a class="nav-link d-flex align-items-center gap-2 text-white py-2 px-3 rounded-3" href="analytics.html"><i class="bi bi-bar-chart"></i> <span>Analytics</span></a>
+      <a class="nav-link d-flex align-items-center gap-2 text-white py-2 px-3 rounded-3" href="premium.html"><i class="bi bi-gem"></i> <span>Premium Services</span></a>
+      <a class="nav-link d-flex align-items-center gap-2 text-white py-2 px-3 rounded-3" href="messages.html"><i class="bi bi-chat-dots"></i> <span>Messages</span></a>
+      <a class="logout-link nav-link d-flex align-items-center gap-2 text-warning py-2 px-3 rounded-3 mt-auto" href="#" aria-label="Logout"><i class="bi bi-box-arrow-right"></i> <span>Logout</span></a>
+    </nav>
+  </aside>
+  <style>
+    @media (min-width: 992px) {
+      .admin-sidebar { left: 0 !important; width: 240px !important; }
+      .main-content-with-sidebar { margin-left: 240px !important; }
+    }
+    @media (max-width: 991.98px) {
+      .admin-sidebar { left: -240px; }
+      .admin-sidebar.show { left: 0 !important; }
+      .main-content-with-sidebar { margin-left: 0 !important; }
+    }
+    .admin-sidebar .nav-link.active, .admin-sidebar .nav-link:hover, .admin-sidebar .nav-link:focus {
+      background: linear-gradient(90deg, var(--accent-gold) 0%, var(--accent-cyan) 100%);
+      color: var(--dark-color) !important;
+      font-weight: 600;
+      box-shadow: 0 2px 12px #ffd70033, 0 1.5px 8px #fff2;
+      outline: none;
+    }
+    .admin-sidebar .logout-link:hover, .admin-sidebar .logout-link:focus {
+      background: var(--accent-gold);
+      color: var(--dark-color) !important;
+      font-weight: 700;
+    }
+  </style>
+  <script>
+    // Sidebar toggle for mobile
+    document.addEventListener('DOMContentLoaded', function() {
+      var sidebar = document.getElementById('sidebar');
+      var toggle = document.getElementById('sidebarToggle');
+      if (toggle) {
+        toggle.addEventListener('click', function() {
+          sidebar.classList.toggle('show');
+        });
+      }
+    });
+  </script>
   <!-- Main Content -->
-  <main class="container-fluid" style="margin-top: 80px;">
+  <main class="container-fluid main-content-with-sidebar" style="margin-top: 90px;">
     <div class="row justify-content-center">
       <div class="col-xl-10 col-lg-11 col-md-12">
         <!-- Statistics Widgets -->
