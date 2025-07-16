@@ -249,9 +249,11 @@
   .saved-listings-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-    gap: 2rem 1.5rem;
-    margin-bottom: 2rem;
-    padding: 0.5rem 0;
+    gap: 2.5rem 2rem;
+    margin: 0 auto 2rem auto;
+    padding: 0 2vw;
+    max-width: 1400px;
+    box-sizing: border-box;
   }
   .saved-listing-card {
     margin: 0;
@@ -259,10 +261,18 @@
     min-width: 0;
     max-width: 100%;
   }
+  @media (max-width: 991.98px) {
+    .saved-listings-grid {
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1.5rem 1rem;
+      padding: 0 1vw;
+    }
+  }
   @media (max-width: 575.98px) {
     .saved-listings-grid {
       grid-template-columns: 1fr;
       gap: 1.2rem 0.5rem;
+      padding: 0 0.5vw;
     }
   }
   </style>
@@ -476,7 +486,7 @@
       });
     });
     </script>
-  <main class="container">
+  <main class="saved-main-wide">
     <div class="d-flex justify-content-between align-items-center mb-4">
       <div>
         <h2 class="mb-1"><i class="bi bi-bookmark-heart"></i> Saved Listings</h2>
