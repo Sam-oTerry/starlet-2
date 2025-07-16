@@ -431,7 +431,6 @@
   <script src="../../assets/js/firebase-config.js"></script>
   <script>
     // Initialize Firebase Auth and check user status
-    let currentUser = null;
     
     firebase.auth().onAuthStateChanged(function(user) {
       if (!user) {
@@ -440,7 +439,7 @@
         window.location.href = '/pages/auth/login.html';
       } else {
         // User is logged in, store user info and load saved listings
-        currentUser = user;
+        window.currentUser = user;
         console.log('User logged in:', user.email);
         
         // Update page title to show user's saved listings
@@ -466,8 +465,8 @@
       
       try {
         // Update user info display
-        if (currentUser) {
-          userInfoElement.textContent = `Showing saved listings for ${currentUser.email}`;
+        if (window.currentUser) {
+          userInfoElement.textContent = `Showing saved listings for ${window.currentUser.email}`;
         }
         
         // Show star loading animation
@@ -479,7 +478,7 @@
         if (savedSnap.empty) {
           document.getElementById('no-saved').classList.remove('d-none');
           container.innerHTML = '';
-          userInfoElement.textContent = currentUser ? `No saved listings found for ${currentUser.email}` : 'No saved listings found';
+          userInfoElement.textContent = window.currentUser ? `No saved listings found for ${window.currentUser.email}` : 'No saved listings found';
           return;
         }
         
@@ -489,7 +488,7 @@
         if (savedIds.length === 0) {
           document.getElementById('no-saved').classList.remove('d-none');
           container.innerHTML = '';
-          userInfoElement.textContent = currentUser ? `No saved listings found for ${currentUser.email}` : 'No saved listings found';
+          userInfoElement.textContent = window.currentUser ? `No saved listings found for ${window.currentUser.email}` : 'No saved listings found';
           return;
         }
         
@@ -554,8 +553,8 @@
         
         // Update user info with count
         const listingCount = listingsSnap.size;
-        userInfoElement.textContent = currentUser ? 
-          `Showing ${listingCount} saved listing${listingCount !== 1 ? 's' : ''} for ${currentUser.email}` : 
+        userInfoElement.textContent = window.currentUser ? 
+          `Showing ${listingCount} saved listing${listingCount !== 1 ? 's' : ''} for ${window.currentUser.email}` : 
           `Showing ${listingCount} saved listing${listingCount !== 1 ? 's' : ''}`;
         
       } catch (error) {
@@ -574,8 +573,8 @@
     
     // Function to refresh saved listings
     function refreshSavedListings() {
-      if (currentUser) {
-        loadSavedListings(currentUser.uid);
+      if (window.currentUser) {
+        loadSavedListings(window.currentUser.uid);
         showToast('Refreshing saved listings...', 'info');
       } else {
         showToast('Please log in to view saved listings', 'error');
