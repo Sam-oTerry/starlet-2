@@ -64,19 +64,22 @@ async function loadProperties(filters = {}) {
     let ref = db.collection('listings')
       .where('type', 'in', [
         'house_sale','house_rent','land_sale','land_rent','commercial','vacation_short_stay','property']);
-    if (filters.type) {
-      // Support both type and propertyType for filtering
-      ref = ref.where('propertyType', '==', filters.type);
-    }
     if (filters.location) ref = ref.where('location', '==', filters.location);
     if (filters.minPrice) ref = ref.where('price', '>=', filters.minPrice);
     if (filters.maxPrice) ref = ref.where('price', '<=', filters.maxPrice);
-    // For keyword, do client-side filter after fetch
+    // For keyword and type, do client-side filter after fetch
     const snap = await ref.orderBy('createdAt', 'desc').limit(24).get();
     let results = [];
     snap.forEach(doc => {
       results.push({id: doc.id, ...doc.data()});
     });
+    // Client-side filter for type/propertyType
+    if (filters.type) {
+      results = results.filter(d =>
+        (d.type === filters.type) ||
+        (d.type === 'property' && d.propertyType === filters.type)
+      );
+    }
     if (filters.keyword) {
       const kw = filters.keyword.toLowerCase();
       results = results.filter(d =>
