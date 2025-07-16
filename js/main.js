@@ -581,3 +581,18 @@ function setupMyListingsLink(myListingsSelector = '#myListingsLink', loginPath =
         window.location.href = createStorePath;
     });
 }
+
+// Inject floating support button if not present
+(function() {
+  if (!document.getElementById('floatingSupportBtn')) {
+    var btn = document.createElement('button');
+    btn.id = 'floatingSupportBtn';
+    btn.className = 'floating-support-btn';
+    btn.title = 'Chat with Support';
+    btn.innerHTML = '<i class="bi bi-headset"></i><span class="tooltip">Chat with Support</span>';
+    btn.onclick = function() {
+      window.location.href = '/pages/user/messaging.html?support=1';
+    };
+    document.body.appendChild(btn);
+  }
+})();

@@ -1606,3 +1606,87 @@ body.admin-panel {
   }
 }
 
+/* Floating Support Button */
+.floating-support-btn {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  width: 60px;
+  height: 60px;
+  background: linear-gradient(135deg, #ffd700, #ffed4e);
+  border: none;
+  border-radius: 50%;
+  box-shadow: 0 4px 20px rgba(255, 215, 0, 0.4);
+  color: #03254c;
+  font-size: 1.5rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: pulse 2s infinite;
+}
+.floating-support-btn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 25px rgba(255, 215, 0, 0.6);
+  background: linear-gradient(135deg, #ffed4e, #ffd700);
+}
+.floating-support-btn:active {
+  transform: scale(0.95);
+}
+.floating-support-btn.clicked {
+  animation: supportClick 0.3s ease;
+}
+@keyframes supportClick {
+  0% { transform: scale(1); }
+  50% { transform: scale(0.8); }
+  100% { transform: scale(1); }
+}
+@keyframes pulse {
+  0% { box-shadow: 0 4px 20px rgba(255, 215, 0, 0.4); }
+  50% { box-shadow: 0 4px 20px rgba(255, 215, 0, 0.8); }
+  100% { box-shadow: 0 4px 20px rgba(255, 215, 0, 0.4); }
+}
+.floating-support-btn .tooltip {
+  position: absolute;
+  right: 70px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: #03254c;
+  color: white;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+.floating-support-btn .tooltip::after {
+  content: '';
+  position: absolute;
+  right: -5px;
+  top: 50%;
+  transform: translateY(-50%);
+  border-left: 5px solid #03254c;
+  border-top: 5px solid transparent;
+  border-bottom: 5px solid transparent;
+}
+.floating-support-btn:hover .tooltip {
+  opacity: 1;
+}
+@media (max-width: 768px) {
+  .floating-support-btn {
+    bottom: 20px;
+    right: 20px;
+    width: 55px;
+    height: 55px;
+    font-size: 1.3rem;
+  }
+  .floating-support-btn .tooltip {
+    display: none;
+  }
+}
+
