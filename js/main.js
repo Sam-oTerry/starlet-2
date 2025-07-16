@@ -582,6 +582,41 @@ function setupMyListingsLink(myListingsSelector = '#myListingsLink', loginPath =
     });
 }
 
+// Global Auth Button Logic for all navbars
+(function() {
+  function updateAuthButton(user) {
+    var authButton = document.getElementById('authButton');
+    if (!authButton) return;
+    if (user && !user.isAnonymous) {
+      authButton.textContent = 'Logout';
+      authButton.classList.remove('btn-outline-primary');
+      authButton.classList.add('btn-danger');
+      authButton.href = '#';
+      authButton.onclick = function(e) {
+        e.preventDefault();
+        if (window.firebase && firebase.auth) {
+          firebase.auth().signOut().then(function() {
+            window.location.reload();
+          });
+        }
+      };
+    } else {
+      authButton.textContent = 'Login / Signup';
+      authButton.classList.remove('btn-danger');
+      authButton.classList.add('btn-outline-primary');
+      // Try to use the closest login page path
+      var loginHref = authButton.getAttribute('data-login-href') || authButton.getAttribute('href') || '/pages/auth/login.html';
+      authButton.href = loginHref;
+      authButton.onclick = null;
+    }
+  }
+  if (window.firebase && firebase.auth) {
+    firebase.auth().onAuthStateChanged(updateAuthButton);
+  } else {
+    updateAuthButton(null);
+  }
+})();
+
 // Inject floating support button if not present
 (function() {
   if (!document.getElementById('floatingSupportBtn')) {
