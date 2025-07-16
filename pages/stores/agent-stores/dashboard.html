@@ -375,8 +375,48 @@
   </style>
 </head>
 <body class="admin-panel">
+  <!-- Top Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-custom" style="background: var(--dark-color); z-index: 1400; position: fixed; top: 0; left: 0; right: 0;">
+    <div class="container-fluid px-3">
+      <a class="navbar-brand d-flex align-items-center" href="/index.html">
+        <span class="brand-star" style="color: var(--accent-gold); font-weight: 900; font-size: 1.5em;">Star</span><span class="brand-let" style="color: var(--accent-cyan); font-weight: 900; font-size: 1.5em;">Let</span>
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar" aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse justify-content-end" id="mainNavbar">
+        <ul class="navbar-nav ms-auto mb-2 mb-lg-0 d-flex align-items-center" style="gap: 0.7rem;">
+          <li class="nav-item">
+            <a class="nav-link icon-circle" href="/pages/user/saved.html" title="Saved">
+              <i class="bi bi-bookmark"></i>
+            </a>
+          </li>
+          <li class="nav-item position-relative">
+            <a class="nav-link icon-circle position-relative" href="/pages/user/messaging.html" title="Messages" id="messagesNavLink">
+              <i class="bi bi-chat-dots"></i>
+              <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none" id="unreadMessagesBadge">0</span>
+            </a>
+          </li>
+          <li class="nav-item position-relative" id="nav-notification-bell">
+            <a class="nav-link icon-circle position-relative" href="/pages/user/notifications.html" title="Notifications">
+              <i class="bi bi-bell"></i>
+              <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none" id="notification-badge">0</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link icon-circle" id="profileLink" href="#" title="Profile">
+              <i class="bi bi-person"></i>
+            </a>
+          </li>
+          <li class="nav-item ms-2">
+            <a class="btn btn-warning fw-bold px-4" href="/pages/dashboard/listings/add.html" style="color: #fff; border-radius: 8px; background: var(--accent-gold); border: none; font-weight: 700;">SELL</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
   <!-- Sidebar -->
-  <aside class="admin-sidebar" id="sidebar">
+  <aside class="admin-sidebar" id="sidebar" style="top: 64px;">
     <div class="sidebar-brand">
       <span class="brand-star" aria-label="Starlet">★</span> Starlet
       <button class="sidebar-toggle d-none d-lg-inline" id="sidebarToggle" aria-label="Toggle sidebar"><i class="bi bi-list"></i></button>
