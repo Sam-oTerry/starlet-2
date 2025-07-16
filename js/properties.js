@@ -14,15 +14,19 @@ const searchForm = document.getElementById('property-search-form');
 
 // Render a property card
 function renderPropertyCard(d, id) {
+  const img = (d.imageUrls && d.imageUrls[0]) || (d.images && d.images[0]) || '../../images/listing-default.jpg';
+  // Use propertyType for display if type is 'property'
+  const typeLabel = d.type === 'property' && d.propertyType ? d.propertyType : d.type;
   return `
     <div class="col-md-4 col-lg-3 mb-4">
       <div class="listing-card card-modern">
         <div class="card-img-wrapper">
-          <img src="${d.imageUrls && d.imageUrls[0] ? d.imageUrls[0] : '../../images/listing-default.jpg'}" class="card-img-top" alt="Property Image">
+          <img src="${img}" class="card-img-top" alt="Property Image">
         </div>
         <div class="card-body">
           <h5 class="card-title">${d.title || 'Property Title'}</h5>
           <div class="location mb-2"><i class="bi bi-geo-alt"></i> ${d.location || ''}</div>
+          <div class="mb-2"><span class="badge bg-secondary">${typeLabel || ''}</span></div>
           <div class="price-tag mb-2">${d.price ? 'USh ' + d.price.toLocaleString() : ''}</div>
           <a href="details.html?id=${id}" class="btn btn-primary btn-sm">View Details</a>
         </div>
@@ -59,8 +63,11 @@ async function loadProperties(filters = {}) {
   try {
     let ref = db.collection('listings')
       .where('type', 'in', [
-        'house_sale','house_rent','land_sale','land_rent','commercial','vacation_short_stay']);
-    if (filters.type) ref = ref.where('type', '==', filters.type);
+        'house_sale','house_rent','land_sale','land_rent','commercial','vacation_short_stay','property']);
+    if (filters.type) {
+      // Support both type and propertyType for filtering
+      ref = ref.where('propertyType', '==', filters.type);
+    }
     if (filters.location) ref = ref.where('location', '==', filters.location);
     if (filters.minPrice) ref = ref.where('price', '>=', filters.minPrice);
     if (filters.maxPrice) ref = ref.where('price', '<=', filters.maxPrice);
