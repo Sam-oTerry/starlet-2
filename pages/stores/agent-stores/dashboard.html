@@ -39,10 +39,10 @@
       height: 100vh;
       position: fixed;
       top: 0; left: 0;
-      z-index: 1100;
+      z-index: 1300;
       display: flex;
       flex-direction: column;
-      transition: width var(--transition), background 0.3s;
+      transition: width var(--transition), background 0.3s, left var(--transition);
       box-shadow: 2px 0 24px 0 #0002, 0 8px 32px 0 #f1c40f22;
       border-right: var(--sidebar-border);
       backdrop-filter: blur(var(--glass-blur));
@@ -153,9 +153,9 @@
       align-items: center;
       justify-content: space-between;
       padding: 0 2rem;
-      z-index: 1200;
+      z-index: 1201;
       box-shadow: 0 2px 16px 0 #0002, 0 8px 32px 0 #f1c40f22;
-      transition: left var(--transition), background 0.3s;
+      transition: left var(--transition), background 0.3s, width var(--transition);
       backdrop-filter: blur(var(--glass-blur));
     }
     .admin-navbar .navbar-brand, .admin-navbar .brand-star {
@@ -244,7 +244,7 @@
       outline: 2px solid var(--accent-gold);
       color: var(--accent-gold);
     }
-    /* Main Content */
+    /* Main Content Alignment */
     body.admin-panel {
       padding-left: var(--sidebar-width);
       padding-top: 64px;
@@ -262,126 +262,7 @@
       max-width: 100% !important;
       transition: left var(--transition);
     }
-    /* Statistics Widgets */
-    .statistics-section {
-      background: linear-gradient(135deg, #fff 60%, #f1c40f11 100%);
-      color: var(--primary-color);
-      padding: 2.5rem 0 1.5rem 0;
-      border-radius: 1.5rem;
-      margin-bottom: 2rem;
-      box-shadow: 0 4px 24px rgba(44,62,80,0.07);
-      animation: fadeInUp 0.7s;
-    }
-    .stat-item {
-      background: #fff;
-      border-radius: 1.2rem;
-      box-shadow: 0 2px 12px #f1c40f22;
-      padding: 2rem 1rem;
-      margin-bottom: 1rem;
-      transition: box-shadow 0.2s, transform 0.2s;
-      position: relative;
-      overflow: hidden;
-      animation: fadeInUp 0.8s;
-    }
-    .stat-item:hover {
-      box-shadow: 0 8px 32px #f1c40f33;
-      transform: translateY(-6px) scale(1.03);
-    }
-    .stat-number {
-      font-size: 2.3rem;
-      font-weight: 700;
-      color: var(--accent-gold);
-      margin-bottom: 0.5rem;
-      display: flex;
-      align-items: center;
-      gap: 0.3em;
-      text-shadow: 0 2px 4px #f1c40f33;
-    }
-    .stat-label {
-      font-size: 1.1rem;
-      color: var(--primary-color);
-      font-weight: 500;
-    }
-    /* Chart.js container */
-    #viewsChartContainer {
-      background: #fff;
-      border-radius: 1.2rem;
-      box-shadow: 0 2px 12px #f1c40f22;
-      padding: 1.5rem 1rem;
-      margin-bottom: 2rem;
-      animation: fadeInUp 0.8s;
-    }
-    /* Listings Table */
-    .card-modern {
-      border-radius: 1.25rem !important;
-      box-shadow: 0 2px 12px 0 #2c3e5011;
-      background: #fff;
-      margin-bottom: 2rem;
-      animation: fadeInUp 0.8s;
-    }
-    .card-modern .card-header {
-      font-size: 1.1rem;
-      font-weight: 600;
-      letter-spacing: 0.01em;
-      background: linear-gradient(90deg, #f1c40f22, #fff 80%);
-      border-radius: 1.25rem 1.25rem 0 0;
-      border: none;
-    }
-    .card-modern .btn {
-      border-radius: 2em;
-      font-size: 1em;
-      transition: background 0.18s, box-shadow 0.18s;
-    }
-    .card-modern .btn-warning {
-      background: var(--accent-gold) !important;
-      color: var(--primary-color) !important;
-      border: none;
-      font-weight: 700;
-    }
-    .card-modern .btn-warning:hover {
-      background: #f1c40fcc !important;
-      color: var(--primary-color) !important;
-    }
-    .table th, .table td {
-      vertical-align: middle;
-    }
-    .badge.bg-success { background: linear-gradient(90deg, #20c997, #198754) !important; }
-    .badge.bg-warning { background: linear-gradient(90deg, #ffc107, #f1c40f) !important; color: #2c3e50 !important; }
-    .badge.bg-danger { background: linear-gradient(90deg, #e74c3c, #c0392b) !important; }
-    .table-hover tbody tr:hover {
-      background: #f1c40f11;
-      transition: background 0.2s;
-    }
-    /* Premium Services */
-    .premium-featured {
-      border: 2.5px solid var(--accent-gold);
-      box-shadow: 0 0 16px 2px #f1c40f55, 0 2px 12px #2c3e5011;
-      position: relative;
-      animation: glow 2s infinite alternate;
-    }
-    .premium-featured::after {
-      content: '★ Featured';
-      position: absolute;
-      top: -18px; right: 18px;
-      background: var(--accent-gold);
-      color: var(--sidebar-bg);
-      font-weight: 700;
-      font-size: 0.95em;
-      border-radius: 1em;
-      padding: 0.3em 1.2em;
-      box-shadow: 0 2px 8px #f1c40f44;
-      letter-spacing: 0.03em;
-    }
-    @keyframes glow {
-      0% { box-shadow: 0 0 16px 2px #f1c40f55, 0 2px 12px #2c3e5011; }
-      100% { box-shadow: 0 0 32px 8px #f1c40faa, 0 2px 12px #2c3e5011; }
-    }
-    /* Animations */
-    @keyframes fadeInUp {
-      from { opacity: 0; transform: translateY(30px);}
-      to { opacity: 1; transform: none;}
-    }
-    /* Responsive */
+    /* Responsive Alignment */
     @media (max-width: 1200px) {
       .admin-sidebar { width: 200px !important; min-width: 200px; }
       .admin-navbar { left: 200px; }
@@ -390,9 +271,10 @@
     @media (max-width: 900px) {
       .admin-sidebar { position: fixed; left: -100vw; top: 0; width: var(--sidebar-width); min-width: var(--sidebar-width); height: 100vh; z-index: 1300; transition: left var(--transition); }
       .admin-sidebar.show { left: 0; }
-      .admin-navbar { left: 0; width: 100vw; }
+      .admin-navbar { left: 0; width: 100vw; z-index: 1201; }
       body.admin-panel { padding-left: 0 !important; padding-top: 64px; }
       .admin-navbar .navbar-toggler { display: inline-block; }
+      .container-fluid { margin-left: 0 !important; }
     }
     @media (max-width: 767.98px) {
       .admin-navbar { flex-direction: column; align-items: flex-start; padding: 0.5rem 1rem; height: auto; }
@@ -406,6 +288,20 @@
       .statistics-section { padding: 1.2rem 0.2rem; }
       .card-header, .card-body { padding: 0.7rem !important; }
       .admin-sidebar .sidebar-brand { font-size: 1.1rem; padding: 1rem 0.5rem; }
+    }
+    /* Overlay for Sidebar on Mobile */
+    #sidebarOverlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(30,40,50,0.4);
+      z-index: 1299;
+      display: none;
+    }
+    .admin-sidebar.show ~ #sidebarOverlay {
+      display: block;
     }
     /* Dark/Light Mode Toggle */
     .theme-toggle {
