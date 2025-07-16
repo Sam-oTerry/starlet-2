@@ -487,16 +487,12 @@
     });
     </script>
   <main class="saved-main-wide">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-      <div>
-        <h2 class="mb-1"><i class="bi bi-bookmark-heart"></i> Saved Listings</h2>
-        <p class="text-muted mb-0" id="user-info">Loading your saved listings...</p>
-      </div>
-      <div class="text-end">
-        <button class="btn btn-outline-primary btn-sm" onclick="refreshSavedListings()">
-          <i class="bi bi-arrow-clockwise"></i> Refresh
-        </button>
-      </div>
+    <div class="text-center mb-4">
+      <h2 class="mb-1"><i class="bi bi-bookmark-heart"></i> Saved Listings</h2>
+      <p class="text-muted mb-2" id="user-info">Loading your saved listings...</p>
+      <button class="btn btn-outline-primary btn-sm" onclick="refreshSavedListings()">
+        <i class="bi bi-arrow-clockwise"></i> Refresh
+      </button>
     </div>
     <div id="saved-listings" class="saved-listings-grid">
       <!-- Saved listings will be loaded here -->
@@ -610,6 +606,7 @@
         
         // Update navbar with user info if needed
         updateNavbarWithUserInfo(user);
+        updateAuthButton(true);
       }
     });
     
@@ -618,6 +615,38 @@
       // You can add user-specific navbar updates here if needed
       console.log('User info available for navbar:', user.email);
     }
+
+    // Update Login/Signup button to Logout if authenticated
+    function updateAuthButton(isAuthenticated) {
+      var authButton = document.getElementById('authButton');
+      if (!authButton) return;
+      if (isAuthenticated) {
+        authButton.textContent = 'Logout';
+        authButton.classList.remove('btn-outline-primary');
+        authButton.classList.add('btn-danger');
+        authButton.href = '#';
+        authButton.onclick = function(e) {
+          e.preventDefault();
+          firebase.auth().signOut().then(function() {
+            window.location.href = '/pages/auth/login.html';
+          });
+        };
+      } else {
+        authButton.textContent = 'Login / Signup';
+        authButton.classList.remove('btn-danger');
+        authButton.classList.add('btn-outline-primary');
+        authButton.href = '../auth/login.html';
+        authButton.onclick = null;
+      }
+    }
+
+    // On page load, check auth state for navbar button
+    document.addEventListener('DOMContentLoaded', function() {
+      firebase.auth().onAuthStateChanged(function(user) {
+        updateAuthButton(!!user);
+      });
+    });
+    
     async function loadSavedListings(uid) {
       const db = firebase.firestore();
       const container = document.getElementById('saved-listings');
