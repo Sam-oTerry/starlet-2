@@ -244,6 +244,28 @@
     .listing-details-row { font-size: 0.91em; }
   }
   </style>
+  <style>
+  /* --- Modern E-commerce Card Enhancements --- */
+  .saved-listings-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 2rem 1.5rem;
+    margin-bottom: 2rem;
+    padding: 0.5rem 0;
+  }
+  .saved-listing-card {
+    margin: 0;
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+  }
+  @media (max-width: 575.98px) {
+    .saved-listings-grid {
+      grid-template-columns: 1fr;
+      gap: 1.2rem 0.5rem;
+    }
+  }
+  </style>
 </head>
 <body>
     <!-- Navbar (copied from index.html) -->
@@ -466,7 +488,7 @@
         </button>
       </div>
     </div>
-    <div id="saved-listings" class="row g-4">
+    <div id="saved-listings" class="saved-listings-grid">
       <!-- Saved listings will be loaded here -->
     </div>
     <div id="no-saved" class="text-center text-muted mt-5 d-none">
@@ -636,41 +658,39 @@
         listingsSnap.forEach(doc => {
           const listing = doc.data();
           const card = document.createElement('div');
-          card.className = 'col-md-4 col-lg-3 mb-4';
+          card.className = 'ecommerce-card saved-listing-card';
           card.innerHTML = `
-            <div class="card h-100 shadow-lg border-0 rounded-5 overflow-hidden position-relative card-modern ecommerce-card">
-              <div class="card-img-container position-relative">
-                <img src="${listing.image || listing.images?.[0] || 'https://via.placeholder.com/400x300?text=No+Image'}" 
-                     class="card-img-top w-100 h-100 object-fit-cover main-listing-img" 
-                     alt="${listing.title || 'Listing'}" 
-                     style="object-fit: cover; min-height: 200px; max-height: 220px; background: #f5f5f5;">
-                <div class="img-gradient-overlay"></div>
-                <span class="position-absolute top-0 start-0 m-2 px-3 py-1 badge bg-dark bg-opacity-75 text-white rounded-pill fs-6 shadow-sm listing-type-badge">
-                  ${getListingTypeBadge(listing.listingType || listing.type)}
-                </span>
-                <span class="position-absolute bottom-0 start-0 m-2 px-3 py-1 badge bg-primary bg-opacity-90 text-white rounded-pill fs-6 shadow price-badge">
-                  ${formatPrice(listing.price || listing.askingPrice)}
-                </span>
-                <button class="btn btn-light btn-fav position-absolute top-0 end-0 m-2 remove-saved-btn" 
-                        onclick="removeFromSaved('${doc.id}', '${uid}')" 
-                        title="Remove from saved" aria-label="Remove from saved">
-                  <i class="bi bi-heart-fill"></i>
-                </button>
+            <div class="card-img-container position-relative">
+              <img src="${listing.image || listing.images?.[0] || 'https://via.placeholder.com/400x300?text=No+Image'}" 
+                   class="card-img-top w-100 h-100 object-fit-cover main-listing-img" 
+                   alt="${listing.title || 'Listing'}" 
+                   style="object-fit: cover; min-height: 200px; max-height: 220px; background: #f5f5f5;">
+              <div class="img-gradient-overlay"></div>
+              <span class="position-absolute top-0 start-0 m-2 px-3 py-1 badge bg-dark bg-opacity-75 text-white rounded-pill fs-6 shadow-sm listing-type-badge">
+                ${getListingTypeBadge(listing.listingType || listing.type)}
+              </span>
+              <span class="position-absolute bottom-0 start-0 m-2 px-3 py-1 badge bg-primary bg-opacity-90 text-white rounded-pill fs-6 shadow price-badge">
+                ${formatPrice(listing.price || listing.askingPrice)}
+              </span>
+              <button class="btn btn-light btn-fav position-absolute top-0 end-0 m-2 remove-saved-btn" 
+                      onclick="removeFromSaved('${doc.id}', '${uid}')" 
+                      title="Remove from saved" aria-label="Remove from saved">
+                <i class="bi bi-heart-fill"></i>
+              </button>
+            </div>
+            <div class="card-body d-flex flex-column p-3">
+              <h5 class="card-title fw-bold mb-2 fs-5 text-truncate" title="${listing.title || listing.name || 'Untitled'}">${listing.title || listing.name || 'Untitled'}</h5>
+              <div class="mb-2 text-muted small d-flex align-items-center gap-1">
+                <i class="bi bi-geo-alt"></i> 
+                <span>${formatLocation(listing.location)}</span>
               </div>
-              <div class="card-body d-flex flex-column p-3">
-                <h5 class="card-title fw-bold mb-2 fs-5 text-truncate" title="${listing.title || listing.name || 'Untitled'}">${listing.title || listing.name || 'Untitled'}</h5>
-                <div class="mb-2 text-muted small d-flex align-items-center gap-1">
-                  <i class="bi bi-geo-alt"></i> 
-                  <span>${formatLocation(listing.location)}</span>
-                </div>
-                <div class="mb-2 text-secondary small listing-details-row">
-                  ${formatListingDetails(listing)}
-                </div>
-                <div class="mb-2 text-truncate" title="${listing.description || ''}">
-                  <span class="small">${listing.description && listing.description.length > 60 ? listing.description.slice(0, 60) + '…' : (listing.description || '')}</span>
-                </div>
-                <a href="../properties/details.html?id=${doc.id}" class="btn btn-primary mt-auto w-100 rounded-pill view-details-btn">View Details</a>
+              <div class="mb-2 text-secondary small listing-details-row">
+                ${formatListingDetails(listing)}
               </div>
+              <div class="mb-2 text-truncate" title="${listing.description || ''}">
+                <span class="small">${listing.description && listing.description.length > 60 ? listing.description.slice(0, 60) + '…' : (listing.description || '')}</span>
+              </div>
+              <a href="../properties/details.html?id=${doc.id}" class="btn btn-primary mt-auto w-100 rounded-pill view-details-btn">View Details</a>
             </div>
           `;
           container.appendChild(card);
