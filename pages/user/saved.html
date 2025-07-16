@@ -466,15 +466,15 @@
         db.collection('stores').where('ownerId', '==', user.uid).limit(1).get()
           .then(function(querySnapshot) {
             if (!querySnapshot.empty) {
-              window.location.href = '../stores/agent-stores/dashboard.html';
+              window.location.href = '/pages/stores/agent-stores/dashboard.html';
             } else {
               db.collection('users').doc(user.uid).get().then(function(userDoc) {
                 var userData = userDoc.exists ? userDoc.data() : {};
                 if (userData.role === 'agent') {
-                  window.location.href = '../stores/agent-stores/dashboard.html';
+                  window.location.href = '/pages/stores/agent-stores/dashboard.html';
                 } else {
                   if (confirm('To list your properties, you need to create a store and select an agent tier. Would you like to get started?')) {
-                    window.location.href = '../stores/agent-stores/dashboard.html';
+                    window.location.href = '/pages/stores/agent-stores/create.html';
                   }
                 }
               });
