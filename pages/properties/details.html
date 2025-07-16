@@ -693,18 +693,18 @@
           .then(function(querySnapshot) {
             if (!querySnapshot.empty) {
               // User has a store, go to the agent-stores dashboard
-              window.location.href = '/stores/agent-stores/dashboard.html';
+              window.location.href = '/pages/stores/agent-stores/dashboard.html';
             } else {
               // Check if user is an agent (in users collection, role: 'agent')
               db.collection('users').doc(user.uid).get().then(function(userDoc) {
                 var userData = userDoc.exists ? userDoc.data() : {};
                 if (userData.role === 'agent') {
                   // Agent but no store, go to the agent-stores dashboard
-                  window.location.href = '/stores/agent-stores/dashboard.html';
+                  window.location.href = '/pages/stores/agent-stores/dashboard.html';
                 } else {
                   // Not an agent, prompt to become agent and create store
                   if (confirm('To list your properties, you need to create a store and select an agent tier. Would you like to get started?')) {
-                    window.location.href = '/stores/agent-stores/create.html';
+                    window.location.href = '/pages/stores/agent-stores/create.html';
                   }
                 }
               });
