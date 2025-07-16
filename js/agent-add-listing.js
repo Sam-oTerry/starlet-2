@@ -2,7 +2,7 @@
 // Dynamic logic for Add Listing page (property/vehicle) for agents
 
 // Use window.firebaseDB and window.firebaseAuth for db and auth
-let db, auth, currentUser;
+let db, auth;
 function waitForFirebaseReady(callback) {
   if (window.firebaseDB && window.firebaseAuth) {
     db = window.firebaseDB;
