@@ -13,20 +13,28 @@
   <link rel="stylesheet" href="/starlet-2/css/style.css">
   <style>
     :root {
-      --accent-gold: #f1c40f;
-      --primary-color: #2c3e50;
-      --sidebar-bg: #1a252f;
+      --primary-color: #0d6efd;
+      --secondary-color: #6c757d;
+      --success-color: #198754;
+      --warning-color: #ffc107;
+      --danger-color: #dc3545;
+      --info-color: #0dcaf0;
+      --light-color: #f8f9fa;
+      --dark-color: #212529;
+      --accent-gold: #ffd700;
+      --accent-cyan: #00ffff;
+      --sidebar-bg: var(--dark-color);
       --sidebar-width: 250px;
       --sidebar-collapsed-width: 64px;
       --transition: 0.25s cubic-bezier(.4,2,.6,1);
-      --glass-bg: rgba(26,37,47,0.82);
+      --glass-bg: rgba(33,37,41,0.92);
       --glass-blur: 18px;
       --sidebar-border: 1.5px solid #232f3e44;
     }
     body {
       font-family: 'Inter', 'Poppins', Arial, sans-serif;
-      background: linear-gradient(135deg, #f8f9fa 0%, #eaf6ff 100%);
-      color: var(--primary-color);
+      color: var(--dark-color);
+      background: var(--light-color);
       min-height: 100vh;
       transition: background 0.3s;
     }
@@ -43,7 +51,7 @@
       display: flex;
       flex-direction: column;
       transition: width var(--transition), background 0.3s, left var(--transition);
-      box-shadow: 2px 0 24px 0 #0002, 0 8px 32px 0 #f1c40f22;
+      box-shadow: 2px 0 24px 0 #0002, 0 8px 32px 0 #ffd70022;
       border-right: var(--sidebar-border);
       backdrop-filter: blur(var(--glass-blur));
     }
@@ -60,7 +68,7 @@
       display: flex;
       align-items: center;
       gap: 0.4em;
-      text-shadow: 0 2px 8px #f1c40f33, 0 1px 0 #fff2;
+      text-shadow: 0 2px 8px #ffd70033, 0 1px 0 #fff2;
       border-bottom: 1px solid #232f3e33;
     }
     .sidebar-toggle {
@@ -102,7 +110,7 @@
     .admin-sidebar .nav-link.active, .admin-sidebar .nav-link:hover, .admin-sidebar .nav-link:focus {
       background: linear-gradient(90deg, var(--accent-gold) 0%, #fff2 100%);
       color: var(--sidebar-bg);
-      box-shadow: 0 2px 12px #f1c40f33, 0 1.5px 8px #fff2;
+      box-shadow: 0 2px 12px #ffd70033, 0 1.5px 8px #fff2;
       outline: none;
     }
     .admin-sidebar .nav-link i {
@@ -126,7 +134,7 @@
     .admin-sidebar .logout-link:hover, .admin-sidebar .logout-link:focus {
       background: var(--accent-gold);
       color: var(--sidebar-bg);
-      box-shadow: 0 2px 12px #f1c40f33;
+      box-shadow: 0 2px 12px #ffd70033;
       outline: none;
     }
     /* Collapsed sidebar styles */
@@ -154,13 +162,13 @@
       justify-content: space-between;
       padding: 0 2rem;
       z-index: 1201;
-      box-shadow: 0 2px 16px 0 #0002, 0 8px 32px 0 #f1c40f22;
+      box-shadow: 0 2px 16px 0 #0002, 0 8px 32px 0 #ffd70022;
       transition: left var(--transition), background 0.3s, width var(--transition);
       backdrop-filter: blur(var(--glass-blur));
     }
     .admin-navbar .navbar-brand, .admin-navbar .brand-star {
       color: var(--accent-gold);
-      text-shadow: 0 2px 8px #f1c40f33, 0 1px 0 #fff2;
+      text-shadow: 0 2px 8px #ffd70033, 0 1px 0 #fff2;
     }
     .admin-navbar .navbar-brand {
       font-size: 1.35rem;
@@ -173,7 +181,7 @@
     .admin-navbar .brand-star {
       font-size: 1.5em;
       margin-right: 0.2em;
-      filter: drop-shadow(0 0 6px #f1c40f88);
+      filter: drop-shadow(0 0 6px #ffd70088);
     }
     .admin-navbar .notification-bell {
       position: relative;
@@ -194,7 +202,7 @@
       font-weight: 700;
       border-radius: 50%;
       padding: 0.3em 0.6em;
-      box-shadow: 0 2px 8px #f1c40f44;
+      box-shadow: 0 2px 8px #ffd70044;
     }
     .admin-navbar .profile-dropdown {
       display: flex;
@@ -208,7 +216,7 @@
       transition: background 0.18s, color 0.18s;
     }
     .admin-navbar .profile-dropdown:hover, .admin-navbar .profile-dropdown:focus {
-      background: rgba(241,196,15,0.08);
+      background: rgba(255,215,0,0.08);
       color: var(--accent-gold);
       outline: none;
     }
@@ -248,7 +256,7 @@
     body.admin-panel {
       padding-left: var(--sidebar-width);
       padding-top: 64px;
-      background: linear-gradient(135deg, #f8f9fa 0%, #eaf6ff 100%);
+      background: var(--light-color);
       min-height: 100vh;
       transition: padding-left var(--transition);
     }
@@ -315,7 +323,7 @@
     }
     .theme-toggle:focus { outline: 2px solid var(--accent-gold); }
     body.dark-mode {
-      background: linear-gradient(135deg, #23272f 0%, #1a252f 100%);
+      background: linear-gradient(135deg, #23272f 0%, var(--sidebar-bg) 100%);
       color: #f8f9fa;
     }
     body.dark-mode .admin-navbar,
@@ -339,7 +347,7 @@
     }
     body.dark-mode .admin-sidebar .nav-link.active,
     body.dark-mode .admin-sidebar .nav-link:hover {
-      background: linear-gradient(90deg, #f1c40f, #23272f);
+      background: linear-gradient(90deg, var(--accent-gold), #23272f);
       color: #23272f !important;
     }
     body.dark-mode .admin-navbar {
@@ -348,7 +356,7 @@
       border-bottom: 1.5px solid #232f3e77;
     }
     body.dark-mode .admin-navbar .navbar-brand, body.dark-mode .admin-navbar .profile-dropdown, body.dark-mode .admin-navbar .notification-bell {
-      color: #f1c40f !important;
+      color: var(--accent-gold) !important;
     }
     body.dark-mode .card-header,
     body.dark-mode .card-body {
@@ -356,8 +364,8 @@
       color: #f8f9fa !important;
     }
     body.dark-mode .premium-featured {
-      border-color: #f1c40f;
-      box-shadow: 0 0 32px 8px #f1c40faa, 0 2px 12px #0004;
+      border-color: var(--accent-gold);
+      box-shadow: 0 0 32px 8px #ffd700aa, 0 2px 12px #0004;
     }
     body.dark-mode .badge.bg-success,
     body.dark-mode .badge.bg-warning,
@@ -601,11 +609,11 @@
         datasets: [{
           label: 'Views',
           data: [120, 190, 300, 250, 220, 310, 400],
-          borderColor: '#f1c40f',
-          backgroundColor: 'rgba(241,196,15,0.12)',
+          borderColor: '#ffd700',
+          backgroundColor: 'rgba(255,215,0,0.12)',
           tension: 0.4,
           pointBackgroundColor: '#fff',
-          pointBorderColor: '#f1c40f',
+          pointBorderColor: '#ffd700',
           pointRadius: 5,
           fill: true
         }]
@@ -616,7 +624,7 @@
         },
         scales: {
           x: { grid: { display: false } },
-          y: { beginAtZero: true, grid: { color: '#f1c40f22' } }
+          y: { beginAtZero: true, grid: { color: '#ffd70022' } }
         }
       }
     });
