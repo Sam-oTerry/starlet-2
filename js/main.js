@@ -469,7 +469,7 @@ async function renderFeaturedListings() {
               <span class="small">${listing.description && listing.description.length > 60 ? listing.description.slice(0, 60) + '…' : (listing.description || '')}</span>
             </div>
             <a href="details.html?id=${doc.id}" class="btn btn-primary mt-auto w-100 rounded-pill">View Details</a>
-            ${window.currentUser ? `<a href="messaging.html?listingId=${doc.id}" class="btn btn-outline-secondary mt-2 w-100 rounded-pill"><i class="bi bi-chat-dots"></i> Message Agent</a>` : ''}
+            ${window.currentUser ? `<a href="${getMessagingUrl(doc.id)}" class="btn btn-outline-secondary mt-2 w-100 rounded-pill"><i class="bi bi-chat-dots"></i> Message Agent</a>` : ''}
           </div>
         </div>
       `;
@@ -617,6 +617,16 @@ function setupMyListingsLink(myListingsSelector = '#myListingsLink', loginPath =
   }
 })();
 
+// Add this helper function at the top-level in main.js
+function getMessagingUrl(listingId, listerId) {
+  // Dynamically detect base path for GitHub Pages subfolder support
+  var path = window.location.pathname;
+  var base = path.includes('/starlet-2/') ? '/starlet-2' : '';
+  let url = `${base}/pages/user/messaging.html?listingId=${listingId}`;
+  if (listerId) url += `&listerId=${listerId}`;
+  return url;
+}
+
 // Inject floating support button if not present
 (function() {
   if (!document.getElementById('floatingSupportBtn')) {
@@ -626,10 +636,9 @@ function setupMyListingsLink(myListingsSelector = '#myListingsLink', loginPath =
     btn.title = 'Chat with Support';
     btn.innerHTML = '<i class="bi bi-headset"></i><span class="tooltip">Chat with Support</span>';
     btn.onclick = function() {
-      // Dynamically detect base path for GitHub Pages subfolder support
       var path = window.location.pathname;
-      var base = path.substring(0, path.indexOf('/', 1) + 1); // e.g. '/starlet-2/'
-      window.location.href = base + 'pages/user/messaging.html?support=1';
+      var base = path.includes('/starlet-2/') ? '/starlet-2' : '';
+      window.location.href = base + '/pages/user/messaging.html?support=1';
     };
     document.body.appendChild(btn);
   }
