@@ -736,615 +736,151 @@
   </style>
 </head>
 <body>
+  <header>
     <!-- Navbar (copied from index.html) -->
     <nav class="navbar navbar-expand-lg navbar-custom modern-navbar shadow-sm py-3 sticky-top w-100">
-  <div class="d-flex flex-row align-items-center justify-content-between w-100 px-3 px-md-4">
-    <!-- Brand Left -->
-    <a class="navbar-brand d-flex align-items-center gap-2 me-4 py-0" href="../../index.html">
-      <span class="brand-star">Star</span> <span class="brand-let">Let</span>
-    </a>
-    <!-- Toggler for mobile -->
-    <button class="navbar-toggler ms-auto" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
+      <div class="d-flex flex-row align-items-center justify-content-between w-100 px-3 px-md-4">
+        <!-- Brand Left -->
+        <a class="navbar-brand d-flex align-items-center gap-2 me-4 py-0" href="../../index.html">
+          <span class="brand-star">Star</span> <span class="brand-let">Let</span>
+        </a>
+        <!-- Toggler for mobile -->
+        <button class="navbar-toggler ms-auto" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse flex-grow-1" id="navbarNav">
+          <ul class="navbar-nav d-flex align-items-center gap-2 ms-auto mb-2 mb-lg-0 w-100 justify-content-end">
+            <li class="nav-item">
+              <a class="nav-link icon-circle" href="../user/saved.html" title="Saved" aria-label="Saved">
+                <i class="bi bi-bookmark"></i>
+              </a>
+            </li>
+            <li class="nav-item position-relative">
+              <a class="nav-link icon-circle position-relative" href="../user/messaging.html" title="Messages" aria-label="Messages" id="messagesNavLink">
+                <i class="bi bi-chat-dots"></i>
+                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none" id="unreadMessagesBadge">0</span>
+              </a>
+            </li>
+            <li class="nav-item position-relative" id="nav-notification-bell">
+              <a class="nav-link icon-circle position-relative" href="../user/notifications.html" title="Notifications" aria-label="Notifications">
+                <i class="bi bi-bell"></i>
+                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none" id="notification-badge">0</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link icon-circle" id="myListingsLink" href="../stores/index.html" title="My Listings" aria-label="My Listings">
+                <i class="bi bi-card-list"></i>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link icon-circle" id="profileLink" href="#" title="Profile" aria-label="Profile">
+                <i class="bi bi-person"></i>
+              </a>
+            </li>
+            <li class="vr mx-3 d-none d-lg-block" style="height: 32px; opacity: 0.15;"></li>
+            <li class="nav-item ms-lg-2">
+              <a class="btn btn-warning fw-bold px-4 rounded-pill shadow-sm" href="../dashboard/listings/add.html" style="color: #fff;">SELL</a>
+            </li>
+            <li class="nav-item ms-lg-2" id="authButtonContainer">
+              <a class="btn btn-outline-primary fw-bold px-4 rounded-pill shadow-sm" id="authButton" href="../auth/login.html">Login / Signup</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+  </header>
+  <main class="chat-outer" style="flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;min-height:70vh;">
+    <div class="chat-container">
+      <div id="chatSidebar" class="chat-sidebar"></div>
+      <div class="chat-main">
+        <div id="chatHeader" class="chat-header">
+          <button class="sidebar-toggle" id="sidebarToggle" title="Show conversations"><i class="bi bi-list"></i></button>
+        </div>
+        <div id="chatMessages" class="chat-messages"></div>
+        <form id="chatInputForm" class="chat-input-bar" autocomplete="off">
+          <textarea id="chatInput" class="form-control" placeholder="Type a message..." rows="1" required></textarea>
+          <button type="button" id="attachmentBtn" class="btn attachment-btn" title="Attach file"><i class="bi bi-paperclip"></i></button>
+          <input type="file" id="fileInput" class="file-input" multiple style="display:none;">
+          <div id="filePreview" class="file-preview" style="display:none;"></div>
+          <button type="submit" class="btn send-btn" disabled><i class="bi bi-send"></i></button>
+        </form>
+      </div>
+    </div>
+    <button id="floatingSupportBtn" class="floating-support-btn" title="Chat with Support">
+      <i class="bi bi-headset"></i>
+      <span class="tooltip">Chat with Support</span>
     </button>
-    <div class="collapse navbar-collapse flex-grow-1" id="navbarNav">
-      <ul class="navbar-nav d-flex align-items-center gap-2 ms-auto mb-2 mb-lg-0 w-100 justify-content-end">
-        <li class="nav-item">
-          <a class="nav-link icon-circle" href="../user/saved.html" title="Saved" aria-label="Saved">
-            <i class="bi bi-bookmark"></i>
-          </a>
-        </li>
-        <li class="nav-item position-relative">
-          <a class="nav-link icon-circle position-relative" href="../user/messaging.html" title="Messages" aria-label="Messages" id="messagesNavLink">
-            <i class="bi bi-chat-dots"></i>
-            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none" id="unreadMessagesBadge">0</span>
-          </a>
-        </li>
-        <li class="nav-item position-relative" id="nav-notification-bell">
-          <a class="nav-link icon-circle position-relative" href="../user/notifications.html" title="Notifications" aria-label="Notifications">
-            <i class="bi bi-bell"></i>
-            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none" id="notification-badge">0</span>
-          </a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link icon-circle" id="myListingsLink" href="../stores/index.html" title="My Listings" aria-label="My Listings">
-            <i class="bi bi-card-list"></i>
-          </a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link icon-circle" id="profileLink" href="#" title="Profile" aria-label="Profile">
-            <i class="bi bi-person"></i>
-          </a>
-        </li>
-        <li class="vr mx-3 d-none d-lg-block" style="height: 32px; opacity: 0.15;"></li>
-        <li class="nav-item ms-lg-2">
-          <a class="btn btn-warning fw-bold px-4 rounded-pill shadow-sm" href="../dashboard/listings/add.html" style="color: #fff;">SELL</a>
-        </li>
-        <li class="nav-item ms-lg-2" id="authButtonContainer">
-          <a class="btn btn-outline-primary fw-bold px-4 rounded-pill shadow-sm" id="authButton" href="../auth/login.html">Login / Signup</a>
-        </li>
-      </ul>
-    </div>
-  </div>
-</nav>
-
-<style>
-.navbar-custom.modern-navbar {
-  background: #03254c !important;
-  border-bottom: 3px solid #ffd700;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.04) !important;
-  padding-top: 0.5rem;
-  padding-bottom: 0.5rem;
-  z-index: 1030;
-}
-.navbar-custom .navbar-brand {
-  font-weight: 800;
-  font-size: 1.7rem;
-  letter-spacing: 1px;
-  display: flex;
-  align-items: center;
-  gap: 0.2em;
-  margin-right: 0 !important;
-  padding-right: 0 !important;
-  padding-top: 0.1rem;
-  padding-bottom: 0.1rem;
-}
-.navbar-custom .navbar-nav {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem !important;
-  margin-left: 0 !important;
-  margin-right: 0 !important;
-  padding-left: 0 !important;
-  padding-right: 0 !important;
-}
-.icon-circle {
-  background: #fff;
-  border-radius: 50%;
-  width: 44px;
-  height: 44px;
-  display: flex !important;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.35rem;
-  color: #03254c;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.07);
-  margin: 0 2px;
-  transition: background 0.2s, color 0.2s;
-  position: relative;
-}
-.icon-circle:hover, .icon-circle:focus {
-  background: #e3f0ff;
-  color: var(--primary-color);
-  text-decoration: none;
-  box-shadow: 0 2px 8px rgba(13,110,253,0.08);
-}
-.navbar-custom .btn-warning {
-  background: var(--accent-gold) !important;
-  border: none;
-  color: #fff !important;
-  font-weight: 700;
-  font-size: 1.1rem;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.07);
-  border-radius: 50px;
-  padding-top: 0.5rem;
-  padding-bottom: 0.5rem;
-}
-.navbar-custom .btn-warning:hover {
-  background: #ffd700cc !important;
-  color: #03254c !important;
-}
-.navbar-custom .btn-outline-primary {
-  border-radius: 50px;
-  font-weight: 700;
-  font-size: 1.1rem;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.07);
-  padding-top: 0.5rem;
-  padding-bottom: 0.5rem;
-}
-.vr {
-  border-left: 2px solid #fff;
-  opacity: 0.15;
-  height: 32px;
-}
-@media (max-width: 991.98px) {
-  .navbar-custom .navbar-brand {
-    font-size: 1.4rem;
-  }
-  .navbar-custom .navbar-nav {
-    gap: 0.5rem !important;
-  }
-  .vr {
-    display: none !important;
-  }
-  .navbar-custom .btn-warning,
-  .navbar-custom .btn-outline-primary {
-    padding-top: 0.4rem;
-    padding-bottom: 0.4rem;
-    font-size: 1rem;
-  }
-  .navbar-custom.modern-navbar {
-    padding-left: 0.5rem;
-    padding-right: 0.5rem;
-  }
-}
-@media (max-width: 575.98px) {
-  .navbar-custom .navbar-brand {
-    font-size: 1.1rem;
-    padding-left: 0.2rem;
-  }
-  .navbar-custom.modern-navbar {
-    padding-left: 0.2rem;
-    padding-right: 0.2rem;
-  }
-}
-</style>
-<!-- Main Chat Container -->
-<main class="chat-outer">
-  <div class="chat-container">
-    <!-- Sidebar -->
-    <div id="chatSidebar" class="chat-sidebar"></div>
-    <!-- Main Chat Area -->
-    <div class="chat-main">
-      <!-- Chat Header -->
-      <div id="chatHeader" class="chat-header">
-        <button class="sidebar-toggle" id="sidebarToggle" title="Show conversations"><i class="bi bi-list"></i></button>
-      </div>
-      <!-- Chat Messages -->
-      <div id="chatMessages" class="chat-messages"></div>
-      <!-- Chat Input Bar -->
-      <form id="chatInputForm" class="chat-input-bar" autocomplete="off">
-        <textarea id="chatInput" class="form-control" placeholder="Type a message..." rows="1" required></textarea>
-        <button type="button" id="attachmentBtn" class="btn attachment-btn" title="Attach file"><i class="bi bi-paperclip"></i></button>
-        <input type="file" id="fileInput" class="file-input" multiple style="display:none;">
-        <div id="filePreview" class="file-preview" style="display:none;"></div>
-        <button type="submit" class="btn send-btn" disabled><i class="bi bi-send"></i></button>
-      </form>
-    </div>
-  </div>
-  <!-- Floating Support Button -->
-  <button id="floatingSupportBtn" class="floating-support-btn" title="Chat with Support">
-    <i class="bi bi-headset"></i>
-    <span class="tooltip">Chat with Support</span>
-  </button>
-  <!-- Chat with Admin Button (hidden, for programmatic use) -->
-  <button id="chatWithAdminBtn" style="display:none;"></button>
-</main>
-<!-- Footer (modern, from index.html, with correct relative links) -->
-<footer class="footer mt-5">
-  <div class="container">
-    <div class="row">
-      <div class="col-lg-4 mb-4">
-        <h4>About Starlet Properties</h4>
-        <p>Uganda's premier real estate and vehicle marketplace, connecting buyers and sellers across the country.</p>
-        <div class="social-links">
-          <a href="#"><i class="fab fa-facebook"></i></a>
-          <a href="#"><i class="fab fa-twitter"></i></a>
-          <a href="#"><i class="fab fa-instagram"></i></a>
-          <a href="#"><i class="fab fa-linkedin"></i></a>
-        </div>
-      </div>
-      <div class="col-lg-2 col-md-6 mb-4">
-        <h4>Properties</h4>
-        <ul>
-          <li><a href="../properties/index.html?type=house_sale">Houses for Sale</a></li>
-          <li><a href="../properties/index.html?type=house_rent">Houses for Rent</a></li>
-          <li><a href="../properties/index.html?type=land_sale">Land for Sale</a></li>
-          <li><a href="../properties/index.html?type=land_rent">Land for Rent</a></li>
-          <li><a href="../properties/index.html?type=commercial">Commercial Property</a></li>
-          <li><a href="../properties/index.html?type=vacation_short_stay">Vacation & Short Stay</a></li>
-        </ul>
-      </div>
-      <div class="col-lg-2 col-md-6 mb-4">
-        <h4>Vehicles</h4>
-        <ul>
-          <li><a href="../vehicles/index.html?type=cars">Cars</a></li>
-          <li><a href="../vehicles/index.html?type=motorcycles">Motorcycles</a></li>
-          <li><a href="../vehicles/index.html?type=trucks">Trucks</a></li>
-          <li><a href="../vehicles/index.html?type=buses">Buses</a></li>
-          <li><a href="../vehicles/index.html?type=heavy_machinery">Heavy Machinery</a></li>
-          <li><a href="../vehicles/index.html?type=bicycles_ebikes">Bicycles & E-bikes</a></li>
-          <li><a href="../vehicles/index.html?type=boats_watercraft">Boats & Watercraft</a></li>
-        </ul>
-      </div>
-      <div class="col-lg-2 col-md-6 mb-4">
-        <h4>Company</h4>
-        <ul>
-          <li><a href="../about/index.html">About Us</a></li>
-          <li><a href="../about/contact.html">Contact</a></li>
-          <li><a href="../about/resources.html">Resources</a></li>
-          <li><a href="../stores/index.html">Our Stores</a></li>
-          <li><a href="../legal/privacy.html">Privacy Policy</a></li>
-        </ul>
-      </div>
-      <div class="col-lg-2 col-md-6 mb-4">
-        <h4>Contact</h4>
-        <ul>
-          <li><a href="tel:+256123456789"><i class="bi bi-telephone"></i> +256 123 456 789</a></li>
-          <li><a href="mailto:info@starlet.co.ug"><i class="bi bi-envelope"></i> info@starlet.co.ug</a></li>
-          <li><a href="#"><i class="bi bi-geo-alt"></i> Kampala, Uganda</a></li>
-        </ul>
-      </div>
-    </div>
-    <div class="footer-bottom">
+    <button id="chatWithAdminBtn" style="display:none;"></button>
+  </main>
+  <footer class="footer mt-5">
+    <div class="container">
       <div class="row">
-        <div class="col-md-6">
-          <p class="mb-0">&copy; 2024 Starlet Properties. All rights reserved.</p>
+        <div class="col-lg-4 mb-4">
+          <h4>About Starlet Properties</h4>
+          <p>Uganda's premier real estate and vehicle marketplace, connecting buyers and sellers across the country.</p>
+          <div class="social-links">
+            <a href="#"><i class="fab fa-facebook"></i></a>
+            <a href="#"><i class="fab fa-twitter"></i></a>
+            <a href="#"><i class="fab fa-instagram"></i></a>
+            <a href="#"><i class="fab fa-linkedin"></i></a>
+          </div>
         </div>
-        <div class="col-md-6 text-md-end">
-          <a href="../legal/terms.html" class="me-3">Terms of Service</a>
-          <a href="../legal/privacy.html">Privacy Policy</a>
+        <div class="col-lg-2 col-md-6 mb-4">
+          <h4>Properties</h4>
+          <ul>
+            <li><a href="../properties/index.html?type=house_sale">Houses for Sale</a></li>
+            <li><a href="../properties/index.html?type=house_rent">Houses for Rent</a></li>
+            <li><a href="../properties/index.html?type=land_sale">Land for Sale</a></li>
+            <li><a href="../properties/index.html?type=land_rent">Land for Rent</a></li>
+            <li><a href="../properties/index.html?type=commercial">Commercial Property</a></li>
+            <li><a href="../properties/index.html?type=vacation_short_stay">Vacation & Short Stay</a></li>
+          </ul>
+        </div>
+        <div class="col-lg-2 col-md-6 mb-4">
+          <h4>Vehicles</h4>
+          <ul>
+            <li><a href="../vehicles/index.html?type=cars">Cars</a></li>
+            <li><a href="../vehicles/index.html?type=motorcycles">Motorcycles</a></li>
+            <li><a href="../vehicles/index.html?type=trucks">Trucks</a></li>
+            <li><a href="../vehicles/index.html?type=buses">Buses</a></li>
+            <li><a href="../vehicles/index.html?type=heavy_machinery">Heavy Machinery</a></li>
+            <li><a href="../vehicles/index.html?type=bicycles_ebikes">Bicycles & E-bikes</a></li>
+            <li><a href="../vehicles/index.html?type=boats_watercraft">Boats & Watercraft</a></li>
+          </ul>
+        </div>
+        <div class="col-lg-2 col-md-6 mb-4">
+          <h4>Company</h4>
+          <ul>
+            <li><a href="../about/index.html">About Us</a></li>
+            <li><a href="../about/contact.html">Contact</a></li>
+            <li><a href="../about/resources.html">Resources</a></li>
+            <li><a href="../stores/index.html">Our Stores</a></li>
+            <li><a href="../legal/privacy.html">Privacy Policy</a></li>
+          </ul>
+        </div>
+        <div class="col-lg-2 col-md-6 mb-4">
+          <h4>Contact</h4>
+          <ul>
+            <li><a href="tel:+256123456789"><i class="bi bi-telephone"></i> +256 123 456 789</a></li>
+            <li><a href="mailto:info@starlet.co.ug"><i class="bi bi-envelope"></i> info@starlet.co.ug</a></li>
+            <li><a href="#"><i class="bi bi-geo-alt"></i> Kampala, Uganda</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <div class="row">
+          <div class="col-md-6">
+            <p class="mb-0">&copy; 2024 Starlet Properties. All rights reserved.</p>
+          </div>
+          <div class="col-md-6 text-md-end">
+            <a href="../legal/terms.html" class="me-3">Terms of Service</a>
+            <a href="../legal/privacy.html">Privacy Policy</a>
+          </div>
         </div>
       </div>
     </div>
-  </div>
-</footer>
-
-<style>
-/* WhatsApp-like Modern Chat UI Enhancements */
-body {
-  background: linear-gradient(135deg, #e3f0ff 0%, #f8f9fa 100%) !important;
-}
-
-.chat-container {
-  box-shadow: 0 8px 32px rgba(13,110,253,0.08), 0 1.5px 8px rgba(0,0,0,0.04);
-  border-radius: 1.5rem;
-  overflow: hidden;
-  background: #f4f6fb;
-  min-height: 60vh;
-  max-height: 70vh;
-  margin-bottom: 2rem;
-  height: 60vh;
-  display: flex;
-  flex-direction: row;
-  width: 100%;
-  margin-left: 0;
-  margin-right: 0;
-}
-
-.chat-sidebar {
-  background: #fff;
-  border-right: 1px solid #e3e6ee;
-  padding: 0;
-  min-width: 300px;
-  max-width: 340px;
-  box-shadow: 2px 0 8px rgba(13,110,253,0.03);
-  overflow-y: auto;
-  transition: all 0.3s;
-}
-
-.chat-listing {
-  border-radius: 0.8rem;
-  margin: 0.5rem 0.7rem;
-  padding: 0.7rem 1rem;
-  background: #f8f9fa;
-  transition: background 0.2s, box-shadow 0.2s;
-  box-shadow: 0 1px 4px rgba(13,110,253,0.03);
-}
-.chat-listing.active, .chat-listing:hover {
-  background: #e3f0ff;
-  box-shadow: 0 2px 8px rgba(13,110,253,0.08);
-}
-
-.chat-main {
-  background: #f4f6fb;
-  display: flex;
-  flex-direction: column;
-  border-radius: 0 1.5rem 1.5rem 0;
-  overflow: hidden;
-  flex: 1;
-  min-width: 0;
-}
-
-.chat-header {
-  background: #fff;
-  border-bottom: 1px solid #e3e6ee;
-  padding: 1.2rem 1.5rem;
-  display: flex;
-  align-items: center;
-  gap: 1.2rem;
-  min-height: 80px;
-  box-shadow: 0 2px 8px rgba(13,110,253,0.03);
-}
-
-.chat-header .avatar {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 2px solid #ffd70033;
-}
-
-.chat-header .info h5 {
-  font-weight: 700;
-  margin-bottom: 0.2rem;
-  color: #03254c;
-}
-
-.chat-header .info p {
-  color: #6c757d;
-  font-size: 1rem;
-  margin-bottom: 0;
-}
-
-.chat-messages {
-  flex: 1;
-  padding: 1.2rem 0.7rem 1.2rem 0.7rem;
-  background: #ece5dd;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.chat-message {
-  display: flex;
-  align-items: flex-end;
-  gap: 0.5rem;
-  margin-bottom: 0.2rem;
-  position: relative;
-}
-
-.chat-message.sent {
-  flex-direction: row-reverse;
-}
-
-.chat-message .avatar {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 1.5px solid #25d36633;
-  box-shadow: 0 1px 4px rgba(37,211,102,0.08);
-}
-
-.chat-message .bubble {
-  max-width: 75vw;
-  padding: 0.7rem 1.1rem;
-  border-radius: 1.2rem;
-  background: #fff;
-  color: #222;
-  font-size: 1.05em;
-  position: relative;
-  word-wrap: break-word;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
-  border-bottom-left-radius: 0.3rem;
-  margin-bottom: 2px;
-  min-width: 60px;
-  transition: background 0.2s;
-}
-
-.chat-message.sent .bubble {
-  background: linear-gradient(135deg, #25d366 80%, #dcf8c6 100%);
-  color: #222;
-  border-bottom-left-radius: 1.2rem;
-  border-bottom-right-radius: 0.3rem;
-  box-shadow: 0 2px 8px rgba(37,211,102,0.08);
-}
-
-.chat-message.received .bubble {
-  background: #fff;
-  color: #222;
-  border-bottom-left-radius: 0.3rem;
-  border-bottom-right-radius: 1.2rem;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
-}
-
-.chat-message .meta {
-  font-size: 0.78em;
-  color: #888;
-  margin-top: 0.2rem;
-  text-align: right;
-  display: block;
-  position: absolute;
-  right: 10px;
-  bottom: 2px;
-  opacity: 0.8;
-}
-
-.chat-message.sent .meta {
-  right: 16px;
-  color: #34b7f1;
-}
-
-.chat-message .bubble .media-content {
-  margin-top: 0.4rem;
-  border-radius: 0.5rem;
-  overflow: hidden;
-  max-width: 250px;
-}
-
-.chat-message .bubble .media-content img,
-.chat-message .bubble .media-content video {
-  width: 100%;
-  height: auto;
-  object-fit: cover;
-  border-radius: 0.5rem;
-}
-
-.chat-input-bar {
-  background: #fff;
-  border-top: 1px solid #e3e6ee;
-  padding: 1rem 1.5rem;
-  display: flex;
-  align-items: flex-end;
-  gap: 0.7rem;
-  border-radius: 0 0 1.5rem 1.5rem;
-  box-shadow: 0 -2px 8px rgba(13,110,253,0.03);
-  position: sticky;
-  bottom: 0;
-  z-index: 10;
-}
-
-.chat-input-bar textarea {
-  flex: 1;
-  resize: none;
-  border-radius: 1.2rem;
-  border: 1.5px solid #e3e6ee;
-  padding: 0.8rem 1.2rem;
-  font-size: 1.08em;
-  background: #f8f9fa;
-  min-height: 40px;
-  max-height: 120px;
-  box-shadow: none;
-  transition: border-color 0.2s;
-}
-
-.chat-input-bar textarea:focus {
-  border-color: #0d6efd;
-  background: #fff;
-  outline: none;
-}
-
-.chat-input-bar .btn {
-  border-radius: 50%;
-  width: 44px;
-  height: 44px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.35rem;
-  color: #03254c;
-  background: #e3f0ff;
-  border: none;
-  box-shadow: 0 1px 4px rgba(13,110,253,0.04);
-  transition: background 0.2s, color 0.2s;
-}
-
-.chat-input-bar .btn:hover, .chat-input-bar .btn:focus {
-  background: #0d6efd;
-  color: #fff;
-}
-
-@media (max-width: 1200px) {
-  .chat-container {
-    max-height: 80vh;
-    height: 70vh;
-  }
-  .chat-sidebar {
-    min-width: 220px;
-    max-width: 260px;
-  }
-}
-@media (max-width: 900px) {
-  .chat-container {
-    flex-direction: column;
-    min-height: 60vh;
-    max-height: none;
-    height: auto;
-    border-radius: 0;
-    margin-left: 0;
-    margin-right: 0;
-    width: 100vw;
-  }
-  .chat-sidebar {
-    max-width: 100vw;
-    min-width: 0;
-    border-right: none;
-    border-bottom: 1px solid #e3e6ee;
-    box-shadow: none;
-    height: 120px;
-    overflow-x: auto;
-    overflow-y: hidden;
-    display: flex;
-    flex-direction: row;
-  }
-  .chat-listing {
-    flex: 1 0 180px;
-    border-bottom: none;
-    border-right: 1px solid #eee;
-    min-width: 160px;
-    max-width: 220px;
-    margin: 0.5rem 0.3rem;
-  }
-  .chat-main {
-    border-radius: 0;
-    min-height: 300px;
-  }
-  .chat-messages {
-    padding: 0.5rem 0.2rem 0.5rem 0.2rem;
-  }
-}
-@media (max-width: 600px) {
-  .chat-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.5rem;
-    padding: 1rem 0.4rem;
-  }
-  .chat-messages {
-    padding: 0.2rem 0.05rem 0.2rem 0.05rem;
-  }
-  .chat-message .bubble {
-    font-size: 0.95em;
-    padding: 0.5rem 0.5rem;
-    max-width: 90vw;
-  }
-  .chat-sidebar {
-    height: 80px;
-    font-size: 0.92em;
-  }
-  .chat-listing {
-    min-width: 120px;
-    max-width: 160px;
-    margin: 0.3rem 0.1rem;
-    padding: 0.5rem 0.5rem;
-  }
-  .chat-message .avatar {
-    width: 24px;
-    height: 24px;
-  }
-  .chat-container {
-    border-radius: 0;
-    margin-left: 0;
-    margin-right: 0;
-    width: 100vw;
-    min-width: 100vw;
-    max-width: 100vw;
-  }
-  .chat-main {
-    border-radius: 0;
-  }
-}
-@media (max-width: 400px) {
-  .chat-message .bubble {
-    font-size: 0.88em;
-    padding: 0.3rem 0.3rem;
-    max-width: 98vw;
-  }
-  .chat-header {
-    padding: 0.5rem 0.1rem;
-  }
-}
-</style>
-<!-- Add Firebase SDKs before main.js -->
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-messaging-compat.js"></script>
-<script src="../../assets/js/firebase-config.js"></script>
-<script src="../../js/main.js"></script>
-    <script>
+  </footer>
+  <script>
     // Enforce authentication on this page
     enforceAuth('/pages/auth/login.html');
     // Setup My Listings link logic
