@@ -105,15 +105,16 @@
     }
     
     .chat-main {
-      background: linear-gradient(135deg, #f4f6fb 80%, #e3f0ff 100%);
-      border-radius: 1.3rem;
+      background: linear-gradient(135deg, #f4f6fb 80%, #e3f0ff 100%), #fff;
+      z-index: 11;
+      position: relative;
       box-shadow: 0 6px 32px rgba(13,110,253,0.10), 0 1.5px 8px rgba(0,0,0,0.04);
-      border: 1.5px solid #e3e6ee;
+      border-radius: 1.3rem;
+      margin-bottom: 48px;
       display: flex;
       flex-direction: column;
       overflow: hidden;
       min-width: 0;
-      position: relative;
       height: 100%;
     }
     
@@ -288,6 +289,7 @@
       position: sticky;
       bottom: 0;
       z-index: 10;
+      margin-bottom: 12px;
     }
     
     .chat-input-bar textarea { 
@@ -1371,6 +1373,7 @@ body {
   position: sticky;
   bottom: 0;
   z-index: 10;
+  margin-bottom: 12px;
 }
 
 .chat-input-bar textarea {
