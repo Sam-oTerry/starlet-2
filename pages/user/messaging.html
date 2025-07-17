@@ -1948,6 +1948,7 @@ body {
       
       // Smooth scroll to bottom
       chat.scrollTop = chat.scrollHeight;
+      enableSwipeToReply();
     }
 
     function listenForMessages(convId) {
@@ -2535,6 +2536,56 @@ function handleReply(idx) {
   replyToMessage = { text, idx };
   showReplyPreview();
 }
+  </script>
+  <script>
+// Add swipe-to-reply on mobile
+function enableSwipeToReply() {
+  const chat = document.getElementById('chatMessages');
+  if (!chat) return;
+  const messages = chat.getElementsByClassName('chat-message');
+  Array.from(messages).forEach((msgEl, idx) => {
+    let startX = null;
+    let moved = false;
+    msgEl.addEventListener('touchstart', function(e) {
+      if (e.touches.length === 1) {
+        startX = e.touches[0].clientX;
+        moved = false;
+      }
+    });
+    msgEl.addEventListener('touchmove', function(e) {
+      if (startX !== null && e.touches.length === 1) {
+        const dx = e.touches[0].clientX - startX;
+        if (dx > 40) {
+          moved = true;
+          msgEl.style.transform = 'translateX(30px)';
+        }
+      }
+    });
+    msgEl.addEventListener('touchend', function(e) {
+      if (moved) {
+        handleReply(idx);
+        setTimeout(() => { msgEl.style.transform = ''; }, 200);
+      } else {
+        msgEl.style.transform = '';
+      }
+      startX = null;
+      moved = false;
+    });
+    msgEl.addEventListener('touchcancel', function() {
+      msgEl.style.transform = '';
+      startX = null;
+      moved = false;
+    });
+  });
+}
+// Call enableSwipeToReply after rendering messages
+function renderMessages(messages) {
+  // ...existing code...
+  chat.innerHTML = filtered.map((msg, idx) => { /* ... */ }).join('');
+  chat.scrollTop = chat.scrollHeight;
+  enableSwipeToReply();
+}
+// ... existing code ...
   </script>
 </body>
 </html> 
