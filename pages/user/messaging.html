@@ -692,6 +692,47 @@
     #unreadMessagesBadge.d-none {
       display: none !important;
     }
+    
+    /* Responsive chat container margin and padding */
+    .chat-outer {
+      padding: 32px 0;
+      margin: 0;
+      width: 100vw;
+      min-height: 100vh;
+      background: transparent;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+    }
+    @media (max-width: 900px) {
+      .chat-outer {
+        padding: 20px 0;
+      }
+    }
+    @media (max-width: 600px) {
+      .chat-outer {
+        padding: 12px 0;
+      }
+    }
+    .chat-container {
+      margin: 0 auto;
+      width: 100%;
+      max-width: 1100px;
+      box-sizing: border-box;
+      padding: 0 32px;
+      /* ...existing styles... */
+    }
+    @media (max-width: 900px) {
+      .chat-container {
+        padding: 0 12px;
+      }
+    }
+    @media (max-width: 600px) {
+      .chat-container {
+        padding: 0 4px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -859,7 +900,7 @@
 }
 </style>
 <!-- Main Chat Container -->
-<main class="w-100 p-0 m-0" style="max-width:100vw;">
+<main class="chat-outer">
   <div class="chat-container">
     <!-- Sidebar -->
     <div id="chatSidebar" class="chat-sidebar"></div>
