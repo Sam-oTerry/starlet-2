@@ -1876,6 +1876,7 @@ body {
 
     function renderMessages(messages) {
       const chat = document.getElementById('chatMessages');
+      if (!chat) return;
       if (!messages.length) {
         chat.innerHTML = '<div class="text-center text-muted py-5">No messages yet. Say hello!</div>';
         return;
@@ -1886,7 +1887,7 @@ body {
         (selectedConversation && selectedConversation.participants && selectedConversation.participants.includes(window.currentUser.id))
       );
       
-      chat.innerHTML = filtered.map(msg => {
+      chat.innerHTML = filtered.map((msg, idx) => {
         const messageTime = new Date(msg.createdAt.seconds ? msg.createdAt.seconds * 1000 : msg.createdAt);
         const timeString = messageTime.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
         const dateString = messageTime.toLocaleDateString();
@@ -1911,13 +1912,7 @@ body {
             } else if (file.type.startsWith('video/')) {
               return `<video controls style="max-width: 100%; border-radius: 0.5rem;"><source src="${file.url}" type="${file.type}">Your browser does not support the video tag.</video>`;
             } else {
-              return `<a href="${file.url}" class="file-download" target="_blank" download="${file.name}">
-                <i class="${getFileIcon(file.type)}"></i>
-                <div>
-                  <div style="font-weight: 500;">${file.name}</div>
-                  <div style="font-size: 0.8rem; color: #6c757d;">${formatFileSize(file.size)}</div>
-                </div>
-              </a>`;
+              return `<a href="${file.url}" class="file-download" target="_blank" download="${file.name}">\n            <i class="${getFileIcon(file.type)}"></i>\n            <div>\n              <div style="font-weight: 500;">${file.name}</div>\n              <div style="font-size: 0.8rem; color: #6c757d;">${formatFileSize(file.size)}</div>\n            </div>\n          </a>`;
             }
           }).join('');
         }
@@ -1928,25 +1923,30 @@ body {
           replyContext = `<div class="reply-context" data-reply-idx="${msg.replyTo.idx ?? ''}" onclick="scrollToReply(this)">${msg.replyTo.text ? msg.replyTo.text : '[Media]'}</div>`;
         }
         
+        // Reply button
+        const replyBtn = `<button class="reply-btn" title="Reply" onclick="event.stopPropagation();handleReply(${idx});"><i class="bi bi-reply"></i></button>`;
+        // Add fade-in class to the last message
+        const fadeClass = idx === filtered.length - 1 ? ' fade-in' : '';
+        // Fix avatar src: do not use /pages/user/${...}
+        const avatarSrc = msg.senderAvatar && !msg.senderAvatar.startsWith('http') ? msg.senderAvatar : (msg.senderAvatar || 'https://via.placeholder.com/36x36/0d6efd/ffffff?text=U');
         return `
-        <div class="chat-message${msg.senderId === window.currentUser.id ? ' sent' : ' received'}">
-          <img src="${msg.senderAvatar || 'https://via.placeholder.com/36x36/0d6efd/ffffff?text=U'}" class="avatar">
+        <div class="chat-message${msg.senderId === window.currentUser.id ? ' sent' : ' received'}${fadeClass}">
+          <img src="${avatarSrc}" class="avatar">
           <div style="position:relative;">
             <div class="bubble">
+              ${replyContext}
               ${msg.text ? `<div>${msg.text}</div>` : ''}
               ${mediaContent ? `<div class="media-content">${mediaContent}</div>` : ''}
               <span class="meta">
                 ${isToday ? timeString : dateString + ' ' + timeString}
                 ${statusIcon}
               </span>
+              ${replyBtn}
             </div>
           </div>
-          ${replyContext}
         </div>
         `;
       }).join('');
-      
-      // Smooth scroll to bottom
       chat.scrollTop = chat.scrollHeight;
       enableSwipeToReply();
     }
