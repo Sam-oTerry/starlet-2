@@ -20,7 +20,7 @@
       background: linear-gradient(135deg, #e3f0ff 0%, #f8f9fa 100%) !important;
     }
     
-    .chat-container { 
+    .chat-container {
       background: #f4f6fb;
       min-height: 60vh;
       max-height: 80vh;
@@ -823,7 +823,7 @@
         padding: 4px 0 0 0;
       }
       .chat-container {
-        display: flex;
+     display: flex;
         flex-direction: column;
         gap: 0;
         padding: 0 0px 12px 0px;
@@ -887,7 +887,7 @@
       }
     }
     html, body {
-      overflow: hidden;
+     overflow: hidden;
       height: 100dvh;
     }
     .footer {
@@ -896,7 +896,7 @@
       width: 100%;
       z-index: 1;
       margin-top: 10px;
-    }
+   }
   </style>
 </head>
 <body>
@@ -1342,7 +1342,7 @@ body {
   margin-top: 0.2rem; 
   text-align: right; 
   display: block; 
-  position: absolute; 
+  position: absolute;
   right: 10px; 
   bottom: 2px; 
   opacity: 0.8;
@@ -1523,6 +1523,36 @@ body {
     padding: 0.5rem 0.1rem;
   }
 }
+    .chat-message.reply-highlight {
+      animation: replyHighlight 1.2s;
+      background: #e3f0ff !important;
+      box-shadow: 0 0 0 2px #25d36633;
+    }
+    @keyframes replyHighlight {
+      0% { background: #d4f8e8; }
+      60% { background: #e3f0ff; }
+      100% { background: inherit; }
+    }
+    .chat-message .reply-context {
+      background: #e3f0ff;
+      border-left: 3px solid #25d366;
+      padding: 0.2em 0.7em;
+      border-radius: 0.5em;
+      font-size: 0.93em;
+      color: #03254c;
+      margin-bottom: 0.3em;
+      margin-right: 1.5em;
+      max-width: 220px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      box-shadow: 0 1px 4px rgba(37,211,102,0.08);
+      cursor: pointer;
+      transition: box-shadow 0.2s;
+    }
+    .chat-message .reply-context:hover {
+      box-shadow: 0 0 0 2px #25d36666;
+    }
 </style>
 <!-- Add Firebase SDKs before main.js -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -1892,6 +1922,12 @@ body {
           }).join('');
         }
         
+        let replyContext = '';
+        if (msg.replyTo) {
+          // Add a data attribute for reply index
+          replyContext = `<div class="reply-context" data-reply-idx="${msg.replyTo.idx ?? ''}" onclick="scrollToReply(this)">${msg.replyTo.text ? msg.replyTo.text : '[Media]'}</div>`;
+        }
+        
         return `
         <div class="chat-message${msg.senderId === window.currentUser.id ? ' sent' : ' received'}">
           <img src="${msg.senderAvatar || 'https://via.placeholder.com/36x36/0d6efd/ffffff?text=U'}" class="avatar">
@@ -1905,6 +1941,7 @@ body {
               </span>
             </div>
           </div>
+          ${replyContext}
         </div>
         `;
       }).join('');
@@ -2466,6 +2503,38 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     });
 // ... existing code ...
+  </script>
+  <script>
+// Scroll to replied message and highlight it
+function scrollToReply(el) {
+  const idx = el.getAttribute('data-reply-idx');
+  if (!idx) return;
+  const chat = document.getElementById('chatMessages');
+  const allMsgs = chat ? Array.from(chat.getElementsByClassName('chat-message')) : [];
+  const target = allMsgs[parseInt(idx)];
+  if (target) {
+    target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    target.classList.add('reply-highlight');
+    setTimeout(() => target.classList.remove('reply-highlight'), 1200);
+  }
+}
+  </script>
+  <script>
+// Handle reply button click
+function handleReply(idx) {
+  const chat = document.getElementById('chatMessages');
+  const allMsgs = chat ? Array.from(chat.getElementsByClassName('chat-message')) : [];
+  let text = '';
+  if (allMsgs[idx]) {
+    const bubble = allMsgs[idx].querySelector('.bubble');
+    if (bubble) {
+      const txt = bubble.innerText || '';
+      text = txt.split('\n')[0];
+    }
+  }
+  replyToMessage = { text, idx };
+  showReplyPreview();
+}
   </script>
 </body>
 </html> 
