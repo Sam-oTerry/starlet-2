@@ -453,7 +453,7 @@ async function fetchProperties() {
   if (container) container.innerHTML = '<div class="col-12 text-center py-5"><div class="loading-container"><div class="star-loading"><div class="star"></div><div class="star"></div><div class="star"></div></div><div class="loading-text">Loading properties...</div></div></div>';
   try {
     const snapshot = await db.collection('listings')
-      .where('listingType', '==', 'property')
+      .where('type', '==', 'property')
       .get();
     allProperties = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
     // On initial load, render all properties (no filter)
