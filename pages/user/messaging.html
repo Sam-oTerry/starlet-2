@@ -695,57 +695,66 @@
     
     /* Responsive chat container margin and padding */
     .chat-outer {
-      padding: 32px 0;
+      padding: 12px 0 0 0;
       margin: 0;
       width: 100vw;
-      min-height: 100vh;
+      min-height: calc(100dvh - 64px - 80px); /* header/footer approx */
+      height: calc(100dvh - 64px - 80px);
       background: transparent;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: flex-start;
+      padding-top: calc(12px + env(safe-area-inset-top));
+      padding-bottom: env(safe-area-inset-bottom);
+      padding-left: env(safe-area-inset-left);
+      padding-right: env(safe-area-inset-right);
     }
     @media (max-width: 900px) {
       .chat-outer {
-        padding: 20px 0;
+        padding: 4px 0 0 0;
       }
     }
     @media (max-width: 600px) {
       .chat-outer {
-        padding: 12px 0;
+        padding: 2px 0 0 0;
       }
     }
     .chat-container {
-      margin: 0 auto;
+      margin: 0 auto 0 auto;
       width: 100%;
-      max-width: 1100px;
+      max-width: 1200px;
+      min-height: 0;
+      height: 100%;
       box-sizing: border-box;
-      padding: 0 32px;
+      padding: 0 8px 32px 8px;
       display: grid;
       grid-template-columns: 320px 1fr;
       gap: 24px;
       background: none;
       border-radius: 0;
       box-shadow: none;
-      min-height: 70vh;
       align-items: stretch;
+      padding-bottom: calc(32px + env(safe-area-inset-bottom));
+      padding-left: calc(8px + env(safe-area-inset-left));
+      padding-right: calc(8px + env(safe-area-inset-right));
     }
     @media (max-width: 1100px) {
       .chat-container {
-        padding: 0 8px;
+        padding: 0 2px 24px 2px;
         gap: 12px;
         grid-template-columns: 240px 1fr;
       }
     }
     @media (max-width: 900px) {
       .chat-outer {
-        padding: 20px 0;
+        padding: 4px 0 0 0;
       }
       .chat-container {
         display: flex;
         flex-direction: column;
         gap: 0;
-        padding: 0 4px;
+        padding: 0 0px 16px 0px;
       }
       .chat-sidebar, .chat-main {
         border-radius: 1rem;
@@ -767,15 +776,19 @@
     }
     @media (max-width: 600px) {
       .chat-outer {
-        padding: 8px 0;
+        padding: 2px 0 0 0;
       }
       .chat-container {
-        padding: 0 0px;
+        padding: 0 0px 8px 0px;
       }
       .chat-sidebar, .chat-main {
         border-radius: 0.7rem;
         margin-bottom: 8px;
       }
+    }
+    html, body {
+      overflow: hidden;
+      height: 100dvh;
     }
   </style>
 </head>
@@ -840,6 +853,9 @@
   padding-top: 0.5rem;
   padding-bottom: 0.5rem;
   z-index: 1030;
+  position: sticky;
+  top: 0;
+  width: 100%;
 }
 .navbar-custom .navbar-brand {
   font-weight: 800;
@@ -1132,13 +1148,14 @@ body {
 }
 
 .chat-messages {
-  flex: 1;
+  flex: 1 1 0%;
   padding: 1.2rem 0.7rem 1.2rem 0.7rem;
   background: #ece5dd;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  height: 100%;
 }
 
 .chat-message {
