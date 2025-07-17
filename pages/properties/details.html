@@ -1067,6 +1067,8 @@
 
             // Set currentListingData for similar listings functionality
             currentListingData = data;
+            // Set listerId for chat button logic
+            window.currentListingListerId = data.createdBy || data.ownerId || data.agentId || data.propertyAgentId || null;
             console.log('✅ Set currentListingData for similar listings:', currentListingData);
 
             // Fetch creator's information (user/agent details)
