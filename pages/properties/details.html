@@ -1775,7 +1775,10 @@
                     const listerId = window.currentListingListerId;
                     if (listingId && listerId) {
                         // Redirect to messaging page with listingId and listerId as query params
-                        window.location.href = '/pages/user/messaging.html?listingId=' + encodeURIComponent(listingId) + '&listerId=' + encodeURIComponent(listerId);
+                        var path = window.location.pathname;
+                        var base = path.includes('/starlet-2/') ? '/starlet-2' : '';
+                        var messagingUrl = base + '/pages/user/messaging.html?listingId=' + encodeURIComponent(listingId) + '&listerId=' + encodeURIComponent(listerId);
+                        window.location.href = messagingUrl;
                     } else if (!listerId) {
                         alert('Lister (seller) ID not found for this property.');
                     } else {
