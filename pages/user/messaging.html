@@ -8,11 +8,16 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   <link rel="stylesheet" href="../../css/style.css">
   <style>
-    body { 
-      background: linear-gradient(135deg, #e3f0ff 0%, #f8f9fa 100%) !important; 
-      min-height: 100vh;
+    html, body {
       display: flex;
       flex-direction: column;
+      min-height: 100vh;
+      height: 100%;
+      width: 100vw;
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      background: linear-gradient(135deg, #e3f0ff 0%, #f8f9fa 100%) !important;
     }
     
     .chat-container { 
@@ -32,14 +37,22 @@
     }
     
     .chat-sidebar { 
-      background: #fff;
-      border-right: 1px solid #e3e6ee;
-      min-width: 280px;
-      max-width: 320px;
-      box-shadow: 2px 0 8px rgba(13,110,253,0.03);
-      overflow-y: auto;
-      transition: all 0.3s;
+      background: linear-gradient(135deg, #f8fafc 80%, #e3f0ff 100%);
+      border-radius: 1.2rem;
+      box-shadow: 0 4px 24px rgba(13,110,253,0.10), 0 1.5px 8px rgba(0,0,0,0.04);
+      border: 1.5px solid #e3e6ee;
+      min-width: 0;
+      max-width: 100%;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      opacity: 1;
+      transition: all 0.3s, transform 0.35s cubic-bezier(.4,0,.2,1), opacity 0.25s;
       z-index: 2;
+      max-height: 100%;
+      overflow-y: auto;
     }
     
     .chat-listing { 
@@ -88,15 +101,17 @@
       font-weight: bold;
     }
     
-    .chat-main { 
-      background: #f4f6fb;
+    .chat-main {
+      background: linear-gradient(135deg, #f4f6fb 80%, #e3f0ff 100%);
+      border-radius: 1.3rem;
+      box-shadow: 0 6px 32px rgba(13,110,253,0.10), 0 1.5px 8px rgba(0,0,0,0.04);
+      border: 1.5px solid #e3e6ee;
       display: flex;
       flex-direction: column;
-      border-radius: 0 1.2rem 1.2rem 0;
       overflow: hidden;
-      flex: 1;
       min-width: 0;
       position: relative;
+      height: 100%;
     }
     
     .chat-header {
@@ -110,17 +125,32 @@
       align-items: center;
       gap: 1.2rem;
       min-height: 72px;
-      box-shadow: 0 2px 8px rgba(13,110,253,0.03);
+      box-shadow: 0 4px 16px rgba(13,110,253,0.06);
+      border-radius: 1.3rem 1.3rem 0 0;
     }
     
-    .chat-header .sidebar-toggle {
+    .chat-header .back-btn {
       display: none;
       background: none;
       border: none;
       font-size: 1.7rem;
       color: #03254c;
-      margin-right: 0.5rem;
+      margin-right: 0.7rem;
       cursor: pointer;
+      border-radius: 50%;
+      transition: background 0.2s;
+    }
+    
+    .chat-header .back-btn:active, .chat-header .back-btn:focus {
+      background: #e3f0ff;
+    }
+    
+    @media (max-width: 900px) {
+      .chat-header .back-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+      }
     }
     
     .chat-header .avatar {
@@ -247,8 +277,8 @@
       display: flex;
       align-items: flex-end;
       gap: 0.7rem;
-      border-radius: 0 0 1.2rem 1.2rem;
-      box-shadow: 0 -2px 8px rgba(13,110,253,0.03);
+      border-radius: 0 0 1.3rem 1.3rem;
+      box-shadow: 0 -4px 16px rgba(13,110,253,0.06);
       position: sticky;
       bottom: 0;
       z-index: 10;
@@ -730,22 +760,19 @@
     
     /* Responsive chat container margin and padding */
     .chat-outer {
-      padding: 12px 0 0 0;
-      margin: 0;
+      flex: 1 1 auto;
+      min-height: 0;
       width: 100vw;
-      min-height: calc(100dvh - 64px - 80px); /* header/footer approx */
-      height: calc(100dvh - 64px - 80px);
-      background: transparent;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: flex-start;
+      background: transparent;
+      padding: 12px 0 0 0;
       padding-top: calc(12px + env(safe-area-inset-top));
       padding-bottom: env(safe-area-inset-bottom);
       padding-left: env(safe-area-inset-left);
       padding-right: env(safe-area-inset-right);
-      flex: 1 1 auto;
-      min-height: 0;
     }
     @media (max-width: 900px) {
       .chat-outer {
@@ -764,23 +791,23 @@
       min-height: 0;
       height: 100%;
       box-sizing: border-box;
-      padding: 0 8px 32px 8px;
+      padding: 0 16px 40px 16px;
       display: grid;
       grid-template-columns: 320px 1fr;
-      gap: 24px;
+      gap: 32px;
       background: none;
       border-radius: 0;
       box-shadow: none;
       align-items: stretch;
-      padding-bottom: calc(32px + env(safe-area-inset-bottom));
-      padding-left: calc(8px + env(safe-area-inset-left));
-      padding-right: calc(8px + env(safe-area-inset-right));
+      padding-bottom: calc(40px + env(safe-area-inset-bottom));
+      padding-left: calc(16px + env(safe-area-inset-left));
+      padding-right: calc(16px + env(safe-area-inset-right));
     }
     @media (max-width: 1100px) {
       .chat-container {
-        padding: 0 2px 24px 2px;
-        gap: 12px;
-        grid-template-columns: 240px 1fr;
+        padding: 0 4px 20px 4px;
+        gap: 16px;
+        grid-template-columns: 200px 1fr;
       }
     }
     @media (max-width: 900px) {
@@ -791,7 +818,7 @@
         display: flex;
         flex-direction: column;
         gap: 0;
-        padding: 0 0px 16px 0px;
+        padding: 0 0px 12px 0px;
       }
       .chat-sidebar, .chat-main {
         border-radius: 1rem;
@@ -810,17 +837,45 @@
         width: 100%;
         margin-bottom: 0;
       }
+      .chat-header, .chat-input-bar {
+        padding-left: 1rem;
+        padding-right: 1rem;
+      }
+      .chat-header {
+        min-height: 60px;
+      }
+      .chat-listing {
+        padding: 0.7rem 0.7rem;
+        margin: 0.3rem 0.2rem;
+      }
+      .chat-messages {
+        padding: 0.5rem 0.2rem 0.5rem 0.2rem;
+      }
     }
     @media (max-width: 600px) {
       .chat-outer {
         padding: 2px 0 0 0;
       }
       .chat-container {
-        padding: 0 0px 8px 0px;
+        padding: 0 0px 6px 0px;
       }
       .chat-sidebar, .chat-main {
         border-radius: 0.7rem;
         margin-bottom: 8px;
+      }
+      .chat-header, .chat-input-bar {
+        padding-left: 0.7rem;
+        padding-right: 0.7rem;
+      }
+      .chat-header {
+        min-height: 48px;
+      }
+      .chat-listing {
+        padding: 0.5rem 0.4rem;
+        margin: 0.2rem 0.1rem;
+      }
+      .chat-messages {
+        padding: 0.2rem 0.05rem 0.2rem 0.05rem;
       }
     }
     html, body {
@@ -1000,12 +1055,26 @@
 <main class="chat-outer">
   <div class="chat-container">
     <!-- Sidebar -->
-    <div id="chatSidebar" class="chat-sidebar"></div>
+    <div id="chatSidebar" class="chat-sidebar">
+      <div class="sidebar-header" style="padding: 1.2rem 1.2rem 0.5rem 1.2rem; background: none;">
+        <h3 style="font-weight: 800; font-size: 1.25rem; margin: 0 0 0.7rem 0; color: #03254c; letter-spacing: 0.01em;">Conversations</h3>
+        <div class="sidebar-search" style="margin-bottom: 1rem;">
+          <input type="text" class="form-control" placeholder="Search..." style="border-radius: 2rem; font-size: 1em; padding: 0.5em 1.2em; box-shadow: 0 1px 4px rgba(13,110,253,0.04); border: 1.2px solid #e3e6ee;">
+        </div>
+      </div>
+      <div id="chatSidebarList"></div>
+    </div>
     <!-- Main Chat Area -->
     <div class="chat-main">
       <!-- Chat Header -->
       <div id="chatHeader" class="chat-header">
-        <button class="sidebar-toggle" id="sidebarToggle" title="Show conversations"><i class="bi bi-list"></i></button>
+        <button class="back-btn" id="backToSidebar" title="Back to conversations" style="display:none;"><i class="bi bi-arrow-left"></i></button>
+        <img src="${selectedConversation.agentAvatar || 'https://via.placeholder.com/48x48/0d6efd/ffffff?text=A'}" class="avatar">
+        <div class="info">
+          <h5>${selectedConversation.agentName || 'Agent'}</h5>
+          <p>${selectedConversation.listingTitle || 'Listing'}</p>
+        </div>
+        <div id="typingIndicator" class="typing-indicator" style="display:none;"></div>
       </div>
       <!-- Chat Messages -->
       <div id="chatMessages" class="chat-messages"></div>
@@ -1580,9 +1649,8 @@ body {
 
     async function loadConversations() {
       if (!window.currentUser) return;
-      const sidebar = document.getElementById('chatSidebar');
-      sidebar.innerHTML = '<div class="text-center w-100 py-4"><div class="loading-container"><div class="star-loading"><div class="star"></div><div class="star"></div><div class="star"></div></div><div class="loading-text">Loading conversations...</div></div></div>';
-      
+      const sidebarList = document.getElementById('chatSidebarList');
+      if (sidebarList) sidebarList.innerHTML = '<div class="text-center w-100 py-4"><div class="loading-container"><div class="star-loading"><div class="star"></div><div class="star"></div><div class="star"></div></div><div class="loading-text">Loading conversations...</div></div></div>';
       try {
         const convSnap = await db.collection('conversations')
           .where('participants', 'array-contains', window.currentUser.id)
@@ -1595,11 +1663,11 @@ body {
         });
         
         if (conversations.length === 0) {
-          sidebar.innerHTML = '<div class="text-center w-100 py-4 text-muted">No conversations yet.</div>';
+          if (sidebarList) sidebarList.innerHTML = '<div class="text-center w-100 py-4 text-muted">No conversations yet.</div>';
           return;
         }
         
-        sidebar.innerHTML = conversations.map((conv, idx) => {
+        if (sidebarList) sidebarList.innerHTML = conversations.map((conv, idx) => {
           const unreadCount = conv.unreadCount || 0;
           const lastMessageTime = conv.lastMessageAt ? new Date(conv.lastMessageAt.seconds ? conv.lastMessageAt.seconds * 1000 : conv.lastMessageAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '';
           
@@ -1625,7 +1693,7 @@ body {
         
       } catch (err) {
         console.error('Error loading conversations:', err);
-        sidebar.innerHTML = '<div class="text-danger text-center">Failed to load conversations. Please try again.</div>';
+        if (sidebarList) sidebarList.innerHTML = '<div class="text-danger text-center">Failed to load conversations. Please try again.</div>';
       }
     }
 
@@ -1721,6 +1789,7 @@ body {
         return;
       }
       header.innerHTML = `
+        <button class="back-btn" id="backToSidebar" title="Back to conversations" style="display:none;"><i class="bi bi-arrow-left"></i></button>
         <img src="${selectedConversation.agentAvatar || 'https://via.placeholder.com/48x48/0d6efd/ffffff?text=A'}" class="avatar">
         <div class="info">
           <h5>${selectedConversation.agentName || 'Agent'}</h5>
@@ -1728,6 +1797,18 @@ body {
         </div>
         <div id="typingIndicator" class="typing-indicator" style="display:none;"></div>
       `;
+      // Show back button on mobile
+      const backBtn = document.getElementById('backToSidebar');
+      if (backBtn) {
+        if (window.innerWidth <= 900) {
+          backBtn.style.display = 'inline-flex';
+          backBtn.onclick = function() {
+            document.getElementById('chatSidebar').classList.add('open');
+          };
+        } else {
+          backBtn.style.display = 'none';
+        }
+      }
       // Listen for typing indicator
       db.collection('conversations').doc(selectedConversation.id).onSnapshot(doc => {
         const data = doc.data();
