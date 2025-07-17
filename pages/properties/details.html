@@ -1071,10 +1071,10 @@
 
             // Fetch creator's information (user/agent details)
             let creatorInfo = null;
-            if (data.createdBy || data.ownerId) {
-                const creatorId = data.createdBy || data.ownerId;
+            // Try all possible creator/agent fields
+            const creatorId = data.createdBy || data.ownerId || data.agentId || data.propertyAgentId;
+            if (creatorId) {
                 console.log('Fetching creator info for ID:', creatorId);
-                
                 try {
                     // Try to fetch from users collection first
                     console.log('Trying users collection...');
