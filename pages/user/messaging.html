@@ -898,6 +898,56 @@
       margin-top: 10px;
    }
   </style>
+  <style>
+/* --- Layout Fix: Prevent chat from overlapping footer --- */
+html, body {
+  height: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+body {
+  flex: 1 1 auto;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+main.chat-outer {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+.chat-container {
+  flex: 1 1 auto !important;
+  display: flex !important;
+  flex-direction: row !important;
+  min-height: 0 !important;
+  height: 100% !important;
+  max-height: none !important;
+  margin-bottom: 0 !important;
+}
+.chat-main {
+  flex: 1 1 auto !important;
+  display: flex !important;
+  flex-direction: column !important;
+  min-height: 0 !important;
+  height: 100% !important;
+}
+.chat-messages {
+  flex: 1 1 auto !important;
+  overflow-y: auto !important;
+  min-height: 0 !important;
+  padding-bottom: 2.5rem !important; /* Add enough padding so last message is above the footer */
+}
+/* Remove fixed heights from .chat-container and .chat-messages */
+.chat-container,
+.chat-messages {
+  height: auto !important;
+  max-height: none !important;
+}
+/* --- End Layout Fix --- */
+</style>
 </head>
 <body>
     <!-- Navbar (copied from index.html) -->
