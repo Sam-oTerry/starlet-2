@@ -2458,15 +2458,22 @@ body {
       updateSendButtonState();
     });
 
-    // Typing indicator logic
-    document.getElementById('chatInput').addEventListener('input', function() {
-      if (!selectedConversation) return;
-      db.collection('conversations').doc(selectedConversation.id).update({ ['typing_' + window.currentUser.id]: true });
-      clearTimeout(typingTimeout);
-      typingTimeout = setTimeout(() => {
-        db.collection('conversations').doc(selectedConversation.id).update({ ['typing_' + window.currentUser.id]: false });
-      }, 2000);
-    });
+    // Debounced typing indicator logic
+    let typingDebounce = null;
+    const chatInputEl = document.getElementById('chatInput');
+    if (chatInputEl) {
+      chatInputEl.addEventListener('input', function() {
+        if (!selectedConversation) return;
+        clearTimeout(typingDebounce);
+        typingDebounce = setTimeout(() => {
+          db.collection('conversations').doc(selectedConversation.id).update({ ['typing_' + window.currentUser.id]: true });
+          clearTimeout(typingTimeout);
+          typingTimeout = setTimeout(() => {
+            db.collection('conversations').doc(selectedConversation.id).update({ ['typing_' + window.currentUser.id]: false });
+          }, 2000);
+        }, 300);
+      });
+    }
 
     // On page load, check for pending offer and send as first message if needed
     document.addEventListener('DOMContentLoaded', async function() {
@@ -2789,6 +2796,227 @@ if (emojiBtn && emojiPicker && chatInput) {
       emojiPicker.style.display = 'none';
     }
   });
+}
+// ... existing code ...
+</script>
+<script>
+// ... existing code ...
+// 1. Declare replyToMessage globally
+let replyToMessage = null;
+
+// ... existing code ...
+// 2. Update chatInputForm submit to include replyTo metadata
+const chatInputForm = document.getElementById('chatInputForm');
+if (chatInputForm) {
+  chatInputForm.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const input = document.getElementById('chatInput');
+    const text = input.value.trim();
+    if (!text && selectedFiles.length === 0) return;
+    if (!selectedConversation) return;
+    input.value = '';
+    const filesToSend = [...selectedFiles];
+    selectedFiles = [];
+    updateFilePreview();
+    updateSendButtonState();
+    input.style.height = 'auto';
+    try {
+      const uploadedFiles = [];
+      if (filesToSend.length > 0) {
+        showToast('Uploading files...', 'info');
+        for (const file of filesToSend) {
+          const fileUrl = await uploadFile(file);
+          uploadedFiles.push({ name: file.name, type: file.type, size: file.size, url: fileUrl });
+        }
+      }
+      const msg = {
+        text: text || '',
+        senderId: window.currentUser.id,
+        senderName: window.currentUser.name,
+        senderAvatar: window.currentUser.avatar,
+        createdAt: new Date(),
+        read: false,
+        delivered: false
+      };
+      if (uploadedFiles.length > 0) {
+        msg.files = uploadedFiles;
+        msg.hasMedia = true;
+      }
+      // 3. Add reply metadata if exists
+      if (replyToMessage) {
+        msg.replyTo = { text: replyToMessage.text, idx: replyToMessage.idx };
+      }
+      const messageRef = await db.collection('conversations').doc(selectedConversation.id)
+        .collection('messages').add(msg);
+      await db.collection('conversations').doc(selectedConversation.id).update({
+        lastMessage: text || (uploadedFiles.length > 0 ? `Sent ${uploadedFiles.length} file${uploadedFiles.length > 1 ? 's' : ''}` : ''),
+        lastMessageAt: new Date(),
+        unreadCount: firebase.firestore.FieldValue.increment(1)
+      });
+      setTimeout(async () => {
+        await messageRef.update({ delivered: true });
+      }, 1000);
+      // 4. Reset reply state
+      replyToMessage = null;
+      showReplyPreview();
+      showToast('Message sent', 'success');
+    } catch (err) {
+      console.error('Error sending message:', err);
+      showToast('Failed to send message. Please try again.', 'error');
+      input.value = text;
+    }
+  });
+}
+
+// 5. Show reply preview above the input bar
+function showReplyPreview() {
+  const preview = document.getElementById('replyPreview');
+  if (!preview) return;
+  if (replyToMessage) {
+    preview.style.display = 'flex';
+    preview.innerHTML = `<div class="file-item" style="background:#e3f0ff; border-left:3px solid #25d366; border-radius:0.5em; padding:0.3em 0.7em; align-items:center; gap:0.5em; width:100%;"><div class="file-info" style="flex:1;"><div class="file-name" style="font-size:0.95em; color:#03254c; font-weight:600;">Replying to: ${replyToMessage.text.slice(0, 40)}${replyToMessage.text.length > 40 ? '...' : ''}</div></div><button type="button" class="remove-file" aria-label="Cancel reply" onclick="cancelReply()" style="background:none; border:none; color:#dc3545; cursor:pointer; padding:0.25rem; border-radius:0.25rem;"><i class="bi bi-x"></i></button></div>`;
+  } else {
+    preview.style.display = 'none';
+    preview.innerHTML = '';
+  }
+}
+function cancelReply() {
+  replyToMessage = null;
+  showReplyPreview();
+}
+// 6. Add reply preview container above input bar if not present
+if (!document.getElementById('replyPreview')) {
+  const inputBar = document.getElementById('chatInputForm');
+  if (inputBar) {
+    const replyDiv = document.createElement('div');
+    replyDiv.id = 'replyPreview';
+    replyDiv.style.display = 'none';
+    replyDiv.style.marginBottom = '0.3em';
+    inputBar.parentNode.insertBefore(replyDiv, inputBar);
+  }
+}
+// 7. Call showReplyPreview after handleReply
+const oldHandleReply = window.handleReply;
+window.handleReply = function(idx) {
+  if (typeof oldHandleReply === 'function') oldHandleReply(idx);
+  showReplyPreview();
+};
+// 8. Also call showReplyPreview on page load to clear any stale state
+showReplyPreview();
+// ... existing code ...
+</script>
+<script>
+// ... existing code ...
+// Allowed file types for upload
+const allowedMimeTypes = [
+  /^image\//,
+  /^video\//,
+  /pdf$/,
+  /msword$/,
+  /officedocument/,
+  /excel$/,
+  /spreadsheetml/,
+  /powerpoint$/,
+  /presentationml/,
+  /text/,
+  /zip$/,
+  /csv$/
+];
+
+// Enhanced file selection validation
+fileInput.addEventListener('change', (e) => {
+  const files = Array.from(e.target.files);
+  if (files.length === 0) return;
+  // Validate file types and sizes
+  const validFiles = files.filter(file => {
+    const maxSize = 10 * 1024 * 1024; // 10MB
+    const isAllowed = allowedMimeTypes.some(re => re.test(file.type) || re.test(file.name));
+    if (!isAllowed) {
+      showToast(`File type not allowed: ${file.name}`, 'error');
+      return false;
+    }
+    if (file.size > maxSize) {
+      showToast(`File ${file.name} is too large. Maximum size is 10MB.`, 'error');
+      return false;
+    }
+    return true;
+  });
+  if (validFiles.length === 0) return;
+  selectedFiles = selectedFiles.concat(validFiles);
+  updateFilePreview();
+  updateSendButtonState();
+});
+
+// Progress state for uploads
+let uploadProgressState = {};
+
+// Enhanced uploadFile with progress
+async function uploadFile(file) {
+  const storage = firebase.storage();
+  const storageRef = storage.ref();
+  const fileRef = storageRef.child(`chat-files/${window.currentUser.id}/${Date.now()}-${file.name}`);
+  const uploadTask = fileRef.put(file);
+  return new Promise((resolve, reject) => {
+    uploadProgressState[file.name] = 0;
+    updateFilePreview();
+    uploadTask.on('state_changed',
+      (snapshot) => {
+        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+        uploadProgressState[file.name] = progress;
+        updateFilePreview();
+      },
+      (error) => {
+        showToast(`Failed to upload ${file.name}: ${error.message}`, 'error');
+        uploadProgressState[file.name] = -1;
+        updateFilePreview();
+        reject(error);
+      },
+      async () => {
+        const downloadURL = await uploadTask.snapshot.ref.getDownloadURL();
+        uploadProgressState[file.name] = 100;
+        updateFilePreview();
+        resolve(downloadURL);
+      }
+    );
+  });
+}
+
+// Enhanced file preview with progress
+function updateFilePreview() {
+  if (selectedFiles.length === 0) {
+    filePreview.style.display = 'none';
+    return;
+  }
+  filePreview.style.display = 'block';
+  filePreview.innerHTML = selectedFiles.map((file, index) => {
+    const fileIcon = getFileIcon(file.type);
+    const fileSize = formatFileSize(file.size);
+    let progressBar = '';
+    if (uploadProgressState[file.name] !== undefined) {
+      if (uploadProgressState[file.name] === -1) {
+        progressBar = `<div style='color:#dc3545;font-size:0.85em;'>Upload failed</div>`;
+      } else if (uploadProgressState[file.name] < 100) {
+        progressBar = `<div style='width:100%;background:#e3f0ff;border-radius:4px;height:8px;margin-top:4px;'><div style='width:${uploadProgressState[file.name]}%;background:#0d6efd;height:8px;border-radius:4px;transition:width 0.2s;'></div></div>`;
+      } else {
+        progressBar = `<div style='color:#198754;font-size:0.85em;'>Uploaded</div>`;
+      }
+    }
+    return `
+      <div class="file-item">
+        <div class="file-icon">
+          <i class="${fileIcon}"></i>
+        </div>
+        <div class="file-info">
+          <div class="file-name">${file.name}</div>
+          <div class="file-size">${fileSize}</div>
+          ${progressBar}
+        </div>
+        <button type="button" class="remove-file" onclick="removeFile(${index})">
+          <i class="bi bi-x"></i>
+        </button>
+      </div>
+    `;
+  }).join('');
 }
 // ... existing code ...
 </script>
