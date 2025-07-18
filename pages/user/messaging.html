@@ -990,6 +990,9 @@ footer.footer {
   position: static !important;
 }
 </style>
+
+<!-- 1. Add emoji-picker-element script -->
+<script type="module" src="https://cdn.jsdelivr.net/npm/emoji-picker-element@^1.0.0/index.js"></script>
 </head>
 <body>
     <!-- Navbar (copied from index.html) -->
@@ -1186,11 +1189,13 @@ footer.footer {
       <!-- Chat Messages -->
       <div id="chatMessages" class="chat-messages"></div>
       <!-- Chat Input Bar -->
-      <form id="chatInputForm" class="chat-input-bar" autocomplete="off">
+      <form id="chatInputForm" class="chat-input-bar" autocomplete="off" style="position:relative;">
         <textarea id="chatInput" class="form-control" placeholder="Type a message..." rows="1" required></textarea>
+        <button type="button" id="emojiBtn" class="btn attachment-btn" title="Add emoji" aria-label="Add emoji"><i class="bi bi-emoji-smile"></i></button>
         <button type="button" id="attachmentBtn" class="btn attachment-btn" title="Attach file"><i class="bi bi-paperclip"></i></button>
         <input type="file" id="fileInput" class="file-input" multiple style="display:none;">
         <div id="filePreview" class="file-preview" style="display:none;"></div>
+        <emoji-picker id="emojiPicker" style="display:none; position:absolute; bottom:60px; left:0; z-index:100; background:#fff;"></emoji-picker>
         <button type="submit" class="btn send-btn" disabled><i class="bi bi-send"></i></button>
       </form>
     </div>
@@ -2749,5 +2754,43 @@ function renderMessages(messages) {
 }
 // ... existing code ...
   </script>
+  <script>
+// ... existing code ...
+// Emoji picker logic
+const emojiBtn = document.getElementById('emojiBtn');
+const emojiPicker = document.getElementById('emojiPicker');
+const chatInput = document.getElementById('chatInput');
+
+if (emojiBtn && emojiPicker && chatInput) {
+  emojiBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    emojiPicker.style.display = emojiPicker.style.display === 'none' ? 'block' : 'none';
+    if (emojiPicker.style.display === 'block') {
+      // Position picker above the input bar
+      const rect = emojiBtn.getBoundingClientRect();
+      emojiPicker.style.left = rect.left + 'px';
+    }
+  });
+  emojiPicker.addEventListener('emoji-click', (event) => {
+    const emoji = event.detail.unicode;
+    // Insert emoji at cursor position
+    const start = chatInput.selectionStart;
+    const end = chatInput.selectionEnd;
+    const value = chatInput.value;
+    chatInput.value = value.substring(0, start) + emoji + value.substring(end);
+    chatInput.focus();
+    chatInput.selectionStart = chatInput.selectionEnd = start + emoji.length;
+    updateSendButtonState();
+    emojiPicker.style.display = 'none';
+  });
+  // Hide picker if clicking outside
+  document.addEventListener('click', function(e) {
+    if (!emojiPicker.contains(e.target) && e.target !== emojiBtn) {
+      emojiPicker.style.display = 'none';
+    }
+  });
+}
+// ... existing code ...
+</script>
 </body>
 </html> 
