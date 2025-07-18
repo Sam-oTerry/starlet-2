@@ -976,6 +976,20 @@ main.chat-outer {
   z-index: unset !important;
 }
 </style>
+<style>
+/* Ensure footer is not overlapped by chat area */
+footer.footer {
+  position: static !important;
+  z-index: unset !important;
+}
+/* Remove position: fixed/absolute from chat area elements except floating-support-btn */
+.chat-container,
+.chat-main,
+.chat-header,
+.chat-input-bar {
+  position: static !important;
+}
+</style>
 </head>
 <body>
     <!-- Navbar (copied from index.html) -->
