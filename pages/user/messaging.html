@@ -966,6 +966,16 @@ main.chat-outer {
   min-height: 400px;
 }
 </style>
+<style>
+/* Remove z-index from chat area elements */
+.chat-container,
+.chat-main,
+.chat-header,
+.chat-input-bar,
+.floating-support-btn {
+  z-index: unset !important;
+}
+</style>
 </head>
 <body>
     <!-- Navbar (copied from index.html) -->
