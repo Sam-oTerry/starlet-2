@@ -15,15 +15,21 @@ let currentChatId = null;
 let chatUnsub = null;
 let typingTimeout = null;
 
-// --- Auth State ---
-auth.onAuthStateChanged(async user => {
-  if (!user) {
-    window.location.href = '/pages/auth/login.html';
+function waitForAuthAndInit() {
+  if (!auth || typeof auth.onAuthStateChanged !== 'function') {
+    setTimeout(waitForAuthAndInit, 100);
     return;
   }
-  currentUser = user;
-  loadConversations();
-});
+  auth.onAuthStateChanged(async user => {
+    if (!user) {
+      window.location.href = '/pages/auth/login.html';
+      return;
+    }
+    currentUser = user;
+    loadConversations();
+  });
+}
+waitForAuthAndInit();
 
 // --- Load Conversations ---
 async function loadConversations() {
