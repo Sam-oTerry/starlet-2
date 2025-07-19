@@ -33,6 +33,7 @@ function waitForFirebaseAndInit() {
     window.currentUser = user;
     loadConversations(db, user);
     setupChatInput(db, user);
+    updateAuthButton(user); // Call updateAuthButton here
   });
 
   // --- Load Conversations ---
@@ -222,6 +223,33 @@ function waitForFirebaseAndInit() {
     if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
     if (bytes < 1024 * 1024 * 1024) return (bytes / 1024 / 1024).toFixed(1) + ' MB';
     return (bytes / 1024 / 1024 / 1024).toFixed(1) + ' GB';
+  }
+
+  // --- Auth Button Logic (from index.html) ---
+  function updateAuthButton(user) {
+    var authButton = document.getElementById('authButton');
+    if (!authButton) return;
+    if (user && !user.isAnonymous) {
+      authButton.textContent = 'Logout';
+      authButton.classList.remove('btn-outline-primary');
+      authButton.classList.add('btn-danger');
+      authButton.href = '#';
+      authButton.onclick = function(e) {
+        e.preventDefault();
+        if (window.firebase && firebase.auth) {
+          firebase.auth().signOut().then(function() {
+            window.location.reload();
+          });
+        }
+      };
+    } else {
+      authButton.textContent = 'Login / Signup';
+      authButton.classList.remove('btn-danger');
+      authButton.classList.add('btn-outline-primary');
+      var loginHref = authButton.getAttribute('data-login-href') || authButton.getAttribute('href') || '/pages/auth/login.html';
+      authButton.href = loginHref;
+      authButton.onclick = null;
+    }
   }
 }
 
