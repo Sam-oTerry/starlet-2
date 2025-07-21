@@ -635,15 +635,16 @@
           listenForConversations(db, user);
           // If ?support=1 in URL, trigger support chat logic
           const url = new URL(window.location.href);
-          if (url.searchParams.get('support') === '1' && typeof window.openSupportChat === 'function') {
-            setTimeout(() => window.openSupportChat(), 500);
-          }
-
-          // If ?listingId & ?listerId in URL, trigger chat with lister
           const listingId = url.searchParams.get('listingId');
           const listerId = url.searchParams.get('listerId');
+          const userId = url.searchParams.get('userid');
+          const agentId = url.searchParams.get('agentid');
           if (listingId && listerId && typeof window.openChatWithLister === 'function') {
             setTimeout(() => window.openChatWithLister(listingId, listerId), 500);
+          } else if (userId && agentId && typeof window.openChatWithLister === 'function') {
+            setTimeout(() => window.openChatWithLister(userId, agentId), 500);
+          } else if (url.searchParams.get('support') === '1' && typeof window.openSupportChat === 'function') {
+            setTimeout(() => window.openSupportChat(), 500);
           }
           // Setup chat input for real-time chat
           const chatInputForm = document.getElementById('chatInputForm');
