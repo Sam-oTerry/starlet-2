@@ -403,6 +403,10 @@
         .orderBy('lastMessageAt', 'desc')
         .onSnapshot(snap => {
           console.log('[DEBUG] Conversations snapshot received. Empty:', snap.empty, 'Count:', snap.size);
+          snap.forEach(doc => {
+            console.log('[DEBUG] Sidebar conversation:', doc.id, doc.data());
+          });
+          console.log('[DEBUG] Conversations snapshot received. Empty:', snap.empty, 'Count:', snap.size);
           if (snap.empty) {
             sidebar.innerHTML = `<div class='text-center py-3'>No conversations yet.<br><button id='startSupportChatBtn' class='btn btn-sm btn-primary mt-3'><i class='bi bi-headset'></i> Start chat with Support/Admin</button></div>`;
             document.getElementById('chatMessages').innerHTML = '<div class="d-flex flex-column align-items-center justify-content-center h-100 text-muted pt-5"><i class="bi bi-chat-dots fs-1 mb-3"></i><p class="mb-0">Start a conversation by selecting a chat or clicking the support button.</p></div>';
@@ -418,14 +422,32 @@
           sidebar.innerHTML = '';
           snap.forEach(doc => {
             const d = doc.data();
-            const other = (d.participantDetails || []).find(u => u.uid !== currentUser.uid) || {};
+            // --- Robust fallback for name/avatar ---
+            let displayName = '';
+            let displayAvatar = '';
+            // Standard conversation with participantDetails
+            if (Array.isArray(d.participantDetails) && d.participantDetails.length > 0) {
+              const other = d.participantDetails.find(u => u.uid !== currentUser.uid) || d.participantDetails[0];
+              displayName = other.name || other.displayName || 'Unknown';
+              displayAvatar = other.avatar || other.photoURL || '';
+            } else if (d.agentName) { // Support/admin chat
+              displayName = d.agentName;
+              displayAvatar = d.agentAvatar || '';
+            } else if (d.listerName) { // Listing chat legacy
+              displayName = d.listerName;
+              displayAvatar = d.listerAvatar || '';
+            } else {
+              displayName = 'Unknown';
+              displayAvatar = '';
+            }
+            if (!displayAvatar) displayAvatar = 'https://randomuser.me/api/portraits/lego/1.jpg';
             const activeClass = doc.id === window.currentChatId ? 'active' : '';
             sidebar.innerHTML += `
-              <div class="chat-listing ${activeClass}" data-chat-id="${doc.id}" tabindex="0" aria-label="Conversation with ${other.name || 'Unknown'}">
-                <img src="${other.avatar || 'https://randomuser.me/api/portraits/lego/1.jpg'}" class="avatar me-2" alt="${other.name || 'Unknown'} avatar" width="40" height="40">
+              <div class="chat-listing ${activeClass}" data-chat-id="${doc.id}" tabindex="0" aria-label="Conversation with ${displayName}">
+                <img src="${displayAvatar}" class="avatar me-2" alt="${displayName} avatar" width="40" height="40">
                 <div class="flex-grow-1">
                   <div class="d-flex justify-content-between align-items-center">
-                    <span class="chat-listing-title">${other.name || 'Unknown'}</span>
+                    <span class="chat-listing-title">${displayName}</span>
                     <span class="chat-listing-time small text-muted">${d.lastMessageAt ? new Date(d.lastMessageAt.seconds*1000).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : ''}</span>
                   </div>
                   <div class="chat-listing-agent text-truncate">${d.lastMessage || ''}</div>
@@ -466,7 +488,27 @@
     }
     console.log('[DEBUG] Conversation loaded:', chatDoc.data());
         const d = chatDoc.data();
-        const other = (d.participantDetails || []).find(u => u.uid !== currentUser.uid) || {};
+        // --- Robust fallback for chat header name/avatar ---
+        let headerName = '';
+        let headerAvatar = '';
+        let headerSub = '';
+        if (Array.isArray(d.participantDetails) && d.participantDetails.length > 0) {
+          const other = d.participantDetails.find(u => u.uid !== currentUser.uid) || d.participantDetails[0];
+          headerName = other.name || other.displayName || 'Unknown';
+          headerAvatar = other.avatar || other.photoURL || '';
+        } else if (d.agentName) {
+          headerName = d.agentName;
+          headerAvatar = d.agentAvatar || '';
+          headerSub = d.listingTitle || 'Support Chat';
+        } else if (d.listerName) {
+          headerName = d.listerName;
+          headerAvatar = d.listerAvatar || '';
+          headerSub = d.listingTitle || '';
+        } else {
+          headerName = 'Unknown';
+          headerAvatar = '';
+        }
+        if (!headerAvatar) headerAvatar = 'https://randomuser.me/api/portraits/lego/1.jpg';
         // Render chat header
         const chatHeader = document.getElementById('chatHeader');
         let quoteHtml = '';
