@@ -69,31 +69,29 @@
   <div class="row g-0" style="min-height: 70vh;">
     <!-- Conversations Sidebar -->
     <div class="col-12 col-md-4 col-lg-3 border-end bg-light d-flex flex-column" id="chatSidebar">
-      <div class="d-flex align-items-center justify-content-between px-3 py-3 border-bottom">
-        <h5 class="mb-0 fw-bold">Conversations</h5>
-        <button class="btn btn-sm btn-outline-primary d-md-none" type="button" data-bs-toggle="collapse" data-bs-target="#chatSidebarList" aria-expanded="false" aria-controls="chatSidebarList">
-          <i class="bi bi-list"></i>
-        </button>
+      <div class="d-flex align-items-center justify-content-between px-3 py-3 border-bottom bg-white">
+        <h5 class="mb-0 fw-bold">Chat</h5>
+        <button class="btn btn-primary btn-sm rounded-pill px-3 shadow-sm" id="newChatBtn">NEW</button>
       </div>
       <div class="collapse show d-md-block" id="chatSidebarList">
-        <div class="list-group list-group-flush" style="overflow-y: auto; max-height: 65vh;">
+        <div class="list-group list-group-flush chat-list-scroll" id="chatListContainer">
           <!-- Conversations will be loaded here dynamically -->
         </div>
       </div>
     </div>
     <!-- Chat Area -->
     <div class="col-12 col-md-8 col-lg-9 d-flex flex-column" id="chatMainArea">
-      <div class="card rounded-0 border-0 flex-grow-1 d-flex flex-column h-100">
-        <div class="card-header bg-white border-bottom d-flex align-items-center gap-3" id="chatHeader" style="min-height: 70px;">
-          <!-- Chat header (avatar, name, listing, typing indicator) -->
+      <div class="card rounded-4 border-0 flex-grow-1 d-flex flex-column h-100 shadow-sm chat-main-card">
+        <div class="card-header bg-white border-bottom-0 d-flex align-items-center gap-3 chat-header" id="chatHeader">
+          <!-- Chat header (avatar, name, status) will be rendered dynamically -->
         </div>
-        <div class="card-body px-3 py-2 flex-grow-1 overflow-auto bg-light" id="chatMessages" style="min-height: 300px; max-height: 55vh;">
+        <div class="card-body px-4 py-3 flex-grow-1 overflow-auto bg-light chat-body" id="chatMessages">
           <!-- Messages will be populated dynamically via JavaScript -->
         </div>
-        <div class="card-footer bg-white border-top p-2 position-sticky bottom-0">
+        <div class="card-footer bg-white border-0 p-3 chat-footer">
           <form class="d-flex align-items-center gap-2" id="chatInputForm" autocomplete="off">
-            <input id="chatInput" type="text" class="form-control flex-grow-1" placeholder="Type your message..." aria-label="Type your message" autocomplete="off">
-            <button type="submit" class="btn btn-primary px-4"><i class="bi bi-send"></i> <span class="d-none d-md-inline">Send</span></button>
+            <input id="chatInput" type="text" class="form-control flex-grow-1 rounded-pill px-4 py-2 chat-input" placeholder="Type your message..." aria-label="Type your message" autocomplete="off">
+            <button type="submit" class="btn btn-primary rounded-circle d-flex align-items-center justify-content-center chat-send-btn" style="width:44px;height:44px;"><i class="bi bi-send fs-5"></i></button>
           </form>
         </div>
       </div>
@@ -392,87 +390,85 @@
   <!-- Real-time chat and conversation loader -->
   <script>
     // --- Real-time Conversations Loader ---
-    function listenForConversations(db, currentUser) {
+    const listenForConversations = (db, currentUser) => {
   console.log('[DEBUG] listenForConversations called for user:', currentUser && currentUser.uid);
-      const sidebar = document.querySelector('#chatSidebarList .list-group');
-      if (!sidebar) return;
-      sidebar.innerHTML = '<div class="text-center py-3">Loading...</div>';
-      // Listen for all conversations for this user
-      db.collection('conversations')
-        .where('participants', 'array-contains', currentUser.uid)
-        .orderBy('lastMessageAt', 'desc')
-        .onSnapshot(snap => {
-          console.log('[DEBUG] Conversations snapshot received. Empty:', snap.empty, 'Count:', snap.size);
-          snap.forEach(doc => {
-            console.log('[DEBUG] Sidebar conversation:', doc.id, doc.data());
-          });
-          console.log('[DEBUG] Conversations snapshot received. Empty:', snap.empty, 'Count:', snap.size);
-          if (snap.empty) {
-            sidebar.innerHTML = `<div class='text-center py-3'>No conversations yet.<br><button id='startSupportChatBtn' class='btn btn-sm btn-primary mt-3'><i class='bi bi-headset'></i> Start chat with Support/Admin</button></div>`;
-            document.getElementById('chatMessages').innerHTML = '<div class="d-flex flex-column align-items-center justify-content-center h-100 text-muted pt-5"><i class="bi bi-chat-dots fs-1 mb-3"></i><p class="mb-0">Start a conversation by selecting a chat or clicking the support button.</p></div>';
-            // Add handler for starting support chat
-            setTimeout(() => {
-              const btn = document.getElementById('startSupportChatBtn');
-              if (btn) btn.onclick = () => {
-                if (typeof window.openSupportChat === 'function') window.openSupportChat();
-              };
-            }, 100);
-            return;
-          }
-          sidebar.innerHTML = '';
-          snap.forEach(doc => {
-            const d = doc.data();
-            // --- Robust fallback for name/avatar ---
-            let displayName = '';
-            let displayAvatar = '';
-            // Standard conversation with participantDetails
-            if (Array.isArray(d.participantDetails) && d.participantDetails.length > 0) {
-              const other = d.participantDetails.find(u => u.uid !== currentUser.uid) || d.participantDetails[0];
-              displayName = other.name || other.displayName || 'Unknown';
-              displayAvatar = other.avatar || other.photoURL || '';
-            } else if (d.agentName) { // Support/admin chat
-              displayName = d.agentName;
-              displayAvatar = d.agentAvatar || '';
-            } else if (d.listerName) { // Listing chat legacy
-              displayName = d.listerName;
-              displayAvatar = d.listerAvatar || '';
-            } else {
-              displayName = 'Unknown';
-              displayAvatar = '';
-            }
-            if (!displayAvatar) displayAvatar = 'https://randomuser.me/api/portraits/lego/1.jpg';
-            const activeClass = doc.id === window.currentChatId ? 'active' : '';
-            sidebar.innerHTML += `
-              <div class="chat-listing ${activeClass}" data-chat-id="${doc.id}" tabindex="0" aria-label="Conversation with ${displayName}">
-                <img src="${displayAvatar}" class="avatar me-2" alt="${displayName} avatar" width="40" height="40">
-                <div class="flex-grow-1">
-                  <div class="d-flex justify-content-between align-items-center">
-                    <span class="chat-listing-title">${displayName}</span>
-                    <span class="chat-listing-time small text-muted">${d.lastMessageAt ? new Date(d.lastMessageAt.seconds*1000).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : ''}</span>
-                  </div>
-                  <div class="chat-listing-agent text-truncate">${d.lastMessage || ''}</div>
-                </div>
-                ${d.unread && d.unread[currentUser.uid] ? `<span class="unread-badge">${d.unread[currentUser.uid]}</span>` : ''}
-              </div>
-            `;
-          });
-          // Click handler for chat listings
-          Array.from(sidebar.querySelectorAll('.chat-listing')).forEach(a => {
-            a.onclick = function(e) {
-              e.preventDefault();
-              openChatRealtime(db, currentUser, this.getAttribute('data-chat-id'));
+  const sidebar = document.querySelector('#chatSidebarList .list-group');
+  if (!sidebar) return;
+  sidebar.innerHTML = '<div class="text-center py-3">Loading...</div>';
+  db.collection('conversations')
+    .where('participants', 'array-contains', currentUser.uid)
+    .orderBy('lastMessageAt', 'desc')
+    .onSnapshot(snap => {
+      console.log('[DEBUG] Conversations snapshot received. Empty:', snap.empty, 'Count:', snap.size);
+      snap.forEach(doc => {
+        console.log('[DEBUG] Sidebar conversation:', doc.id, doc.data());
+      });
+      if (snap.empty) {
+        sidebar.innerHTML = `<div class='text-center py-3'>No conversations yet.<br><button id='startSupportChatBtn' class='btn btn-sm btn-primary mt-3'><i class='bi bi-headset'></i> Start chat with Support/Admin</button></div>`;
+        const chatMessages = document.getElementById('chatMessages');
+        if (chatMessages) {
+          chatMessages.innerHTML = '<div class="d-flex flex-column align-items-center justify-content-center h-100 text-muted pt-5"><i class="bi bi-chat-dots fs-1 mb-3"></i><p class="mb-0">Start a conversation by selecting a chat or clicking the support button.</p></div>';
+        }
+        setTimeout(() => {
+          const btn = document.getElementById('startSupportChatBtn');
+          if (btn) {
+            btn.onclick = () => {
+              if (typeof window.openSupportChat === 'function') window.openSupportChat();
             };
-          });
-          // Auto-open first chat if none selected
-          if (!window.currentChatId && snap.docs.length > 0) {
-            openChatRealtime(db, currentUser, snap.docs[0].id);
           }
-        });
-    }
+        }, 100);
+        return;
+      }
+      sidebar.innerHTML = '';
+      snap.forEach(doc => {
+        const d = doc.data();
+        let displayName = '';
+        let displayAvatar = '';
+        if (Array.isArray(d.participantDetails) && d.participantDetails.length > 0) {
+          const other = d.participantDetails.find(u => u.uid !== currentUser.uid) || d.participantDetails[0];
+          displayName = other.name || other.displayName || 'Unknown';
+          displayAvatar = other.avatar || other.photoURL || '';
+        } else if (d.agentName) {
+          displayName = d.agentName;
+          displayAvatar = d.agentAvatar || '';
+        } else if (d.listerName) {
+          displayName = d.listerName;
+          displayAvatar = d.listerAvatar || '';
+        } else {
+          displayName = 'Unknown';
+          displayAvatar = '';
+        }
+        if (!displayAvatar) displayAvatar = 'https://randomuser.me/api/portraits/lego/1.jpg';
+        const activeClass = doc.id === window.currentChatId ? 'active' : '';
+        sidebar.innerHTML += `
+          <div class="chat-listing ${activeClass}" data-chat-id="${doc.id}" tabindex="0" aria-label="Conversation with ${displayName}">
+            <img src="${displayAvatar}" class="avatar" alt="${displayName} avatar">
+            <div class="chat-info">
+              <div class="chat-name">${displayName}</div>
+              <div class="chat-last">${d.lastMessage || ''}</div>
+            </div>
+            <div class="chat-meta">
+              <span class="chat-time">${d.lastMessageAt ? new Date(d.lastMessageAt.seconds * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}</span>
+              ${d.unread && d.unread[currentUser.uid] ? `<span class="chat-unread">${d.unread[currentUser.uid]}</span>` : ''}
+            </div>
+          </div>
+        `;
+      });
+      Array.from(sidebar.querySelectorAll('.chat-listing')).forEach(a => {
+        a.onclick = e => {
+          e.preventDefault();
+          openChatRealtime(db, currentUser, a.getAttribute('data-chat-id'));
+        };
+      });
+      if (!window.currentChatId && snap.docs.length > 0) {
+        openChatRealtime(db, currentUser, snap.docs[0].id);
+      }
+    });
+};
 
     // --- Real-time Chat Loader ---
     let chatUnsubRealtime = null;
-    function openChatRealtime(db, currentUser, chatId) {
+    const openChatRealtime = (db, currentUser, chatId) => {
   console.log('[DEBUG] openChatRealtime called for chatId:', chatId, 'user:', currentUser && currentUser.uid);
       if (chatUnsubRealtime) chatUnsubRealtime();
       window.currentChatId = chatId;
@@ -492,21 +488,25 @@
         let headerName = '';
         let headerAvatar = '';
         let headerSub = '';
+        let other = null;
         if (Array.isArray(d.participantDetails) && d.participantDetails.length > 0) {
-          const other = d.participantDetails.find(u => u.uid !== currentUser.uid) || d.participantDetails[0];
+          other = d.participantDetails.find(u => u.uid !== currentUser.uid) || d.participantDetails[0];
           headerName = other.name || other.displayName || 'Unknown';
           headerAvatar = other.avatar || other.photoURL || '';
         } else if (d.agentName) {
           headerName = d.agentName;
           headerAvatar = d.agentAvatar || '';
           headerSub = d.listingTitle || 'Support Chat';
+          other = { name: headerName, avatar: headerAvatar };
         } else if (d.listerName) {
           headerName = d.listerName;
           headerAvatar = d.listerAvatar || '';
           headerSub = d.listingTitle || '';
+          other = { name: headerName, avatar: headerAvatar };
         } else {
           headerName = 'Unknown';
           headerAvatar = '';
+          other = { name: headerName, avatar: headerAvatar };
         }
         if (!headerAvatar) headerAvatar = 'https://randomuser.me/api/portraits/lego/1.jpg';
         // Render chat header
@@ -565,16 +565,16 @@
               readMark = '<span class="ms-1 text-success small"><i class="bi bi-check2-all"></i> Seen</span>';
             }
             chatMessages.innerHTML += `
-              <div class="message-row ${sent ? 'sent' : 'received'} mb-2 position-relative group" data-message-id="${doc.id}" data-message-text="${escapeHTML(m.text || '')}" data-message-sender="${sent ? 'You' : (m.senderName || 'User')}">
-                <img src="${sent ? (currentUser.photoURL || 'https://randomuser.me/api/portraits/lego/1.jpg') : (m.avatar || 'https://randomuser.me/api/portraits/lego/1.jpg')}" class="avatar me-2" style="width:32px;height:32px;border-radius:50%;object-fit:cover;">
-                <div>
+              <div class="message-row ${sent ? 'sent' : 'received'}" data-message-id="${doc.id}" data-message-text="${escapeHTML(m.text || '')}" data-message-sender="${sent ? 'You' : (m.senderName || 'User')}">
+                <img src="${sent ? (currentUser.photoURL || 'https://randomuser.me/api/portraits/lego/1.jpg') : (m.avatar || 'https://randomuser.me/api/portraits/lego/1.jpg')}" class="message-avatar">
+                <div class="message-bubble">
                   ${replyHtml}
                   ${content}
-                  <div class="timestamp">${m.createdAt ? new Date(m.createdAt.seconds*1000).toLocaleString() : ''} ${readMark}</div>
+                  <div class="timestamp" style="font-size:0.85rem;color:#adb5bd;margin-top:0.3rem;">${m.createdAt ? new Date(m.createdAt.seconds*1000).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : ''} ${readMark}</div>
                 </div>
                 <button class="btn btn-link btn-sm text-muted reply-btn position-absolute top-0 end-0 d-none"><i class="bi bi-reply"></i></button>
               </div>
-            `;
+             `;
           });
           // Show reply button on hover
           Array.from(chatMessages.querySelectorAll('.message-row')).forEach(row => {
@@ -714,8 +714,15 @@
             replyPreview.className = 'reply-preview d-none mb-2 px-3 py-2 rounded bg-light border-start border-3 border-primary position-relative';
             chatInputForm.parentNode.insertBefore(replyPreview, chatInputForm);
 
+            // Reply preview UI handler
             window.setReplyPreview = function(msgId, msgText, msgSender) {
-              replyPreview.innerHTML = `<span class='small text-muted'>Replying to ${msgSender}</span><br><span class='text-truncate d-block mb-1' style='max-width:180px;'>${msgText}</span><button type='button' class='btn-close btn-sm position-absolute top-0 end-0' aria-label='Cancel reply'></button>`;
+              const replyPreview = document.getElementById('replyPreview');
+              if (!replyPreview) return;
+              replyPreview.innerHTML = `
+                <span class='small text-muted'>Replying to ${msgSender}</span><br>
+                <span class='text-truncate d-block mb-1' style='max-width:180px;'>${msgText}</span>
+                <button type='button' class='btn-close btn-sm position-absolute top-0 end-0' aria-label='Cancel reply'></button>
+              `;
               replyPreview.classList.remove('d-none');
               replyPreview.querySelector('.btn-close').onclick = function() {
                 replyPreview.classList.add('d-none');
@@ -724,16 +731,18 @@
               window.replyToMessage = { msgId, msgText, msgSender };
             };
 
+            // Message send handler
             chatInputForm.onsubmit = async function(e) {
               e.preventDefault();
               const input = document.getElementById('chatInput');
+              const replyPreview = document.getElementById('replyPreview');
               const text = input.value.trim();
               if (!text || !window.currentChatId) return;
               let msgObj = {
                 type: 'text',
                 text,
-                senderId: user.uid,
-                createdAt: new Date()
+                senderId: currentUser.uid,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
               };
               if (window.replyToMessage) {
                 msgObj.replyTo = {
@@ -741,17 +750,17 @@
                   text: window.replyToMessage.msgText,
                   sender: window.replyToMessage.msgSender
                 };
-                replyPreview.classList.add('d-none');
-                window.replyToMessage = null;
               }
+              if (replyPreview) replyPreview.classList.add('d-none');
+              window.replyToMessage = null;
               await db.collection('conversations').doc(window.currentChatId).collection('messages').add(msgObj);
               input.value = '';
             };
           }
         });
-      }; // closes auth.onAuthStateChanged
+      }
       ready();
     });
-  </script>
+</script>
 </body>
 </html>
