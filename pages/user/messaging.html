@@ -119,24 +119,33 @@
   .message-row {
     transition: background 0.18s, box-shadow 0.18s;
     position: relative;
+    display: flex;
+    align-items: flex-end;
+    gap: 0.7rem;
+    margin-bottom: 0.7rem;
+    padding-left: 6px;
+    padding-right: 6px;
+    width: 100%;
   }
   .bubble {
-    border-radius: 1.2rem 1.2rem 1.2rem 0.5rem;
-    box-shadow: 0 2px 12px rgba(33,37,41,0.08);
+    border-radius: 1.15em 1.15em 1.15em 0.6em;
+    box-shadow: 0 2px 8px rgba(33,37,41,0.07);
     background: #fff;
     animation: chat-bubble-expand 0.42s cubic-bezier(.38,1.4,.38,1) both;
     min-width: 36px;
-    max-width: var(--bubble-max-width);
-    width: fit-content;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    font-size: 1.05rem;
-    line-height: 1.6;
+    max-width: 78vw;
+    width: auto;
+    padding: 0.56em 1.12em 0.56em 1.12em;
+    font-size: 1.07rem;
+    line-height: 1.7;
     border: 1.5px solid #f1f3f7;
     transition: box-shadow 0.18s, border-color 0.18s, background 0.18s;
     cursor: pointer;
     position: relative;
+    margin-bottom: 2px;
+    white-space: pre-line;
+    overflow-wrap: break-word;
+    word-break: break-word;
   }
   .bubble:hover::after {
     content: attr(data-fulltext);
@@ -164,12 +173,16 @@
     border: 1.5px solid var(--bubble-sent-border);
     color: var(--bubble-sent-text);
     align-self: flex-end;
+    margin-left: auto;
+    margin-right: 0;
   }
   .bubble.received {
     background: var(--bubble-received-bg);
     border: 1.5px solid var(--bubble-received-border);
     color: var(--bubble-received-text);
     align-self: flex-start;
+    margin-right: auto;
+    margin-left: 0;
   }
   .bubble:hover {
     box-shadow: var(--bubble-hover-shadow);
@@ -191,6 +204,13 @@
     color: var(--bubble-reply-text);
     animation: chat-bubble-expand 0.32s cubic-bezier(.38,1.4,.38,1) both;
     transition: box-shadow 0.18s, border-color 0.18s;
+    padding: 0.38em 0.95em 0.38em 0.85em;
+    margin-bottom: 2px;
+    border-radius: 0.7em 1.1em 1.1em 0.7em;
+    max-width: 78vw;
+    font-size: 0.97em;
+    overflow-wrap: break-word;
+    word-break: break-word;
   }
   .reply-preview:hover, .reply-quote:hover {
     box-shadow: var(--bubble-reply-hover-shadow);
@@ -204,10 +224,31 @@
     80% { opacity: 1; transform: scale(1.04) translateY(-4px); }
     100% { opacity: 1; transform: scale(1) translateY(0); }
   }
+  @media (max-width: 700px) {
+    .bubble, .reply-preview, .reply-quote {
+      max-width: 94vw;
+      font-size: 0.98em;
+      padding: 0.48em 0.75em 0.48em 0.75em;
+    }
+    .message-row {
+      gap: 0.32rem;
+      padding-left: 2px;
+      padding-right: 2px;
+    }
+    .message-avatar {
+      width: 30px;
+      height: 30px;
+    }
+  }
+
   .message-avatar {
     box-shadow: 0 2px 8px rgba(0,0,0,0.07);
     border: 2px solid #fff;
     background: #f8fafc;
+    width: 38px;
+    height: 38px;
+    object-fit: cover;
+    flex-shrink: 0;
   }
 
   #chatSidebar {
