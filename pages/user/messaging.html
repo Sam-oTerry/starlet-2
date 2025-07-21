@@ -284,20 +284,27 @@
   </script>
   <script>
     // --- Support Chat Integration ---
-    // Define the support/admin user (could be from config or hardcoded for now)
+    // Start a conversation with any admin user (not just a hardcoded support email)
     const SUPPORT_EMAIL = 'support@starletproperties.ug';
-    // You may want to keep a map of support user info if you have multiple admins
 
-    // Utility to get or create a chat with support/admin
+    // Utility to get or create a chat with an admin
     async function getOrCreateSupportChat(db, currentUser) {
-      // 1. Query Firestore for support user by email
-      const usersSnap = await db.collection('users').where('email', '==', SUPPORT_EMAIL).limit(1).get();
-      if (usersSnap.empty) {
-        alert('Support user not found.');
-        return null;
+      // 1. Query Firestore for any admin user
+      let adminSnap = await db.collection('users').where('role', '==', 'admin').limit(1).get();
+      let supportUser, supportUid;
+      if (!adminSnap.empty) {
+        supportUser = adminSnap.docs[0].data();
+        supportUid = adminSnap.docs[0].id;
+      } else {
+        // Fallback: use support email
+        const usersSnap = await db.collection('users').where('email', '==', SUPPORT_EMAIL).limit(1).get();
+        if (usersSnap.empty) {
+          alert('No admin or support user found.');
+          return null;
+        }
+        supportUser = usersSnap.docs[0].data();
+        supportUid = usersSnap.docs[0].id;
       }
-      const supportUser = usersSnap.docs[0].data();
-      const supportUid = usersSnap.docs[0].id;
       // 2. Check if chat already exists
       let chatSnap = await db.collection('chats')
         .where('participants', 'in', [[currentUser.uid, supportUid], [supportUid, currentUser.uid]])
@@ -311,7 +318,7 @@
           participants: [currentUser.uid, supportUid],
           participantDetails: [
             { uid: currentUser.uid, name: currentUser.displayName || 'You', email: currentUser.email, avatar: currentUser.photoURL || '' },
-            { uid: supportUid, name: supportUser.displayName || 'Support', email: SUPPORT_EMAIL, avatar: supportUser.photoURL || '' }
+            { uid: supportUid, name: supportUser.displayName || 'Support', email: supportUser.email || SUPPORT_EMAIL, avatar: supportUser.photoURL || '' }
           ],
           lastMessage: '',
           lastMessageAt: new Date(),
@@ -323,6 +330,7 @@
       }
       return chatId;
     }
+
 
     // Expose a global function for the floating support button and ?support=1 logic
     window.openSupportChat = async function() {
