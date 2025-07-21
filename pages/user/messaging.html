@@ -306,7 +306,7 @@
         supportUid = usersSnap.docs[0].id;
       }
       // 2. Check if chat already exists
-      let chatSnap = await db.collection('chats')
+      let chatSnap = await db.collection('conversations')
         .where('participants', 'in', [[currentUser.uid, supportUid], [supportUid, currentUser.uid]])
         .limit(1).get();
       let chatId;
@@ -314,7 +314,7 @@
         chatId = chatSnap.docs[0].id;
       } else {
         // 3. Create new chat document
-        const chatDoc = await db.collection('chats').add({
+        const chatDoc = await db.collection('conversations').add({
           participants: [currentUser.uid, supportUid],
           participantDetails: [
             { uid: currentUser.uid, name: currentUser.displayName || 'You', email: currentUser.email, avatar: currentUser.photoURL || '' },
@@ -578,7 +578,7 @@
           }
         } catch (e) {}
         // Create new chat
-        const chatDoc = await db.collection('chats').add({
+        const chatDoc = await db.collection('conversations').add({
           participants: [user.uid, listerId],
           participantDetails: [
             { uid: user.uid, name: user.displayName || 'You', email: user.email, avatar: user.photoURL || '' },
