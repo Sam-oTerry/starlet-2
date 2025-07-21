@@ -454,69 +454,90 @@
       db.collection('chats').doc(chatId).get().then(chatDoc => {
         const d = chatDoc.data();
         const other = (d.participantDetails || []).find(u => u.uid !== currentUser.uid) || {};
-        document.getElementById('chatHeader').innerHTML = `
-          <img src="${other.avatar || 'https://randomuser.me/api/portraits/lego/1.jpg'}" class="avatar">
-          <div class="info">
-            <h5>${other.name || 'Unknown'}</h5>
-            <p>${d.listingTitle || ''}</p>
-          </div>
-          <div id="typingIndicator" class="typing-indicator" style="display:none;"></div>
-        `;
-      });
-      // Listen for messages in real time
-      const chatMessages = document.getElementById('chatMessages');
-      chatMessages.innerHTML = '<div class="text-center py-3">Loading...</div>';
-      chatUnsubRealtime = db.collection('chats').doc(chatId).collection('messages').orderBy('createdAt').onSnapshot(snap => {
-        chatMessages.innerHTML = '';
-        snap.forEach(doc => {
-          const m = doc.data();
-          const sent = m.senderId === currentUser.uid;
-          let replyHtml = '';
-          if (m.replyTo) {
-            replyHtml = `<div class="reply-quote mb-1 px-2 py-1 rounded bg-white border-start border-3 ${sent ? 'border-warning' : 'border-primary'}">
-              <span class="small text-muted">${m.replyTo.sender || 'User'}</span><br>
-              <span class="text-truncate d-block" style="max-width:180px;">${escapeHTML(m.replyTo.text || '')}</span>
-            </div>`;
-          }
-          let content = '';
-          if (m.type === 'text') {
-            content = `<div class="bubble ${sent ? 'sent' : 'received'}">${escapeHTML(m.text)}</div>`;
-          } else if (m.type === 'image') {
-            content = `<div class="bubble"><img src="${m.url}" class="chat-img"><div class="img-caption">${escapeHTML(m.caption || '')}</div></div>`;
-          } else if (m.type === 'file') {
-            content = `<div class="bubble"><i class="bi bi-paperclip file-icon"></i><a href="${m.url}" target="_blank" class="file-link">${m.fileName}</a><div class="file-size">${formatFileSize(m.fileSize)}</div></div>`;
-          }
-          let readMark = '';
-          if (sent && m.readBy && m.readBy.includes(currentUser.uid)) {
-            readMark = '<span class="ms-1 text-success small"><i class="bi bi-check2-all"></i> Seen</span>';
-          }
-          chatMessages.innerHTML += `
-            <div class="message-row ${sent ? 'sent' : 'received'} mb-2 position-relative group" data-message-id="${doc.id}" data-message-text="${escapeHTML(m.text || '')}" data-message-sender="${sent ? 'You' : (m.senderName || 'User')}">
-              <img src="${sent ? (currentUser.photoURL || 'https://randomuser.me/api/portraits/lego/1.jpg') : (m.avatar || 'https://randomuser.me/api/portraits/lego/1.jpg')}" class="avatar me-2" style="width:32px;height:32px;border-radius:50%;object-fit:cover;">
-              <div>
-                ${replyHtml}
-                ${content}
-                <div class="timestamp">${m.createdAt ? new Date(m.createdAt.seconds*1000).toLocaleString() : ''} ${readMark}</div>
+        // Render chat header
+        const chatHeader = document.getElementById('chatHeader');
+        let quoteHtml = '';
+        if (d.listingQuote) {
+          quoteHtml = `
+            <div class="listing-quote border rounded p-2 mb-2 d-flex align-items-center gap-2 bg-light">
+              ${d.listingQuote.image ? `<img src="${d.listingQuote.image}" alt="${d.listingQuote.title}" style="width:56px;height:56px;object-fit:cover;border-radius:8px;">` : ''}
+              <div class="flex-grow-1">
+                <div class="fw-bold">${d.listingQuote.title || 'Listing'}</div>
+                ${d.listingQuote.price ? `<div class="text-success">UGX ${Number(d.listingQuote.price).toLocaleString()}</div>` : ''}
+                <a href="${d.listingQuote.link}" target="_blank" class="small text-primary text-decoration-underline">View Listing</a>
               </div>
-              <button class="btn btn-link btn-sm text-muted reply-btn position-absolute top-0 end-0 d-none"><i class="bi bi-reply"></i></button>
             </div>
           `;
-        });
-        // Show reply button on hover
-        Array.from(chatMessages.querySelectorAll('.message-row')).forEach(row => {
-          row.addEventListener('mouseenter', () => {
-            row.querySelector('.reply-btn').classList.remove('d-none');
+        }
+        chatHeader.innerHTML = `
+          ${quoteHtml}
+          <div class="d-flex align-items-center gap-3">
+            <img src="${other.avatar || 'https://randomuser.me/api/portraits/lego/1.jpg'}" class="avatar me-2" alt="${other.name || 'Unknown'} avatar" width="40" height="40">
+            <div class="flex-grow-1">
+              <div class="d-flex justify-content-between align-items-center">
+                <span class="chat-listing-title">${other.name || 'Unknown'}</span>
+                <span class="chat-listing-time small text-muted"></span>
+              </div>
+              <div class="chat-listing-agent text-truncate"></div>
+            </div>
+          </div>
+        `;
+        // Load messages in real time
+        const chatMessages = document.getElementById('chatMessages');
+        chatMessages.innerHTML = '<div class="text-center py-3">Loading...</div>';
+        chatUnsubRealtime = db.collection('chats').doc(chatId).collection('messages').orderBy('createdAt').onSnapshot(snap => {
+          chatMessages.innerHTML = '';
+          snap.forEach(doc => {
+            const m = doc.data();
+            const sent = m.senderId === currentUser.uid;
+            let replyHtml = '';
+            if (m.replyTo) {
+              replyHtml = `<div class="reply-quote mb-1 px-2 py-1 rounded bg-white border-start border-3 ${sent ? 'border-warning' : 'border-primary'}">
+                <span class="small text-muted">${m.replyTo.sender || 'User'}</span><br>
+                <span class="text-truncate d-block" style="max-width:180px;">${escapeHTML(m.replyTo.text || '')}</span>
+              </div>`;
+            }
+            let content = '';
+            if (m.type === 'text') {
+              content = `<div class="bubble ${sent ? 'sent' : 'received'}">${escapeHTML(m.text)}</div>`;
+            } else if (m.type === 'image') {
+              content = `<div class="bubble"><img src="${m.url}" class="chat-img"><div class="img-caption">${escapeHTML(m.caption || '')}</div></div>`;
+            } else if (m.type === 'file') {
+              content = `<div class="bubble"><i class="bi bi-paperclip file-icon"></i><a href="${m.url}" target="_blank" class="file-link">${m.fileName}</a><div class="file-size">${formatFileSize(m.fileSize)}</div></div>`;
+            }
+            let readMark = '';
+            if (sent && m.readBy && m.readBy.includes(currentUser.uid)) {
+              readMark = '<span class="ms-1 text-success small"><i class="bi bi-check2-all"></i> Seen</span>';
+            }
+            chatMessages.innerHTML += `
+              <div class="message-row ${sent ? 'sent' : 'received'} mb-2 position-relative group" data-message-id="${doc.id}" data-message-text="${escapeHTML(m.text || '')}" data-message-sender="${sent ? 'You' : (m.senderName || 'User')}">
+                <img src="${sent ? (currentUser.photoURL || 'https://randomuser.me/api/portraits/lego/1.jpg') : (m.avatar || 'https://randomuser.me/api/portraits/lego/1.jpg')}" class="avatar me-2" style="width:32px;height:32px;border-radius:50%;object-fit:cover;">
+                <div>
+                  ${replyHtml}
+                  ${content}
+                  <div class="timestamp">${m.createdAt ? new Date(m.createdAt.seconds*1000).toLocaleString() : ''} ${readMark}</div>
+                </div>
+                <button class="btn btn-link btn-sm text-muted reply-btn position-absolute top-0 end-0 d-none"><i class="bi bi-reply"></i></button>
+              </div>
+            `;
           });
-          row.addEventListener('mouseleave', () => {
+          // Show reply button on hover
+          Array.from(chatMessages.querySelectorAll('.message-row')).forEach(row => {
+            row.addEventListener('mouseenter', () => {
+              row.querySelector('.reply-btn').classList.remove('d-none');
+            });
+            row.addEventListener('mouseleave', () => {
+              row.querySelector('.reply-btn').classList.add('d-none');
+            });
+            row.querySelector('.reply-btn').onclick = function(e) {
+              e.stopPropagation();
+              const msgId = row.getAttribute('data-message-id');
+              const msgText = row.getAttribute('data-message-text');
+              const msgSender = row.getAttribute('data-message-sender');
+              setReplyPreview(msgId, msgText, msgSender);
+            };
             row.querySelector('.reply-btn').classList.add('d-none');
           });
-          row.querySelector('.reply-btn').onclick = function(e) {
-            e.stopPropagation();
-            const msgId = row.getAttribute('data-message-id');
-            const msgText = row.getAttribute('data-message-text');
-            const msgSender = row.getAttribute('data-message-sender');
-            setReplyPreview(msgId, msgText, msgSender);
-          };
         });
         chatMessages.scrollTop = chatMessages.scrollHeight;
         markMessagesRead(db, chatId, currentUser);
