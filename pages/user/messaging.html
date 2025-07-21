@@ -289,8 +289,11 @@
 
     // Utility to get or create a chat with an admin
     async function getOrCreateSupportChat(db, currentUser) {
+  console.log('[DEBUG] getOrCreateSupportChat called for user:', currentUser && currentUser.uid);
+
       // 1. Query Firestore for any admin user
       let adminSnap = await db.collection('users').where('role', '==', 'admin').limit(1).get();
+  console.log('[DEBUG] Admin users found:', adminSnap.size);
       let supportUser, supportUid;
       if (!adminSnap.empty) {
         supportUser = adminSnap.docs[0].data();
@@ -309,6 +312,7 @@
       let chatSnap = await db.collection('conversations')
         .where('participants', 'in', [[currentUser.uid, supportUid], [supportUid, currentUser.uid]])
         .limit(1).get();
+  console.log('[DEBUG] Existing support chat found:', !chatSnap.empty);
       let chatId;
       if (!chatSnap.empty) {
         chatId = chatSnap.docs[0].id;
@@ -328,6 +332,7 @@
         });
         chatId = chatDoc.id;
       }
+      console.log('[DEBUG] Returning support chatId:', chatId);
       return chatId;
     }
 
@@ -388,6 +393,7 @@
   <script>
     // --- Real-time Conversations Loader ---
     function listenForConversations(db, currentUser) {
+  console.log('[DEBUG] listenForConversations called for user:', currentUser && currentUser.uid);
       const sidebar = document.querySelector('#chatSidebarList .list-group');
       if (!sidebar) return;
       sidebar.innerHTML = '<div class="text-center py-3">Loading...</div>';
@@ -396,6 +402,7 @@
         .where('participants', 'array-contains', currentUser.uid)
         .orderBy('lastMessageAt', 'desc')
         .onSnapshot(snap => {
+          console.log('[DEBUG] Conversations snapshot received. Empty:', snap.empty, 'Count:', snap.size);
           if (snap.empty) {
             sidebar.innerHTML = `<div class='text-center py-3'>No conversations yet.<br><button id='startSupportChatBtn' class='btn btn-sm btn-primary mt-3'><i class='bi bi-headset'></i> Start chat with Support/Admin</button></div>`;
             document.getElementById('chatMessages').innerHTML = '<div class="d-flex flex-column align-items-center justify-content-center h-100 text-muted pt-5"><i class="bi bi-chat-dots fs-1 mb-3"></i><p class="mb-0">Start a conversation by selecting a chat or clicking the support button.</p></div>';
@@ -444,6 +451,7 @@
     // --- Real-time Chat Loader ---
     let chatUnsubRealtime = null;
     function openChatRealtime(db, currentUser, chatId) {
+  console.log('[DEBUG] openChatRealtime called for chatId:', chatId, 'user:', currentUser && currentUser.uid);
       if (chatUnsubRealtime) chatUnsubRealtime();
       window.currentChatId = chatId;
       // Highlight selected chat
@@ -452,6 +460,11 @@
       if (activeA) activeA.classList.add('active');
       // Load chat header
       db.collection('conversations').doc(chatId).get().then(chatDoc => {
+    if (!chatDoc.exists) {
+      console.error('[DEBUG] No conversation found with id:', chatId);
+      return;
+    }
+    console.log('[DEBUG] Conversation loaded:', chatDoc.data());
         const d = chatDoc.data();
         const other = (d.participantDetails || []).find(u => u.uid !== currentUser.uid) || {};
         // Render chat header
