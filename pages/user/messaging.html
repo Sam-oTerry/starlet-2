@@ -129,7 +129,6 @@
   }
   .bubble {
     border-radius: 1.15em 1.15em 1.15em 0.6em;
-    box-shadow: 0 2px 8px rgba(33,37,41,0.07);
     background: #fff;
     animation: chat-bubble-expand 0.42s cubic-bezier(.38,1.4,.38,1) both;
     min-width: 36px;
@@ -147,27 +146,7 @@
     overflow-wrap: break-word;
     word-break: break-word;
   }
-  .bubble:hover::after {
-    content: attr(data-fulltext);
-    position: absolute;
-    left: 0;
-    top: 100%;
-    min-width: 180px;
-    max-width: 480px;
-    background: #fff;
-    color: #222;
-    border-radius: 0.7rem;
-    box-shadow: 0 6px 24px rgba(13,110,253,0.12);
-    border: 1.5px solid var(--primary-color);
-    padding: 8px 18px;
-    margin-top: 6px;
-    white-space: normal;
-    z-index: 10;
-    font-size: 1.04rem;
-    line-height: 1.65;
-    pointer-events: none;
-    opacity: 1;
-  }
+  
   .bubble.sent {
     background: var(--bubble-sent-bg);
     border: 1.5px solid var(--bubble-sent-border);
@@ -175,7 +154,6 @@
     align-self: flex-end;
     margin-left: auto;
     margin-right: 0;
-    box-shadow: 0 1.5px 6px rgba(255, 193, 7, 0.08), 0 0.5px 2px rgba(33,37,41,0.04);
   }
   .bubble.received {
     background: var(--bubble-received-bg);
@@ -204,7 +182,7 @@
     border-left: 4px solid var(--bubble-reply-border);
     color: var(--bubble-reply-text);
     animation: chat-bubble-expand 0.32s cubic-bezier(.38,1.4,.38,1) both;
-    transition: box-shadow 0.18s, border-color 0.18s;
+    transition: border-color 0.18s;
     padding: 0.38em 0.95em 0.38em 0.85em;
     margin-bottom: 2px;
     border-radius: 0.7em 1.1em 1.1em 0.7em;
