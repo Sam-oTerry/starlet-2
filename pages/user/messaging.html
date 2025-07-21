@@ -392,7 +392,7 @@
       if (!sidebar) return;
       sidebar.innerHTML = '<div class="text-center py-3">Loading...</div>';
       // Listen for all conversations for this user
-      db.collection('chats')
+      db.collection('conversations')
         .where('participants', 'array-contains', currentUser.uid)
         .orderBy('lastMessageAt', 'desc')
         .onSnapshot(snap => {
@@ -451,7 +451,7 @@
       const activeA = document.querySelector(`.chat-listing[data-chat-id='${chatId}']`);
       if (activeA) activeA.classList.add('active');
       // Load chat header
-      db.collection('chats').doc(chatId).get().then(chatDoc => {
+      db.collection('conversations').doc(chatId).get().then(chatDoc => {
         const d = chatDoc.data();
         const other = (d.participantDetails || []).find(u => u.uid !== currentUser.uid) || {};
         // Render chat header
@@ -485,7 +485,7 @@
         // Load messages in real time
         const chatMessages = document.getElementById('chatMessages');
         chatMessages.innerHTML = '<div class="text-center py-3">Loading...</div>';
-        chatUnsubRealtime = db.collection('chats').doc(chatId).collection('messages').orderBy('createdAt').onSnapshot(snap => {
+        chatUnsubRealtime = db.collection('conversations').doc(chatId).collection('messages').orderBy('createdAt').onSnapshot(snap => {
           chatMessages.innerHTML = '';
           snap.forEach(doc => {
             const m = doc.data();
@@ -551,7 +551,7 @@
       const user = window.currentUser;
       if (!user || !listingId || !listerId) return;
       // Check if chat already exists (by participants and listingId)
-      let chatSnap = await db.collection('chats')
+      let chatSnap = await db.collection('conversations')
         .where('participants', 'in', [[user.uid, listerId], [listerId, user.uid]])
         .where('listingId', '==', listingId)
         .limit(1).get();
@@ -612,7 +612,7 @@
       return (bytes / 1024 / 1024 / 1024).toFixed(1) + ' GB';
     }
     function markMessagesRead(db, chatId, currentUser) {
-      const chatRef = db.collection('chats').doc(chatId).collection('messages');
+      const chatRef = db.collection('conversations').doc(chatId).collection('messages');
       chatRef.get().then(snap => {
         snap.forEach(doc => {
           if (!doc.data().readBy || !doc.data().readBy.includes(currentUser.uid)) {
@@ -639,8 +639,12 @@
           const listerId = url.searchParams.get('listerId');
           const userId = url.searchParams.get('userid');
           const agentId = url.searchParams.get('agentid');
-          if (listingId && listerId && typeof window.openChatWithLister === 'function') {
-            setTimeout(() => window.openChatWithLister(listingId, listerId), 500);
+          if (listingId && typeof window.openChatWithLister === 'function') {
+            // Prefer listerId, fall back to agentId
+            const partnerId = listerId || agentId;
+            if (partnerId) {
+              setTimeout(() => window.openChatWithLister(listingId, partnerId), 500);
+            }
           } else if (userId && agentId && typeof window.openChatWithLister === 'function') {
             setTimeout(() => window.openChatWithLister(userId, agentId), 500);
           } else if (url.searchParams.get('support') === '1' && typeof window.openSupportChat === 'function') {
@@ -685,7 +689,7 @@
                 replyPreview.classList.add('d-none');
                 window.replyToMessage = null;
               }
-              await db.collection('chats').doc(window.currentChatId).collection('messages').add(msgObj);
+              await db.collection('conversations').doc(window.currentChatId).collection('messages').add(msgObj);
               input.value = '';
             };
           }
