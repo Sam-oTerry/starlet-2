@@ -384,8 +384,166 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="../../assets/js/firebase-config.js"></script>
   <script src="../../js/main.js"></script>
-  <!-- Support Chat Floating Button and Modal -->
-  
+  <!-- Real-time chat and conversation loader -->
+  <script>
+    // --- Real-time Conversations Loader ---
+    function listenForConversations(db, currentUser) {
+      const sidebar = document.querySelector('#chatSidebarList .list-group');
+      if (!sidebar) return;
+      sidebar.innerHTML = '<div class="text-center py-3">Loading...</div>';
+      // Listen for all conversations for this user
+      db.collection('chats')
+        .where('participants', 'array-contains', currentUser.uid)
+        .orderBy('lastMessageAt', 'desc')
+        .onSnapshot(snap => {
+          if (snap.empty) {
+            sidebar.innerHTML = '<div class="text-center py-3">No conversations yet.</div>';
+            document.getElementById('chatMessages').innerHTML = '<div class="d-flex flex-column align-items-center justify-content-center h-100 text-muted pt-5"><i class="bi bi-chat-dots fs-1 mb-3"></i><p class="mb-0">Start a conversation by selecting a chat or clicking the support button.</p></div>';
+            return;
+          }
+          sidebar.innerHTML = '';
+          snap.forEach(doc => {
+            const d = doc.data();
+            const other = (d.participantDetails || []).find(u => u.uid !== currentUser.uid) || {};
+            const activeClass = doc.id === window.currentChatId ? 'active' : '';
+            sidebar.innerHTML += `
+              <div class="chat-listing ${activeClass}" data-chat-id="${doc.id}" tabindex="0" aria-label="Conversation with ${other.name || 'Unknown'}">
+                <img src="${other.avatar || 'https://randomuser.me/api/portraits/lego/1.jpg'}" class="avatar me-2" alt="${other.name || 'Unknown'} avatar" width="40" height="40">
+                <div class="flex-grow-1">
+                  <div class="d-flex justify-content-between align-items-center">
+                    <span class="chat-listing-title">${other.name || 'Unknown'}</span>
+                    <span class="chat-listing-time small text-muted">${d.lastMessageAt ? new Date(d.lastMessageAt.seconds*1000).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : ''}</span>
+                  </div>
+                  <div class="chat-listing-agent text-truncate">${d.lastMessage || ''}</div>
+                </div>
+                ${d.unread && d.unread[currentUser.uid] ? `<span class="unread-badge">${d.unread[currentUser.uid]}</span>` : ''}
+              </div>
+            `;
+          });
+          // Click handler for chat listings
+          Array.from(sidebar.querySelectorAll('.chat-listing')).forEach(a => {
+            a.onclick = function(e) {
+              e.preventDefault();
+              openChatRealtime(db, currentUser, this.getAttribute('data-chat-id'));
+            };
+          });
+          // Auto-open first chat if none selected
+          if (!window.currentChatId && snap.docs.length > 0) {
+            openChatRealtime(db, currentUser, snap.docs[0].id);
+          }
+        });
+    }
+
+    // --- Real-time Chat Loader ---
+    let chatUnsubRealtime = null;
+    function openChatRealtime(db, currentUser, chatId) {
+      if (chatUnsubRealtime) chatUnsubRealtime();
+      window.currentChatId = chatId;
+      // Highlight selected chat
+      Array.from(document.querySelectorAll('.chat-listing')).forEach(a => a.classList.remove('active'));
+      const activeA = document.querySelector(`.chat-listing[data-chat-id='${chatId}']`);
+      if (activeA) activeA.classList.add('active');
+      // Load chat header
+      db.collection('chats').doc(chatId).get().then(chatDoc => {
+        const d = chatDoc.data();
+        const other = (d.participantDetails || []).find(u => u.uid !== currentUser.uid) || {};
+        document.getElementById('chatHeader').innerHTML = `
+          <img src="${other.avatar || 'https://randomuser.me/api/portraits/lego/1.jpg'}" class="avatar">
+          <div class="info">
+            <h5>${other.name || 'Unknown'}</h5>
+            <p>${d.listingTitle || ''}</p>
+          </div>
+          <div id="typingIndicator" class="typing-indicator" style="display:none;"></div>
+        `;
+      });
+      // Listen for messages in real time
+      const chatMessages = document.getElementById('chatMessages');
+      chatMessages.innerHTML = '<div class="text-center py-3">Loading...</div>';
+      chatUnsubRealtime = db.collection('chats').doc(chatId).collection('messages').orderBy('createdAt').onSnapshot(snap => {
+        chatMessages.innerHTML = '';
+        snap.forEach(doc => {
+          const m = doc.data();
+          const sent = m.senderId === currentUser.uid;
+          let content = '';
+          if (m.type === 'text') {
+            content = `<div class="bubble ${sent ? 'sent' : 'received'}">${escapeHTML(m.text)}</div>`;
+          } else if (m.type === 'image') {
+            content = `<div class="bubble"><img src="${m.url}" class="chat-img"><div class="img-caption">${escapeHTML(m.caption || '')}</div></div>`;
+          } else if (m.type === 'file') {
+            content = `<div class="bubble"><i class="bi bi-paperclip file-icon"></i><a href="${m.url}" target="_blank" class="file-link">${m.fileName}</a><div class="file-size">${formatFileSize(m.fileSize)}</div></div>`;
+          }
+          let readMark = '';
+          if (sent && m.readBy && m.readBy.includes(currentUser.uid)) {
+            readMark = '<span class="ms-1 text-success small"><i class="bi bi-check2-all"></i> Seen</span>';
+          }
+          chatMessages.innerHTML += `
+            <div class="message-row ${sent ? 'sent' : 'received'} mb-2">
+              <img src="${sent ? (currentUser.photoURL || 'https://randomuser.me/api/portraits/lego/1.jpg') : (m.avatar || 'https://randomuser.me/api/portraits/lego/1.jpg')}" class="avatar me-2" style="width:32px;height:32px;border-radius:50%;object-fit:cover;">
+              <div>
+                ${content}
+                <div class="timestamp">${m.createdAt ? new Date(m.createdAt.seconds*1000).toLocaleString() : ''} ${readMark}</div>
+              </div>
+            </div>
+          `;
+        });
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+        markMessagesRead(db, chatId, currentUser);
+      });
+    }
+
+    // --- Helpers (escapeHTML, formatFileSize, markMessagesRead) ---
+    function escapeHTML(str) {
+      if (!str) return '';
+      return str.replace(/[&<>'"]/g, tag => ({'&':'&amp;','<':'&lt;','>':'&gt;','\'':'&#39;','"':'&quot;'}[tag]));
+    }
+    function formatFileSize(bytes) {
+      if (!bytes) return '';
+      if (bytes < 1024) return bytes + ' B';
+      if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+      if (bytes < 1024 * 1024 * 1024) return (bytes / 1024 / 1024).toFixed(1) + ' MB';
+      return (bytes / 1024 / 1024 / 1024).toFixed(1) + ' GB';
+    }
+    function markMessagesRead(db, chatId, currentUser) {
+      const chatRef = db.collection('chats').doc(chatId).collection('messages');
+      chatRef.get().then(snap => {
+        snap.forEach(doc => {
+          if (!doc.data().readBy || !doc.data().readBy.includes(currentUser.uid)) {
+            chatRef.doc(doc.id).update({ readBy: firebase.firestore.FieldValue.arrayUnion(currentUser.uid) });
+          }
+        });
+      });
+    }
+
+    // --- Setup Real-time Chat on Page Load ---
+    document.addEventListener('DOMContentLoaded', function() {
+      if (!window.firebaseDB || !window.firebaseAuth) return;
+      const db = window.firebaseDB;
+      const auth = window.firebaseAuth;
+      auth.onAuthStateChanged(async user => {
+        if (!user) return;
+        window.currentUser = user;
+        listenForConversations(db, user);
+        // Setup chat input for real-time chat
+        const chatInputForm = document.getElementById('chatInputForm');
+        if (chatInputForm) {
+          chatInputForm.onsubmit = async function(e) {
+            e.preventDefault();
+            const input = document.getElementById('chatInput');
+            const text = input.value.trim();
+            if (!text || !window.currentChatId) return;
+            await db.collection('chats').doc(window.currentChatId).collection('messages').add({
+              type: 'text',
+              text,
+              senderId: user.uid,
+              createdAt: new Date()
+            });
+            input.value = '';
+          };
+        }
+      });
+    });
+  </script>
+
  
 </body>
 </html>
