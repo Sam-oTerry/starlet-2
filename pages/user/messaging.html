@@ -65,124 +65,253 @@
     </nav>
 
   <!-- Main Content -->
-  <main>
+  <main class="container-fluid py-3 px-0 px-md-3">
+  <div class="row g-0" style="min-height: 70vh;">
     <!-- Conversations Sidebar -->
-    <section class="conversations" aria-label="Conversation list">
-      <h2>Conversations</h2>
-      <ul class="conversation-list">
-        <li><a href="#conversation1">Agent John - House for Sale in Kampala</a></li>
-        <li><a href="#conversation2">Agent Mary - Car for Sale</a></li>
-        <!-- Add more conversations dynamically via JavaScript if needed -->
-      </ul>
-    </section>
-
+    <div class="col-12 col-md-4 col-lg-3 border-end bg-light d-flex flex-column" id="chatSidebar">
+      <div class="d-flex align-items-center justify-content-between px-3 py-3 border-bottom">
+        <h5 class="mb-0 fw-bold">Conversations</h5>
+        <button class="btn btn-sm btn-outline-primary d-md-none" type="button" data-bs-toggle="collapse" data-bs-target="#chatSidebarList" aria-expanded="false" aria-controls="chatSidebarList">
+          <i class="bi bi-list"></i>
+        </button>
+      </div>
+      <div class="collapse show d-md-block" id="chatSidebarList">
+        <div class="list-group list-group-flush" style="overflow-y: auto; max-height: 65vh;">
+          <!-- Conversations will be loaded here dynamically -->
+        </div>
+      </div>
+    </div>
     <!-- Chat Area -->
-    <section class="chat-area">
-      <div class="chat-header" role="region" aria-label="Chat header">
-        <h3>Agent John</h3>
-        <p>House for Sale in Kampala</p>
-      </div>
-      <div class="chat-messages">
-        <!-- Messages will be populated dynamically via JavaScript -->
-        <div class="message received">
-          <p>Hello! I'm interested in the house listing.</p>
-          <span class="timestamp">10:30 AM</span>
+    <div class="col-12 col-md-8 col-lg-9 d-flex flex-column" id="chatMainArea">
+      <div class="card rounded-0 border-0 flex-grow-1 d-flex flex-column h-100">
+        <div class="card-header bg-white border-bottom d-flex align-items-center gap-3" id="chatHeader" style="min-height: 70px;">
+          <!-- Chat header (avatar, name, listing, typing indicator) -->
         </div>
-        <div class="message sent">
-          <p>Great! Let me send you the details.</p>
-          <span class="timestamp">10:32 AM</span>
+        <div class="card-body px-3 py-2 flex-grow-1 overflow-auto bg-light" id="chatMessages" style="min-height: 300px; max-height: 55vh;">
+          <!-- Messages will be populated dynamically via JavaScript -->
+        </div>
+        <div class="card-footer bg-white border-top p-2 position-sticky bottom-0">
+          <form class="d-flex align-items-center gap-2" id="chatInputForm" autocomplete="off">
+            <input id="chatInput" type="text" class="form-control flex-grow-1" placeholder="Type your message..." aria-label="Type your message" autocomplete="off">
+            <button type="submit" class="btn btn-primary px-4"><i class="bi bi-send"></i> <span class="d-none d-md-inline">Send</span></button>
+          </form>
         </div>
       </div>
-      <div class="chat-input">
-        <label for="chat-message" class="visually-hidden">Type your message</label>
-        <input id="chat-message" type="text" placeholder="Type your message..." aria-label="Type your message">
-        <button type="button">Send</button>
-      </div>
-    </section>
+    </div>
+  </div>
+</main>
+<style>
+  #chatSidebar {
+    min-height: 400px;
+    background: #f8fafc;
+  }
+  #chatSidebarList .list-group {
+    border-radius: 0;
+  }
+  #chatSidebarList .chat-listing {
+    cursor: pointer;
+    transition: background 0.15s;
+    border-left: 3px solid transparent;
+  }
+  #chatSidebarList .chat-listing.active, #chatSidebarList .chat-listing:hover {
+    background: #e3f0ff;
+    border-left: 3px solid #ffd700;
+  }
+  #chatSidebarList .avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-right: 0.75rem;
+  }
+  #chatMainArea .card-body {
+    background: #f8fafc;
+    overflow-y: auto;
+  }
+  #chatMessages {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .bubble {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    border-radius: 1.25rem;
+    max-width: 75%;
+    word-break: break-word;
+    margin-bottom: 0.1rem;
+    font-size: 1.02rem;
+    box-shadow: 0 2px 8px rgba(3,37,76,0.05);
+  }
+  .message-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 0.5rem;
+  }
+  .message-row.sent {
+    flex-direction: row-reverse;
+  }
+  .bubble.sent {
+    background: linear-gradient(90deg,#ffd700 60%,#ffed4e 100%);
+    color: #03254c;
+    border-bottom-right-radius: 0.3rem;
+  }
+  .bubble.received {
+    background: #fff;
+    color: #232323;
+    border-bottom-left-radius: 0.3rem;
+  }
+  .timestamp {
+    font-size: 0.80rem;
+    color: #a0a0a0;
+    margin: 0 0.5rem;
+  }
+  @media (max-width: 767.98px) {
+    #chatSidebar {
+      min-height: 0;
+      border-right: none;
+      border-bottom: 1px solid #eee;
+    }
+    #chatMainArea {
+      min-height: 300px;
+    }
+    .card-footer {
+      position: static !important;
+    }
+  }
+</style>
 
-    <!-- Support Chat Link -->
-    <aside>
-      <a href="#support" class="support-chat">Chat with Support</a>
-    </aside>
-  </main>
 
   <!-- Footer Section -->
-  <footer>
-    <div class="footer-content">
-      <div class="about">
-        <h2>About Starlet Properties</h2>
-        <p>Uganda's premier real estate and vehicle marketplace, connecting buyers and sellers across the country.</p>
-        <div class="social-links">
-          <a href="https://facebook.com" aria-label="Facebook"><img src="facebook-icon.png" alt="Facebook"></a>
-          <a href="https://twitter.com" aria-label="Twitter"><img src="twitter-icon.png" alt="Twitter"></a>
-          <a href="https://instagram.com" aria-label="Instagram"><img src="instagram-icon.png" alt="Instagram"></a>
-          <a href="https://linkedin.com" aria-label="LinkedIn"><img src="linkedin-icon.png" alt="LinkedIn"></a>
+    <!-- Footer (copied from saved.html) -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4 mb-4">
+                    <h4>About Starlet Properties</h4>
+                    <p>Uganda's premier real estate and vehicle marketplace, connecting buyers and sellers across the country.</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h4>Properties</h4>
+                    <ul>
+                        <li><a href="../properties/index.html?type=house_sale">Houses for Sale</a></li>
+                        <li><a href="../properties/index.html?type=house_rent">Houses for Rent</a></li>
+                        <li><a href="../properties/index.html?type=land_sale">Land for Sale</a></li>
+                        <li><a href="../properties/index.html?type=land_rent">Land for Rent</a></li>
+                        <li><a href="../properties/index.html?type=commercial">Commercial Property</a></li>
+                        <li><a href="../properties/index.html?type=vacation_short_stay">Vacation & Short Stay</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h4>Vehicles</h4>
+                    <ul>
+                        <li><a href="../vehicles/index.html?type=cars">Cars</a></li>
+                        <li><a href="../vehicles/index.html?type=motorcycles">Motorcycles</a></li>
+                        <li><a href="../vehicles/index.html?type=trucks">Trucks</a></li>
+                        <li><a href="../vehicles/index.html?type=buses">Buses</a></li>
+                        <li><a href="../vehicles/index.html?type=heavy_machinery">Heavy Machinery</a></li>
+                        <li><a href="../vehicles/index.html?type=bicycles_ebikes">Bicycles & E-bikes</a></li>
+                        <li><a href="../vehicles/index.html?type=boats_watercraft">Boats & Watercraft</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h4>Company</h4>
+                    <ul>
+                        <li><a href="../about/index.html">About Us</a></li>
+                        <li><a href="../about/contact.html">Contact</a></li>
+                        <li><a href="../about/resources.html">Resources</a></li>
+                        <li><a href="../stores/index.html">Our Stores</a></li>
+                        <li><a href="../legal/privacy.html">Privacy Policy</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h4>Contact</h4>
+                    <ul>
+                        <li><a href="tel:+256123456789"><i class="bi bi-telephone"></i> +256 123 456 789</a></li>
+                        <li><a href="mailto:info@starlet.co.ug"><i class="bi bi-envelope"></i> info@starlet.co.ug</a></li>
+                        <li><a href="#"><i class="bi bi-geo-alt"></i> Kampala, Uganda</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p class="mb-0">&copy; 2024 Starlet Properties. All rights reserved.</p>
+                    </div>
+                    <div class="col-md-6 text-md-end">
+                        <a href="../legal/terms.html" class="me-3">Terms of Service</a>
+                        <a href="../legal/privacy.html">Privacy Policy</a>
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
-
-      <div class="footer-links">
-        <div class="properties">
-          <h3>Properties</h3>
-          <ul>
-            <li><a href="#houses-sale">Houses for Sale</a></li>
-            <li><a href="#houses-rent">Houses for Rent</a></li>
-            <li><a href="#land-sale">Land for Sale</a></li>
-            <li><a href="#land-rent">Land for Rent</a></li>
-            <li><a href="#commercial">Commercial Property</a></li>
-            <li><a href="#vacation">Vacation & Short Stay</a></li>
-          </ul>
-        </div>
-
-        <div class="vehicles">
-          <h3>Vehicles</h3>
-          <ul>
-            <li><a href="#cars">Cars</a></li>
-            <li><a href="#motorcycles">Motorcycles</a></li>
-            <li><a href="#trucks">Trucks</a></li>
-            <li><a href="#buses">Buses</a></li>
-            <li><a href="#machinery">Heavy Machinery</a></li>
-            <li><a href="#bicycles">Bicycles & E-bikes</a></li>
-            <li><a href="#boats">Boats & Watercraft</a></li>
-          </ul>
-        </div>
-
-        <div class="company">
-          <h3>Company</h3>
-          <ul>
-            <li><a href="#about-us">About Us</a></li>
-            <li><a href="#contact">Contact</a></li>
-            <li><a href="#resources">Resources</a></li>
-            <li><a href="#stores">Our Stores</a></li>
-            <li><a href="#privacy">Privacy Policy</a></li>
-          </ul>
-        </div>
-
-        <div class="contact">
-          <h3>Contact</h3>
-          <ul>
-            <li><a href="tel:+256123456789">+256 123 456 789</a></li>
-            <li><a href="mailto:info@starlet.co.ug">info@starlet.co.ug</a></li>
-            <li>Kampala, Uganda</li>
-          </ul>
-        </div>
-      </div>
-    </div>
-
-    <div class="footer-bottom">
-      <p>© 2024 Starlet Properties. All rights reserved.</p>
-      <ul>
-        <li><a href="#terms">Terms of Service</a></li>
-        <li><a href="#privacy">Privacy Policy</a></li>
-      </ul>
-    </div>
-  </footer>
-
+    </footer>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- Floating Support Chat Button -->
+  <button id="floatingSupportBtn" class="floating-support-btn" title="Chat with Support" style="position: fixed; bottom: 32px; right: 32px; z-index: 1055; background: #03254c; color: #fff; border: none; border-radius: 50%; width: 56px; height: 56px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 16px rgba(3,37,76,0.15); font-size: 2rem; cursor: pointer; transition: background 0.2s;">
+    <i class="bi bi-headset"></i>
+    <span class="visually-hidden">Chat with Support</span>
+  </button>
+  <script>
+    // Floating Support Button click: go to ?support=1 if not already there
+    document.getElementById('floatingSupportBtn').addEventListener('click', function() {
+      const url = new URL(window.location.href);
+      if (!url.searchParams.has('support')) {
+        url.searchParams.set('support', '1');
+        window.location.href = url.pathname + url.search;
+      } else {
+        // If already on ?support=1, trigger support chat logic
+        if (typeof window.openSupportChat === 'function') {
+          window.openSupportChat();
+        }
+      }
+    });
+    // On page load, if ?support=1, trigger support chat logic
+    document.addEventListener('DOMContentLoaded', function() {
+      const url = new URL(window.location.href);
+      if (url.searchParams.get('support') === '1') {
+        if (typeof window.openSupportChat === 'function') {
+          window.openSupportChat();
+        }
+      }
+    });
+  </script>
+  <style>
+    .floating-support-btn:hover {
+      background: #0d6efd;
+    }
+  </style>
+
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="../../assets/js/firebase-config.js"></script>
   <script src="../../js/main.js"></script>
+  <!-- Support Chat Floating Button and Modal -->
+  
+  </style>
+  
+    });
+    function sendSupportMessage() {
+      var input = document.getElementById('supportChatInput');
+      var msg = input.value.trim();
+      if (!msg) return;
+      var msgDiv = document.createElement('div');
+      msgDiv.className = 'support-message support-message-user mb-2';
+      msgDiv.innerHTML = '<div class="support-message-text">' + msg + '</div><div class="support-message-meta">You</div>';
+      document.getElementById('supportChatMessages').appendChild(msgDiv);
+      input.value = '';
+      // Optionally scroll to bottom
+      var body = document.querySelector('.support-chat-body');
+      body.scrollTop = body.scrollHeight;
+    }
+  </script>
 </body>
 </html>
 </html>
