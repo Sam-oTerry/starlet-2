@@ -89,6 +89,7 @@
           <!-- Messages will be populated dynamically via JavaScript -->
         </div>
         <div class="card-footer bg-white border-0 p-3 chat-footer">
+          <div id="replyPreview" class="mb-2 d-none"></div>
           <form class="d-flex align-items-center gap-2" id="chatInputForm" autocomplete="off">
             <input id="chatInput" type="text" class="form-control flex-grow-1 rounded-pill px-4 py-2 chat-input" placeholder="Type your message..." aria-label="Type your message" autocomplete="off">
             <button type="submit" class="btn btn-primary rounded-circle d-flex align-items-center justify-content-center chat-send-btn" style="width:44px;height:44px;"><i class="bi bi-send fs-5"></i></button>
@@ -519,13 +520,12 @@
               <div class="flex-grow-1">
                 <div class="fw-bold">${d.listingQuote.title || 'Listing'}</div>
                 ${d.listingQuote.price ? `<div class="text-success">UGX ${Number(d.listingQuote.price).toLocaleString()}</div>` : ''}
-                <a href="${d.listingQuote.link}" target="_blank" class="small text-primary text-decoration-underline">View Listing</a>
               </div>
             </div>
-          `;
+          </div>
+        `;
         }
         chatHeader.innerHTML = `
-          ${quoteHtml}
           <div class="d-flex align-items-center gap-3">
             <img src="${other.avatar || 'https://randomuser.me/api/portraits/lego/1.jpg'}" class="avatar me-2" alt="${other.name || 'Unknown'} avatar" width="40" height="40">
             <div class="flex-grow-1">
@@ -537,6 +537,20 @@
             </div>
           </div>
         `;
+        // Render listing quote preview if available
+        const replyPreview = document.getElementById('replyPreview');
+        if (d.listingQuote) {
+          replyPreview.innerHTML = `
+            <span class='small text-muted'>Listing</span><br>
+            <span class='fw-bold'>${d.listingQuote.title || ''}</span><br>
+            ${d.listingQuote.image ? `<img src="${d.listingQuote.image}" alt="${d.listingQuote.title}" style="max-width:80px;max-height:60px;object-fit:cover;border-radius:6px;">` : ''}
+            ${d.listingQuote.price ? `<span class="text-success">UGX ${Number(d.listingQuote.price).toLocaleString()}</span><br>` : ''}
+            <a href="${d.listingQuote.link}" target="_blank" class="small text-primary text-decoration-underline">View Listing</a>
+          `;
+          replyPreview.classList.remove('d-none');
+        } else {
+          replyPreview.classList.add('d-none');
+        }
         // Load messages in real time
         const chatMessages = document.getElementById('chatMessages');
         chatMessages.innerHTML = '<div class="text-center py-3">Loading...</div>';
