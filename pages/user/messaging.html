@@ -100,6 +100,92 @@
   </div>
 </main>
 <style>
+  /* Modern Chat Bubble Styles with Project Theme */
+  :root {
+    --bubble-sent-bg: linear-gradient(135deg, var(--accent-gold) 0%, #fffbe6 100%);
+    --bubble-sent-border: var(--accent-gold);
+    --bubble-sent-text: #7a4c00;
+    --bubble-received-bg: linear-gradient(135deg, var(--accent-cyan) 0%, #e7f4ff 100%);
+    --bubble-received-border: var(--accent-cyan);
+    --bubble-received-text: #0a326b;
+    --bubble-reply-bg: linear-gradient(135deg, #fff6e0 0%, #e3f0ff 100%);
+    --bubble-reply-border: var(--primary-color);
+    --bubble-reply-text: var(--primary-color);
+    --bubble-hover-shadow: 0 6px 24px rgba(13,110,253,0.10);
+    --bubble-hover-border: var(--primary-color);
+    --bubble-reply-hover-shadow: 0 6px 24px rgba(255,215,0,0.13);
+    --bubble-max-width: 520px;
+  }
+  .message-row {
+    transition: background 0.18s, box-shadow 0.18s;
+    position: relative;
+  }
+  .bubble {
+    border-radius: 1.2rem 1.2rem 1.2rem 0.5rem;
+    box-shadow: 0 2px 12px rgba(33,37,41,0.08);
+    background: #fff;
+    animation: chat-bubble-expand 0.42s cubic-bezier(.38,1.4,.38,1) both;
+    min-width: 36px;
+    max-width: var(--bubble-max-width);
+    width: fit-content;
+    word-break: break-word;
+    font-size: 1.05rem;
+    line-height: 1.6;
+    border: 1.5px solid #f1f3f7;
+    transition: box-shadow 0.18s, border-color 0.18s, background 0.18s;
+    cursor: pointer;
+  }
+  .bubble.sent {
+    background: var(--bubble-sent-bg);
+    border: 1.5px solid var(--bubble-sent-border);
+    color: var(--bubble-sent-text);
+    align-self: flex-end;
+  }
+  .bubble.received {
+    background: var(--bubble-received-bg);
+    border: 1.5px solid var(--bubble-received-border);
+    color: var(--bubble-received-text);
+    align-self: flex-start;
+  }
+  .bubble:hover {
+    box-shadow: var(--bubble-hover-shadow);
+    border-color: var(--bubble-hover-border);
+    z-index: 3;
+    transform: scale(1.025);
+  }
+  .bubble.sent:hover {
+    border-color: var(--accent-gold);
+    box-shadow: 0 6px 24px rgba(255,215,0,0.13);
+  }
+  .bubble.received:hover {
+    border-color: var(--accent-cyan);
+    box-shadow: 0 6px 24px rgba(0,255,255,0.11);
+  }
+  .reply-preview, .reply-quote {
+    background: var(--bubble-reply-bg);
+    border-left: 4px solid var(--bubble-reply-border);
+    color: var(--bubble-reply-text);
+    animation: chat-bubble-expand 0.32s cubic-bezier(.38,1.4,.38,1) both;
+    transition: box-shadow 0.18s, border-color 0.18s;
+  }
+  .reply-preview:hover, .reply-quote:hover {
+    box-shadow: var(--bubble-reply-hover-shadow);
+    border-left: 4px solid var(--accent-gold);
+    background: #fffbe6;
+    z-index: 2;
+    transform: scale(1.015);
+  }
+  @keyframes chat-bubble-expand {
+    0% { opacity: 0; transform: scale(0.85) translateY(24px); }
+    80% { opacity: 1; transform: scale(1.04) translateY(-4px); }
+    100% { opacity: 1; transform: scale(1) translateY(0); }
+  }
+  .message-avatar {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+    border: 2px solid #fff;
+    background: #f8fafc;
+  }
+
   #chatSidebar {
     min-height: 400px;
     background: #f8fafc;
