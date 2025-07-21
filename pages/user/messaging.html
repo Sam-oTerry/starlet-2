@@ -464,6 +464,13 @@
         snap.forEach(doc => {
           const m = doc.data();
           const sent = m.senderId === currentUser.uid;
+          let replyHtml = '';
+          if (m.replyTo) {
+            replyHtml = `<div class="reply-quote mb-1 px-2 py-1 rounded bg-white border-start border-3 ${sent ? 'border-warning' : 'border-primary'}">
+              <span class="small text-muted">${m.replyTo.sender || 'User'}</span><br>
+              <span class="text-truncate d-block" style="max-width:180px;">${escapeHTML(m.replyTo.text || '')}</span>
+            </div>`;
+          }
           let content = '';
           if (m.type === 'text') {
             content = `<div class="bubble ${sent ? 'sent' : 'received'}">${escapeHTML(m.text)}</div>`;
@@ -477,14 +484,32 @@
             readMark = '<span class="ms-1 text-success small"><i class="bi bi-check2-all"></i> Seen</span>';
           }
           chatMessages.innerHTML += `
-            <div class="message-row ${sent ? 'sent' : 'received'} mb-2">
+            <div class="message-row ${sent ? 'sent' : 'received'} mb-2 position-relative group" data-message-id="${doc.id}" data-message-text="${escapeHTML(m.text || '')}" data-message-sender="${sent ? 'You' : (m.senderName || 'User')}">
               <img src="${sent ? (currentUser.photoURL || 'https://randomuser.me/api/portraits/lego/1.jpg') : (m.avatar || 'https://randomuser.me/api/portraits/lego/1.jpg')}" class="avatar me-2" style="width:32px;height:32px;border-radius:50%;object-fit:cover;">
               <div>
+                ${replyHtml}
                 ${content}
                 <div class="timestamp">${m.createdAt ? new Date(m.createdAt.seconds*1000).toLocaleString() : ''} ${readMark}</div>
               </div>
+              <button class="btn btn-link btn-sm text-muted reply-btn position-absolute top-0 end-0 d-none"><i class="bi bi-reply"></i></button>
             </div>
           `;
+        });
+        // Show reply button on hover
+        Array.from(chatMessages.querySelectorAll('.message-row')).forEach(row => {
+          row.addEventListener('mouseenter', () => {
+            row.querySelector('.reply-btn').classList.remove('d-none');
+          });
+          row.addEventListener('mouseleave', () => {
+            row.querySelector('.reply-btn').classList.add('d-none');
+          });
+          row.querySelector('.reply-btn').onclick = function(e) {
+            e.stopPropagation();
+            const msgId = row.getAttribute('data-message-id');
+            const msgText = row.getAttribute('data-message-text');
+            const msgSender = row.getAttribute('data-message-sender');
+            setReplyPreview(msgId, msgText, msgSender);
+          };
         });
         chatMessages.scrollTop = chatMessages.scrollHeight;
         markMessagesRead(db, chatId, currentUser);
@@ -526,17 +551,43 @@
         // Setup chat input for real-time chat
         const chatInputForm = document.getElementById('chatInputForm');
         if (chatInputForm) {
+          // Add reply preview container
+          let replyPreview = document.createElement('div');
+          replyPreview.id = 'replyPreview';
+          replyPreview.className = 'reply-preview d-none mb-2 px-3 py-2 rounded bg-light border-start border-3 border-primary position-relative';
+          chatInputForm.parentNode.insertBefore(replyPreview, chatInputForm);
+
+          window.setReplyPreview = function(msgId, msgText, msgSender) {
+            replyPreview.innerHTML = `<span class='small text-muted'>Replying to ${msgSender}</span><br><span class='text-truncate d-block mb-1' style='max-width:180px;'>${msgText}</span><button type='button' class='btn-close btn-sm position-absolute top-0 end-0' aria-label='Cancel reply'></button>`;
+            replyPreview.classList.remove('d-none');
+            replyPreview.querySelector('.btn-close').onclick = function() {
+              replyPreview.classList.add('d-none');
+              window.replyToMessage = null;
+            };
+            window.replyToMessage = { msgId, msgText, msgSender };
+          };
+
           chatInputForm.onsubmit = async function(e) {
             e.preventDefault();
             const input = document.getElementById('chatInput');
             const text = input.value.trim();
             if (!text || !window.currentChatId) return;
-            await db.collection('chats').doc(window.currentChatId).collection('messages').add({
+            let msgObj = {
               type: 'text',
               text,
               senderId: user.uid,
               createdAt: new Date()
-            });
+            };
+            if (window.replyToMessage) {
+              msgObj.replyTo = {
+                messageId: window.replyToMessage.msgId,
+                text: window.replyToMessage.msgText,
+                sender: window.replyToMessage.msgSender
+              };
+              replyPreview.classList.add('d-none');
+              window.replyToMessage = null;
+            }
+            await db.collection('chats').doc(window.currentChatId).collection('messages').add(msgObj);
             input.value = '';
           };
         }
