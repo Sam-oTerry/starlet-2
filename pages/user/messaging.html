@@ -397,8 +397,15 @@
         .orderBy('lastMessageAt', 'desc')
         .onSnapshot(snap => {
           if (snap.empty) {
-            sidebar.innerHTML = '<div class="text-center py-3">No conversations yet.</div>';
+            sidebar.innerHTML = `<div class='text-center py-3'>No conversations yet.<br><button id='startSupportChatBtn' class='btn btn-sm btn-primary mt-3'><i class='bi bi-headset'></i> Start chat with Support/Admin</button></div>`;
             document.getElementById('chatMessages').innerHTML = '<div class="d-flex flex-column align-items-center justify-content-center h-100 text-muted pt-5"><i class="bi bi-chat-dots fs-1 mb-3"></i><p class="mb-0">Start a conversation by selecting a chat or clicking the support button.</p></div>';
+            // Add handler for starting support chat
+            setTimeout(() => {
+              const btn = document.getElementById('startSupportChatBtn');
+              if (btn) btn.onclick = () => {
+                if (typeof window.openSupportChat === 'function') window.openSupportChat();
+              };
+            }, 100);
             return;
           }
           sidebar.innerHTML = '';
@@ -541,60 +548,67 @@
 
     // --- Setup Real-time Chat on Page Load ---
     document.addEventListener('DOMContentLoaded', function() {
-      if (!window.firebaseDB || !window.firebaseAuth) return;
-      const db = window.firebaseDB;
-      const auth = window.firebaseAuth;
-      auth.onAuthStateChanged(async user => {
-        if (!user) return;
-        window.currentUser = user;
-        listenForConversations(db, user);
-        // Setup chat input for real-time chat
-        const chatInputForm = document.getElementById('chatInputForm');
-        if (chatInputForm) {
-          // Add reply preview container
-          let replyPreview = document.createElement('div');
-          replyPreview.id = 'replyPreview';
-          replyPreview.className = 'reply-preview d-none mb-2 px-3 py-2 rounded bg-light border-start border-3 border-primary position-relative';
-          chatInputForm.parentNode.insertBefore(replyPreview, chatInputForm);
+      // Wait for Firebase and Auth to be ready
+      function ready() {
+        if (!window.firebaseDB || !window.firebaseAuth) return setTimeout(ready, 100);
+        const db = window.firebaseDB;
+        const auth = window.firebaseAuth;
+        auth.onAuthStateChanged(async user => {
+          if (!user) return;
+          window.currentUser = user;
+          listenForConversations(db, user);
+          // If ?support=1 in URL, trigger support chat logic
+          const url = new URL(window.location.href);
+          if (url.searchParams.get('support') === '1' && typeof window.openSupportChat === 'function') {
+            setTimeout(() => window.openSupportChat(), 500);
+          }
+          // Setup chat input for real-time chat
+          const chatInputForm = document.getElementById('chatInputForm');
+          if (chatInputForm) {
+            // Add reply preview container
+            let replyPreview = document.createElement('div');
+            replyPreview.id = 'replyPreview';
+            replyPreview.className = 'reply-preview d-none mb-2 px-3 py-2 rounded bg-light border-start border-3 border-primary position-relative';
+            chatInputForm.parentNode.insertBefore(replyPreview, chatInputForm);
 
-          window.setReplyPreview = function(msgId, msgText, msgSender) {
-            replyPreview.innerHTML = `<span class='small text-muted'>Replying to ${msgSender}</span><br><span class='text-truncate d-block mb-1' style='max-width:180px;'>${msgText}</span><button type='button' class='btn-close btn-sm position-absolute top-0 end-0' aria-label='Cancel reply'></button>`;
-            replyPreview.classList.remove('d-none');
-            replyPreview.querySelector('.btn-close').onclick = function() {
-              replyPreview.classList.add('d-none');
-              window.replyToMessage = null;
-            };
-            window.replyToMessage = { msgId, msgText, msgSender };
-          };
-
-          chatInputForm.onsubmit = async function(e) {
-            e.preventDefault();
-            const input = document.getElementById('chatInput');
-            const text = input.value.trim();
-            if (!text || !window.currentChatId) return;
-            let msgObj = {
-              type: 'text',
-              text,
-              senderId: user.uid,
-              createdAt: new Date()
-            };
-            if (window.replyToMessage) {
-              msgObj.replyTo = {
-                messageId: window.replyToMessage.msgId,
-                text: window.replyToMessage.msgText,
-                sender: window.replyToMessage.msgSender
+            window.setReplyPreview = function(msgId, msgText, msgSender) {
+              replyPreview.innerHTML = `<span class='small text-muted'>Replying to ${msgSender}</span><br><span class='text-truncate d-block mb-1' style='max-width:180px;'>${msgText}</span><button type='button' class='btn-close btn-sm position-absolute top-0 end-0' aria-label='Cancel reply'></button>`;
+              replyPreview.classList.remove('d-none');
+              replyPreview.querySelector('.btn-close').onclick = function() {
+                replyPreview.classList.add('d-none');
+                window.replyToMessage = null;
               };
-              replyPreview.classList.add('d-none');
-              window.replyToMessage = null;
-            }
-            await db.collection('chats').doc(window.currentChatId).collection('messages').add(msgObj);
-            input.value = '';
-          };
-        }
-      });
+              window.replyToMessage = { msgId, msgText, msgSender };
+            };
+
+            chatInputForm.onsubmit = async function(e) {
+              e.preventDefault();
+              const input = document.getElementById('chatInput');
+              const text = input.value.trim();
+              if (!text || !window.currentChatId) return;
+              let msgObj = {
+                type: 'text',
+                text,
+                senderId: user.uid,
+                createdAt: new Date()
+              };
+              if (window.replyToMessage) {
+                msgObj.replyTo = {
+                  messageId: window.replyToMessage.msgId,
+                  text: window.replyToMessage.msgText,
+                  sender: window.replyToMessage.msgSender
+                };
+                replyPreview.classList.add('d-none');
+                window.replyToMessage = null;
+              }
+              await db.collection('chats').doc(window.currentChatId).collection('messages').add(msgObj);
+              input.value = '';
+            };
+          }
+        });
+      }; // closes auth.onAuthStateChanged
+      ready();
     });
   </script>
-
- 
 </body>
 </html>
