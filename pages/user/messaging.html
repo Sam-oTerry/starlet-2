@@ -523,6 +523,61 @@
       });
     }
 
+    // --- Chat with Lister by Listing ---
+    window.openChatWithLister = async function(listingId, listerId) {
+      if (!window.firebaseDB || !window.firebaseAuth) return;
+      const db = window.firebaseDB;
+      const user = window.currentUser;
+      if (!user || !listingId || !listerId) return;
+      // Check if chat already exists (by participants and listingId)
+      let chatSnap = await db.collection('chats')
+        .where('participants', 'in', [[user.uid, listerId], [listerId, user.uid]])
+        .where('listingId', '==', listingId)
+        .limit(1).get();
+      let chatId;
+      if (!chatSnap.empty) {
+        chatId = chatSnap.docs[0].id;
+      } else {
+        // Get lister details
+        const listerDoc = await db.collection('users').doc(listerId).get();
+        const lister = listerDoc.exists ? listerDoc.data() : { uid: listerId, name: 'Lister', email: '', avatar: '' };
+        // Fetch listing details for quote
+        let listingQuote = null;
+        try {
+          const listingDoc = await db.collection('listings').doc(listingId).get();
+          if (listingDoc.exists) {
+            const l = listingDoc.data();
+            listingQuote = {
+              id: listingId,
+              title: l.title || '',
+              image: (l.images && l.images.length) ? l.images[0] : '',
+              price: l.price || '',
+              link: `/pages/properties/details.html?id=${listingId}`
+            };
+          }
+        } catch (e) {}
+        // Create new chat
+        const chatDoc = await db.collection('chats').add({
+          participants: [user.uid, listerId],
+          participantDetails: [
+            { uid: user.uid, name: user.displayName || 'You', email: user.email, avatar: user.photoURL || '' },
+            { uid: listerId, name: lister.displayName || lister.name || 'Lister', email: lister.email || '', avatar: lister.photoURL || lister.avatar || '' }
+          ],
+          lastMessage: '',
+          lastMessageAt: new Date(),
+          unread: {},
+          createdAt: new Date(),
+          listingId: listingId,
+          listingQuote: listingQuote
+        });
+        chatId = chatDoc.id;
+      }
+      // Open the chat
+      if (chatId && typeof window.openChat === 'function') {
+        window.openChat(db, user, chatId);
+      }
+    }
+
     // --- Helpers (escapeHTML, formatFileSize, markMessagesRead) ---
     function escapeHTML(str) {
       if (!str) return '';
@@ -561,6 +616,13 @@
           const url = new URL(window.location.href);
           if (url.searchParams.get('support') === '1' && typeof window.openSupportChat === 'function') {
             setTimeout(() => window.openSupportChat(), 500);
+          }
+
+          // If ?listingId & ?listerId in URL, trigger chat with lister
+          const listingId = url.searchParams.get('listingId');
+          const listerId = url.searchParams.get('listerId');
+          if (listingId && listerId && typeof window.openChatWithLister === 'function') {
+            setTimeout(() => window.openChatWithLister(listingId, listerId), 500);
           }
           // Setup chat input for real-time chat
           const chatInputForm = document.getElementById('chatInputForm');
