@@ -282,10 +282,93 @@
       }
     });
   </script>
-  <style>
-    .floating-support-btn:hover {
-      background: #0d6efd;
+  <script>
+    // --- Support Chat Integration ---
+    // Define the support/admin user (could be from config or hardcoded for now)
+    const SUPPORT_EMAIL = 'support@starletproperties.ug';
+    // You may want to keep a map of support user info if you have multiple admins
+
+    // Utility to get or create a chat with support/admin
+    async function getOrCreateSupportChat(db, currentUser) {
+      // 1. Query Firestore for support user by email
+      const usersSnap = await db.collection('users').where('email', '==', SUPPORT_EMAIL).limit(1).get();
+      if (usersSnap.empty) {
+        alert('Support user not found.');
+        return null;
+      }
+      const supportUser = usersSnap.docs[0].data();
+      const supportUid = usersSnap.docs[0].id;
+      // 2. Check if chat already exists
+      let chatSnap = await db.collection('chats')
+        .where('participants', 'in', [[currentUser.uid, supportUid], [supportUid, currentUser.uid]])
+        .limit(1).get();
+      let chatId;
+      if (!chatSnap.empty) {
+        chatId = chatSnap.docs[0].id;
+      } else {
+        // 3. Create new chat document
+        const chatDoc = await db.collection('chats').add({
+          participants: [currentUser.uid, supportUid],
+          participantDetails: [
+            { uid: currentUser.uid, name: currentUser.displayName || 'You', email: currentUser.email, avatar: currentUser.photoURL || '' },
+            { uid: supportUid, name: supportUser.displayName || 'Support', email: SUPPORT_EMAIL, avatar: supportUser.photoURL || '' }
+          ],
+          lastMessage: '',
+          lastMessageAt: new Date(),
+          unread: {},
+          createdAt: new Date(),
+          isSupport: true
+        });
+        chatId = chatDoc.id;
+      }
+      return chatId;
     }
+
+    // Expose a global function for the floating support button and ?support=1 logic
+    window.openSupportChat = async function() {
+      if (!window.firebaseDB || !window.firebaseAuth) return;
+      const db = window.firebaseDB;
+      const auth = window.firebaseAuth;
+      const user = window.currentUser;
+      if (!user) return;
+      // Get or create the support chat, then open it
+      const chatId = await getOrCreateSupportChat(db, user);
+      if (chatId) {
+        // Use the openChat logic from user-messages.js
+        if (typeof window.openChat === 'function') {
+          window.openChat(db, user, chatId);
+        } else {
+          // Fallback: reload conversations and open
+          if (typeof window.loadConversations === 'function') {
+            await window.loadConversations(db, user);
+            setTimeout(() => {
+              if (typeof window.openChat === 'function') {
+                window.openChat(db, user, chatId);
+              }
+            }, 500);
+          }
+        }
+      }
+    };
+    // Show an empty state if no chat is selected
+    document.addEventListener('DOMContentLoaded', function() {
+      setTimeout(function() {
+        if (!window.currentChatId && document.getElementById('chatMessages')) {
+          document.getElementById('chatMessages').innerHTML = '<div class="d-flex flex-column align-items-center justify-content-center h-100 text-muted pt-5"><i class="bi bi-chat-dots fs-1 mb-3"></i><p class="mb-0">Start a conversation by selecting a chat or clicking the support button.</p></div>';
+        }
+      }, 800);
+    });
+  </script>
+  <style>
+    .floating-support-btn {
+  background: #ffd700 !important;
+  color: #03254c !important;
+}
+.floating-support-btn:hover {
+  background: #ffe066 !important;
+  color: #03254c !important;
+  box-shadow: 0 6px 24px rgba(255,215,0,0.18);
+}
   </style>
 
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -295,23 +378,6 @@
   <script src="../../js/main.js"></script>
   <!-- Support Chat Floating Button and Modal -->
   
-  </style>
-  
-    });
-    function sendSupportMessage() {
-      var input = document.getElementById('supportChatInput');
-      var msg = input.value.trim();
-      if (!msg) return;
-      var msgDiv = document.createElement('div');
-      msgDiv.className = 'support-message support-message-user mb-2';
-      msgDiv.innerHTML = '<div class="support-message-text">' + msg + '</div><div class="support-message-meta">You</div>';
-      document.getElementById('supportChatMessages').appendChild(msgDiv);
-      input.value = '';
-      // Optionally scroll to bottom
-      var body = document.querySelector('.support-chat-body');
-      body.scrollTop = body.scrollHeight;
-    }
-  </script>
+ 
 </body>
-</html>
 </html>
