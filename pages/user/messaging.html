@@ -128,12 +128,36 @@
     min-width: 36px;
     max-width: var(--bubble-max-width);
     width: fit-content;
-    word-break: break-word;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
     font-size: 1.05rem;
     line-height: 1.6;
     border: 1.5px solid #f1f3f7;
     transition: box-shadow 0.18s, border-color 0.18s, background 0.18s;
     cursor: pointer;
+    position: relative;
+  }
+  .bubble:hover::after {
+    content: attr(data-fulltext);
+    position: absolute;
+    left: 0;
+    top: 100%;
+    min-width: 180px;
+    max-width: 480px;
+    background: #fff;
+    color: #222;
+    border-radius: 0.7rem;
+    box-shadow: 0 6px 24px rgba(13,110,253,0.12);
+    border: 1.5px solid var(--primary-color);
+    padding: 8px 18px;
+    margin-top: 6px;
+    white-space: normal;
+    z-index: 10;
+    font-size: 1.04rem;
+    line-height: 1.65;
+    pointer-events: none;
+    opacity: 1;
   }
   .bubble.sent {
     background: var(--bubble-sent-bg);
@@ -682,7 +706,7 @@
                 <img src="${sent ? (currentUser.photoURL || 'https://randomuser.me/api/portraits/lego/1.jpg') : (m.avatar || 'https://randomuser.me/api/portraits/lego/1.jpg')}" class="message-avatar rounded-circle shadow-sm" style="width:38px;height:38px;object-fit:cover;">
                 <div class="message-bubble-container flex-grow-1 d-flex flex-column align-items-${sent ? 'end' : 'start'}">
                   ${replyHtml ? `<div class="reply-preview mb-1 w-100">${replyHtml}</div>` : ''}
-                  <div class="bubble ${sent ? 'sent' : 'received'} shadow-sm px-3 py-2 rounded-4 position-relative">
+                  <div class="bubble ${sent ? 'sent' : 'received'} shadow-sm px-3 py-2 rounded-4 position-relative" data-fulltext="${escapeHTML(m.text || '')}">
                     ${content}
                   </div>
                   <div class="d-flex align-items-center gap-2 mt-1">
