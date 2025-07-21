@@ -537,15 +537,15 @@
             </div>
           </div>
         `;
-        // Render listing quote preview if available
+        // Render listing quote preview ONLY if this chat is the one associated with the listing reply
         const replyPreview = document.getElementById('replyPreview');
-        if (d.listingQuote) {
+        if (window.replyToListing && window.replyToListing.chatId === chatId) {
           replyPreview.innerHTML = `
             <span class='small text-muted'>Listing</span><br>
-            <span class='fw-bold'>${d.listingQuote.title || ''}</span><br>
-            ${d.listingQuote.image ? `<img src="${d.listingQuote.image}" alt="${d.listingQuote.title}" style="max-width:80px;max-height:60px;object-fit:cover;border-radius:6px;">` : ''}
-            ${d.listingQuote.price ? `<span class="text-success">UGX ${Number(d.listingQuote.price).toLocaleString()}</span><br>` : ''}
-            <a href="${d.listingQuote.link}" target="_blank" class="small text-primary text-decoration-underline">View Listing</a>
+            <span class='fw-bold'>${window.replyToListing.title || ''}</span><br>
+            ${window.replyToListing.image ? `<img src="${window.replyToListing.image}" alt="${window.replyToListing.title}" style="max-width:80px;max-height:60px;object-fit:cover;border-radius:6px;">` : ''}
+            ${window.replyToListing.price ? `<span class="text-success">UGX ${Number(window.replyToListing.price).toLocaleString()}</span><br>` : ''}
+            <a href="${window.replyToListing.link}" target="_blank" class="small text-primary text-decoration-underline">View Listing</a>
           `;
           replyPreview.classList.remove('d-none');
         } else {
@@ -567,6 +567,9 @@
                   <span class="small text-muted">Listing</span><br>
                   <span class="fw-bold">${m.replyTo.title || 'Listing'}</span><br>
                   ${m.replyTo.price ? `<span class="text-success">UGX ${Number(m.replyTo.price).toLocaleString()}</span><br>` : ''}
+                  ${m.replyTo.location ? `<span class='text-muted small'><i class='bi bi-geo-alt me-1'></i>${m.replyTo.location}</span><br>` : ''}
+                  ${m.replyTo.category ? `<span class='badge bg-secondary me-1'>${m.replyTo.category}</span>` : ''}
+                  ${m.replyTo.listerName ? `<span class='small text-muted ms-1'>by ${m.replyTo.listerAvatar ? `<img src='${m.replyTo.listerAvatar}' style='width:18px;height:18px;object-fit:cover;border-radius:50%;margin-right:3px;'>` : ''}${m.replyTo.listerName}</span><br>` : ''}
                   <a href="${m.replyTo.link}" target="_blank" class="small text-primary text-decoration-underline">View Listing</a>
                 </div>
               </div>`;
@@ -805,7 +808,13 @@
                   title: window.replyToListing.title,
                   image: window.replyToListing.image,
                   price: window.replyToListing.price,
-                  link: window.replyToListing.link
+                  link: window.replyToListing.link,
+                  location: window.replyToListing.location || '',
+                  description: window.replyToListing.description || '',
+                  category: window.replyToListing.category || '',
+                  postedAt: window.replyToListing.postedAt || '',
+                  listerName: window.replyToListing.listerName || '',
+                  listerAvatar: window.replyToListing.listerAvatar || ''
                 };
                 window.replyToListing = null;
                 if (replyPreview) replyPreview.classList.add('d-none');
