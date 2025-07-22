@@ -73,8 +73,37 @@
           <h5>Chat</h5>
           <button id="newChatBtn">NEW</button>
         </div>
+        <div class="chat-sidebar-search">
+          <input type="text" class="chat-search-input" placeholder="Search chats..." aria-label="Search chats">
+        </div>
         <nav id="chatListContainer">
-          <!-- Conversations will be loaded here dynamically -->
+          <!-- Example Conversation Item (for styling, can be removed when dynamic) -->
+          <div class="chat-listing active">
+            <div class="chat-avatar">
+              <img src="../../img/avatar-placeholder.png" alt="Avatar" />
+            </div>
+            <div class="chat-info">
+              <div class="chat-name">Jane Doe</div>
+              <div class="chat-last">Hey, are you available for a call?</div>
+            </div>
+            <div class="chat-meta">
+              <span class="chat-time">10:25</span>
+              <span class="chat-unread">2</span>
+            </div>
+          </div>
+          <div class="chat-listing">
+            <div class="chat-avatar">
+              <img src="../../img/avatar-placeholder.png" alt="Avatar" />
+            </div>
+            <div class="chat-info">
+              <div class="chat-name">Support</div>
+              <div class="chat-last">Your ticket has been updated.</div>
+            </div>
+            <div class="chat-meta">
+              <span class="chat-time">09:50</span>
+            </div>
+          </div>
+          <!-- End Example Conversation Item -->
         </nav>
       </aside>
       <!-- Chat Area -->
