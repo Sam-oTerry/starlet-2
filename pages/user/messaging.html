@@ -80,6 +80,7 @@
       <!-- Chat Area -->
       <section id="chatMainArea">
         <div class="chat-card">
+          <div class="chat-accent-bar"></div>
           <header id="chatHeader" class="chat-header-modern">
             <div class="chat-header-avatar">
               <img src="../../img/avatar-placeholder.png" alt="Avatar" class="avatar-img" />
@@ -94,11 +95,31 @@
             </div>
           </header>
           <div id="chatMessages" class="chat-body-modern">
-            <!-- Messages will be populated dynamically via JavaScript -->
+            <!-- Example Message Row (for styling, can be removed when dynamic) -->
+            <div class="message-row sent">
+              <div class="message-bubble">
+                Hello! This is a sent message.
+                <div class="message-meta">
+                  <span class="message-time">09:55</span>
+                  <span class="message-status"><i class="bi bi-check2-all"></i></span>
+                </div>
+              </div>
+            </div>
+            <div class="message-row received">
+              <div class="message-bubble">
+                Hi! This is a received message.
+                <div class="message-meta">
+                  <span class="message-time">09:56</span>
+                </div>
+              </div>
+            </div>
+            <!-- End Example Message Row -->
           </div>
           <footer id="chatFooter" class="chat-footer-modern">
             <div id="replyPreview" class="d-none"></div>
             <form id="chatInputForm" autocomplete="off" class="chat-input-form-modern">
+              <button type="button" class="chat-input-icon" title="Attach File"><i class="bi bi-paperclip"></i></button>
+              <button type="button" class="chat-input-icon" title="Emoji"><i class="bi bi-emoji-smile"></i></button>
               <input id="chatInput" type="text" class="chat-input-modern" placeholder="Type your message..." aria-label="Type your message" autocomplete="off">
               <button type="submit" id="chatSendBtn" class="chat-send-btn-modern"><i class="bi bi-send"></i></button>
             </form>
