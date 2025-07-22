@@ -79,19 +79,31 @@
       </aside>
       <!-- Chat Area -->
       <section id="chatMainArea">
-        <header id="chatHeader">
-          <!-- Chat header (avatar, name, status) will be rendered dynamically -->
-        </header>
-        <div id="chatMessages" class="chat-body">
-          <!-- Messages will be populated dynamically via JavaScript -->
+        <div class="chat-card">
+          <header id="chatHeader" class="chat-header-modern">
+            <div class="chat-header-avatar">
+              <img src="../../img/avatar-placeholder.png" alt="Avatar" class="avatar-img" />
+            </div>
+            <div class="chat-header-info">
+              <span class="chat-header-name">Contact Name</span>
+              <span class="chat-header-status">Online</span>
+            </div>
+            <div class="chat-header-actions">
+              <button class="chat-header-btn"><i class="bi bi-search"></i></button>
+              <button class="chat-header-btn"><i class="bi bi-three-dots-vertical"></i></button>
+            </div>
+          </header>
+          <div id="chatMessages" class="chat-body-modern">
+            <!-- Messages will be populated dynamically via JavaScript -->
+          </div>
+          <footer id="chatFooter" class="chat-footer-modern">
+            <div id="replyPreview" class="d-none"></div>
+            <form id="chatInputForm" autocomplete="off" class="chat-input-form-modern">
+              <input id="chatInput" type="text" class="chat-input-modern" placeholder="Type your message..." aria-label="Type your message" autocomplete="off">
+              <button type="submit" id="chatSendBtn" class="chat-send-btn-modern"><i class="bi bi-send"></i></button>
+            </form>
+          </footer>
         </div>
-        <footer id="chatFooter">
-          <div id="replyPreview" class="d-none"></div>
-          <form id="chatInputForm" autocomplete="off">
-            <input id="chatInput" type="text" class="chat-input" placeholder="Type your message..." aria-label="Type your message" autocomplete="off">
-            <button type="submit" id="chatSendBtn"><i class="bi bi-send"></i></button>
-          </form>
-        </footer>
       </section>
     </div>
   </main>
