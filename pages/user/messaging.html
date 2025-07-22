@@ -65,40 +65,36 @@
     </nav>
 
   <!-- Main Content -->
-  <main class="container-fluid py-3 px-0 px-md-3">
-  <div class="row g-0" style="min-height: 70vh;">
-    <!-- Conversations Sidebar -->
-    <div class="col-12 col-md-4 col-lg-3 border-end bg-light d-flex flex-column" id="chatSidebar">
-      <div class="d-flex align-items-center justify-content-between px-3 py-3 border-bottom bg-white">
-        <h5 class="mb-0 fw-bold">Chat</h5>
-        <button class="btn btn-primary btn-sm rounded-pill px-3 shadow-sm" id="newChatBtn">NEW</button>
-      </div>
-      <div class="collapse show d-md-block" id="chatSidebarList">
-        <div class="list-group list-group-flush chat-list-scroll" id="chatListContainer">
+  <main id="messaging-main">
+    <div class="chat-layout">
+      <!-- Conversations Sidebar -->
+      <aside id="chatSidebar">
+        <div class="chat-sidebar-header">
+          <h5>Chat</h5>
+          <button id="newChatBtn">NEW</button>
+        </div>
+        <nav id="chatListContainer">
           <!-- Conversations will be loaded here dynamically -->
-        </div>
-      </div>
-    </div>
-    <!-- Chat Area -->
-    <div class="col-12 col-md-8 col-lg-9 d-flex flex-column" id="chatMainArea">
-      <div class="card rounded-4 border-0 flex-grow-1 d-flex flex-column h-100 shadow-sm chat-main-card">
-        <div class="card-header bg-white border-bottom-0 d-flex align-items-center gap-3 chat-header" id="chatHeader">
+        </nav>
+      </aside>
+      <!-- Chat Area -->
+      <section id="chatMainArea">
+        <header id="chatHeader">
           <!-- Chat header (avatar, name, status) will be rendered dynamically -->
-        </div>
-        <div class="card-body px-4 py-3 flex-grow-1 overflow-auto bg-light chat-body" id="chatMessages">
+        </header>
+        <div id="chatMessages" class="chat-body">
           <!-- Messages will be populated dynamically via JavaScript -->
         </div>
-        <div class="card-footer bg-white border-0 p-3 chat-footer">
-          <div id="replyPreview" class="mb-2 d-none"></div>
-          <form class="d-flex align-items-center gap-2" id="chatInputForm" autocomplete="off">
-            <input id="chatInput" type="text" class="form-control flex-grow-1 rounded-pill px-4 py-2 chat-input" placeholder="Type your message..." aria-label="Type your message" autocomplete="off">
-            <button type="submit" class="btn btn-primary rounded-circle d-flex align-items-center justify-content-center chat-send-btn" style="width:44px;height:44px;"><i class="bi bi-send fs-5"></i></button>
+        <footer id="chatFooter">
+          <div id="replyPreview" class="d-none"></div>
+          <form id="chatInputForm" autocomplete="off">
+            <input id="chatInput" type="text" class="chat-input" placeholder="Type your message..." aria-label="Type your message" autocomplete="off">
+            <button type="submit" id="chatSendBtn"><i class="bi bi-send"></i></button>
           </form>
-        </div>
-      </div>
+        </footer>
+      </section>
     </div>
-  </div>
-</main>
+  </main>
 <style>
   /* Modern Chat Bubble Styles with Project Theme */
   :root {
@@ -724,13 +720,12 @@
             chatMessages.innerHTML += `
               <div class="message-row d-flex align-items-end gap-2 position-relative ${sent ? 'sent flex-row-reverse' : 'received'} mb-3" data-message-id="${doc.id}" data-message-text="${escapeHTML(m.text || '')}" data-message-sender="${sent ? 'You' : (m.senderName || 'User')}">
                 <img src="${sent ? (currentUser.photoURL || 'https://randomuser.me/api/portraits/lego/1.jpg') : (m.avatar || 'https://randomuser.me/api/portraits/lego/1.jpg')}" class="message-avatar rounded-circle" style="width:38px;height:38px;object-fit:cover;">
-                ${replyHtml ? `<div class="reply-preview mb-1 w-100">${replyHtml}</div>` : ''}
-                <div class="bubble ${sent ? 'sent' : 'received'} px-3 py-2 rounded-4 position-relative" data-fulltext="${escapeHTML(m.text || '')}">
-                  ${content}
-                </div>
-                <div class="d-flex align-items-center gap-2 mt-1">
-                  <span class="timestamp small text-muted">${m.createdAt ? new Date(m.createdAt.seconds*1000).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : ''}</span>
-                  ${readMark}
+                <div class="message-bubble-container flex-grow-1 d-flex flex-column align-items-${sent ? 'end' : 'start'}">
+                  ${replyHtml ? `<div class="reply-preview mb-1 w-100">${replyHtml}</div>` : ''}
+                  <div class="bubble ${sent ? 'sent' : 'received'} px-3 py-2 rounded-4 position-relative" data-fulltext="${escapeHTML(m.text || '')}">
+                    ${content}
+                  </div>
+                  <div class="d-flex align-items-center gap-2 mt-1">
                     <span class="timestamp small text-muted">${m.createdAt ? new Date(m.createdAt.seconds*1000).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : ''}</span>
                     ${readMark}
                   </div>
