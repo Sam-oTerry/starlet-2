@@ -379,6 +379,119 @@
     align-items: flex-end;
     gap: 0.5rem;
   }
+
+  /* Message Search Styles */
+  #messageSearchInput {
+    border-radius: 20px;
+    border: 1px solid #e0e0e0;
+    padding: 8px 16px;
+    font-size: 14px;
+    transition: border-color 0.2s;
+  }
+
+  #messageSearchInput:focus {
+    border-color: var(--primary-blue);
+    box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.1);
+    outline: none;
+  }
+
+  .search-result-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    cursor: pointer;
+    border-bottom: 1px solid #f0f0f0;
+    transition: background-color 0.2s;
+  }
+
+  .search-result-item:hover {
+    background-color: #f8f9fa;
+  }
+
+  .search-result-item mark {
+    background-color: #fff3cd;
+    color: #856404;
+    padding: 2px 4px;
+    border-radius: 3px;
+    font-weight: 500;
+  }
+
+  /* User Presence Styles */
+  .user-status {
+    font-size: 12px;
+    font-weight: 500;
+    padding: 2px 6px;
+    border-radius: 10px;
+    text-transform: lowercase;
+  }
+
+  .user-status.online {
+    color: #28a745;
+    background-color: #d4edda;
+  }
+
+  .user-status.offline {
+    color: #6c757d;
+    background-color: #e9ecef;
+  }
+
+  .chat-header-status.online {
+    color: #28a745;
+  }
+
+  .chat-header-status.offline {
+    color: #6c757d;
+  }
+
+  /* Enhanced user avatar with presence indicator */
+  .user-avatar {
+    position: relative;
+  }
+
+  .user-avatar::after {
+    content: '';
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    border: 2px solid white;
+    background-color: #6c757d;
+  }
+
+  .user-item:has(.user-status.online) .user-avatar::after {
+    background-color: #28a745;
+  }
+
+  /* Search state styling */
+  .sidebar.search-mode .user-list {
+    border-top: 2px solid var(--primary-blue);
+  }
+
+  /* Typing indicator enhancement */
+  .typing-indicator {
+    font-style: italic;
+    color: #28a745;
+    font-size: 12px;
+    margin-left: 8px;
+  }
+
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    #messageSearchInput {
+      font-size: 16px; /* Prevent zoom on iOS */
+    }
+    
+    .search-result-item {
+      padding: 10px 12px;
+    }
+    
+    .user-status {
+      font-size: 11px;
+      padding: 1px 4px;
+    }
+  }
   .message-row.sent {
     flex-direction: row-reverse;
   }
@@ -943,123 +1056,18 @@
       });
     }
 
-    // --- Setup Real-time Chat on Page Load ---
+    // --- Firebase globals setup for compatibility ---
     document.addEventListener('DOMContentLoaded', function() {
-      // Wait for Firebase and Auth to be ready
-      function ready() {
-        if (!window.firebaseDB || !window.firebaseAuth) return setTimeout(ready, 100);
-        const db = window.firebaseDB;
-        const auth = window.firebaseAuth;
-        auth.onAuthStateChanged(async user => {
-          if (!user) return;
-          window.currentUser = user;
-          listenForConversations(db, user);
-          // If ?support=1 in URL, trigger support chat logic
-          const url = new URL(window.location.href);
-          const listingId = url.searchParams.get('listingId');
-          const listerId = url.searchParams.get('listerId');
-          const userId = url.searchParams.get('userid');
-          const agentId = url.searchParams.get('agentid');
-          if (listingId && typeof window.openChatWithLister === 'function') {
-            // Prefer listerId, fall back to agentId
-            const partnerId = listerId || agentId;
-            if (partnerId) {
-              setTimeout(() => window.openChatWithLister(listingId, partnerId), 500);
-            }
-          } else if (userId && agentId && typeof window.openChatWithLister === 'function') {
-            setTimeout(() => window.openChatWithLister(userId, agentId), 500);
-          } else if (url.searchParams.get('support') === '1' && typeof window.openSupportChat === 'function') {
-            setTimeout(() => window.openSupportChat(), 500);
-          }
-          // Setup chat input for real-time chat
-          const chatInputForm = document.getElementById('chatInputForm');
-          if (chatInputForm) {
-            // Add reply preview container
-            let replyPreview = document.createElement('div');
-            replyPreview.id = 'replyPreview';
-            replyPreview.className = 'reply-preview d-none mb-2 px-3 py-2 rounded bg-light border-start border-3 border-primary position-relative';
-            chatInputForm.parentNode.insertBefore(replyPreview, chatInputForm);
-
-            // Show listing as reply preview if present
-            if (window.replyToListing) {
-              replyPreview.innerHTML = `
-                <span class='small text-muted'>Listing</span><br>
-                <span class='fw-bold'>${window.replyToListing.title || ''}</span><br>
-                ${window.replyToListing.image ? `<img src="${window.replyToListing.image}" alt="Listing image" style="max-width:80px;max-height:60px;object-fit:cover;border-radius:6px;">` : ''}
-                <a href="${window.replyToListing.link}" target="_blank" class="d-block small mt-1">View Listing</a>
-                <button type='button' class='btn-close btn-sm position-absolute top-0 end-0' aria-label='Cancel reply'></button>
-              `;
-              replyPreview.classList.remove('d-none');
-              replyPreview.querySelector('.btn-close').onclick = function() {
-                replyPreview.classList.add('d-none');
-                window.replyToListing = null;
-              };
-            }
-
-            // Reply preview UI handler
-            window.setReplyPreview = function(msgId, msgText, msgSender) {
-              const replyPreview = document.getElementById('replyPreview');
-              if (!replyPreview) return;
-              replyPreview.innerHTML = `
-                <span class='small text-muted'>Replying to ${msgSender}</span><br>
-                <span class='text-truncate d-block' style='max-width:180px;'>${msgText}</span>
-              `;
-              replyPreview.classList.remove('d-none');
-              replyPreview.querySelector('.btn-close').onclick = function() {
-                replyPreview.classList.add('d-none');
-                window.replyToMessage = null;
-              };
-              window.replyToMessage = { msgId, msgText, msgSender };
-            };
-
-            // Message send handler
-            chatInputForm.onsubmit = async function(e) {
-              e.preventDefault();
-              const input = document.getElementById('chatInput');
-              const replyPreview = document.getElementById('replyPreview');
-              const text = input.value.trim();
-              if (!text || !window.currentChatId) return;
-              let msgObj = {
-                type: 'text',
-                text,
-                senderId: currentUser.uid,
-                createdAt: firebase.firestore.FieldValue.serverTimestamp()
-              };
-              if (window.replyToMessage) {
-                msgObj.replyTo = {
-                  messageId: window.replyToMessage.msgId,
-                  text: window.replyToMessage.msgText,
-                  sender: window.replyToMessage.msgSender
-                };
-              }
-              // If replying to a listing (first message), include listing info as replyTo
-              if (window.replyToListing) {
-                msgObj.replyTo = {
-                  type: 'listing',
-                  id: window.replyToListing.id,
-                  title: window.replyToListing.title,
-                  image: window.replyToListing.image,
-                  price: window.replyToListing.price,
-                  link: window.replyToListing.link,
-                  location: window.replyToListing.location || '',
-                  description: window.replyToListing.description || '',
-                  category: window.replyToListing.category || '',
-                  postedAt: window.replyToListing.postedAt || '',
-                  listerName: window.replyToListing.listerName || '',
-                  listerAvatar: window.replyToListing.listerAvatar || ''
-                };
-                window.replyToListing = null;
-                if (replyPreview) replyPreview.classList.add('d-none');
-              }
-              if (replyPreview) replyPreview.classList.add('d-none');
-              window.replyToMessage = null;
-              await db.collection('conversations').doc(window.currentChatId).collection('messages').add(msgObj);
-              input.value = '';
-            };
-          }
-        });
+      // Set up global Firebase references for compatibility
+      function setupGlobals() {
+        if (typeof firebase !== 'undefined' && firebase.apps && firebase.apps.length > 0) {
+          window.firebaseDB = firebase.firestore();
+          window.firebaseAuth = firebase.auth();
+        } else {
+          setTimeout(setupGlobals, 100);
+        }
       }
-      ready();
+      setupGlobals();
     });
 </script>
   <script src="firebase-config.js"></script>
