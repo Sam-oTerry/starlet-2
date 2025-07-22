@@ -103,7 +103,7 @@
     
     try {
       // Search in all chats the user participates in
-      const chatsSnap = await db.collection('chats')
+      const chatsSnap = await db.collection('conversations')
         .where('participants', 'array-contains', window.currentUser.uid)
         .get();
       
@@ -113,7 +113,7 @@
         const chatData = chatDoc.data();
         
         // Search messages in this chat
-        const messagesSnap = await db.collection('chats')
+        const messagesSnap = await db.collection('conversations')
           .doc(chatDoc.id)
           .collection('messages')
           .where('type', '==', 'text')
@@ -198,7 +198,7 @@
     if (!sidebar) return;
     sidebar.innerHTML = '<div class="text-center py-3">Loading...</div>';
     
-    db.collection('chats').where('participants', 'array-contains', window.currentUser.uid).orderBy('lastMessageAt', 'desc').onSnapshot(snap => {
+    db.collection('conversations').where('participants', 'array-contains', window.currentUser.uid).orderBy('lastMessageAt', 'desc').onSnapshot(snap => {
       if (snap.empty) {
         sidebar.innerHTML = '<div class="text-center py-3">No conversations yet.</div>';
         return;
@@ -301,7 +301,7 @@
     const activeA = document.querySelector(`.user-item[data-chat-id='${chatId}']`);
     if (activeA) activeA.classList.add('active');
     // Load header
-    db.collection('chats').doc(chatId).get().then(chatDoc => {
+    db.collection('conversations').doc(chatId).get().then(chatDoc => {
       const d = chatDoc.data();
       const other = (d.participantDetails || []).find(u => u.uid !== window.currentUser.uid) || {};
       document.querySelector('.chat-header-avatar img').src = other.avatar || 'https://via.placeholder.com/40x40/e0e0e0/666666?text=U';
@@ -321,7 +321,7 @@
     // Listen for messages
     const chatMessages = document.querySelector('.chat-messages');
     chatMessages.innerHTML = '<div class="text-center py-3">Loading...</div>';
-    chatUnsub = db.collection('chats').doc(chatId).collection('messages').orderBy('createdAt').onSnapshot(snap => {
+    chatUnsub = db.collection('conversations').doc(chatId).collection('messages').orderBy('createdAt').onSnapshot(snap => {
       chatMessages.innerHTML = '';
       snap.forEach(doc => {
         const m = doc.data();
@@ -357,7 +357,7 @@
     indicator.className = 'typing-indicator';
     indicator.style.display = 'none';
     document.querySelector('.chat-header-info').appendChild(indicator);
-    db.collection('chats').doc(chatId).collection('typing').doc(otherUid).onSnapshot(doc => {
+    db.collection('conversations').doc(chatId).collection('typing').doc(otherUid).onSnapshot(doc => {
       if (doc.exists && doc.data().typing) {
         indicator.style.display = '';
         indicator.textContent = 'Typing...';
@@ -369,7 +369,7 @@
 
   // --- Mark Messages as Read ---
   function markMessagesRead(chatId) {
-    const chatRef = db.collection('chats').doc(chatId).collection('messages');
+    const chatRef = db.collection('conversations').doc(chatId).collection('messages');
     chatRef.get().then(snap => {
       snap.forEach(doc => {
         if (!doc.data().readBy || !doc.data().readBy.includes(window.currentUser.uid)) {
@@ -388,7 +388,7 @@
         const input = document.getElementById('chatInput');
         const text = input.value.trim();
         if (!text || !window.currentChatId) return;
-        await db.collection('chats').doc(window.currentChatId).collection('messages').add({
+        await db.collection('conversations').doc(window.currentChatId).collection('messages').add({
           type: 'text',
           text,
           senderId: window.currentUser.uid,
@@ -401,10 +401,10 @@
       let typingTimeout = null;
       input.addEventListener('input', function() {
         if (!window.currentChatId) return;
-        db.collection('chats').doc(window.currentChatId).collection('typing').doc(window.currentUser.uid).set({ typing: true });
+        db.collection('conversations').doc(window.currentChatId).collection('typing').doc(window.currentUser.uid).set({ typing: true });
         if (typingTimeout) clearTimeout(typingTimeout);
         typingTimeout = setTimeout(() => {
-          db.collection('chats').doc(window.currentChatId).collection('typing').doc(window.currentUser.uid).set({ typing: false });
+          db.collection('conversations').doc(window.currentChatId).collection('typing').doc(window.currentUser.uid).set({ typing: false });
         }, 2000);
       });
     }
