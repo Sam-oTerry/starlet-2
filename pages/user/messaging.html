@@ -66,29 +66,43 @@
 
   <!-- Main Content -->
   <main id="messaging-main">
-    <div class="chat-layout">
-      <!-- Conversations Sidebar -->
+    <div class="chat-card chat-card-combined">
+      <!-- Sidebar (left panel) -->
       <aside id="chatSidebar">
         <div class="chat-sidebar-header">
           <h5>Chat</h5>
-          <button id="newChatBtn">NEW</button>
+          <button id="newChatBtn" class="pill-btn">NEW</button>
         </div>
         <div class="chat-sidebar-search">
           <input type="text" class="chat-search-input" placeholder="Search chats..." aria-label="Search chats">
         </div>
         <nav id="chatListContainer">
-          <!-- Example Conversation Item (for styling, can be removed when dynamic) -->
           <div class="chat-listing active">
             <div class="chat-avatar">
               <img src="../../img/avatar-placeholder.png" alt="Avatar" />
+              <span class="chat-avatar-badge">2</span>
             </div>
             <div class="chat-info">
-              <div class="chat-name">Jane Doe</div>
-              <div class="chat-last">Hey, are you available for a call?</div>
+              <div class="chat-name">Fikri Ruslandi</div>
+              <div class="chat-last">Ko, Kumaha Project anu etc</div>
             </div>
             <div class="chat-meta">
-              <span class="chat-time">10:25</span>
-              <span class="chat-unread">2</span>
+              <span class="chat-time">1 min</span>
+              <span class="chat-online-dot"></span>
+            </div>
+          </div>
+          <div class="chat-listing">
+            <div class="chat-avatar">
+              <img src="../../img/avatar-placeholder.png" alt="Avatar" />
+              <span class="chat-avatar-badge">3</span>
+            </div>
+            <div class="chat-info">
+              <div class="chat-name">Moch Ramdhani</div>
+              <div class="chat-last">Ane menang contest $1000 ...</div>
+            </div>
+            <div class="chat-meta">
+              <span class="chat-time">2 min</span>
+              <span class="chat-online-dot"></span>
             </div>
           </div>
           <div class="chat-listing">
@@ -96,64 +110,126 @@
               <img src="../../img/avatar-placeholder.png" alt="Avatar" />
             </div>
             <div class="chat-info">
-              <div class="chat-name">Support</div>
-              <div class="chat-last">Your ticket has been updated.</div>
+              <div class="chat-name">Abu Abdullah Nugraha</div>
+              <div class="chat-last">is typing a message...</div>
             </div>
             <div class="chat-meta">
-              <span class="chat-time">09:50</span>
+              <span class="chat-time">5 min</span>
+              <span class="chat-online-dot"></span>
             </div>
           </div>
-          <!-- End Example Conversation Item -->
+          <div class="chat-listing">
+            <div class="chat-avatar">
+              <img src="../../img/avatar-placeholder.png" alt="Avatar" />
+              <span class="chat-avatar-badge">4</span>
+            </div>
+            <div class="chat-info">
+              <div class="chat-name">Muhammad Fauzi</div>
+              <div class="chat-last">Ko, Minjem sepatu basket ja...</div>
+            </div>
+            <div class="chat-meta">
+              <span class="chat-time">9 min</span>
+            </div>
+          </div>
+          <div class="chat-listing">
+            <div class="chat-avatar">
+              <img src="../../img/avatar-placeholder.png" alt="Avatar" />
+            </div>
+            <div class="chat-info">
+              <div class="chat-name">Nurman Tri Gumelar</div>
+              <div class="chat-last">Technical meeting lomba jogja</div>
+            </div>
+            <div class="chat-meta">
+              <span class="chat-time">9 min</span>
+            </div>
+          </div>
+          <div class="chat-listing">
+            <div class="chat-avatar">
+              <img src="../../img/avatar-placeholder.png" alt="Avatar" />
+            </div>
+            <div class="chat-info">
+              <div class="chat-name">Bagas Rhafi</div>
+              <div class="chat-last">Heeh pansi si jamar ndak etc</div>
+            </div>
+            <div class="chat-meta">
+              <span class="chat-time">45 min</span>
+            </div>
+          </div>
+          <div class="chat-listing">
+            <div class="chat-avatar">
+              <img src="../../img/avatar-placeholder.png" alt="Avatar" />
+            </div>
+            <div class="chat-info">
+              <div class="chat-name">Saepul Rohman</div>
+              <div class="chat-last">Heeh wapp na</div>
+            </div>
+            <div class="chat-meta">
+              <span class="chat-time">2 hrs</span>
+            </div>
+          </div>
+          <div class="chat-listing">
+            <div class="chat-avatar">
+              <img src="../../img/avatar-placeholder.png" alt="Avatar" />
+              <span class="chat-avatar-badge">6</span>
+            </div>
+            <div class="chat-info">
+              <div class="chat-name">Muhamad Aldiansyah</div>
+              <div class="chat-last">Bales tuh ko bisi disetrum</div>
+            </div>
+            <div class="chat-meta">
+              <span class="chat-time">2 hrs</span>
+            </div>
+          </div>
         </nav>
       </aside>
-      <!-- Chat Area -->
+      <!-- Divider -->
+      <div class="chat-divider"></div>
+      <!-- Chat Area (right panel) -->
       <section id="chatMainArea">
-        <div class="chat-card">
-          <div class="chat-accent-bar"></div>
-          <header id="chatHeader" class="chat-header-modern">
-            <div class="chat-header-avatar">
-              <img src="../../img/avatar-placeholder.png" alt="Avatar" class="avatar-img" />
-            </div>
-            <div class="chat-header-info">
-              <span class="chat-header-name">Contact Name</span>
-              <span class="chat-header-status">Online</span>
-            </div>
-            <div class="chat-header-actions">
-              <button class="chat-header-btn"><i class="bi bi-search"></i></button>
-              <button class="chat-header-btn"><i class="bi bi-three-dots-vertical"></i></button>
-            </div>
-          </header>
-          <div id="chatMessages" class="chat-body-modern">
-            <!-- Example Message Row (for styling, can be removed when dynamic) -->
-            <div class="message-row sent">
-              <div class="message-bubble">
-                Hello! This is a sent message.
-                <div class="message-meta">
-                  <span class="message-time">09:55</span>
-                  <span class="message-status"><i class="bi bi-check2-all"></i></span>
-                </div>
-              </div>
-            </div>
-            <div class="message-row received">
-              <div class="message-bubble">
-                Hi! This is a received message.
-                <div class="message-meta">
-                  <span class="message-time">09:56</span>
-                </div>
-              </div>
-            </div>
-            <!-- End Example Message Row -->
+        <div class="chat-accent-bar"></div>
+        <header id="chatHeader" class="chat-header-modern">
+          <div class="chat-header-avatar">
+            <img src="../../img/avatar-placeholder.png" alt="Avatar" class="avatar-img" />
           </div>
-          <footer id="chatFooter" class="chat-footer-modern">
-            <div id="replyPreview" class="d-none"></div>
-            <form id="chatInputForm" autocomplete="off" class="chat-input-form-modern">
-              <button type="button" class="chat-input-icon" title="Attach File"><i class="bi bi-paperclip"></i></button>
-              <button type="button" class="chat-input-icon" title="Emoji"><i class="bi bi-emoji-smile"></i></button>
-              <input id="chatInput" type="text" class="chat-input-modern" placeholder="Type your message..." aria-label="Type your message" autocomplete="off">
-              <button type="submit" id="chatSendBtn" class="chat-send-btn-modern"><i class="bi bi-send"></i></button>
-            </form>
-          </footer>
+          <div class="chat-header-info">
+            <span class="chat-header-name">Contact Name</span>
+            <span class="chat-header-status">Online</span>
+          </div>
+          <div class="chat-header-actions">
+            <button class="chat-header-btn"><i class="bi bi-search"></i></button>
+            <button class="chat-header-btn"><i class="bi bi-three-dots-vertical"></i></button>
+          </div>
+        </header>
+        <div id="chatMessages" class="chat-body-modern">
+          <!-- Example Message Row (for styling, can be removed when dynamic) -->
+          <div class="message-row sent">
+            <div class="message-bubble">
+              Hello! This is a sent message.
+              <div class="message-meta">
+                <span class="message-time">09:55</span>
+                <span class="message-status"><i class="bi bi-check2-all"></i></span>
+              </div>
+            </div>
+          </div>
+          <div class="message-row received">
+            <div class="message-bubble">
+              Hi! This is a received message.
+              <div class="message-meta">
+                <span class="message-time">09:56</span>
+              </div>
+            </div>
+          </div>
+          <!-- End Example Message Row -->
         </div>
+        <footer id="chatFooter" class="chat-footer-modern">
+          <div id="replyPreview" class="d-none"></div>
+          <form id="chatInputForm" autocomplete="off" class="chat-input-form-modern">
+            <button type="button" class="chat-input-icon" title="Attach File"><i class="bi bi-paperclip"></i></button>
+            <button type="button" class="chat-input-icon" title="Emoji"><i class="bi bi-emoji-smile"></i></button>
+            <input id="chatInput" type="text" class="chat-input-modern" placeholder="Type your message..." aria-label="Type your message" autocomplete="off">
+            <button type="submit" id="chatSendBtn" class="chat-send-btn-modern"><i class="bi bi-send"></i></button>
+          </form>
+        </footer>
       </section>
     </div>
   </main>
