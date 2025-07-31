@@ -9,27 +9,53 @@
   let isSearchMode = false;
   
   function waitForFirebaseAndInit() {
-    if (typeof firebase === 'undefined' || !document.getElementById('messaging-main')) {
+    // Check if Firebase is loaded and initialized
+    if (typeof firebase === 'undefined') {
+      console.log('Firebase not loaded yet, retrying...');
       setTimeout(waitForFirebaseAndInit, 100);
       return;
     }
-    db = firebase.firestore();
-    auth = firebase.auth();
-    if (!auth || typeof auth.onAuthStateChanged !== 'function') {
+    
+    // Check if Firebase is initialized
+    if (!firebase.apps || firebase.apps.length === 0) {
+      console.log('Firebase not initialized yet, retrying...');
       setTimeout(waitForFirebaseAndInit, 100);
       return;
     }
-    auth.onAuthStateChanged(user => {
-      if (!user) {
-        window.location.href = '/pages/auth/login.html';
+    
+    // Check if DOM is ready
+    if (!document.getElementById('messaging-main')) {
+      console.log('DOM not ready yet, retrying...');
+      setTimeout(waitForFirebaseAndInit, 100);
+      return;
+    }
+    
+    try {
+      db = firebase.firestore();
+      auth = firebase.auth();
+      
+      if (!auth || typeof auth.onAuthStateChanged !== 'function') {
+        console.log('Firebase Auth not ready yet, retrying...');
+        setTimeout(waitForFirebaseAndInit, 100);
         return;
       }
-      window.currentUser = user;
-      setupUserPresence(user);
-      loadSidebarConversations();
-      setupChatInput();
-      setupMessageSearch();
-    });
+      
+      console.log('Firebase ready, setting up auth listener...');
+      auth.onAuthStateChanged(user => {
+        if (!user) {
+          window.location.href = '/pages/auth/login.html';
+          return;
+        }
+        window.currentUser = user;
+        setupUserPresence(user);
+        loadSidebarConversations();
+        setupChatInput();
+        setupMessageSearch();
+      });
+    } catch (error) {
+      console.error('Error initializing Firebase services:', error);
+      setTimeout(waitForFirebaseAndInit, 100);
+    }
   }
 
   // --- User Presence System ---
@@ -42,7 +68,7 @@
       lastSeen: firebase.firestore.FieldValue.serverTimestamp(),
       uid: user.uid,
       name: user.displayName || user.email || 'Anonymous',
-      avatar: user.photoURL || 'https://via.placeholder.com/40x40/e0e0e0/666666?text=U'
+      avatar: user.photoURL || '/img/avatar-placeholder.svg'
     });
     
     // Set user as offline when they leave
@@ -161,7 +187,7 @@
       
       sidebar.innerHTML += `
         <div class="search-result-item" data-chat-id="${result.chatId}" tabindex="0">
-          <div class="user-avatar"><img src="${result.otherUser.avatar || 'https://via.placeholder.com/40x40/e0e0e0/666666?text=U'}" alt="${result.otherUser.name || 'Unknown'}" /></div>
+          <div class="user-avatar"><img src="${result.otherUser.avatar || '/img/avatar-placeholder.svg'}" alt="${result.otherUser.name || 'Unknown'}" /></div>
           <div class="user-info">
             <span class="user-name">${result.otherUser.name || 'Unknown'}</span>
             <span class="user-last">${result.senderName}: ${highlightedText}</span>
@@ -218,7 +244,7 @@
         
         conversationItem.innerHTML = `
           <div class="user-avatar">
-            <img src="${other.avatar || 'https://via.placeholder.com/40x40/e0e0e0/666666?text=U'}" alt="${other.name || 'Unknown'}" />
+                          <img src="${other.avatar || '/img/avatar-placeholder.svg'}" alt="${other.name || 'Unknown'}" />
             ${d.unread && d.unread[window.currentUser.uid] ? `<span class='user-unread'>${d.unread[window.currentUser.uid]}</span>` : ''}
           </div>
           <div class="user-info">
@@ -304,7 +330,7 @@
     db.collection('conversations').doc(chatId).get().then(chatDoc => {
       const d = chatDoc.data();
       const other = (d.participantDetails || []).find(u => u.uid !== window.currentUser.uid) || {};
-      document.querySelector('.chat-header-avatar img').src = other.avatar || 'https://via.placeholder.com/40x40/e0e0e0/666666?text=U';
+              document.querySelector('.chat-header-avatar img').src = other.avatar || '/img/avatar-placeholder.svg';
       document.querySelector('.chat-header-name').textContent = other.name || 'Unknown';
       
       // Set up presence status in chat header
