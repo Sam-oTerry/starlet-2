@@ -47,6 +47,7 @@
           return;
         }
         window.currentUser = user;
+        console.log('User authenticated:', user.uid, user.email);
         setupUserPresence(user);
         loadSidebarConversations();
         setupChatInput();
@@ -220,11 +221,28 @@
   function loadSidebarConversations() {
     if (isSearchMode) return; // Don't reload if in search mode
     
-    const sidebar = document.querySelector('.user-list');
-    if (!sidebar) return;
+    const sidebar = document.getElementById('chatSidebarList');
+    if (!sidebar) {
+      console.log('chatSidebarList element not found');
+      return;
+    }
     sidebar.innerHTML = '<div class="text-center py-3">Loading...</div>';
     
-    db.collection('conversations').where('participants', 'array-contains', window.currentUser.uid).orderBy('lastMessageAt', 'desc').onSnapshot(snap => {
+    console.log('Loading conversations for user:', window.currentUser.uid);
+    
+    // Test if we can access the database
+    db.collection('conversations').limit(1).get().then(testSnap => {
+      console.log('Database access test:', testSnap.size, 'documents in conversations collection');
+      if (testSnap.size > 0) {
+        const sampleDoc = testSnap.docs[0];
+        console.log('Sample conversation document:', sampleDoc.data());
+      }
+    }).catch(err => {
+      console.error('Database access error:', err);
+    });
+    
+    db.collection('conversations').where('participants', 'array-contains', window.currentUser.uid).onSnapshot(snap => {
+      console.log('Conversations snapshot:', snap.size, 'conversations found');
       if (snap.empty) {
         sidebar.innerHTML = '<div class="text-center py-3">No conversations yet.</div>';
         return;
@@ -238,13 +256,13 @@
         
         // Create conversation item with placeholder presence
         const conversationItem = document.createElement('div');
-        conversationItem.className = `user-item ${activeClass}`;
+        conversationItem.className = `chat-listing ${activeClass}`;
         conversationItem.setAttribute('data-chat-id', doc.id);
         conversationItem.setAttribute('tabindex', '0');
         
         conversationItem.innerHTML = `
           <div class="user-avatar">
-                          <img src="${other.avatar || '/img/avatar-placeholder.svg'}" alt="${other.name || 'Unknown'}" />
+            <img src="${other.avatar || '/img/avatar-placeholder.svg'}" alt="${other.name || 'Unknown'}" />
             ${d.unread && d.unread[window.currentUser.uid] ? `<span class='user-unread'>${d.unread[window.currentUser.uid]}</span>` : ''}
           </div>
           <div class="user-info">
@@ -265,7 +283,7 @@
         }
       });
       
-      Array.from(sidebar.querySelectorAll('.user-item')).forEach(a => {
+      Array.from(sidebar.querySelectorAll('.chat-listing')).forEach(a => {
         a.onclick = function(e) {
           e.preventDefault();
           openChat(this.getAttribute('data-chat-id'));
@@ -274,6 +292,9 @@
       
       // Auto-open first chat if none selected
       if (!window.currentChatId && snap.docs.length > 0) openChat(snap.docs[0].id);
+    }, error => {
+      console.error('Error loading conversations:', error);
+      sidebar.innerHTML = '<div class="text-center py-3 text-danger">Error loading conversations. Please try again.</div>';
     });
   }
   
