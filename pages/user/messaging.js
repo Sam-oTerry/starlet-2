@@ -24,7 +24,7 @@
     }
     
     // Check if DOM is ready
-    if (!document.getElementById('messaging-main')) {
+    if (!document.getElementById('chatSidebar')) {
       console.log('DOM not ready yet, retrying...');
       setTimeout(waitForFirebaseAndInit, 100);
       return;
