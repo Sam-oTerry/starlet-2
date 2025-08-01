@@ -256,22 +256,19 @@
         
         // Create conversation item with placeholder presence
         const conversationItem = document.createElement('div');
-        conversationItem.className = `chat-listing ${activeClass}`;
+        conversationItem.className = `conversation-item ${activeClass}`;
         conversationItem.setAttribute('data-chat-id', doc.id);
         conversationItem.setAttribute('tabindex', '0');
         
         conversationItem.innerHTML = `
-          <div class="user-avatar">
-            <img src="${other.avatar || '/img/avatar-placeholder.svg'}" alt="${other.name || 'Unknown'}" />
-            ${d.unread && d.unread[window.currentUser.uid] ? `<span class='user-unread'>${d.unread[window.currentUser.uid]}</span>` : ''}
+          <img src="${other.avatar || '../../img/avatar-placeholder.svg'}" class="conversation-avatar" alt="Avatar">
+          <div class="conversation-info">
+            <div class="conversation-name">${other.name || 'Unknown'}</div>
+            <div class="conversation-preview">${d.lastMessage || 'No messages yet'}</div>
           </div>
-          <div class="user-info">
-            <span class="user-name">${other.name || 'Unknown'}</span>
-            <span class="user-last">${d.lastMessage || ''}</span>
-          </div>
-          <div class="user-meta">
-            <span class="user-time">${d.lastMessageAt ? new Date(d.lastMessageAt.seconds*1000).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : ''}</span>
-            <span class="user-status" data-user-id="${other.uid}">offline</span>
+          <div class="conversation-meta">
+            <div class="conversation-time">${d.lastMessageAt ? new Date(d.lastMessageAt.seconds*1000).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : ''}</div>
+            <div class="unread-badge" style="display: ${d.unread && d.unread[window.currentUser.uid] ? 'flex' : 'none'}">${d.unread && d.unread[window.currentUser.uid] ? d.unread[window.currentUser.uid] : 0}</div>
           </div>
         `;
         
@@ -279,11 +276,11 @@
         
         // Listen for presence status for this user
         if (other.uid) {
-          listenToUserPresence(other.uid, conversationItem.querySelector('.user-status'));
+          // Presence will be handled in the chat header when conversation is opened
         }
       });
       
-      Array.from(sidebar.querySelectorAll('.chat-listing')).forEach(a => {
+              Array.from(sidebar.querySelectorAll('.conversation-item')).forEach(a => {
         a.onclick = function(e) {
           e.preventDefault();
           openChat(this.getAttribute('data-chat-id'));
@@ -299,7 +296,7 @@
   }
   
   // --- Listen to User Presence ---
-  function listenToUserPresence(userId, statusElement) {
+  function listenToUserPresence(userId, statusElement, statusIndicator) {
     if (!userId || !statusElement) return;
     
     db.collection('presence').doc(userId).onSnapshot(doc => {
@@ -309,17 +306,21 @@
         const lastSeen = presence.lastSeen;
         
         if (isOnline) {
-          statusElement.textContent = 'online';
-          statusElement.className = 'user-status online';
+          statusElement.textContent = 'Online';
+          if (statusIndicator) {
+            statusIndicator.className = 'status-indicator';
+          }
         } else {
-          statusElement.className = 'user-status offline';
+          if (statusIndicator) {
+            statusIndicator.className = 'status-indicator offline';
+          }
           if (lastSeen) {
             const lastSeenDate = lastSeen.toDate();
             const now = new Date();
             const diffMinutes = Math.floor((now - lastSeenDate) / (1000 * 60));
             
             if (diffMinutes < 1) {
-              statusElement.textContent = 'just now';
+              statusElement.textContent = 'Just now';
             } else if (diffMinutes < 60) {
               statusElement.textContent = `${diffMinutes}m ago`;
             } else if (diffMinutes < 1440) {
@@ -328,12 +329,14 @@
               statusElement.textContent = `${Math.floor(diffMinutes / 1440)}d ago`;
             }
           } else {
-            statusElement.textContent = 'offline';
+            statusElement.textContent = 'Offline';
           }
         }
       } else {
-        statusElement.textContent = 'offline';
-        statusElement.className = 'user-status offline';
+        statusElement.textContent = 'Offline';
+        if (statusIndicator) {
+          statusIndicator.className = 'status-indicator offline';
+        }
       }
     });
   }
@@ -344,36 +347,45 @@
     if (chatUnsub) chatUnsub();
     window.currentChatId = chatId;
     // Highlight selected
-    document.querySelectorAll('.user-item').forEach(a => a.classList.remove('active'));
-    const activeA = document.querySelector(`.user-item[data-chat-id='${chatId}']`);
+    document.querySelectorAll('.conversation-item').forEach(a => a.classList.remove('active'));
+    const activeA = document.querySelector(`.conversation-item[data-chat-id='${chatId}']`);
     if (activeA) activeA.classList.add('active');
-    // Load header
-    db.collection('conversations').doc(chatId).get().then(chatDoc => {
+          // Enable input field
+      const messageInput = document.getElementById('messageInput');
+      const sendBtn = document.getElementById('sendBtn');
+      if (messageInput) messageInput.disabled = false;
+      if (sendBtn) sendBtn.disabled = false;
+      
+      // Load header
+      db.collection('conversations').doc(chatId).get().then(chatDoc => {
       const d = chatDoc.data();
       const other = (d.participantDetails || []).find(u => u.uid !== window.currentUser.uid) || {};
-              const avatarImg = document.querySelector('.chat-header .avatar');
+              const avatarImg = document.querySelector('#chatAvatar');
               if (avatarImg) {
                 avatarImg.src = other.avatar || '../../img/avatar-placeholder.svg';
               }
-              const nameElement = document.querySelector('.chat-header .info h5');
+              const nameElement = document.querySelector('#chatUserName');
               if (nameElement) {
                 nameElement.textContent = other.name || 'Unknown';
               }
       
       // Set up presence status in chat header
-      const headerStatus = document.querySelector('.chat-header .info p');
+      const headerStatus = document.querySelector('#chatUserStatus span');
+      const statusIndicator = document.querySelector('#chatUserStatus .status-indicator');
       if (other.uid && headerStatus) {
-        listenToUserPresence(other.uid, headerStatus);
+        listenToUserPresence(other.uid, headerStatus, statusIndicator);
       } else if (headerStatus) {
-        headerStatus.textContent = 'offline';
-        headerStatus.className = 'offline';
+        headerStatus.textContent = 'Offline';
+        if (statusIndicator) {
+          statusIndicator.className = 'status-indicator offline';
+        }
       }
       
       listenTyping(chatId, other.uid);
     });
     // Listen for messages
-    const chatMessages = document.querySelector('.chat-messages');
-    chatMessages.innerHTML = '<div class="text-center py-3">Loading...</div>';
+    const chatMessages = document.querySelector('#chatMessages');
+          chatMessages.innerHTML = '<div class="empty-state"><div class="empty-state-icon"><i class="bi bi-arrow-clockwise"></i></div><h3>Loading...</h3></div>';
     chatUnsub = db.collection('conversations').doc(chatId).collection('messages').orderBy('createdAt').onSnapshot(snap => {
       chatMessages.innerHTML = '';
       snap.forEach(doc => {
@@ -391,12 +403,32 @@
         if (sent && m.readBy && m.readBy.includes(window.currentUser.uid)) {
           readMark = '<span class="ms-1 text-success small"><i class="bi bi-check2-all"></i> Seen</span>';
         }
-        chatMessages.innerHTML += `
-          <div class="message-row ${sent ? 'right' : 'left'}">
-            <div class="message-bubble">${content}</div>
-            <div class="meta small text-muted">${sent ? 'You' : 'Them'} • ${m.createdAt ? new Date(m.createdAt.seconds*1000).toLocaleString() : ''} ${readMark}</div>
-          </div>
-        `;
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message ${sent ? 'sent' : 'received'}`;
+        
+        const avatar = document.createElement('img');
+        avatar.className = 'message-avatar';
+        avatar.src = sent ? (window.currentUser?.avatar || '../../img/avatar-placeholder.svg') : (m.senderAvatar || '../../img/avatar-placeholder.svg');
+        avatar.alt = 'Avatar';
+        
+        const messageContent = document.createElement('div');
+        messageContent.className = 'message-content';
+        
+        const bubble = document.createElement('div');
+        bubble.className = 'message-bubble';
+        bubble.innerHTML = content;
+        
+        const time = document.createElement('div');
+        time.className = 'message-time';
+        time.textContent = m.createdAt ? new Date(m.createdAt.seconds*1000).toLocaleString() : '';
+        
+        messageContent.appendChild(bubble);
+        messageContent.appendChild(time);
+        
+        messageDiv.appendChild(avatar);
+        messageDiv.appendChild(messageContent);
+        
+        chatMessages.appendChild(messageDiv);
       });
       chatMessages.scrollTop = chatMessages.scrollHeight;
       markMessagesRead(chatId);
@@ -405,21 +437,26 @@
 
   // --- Typing Indicator ---
   function listenTyping(chatId, otherUid) {
-    const indicator = document.getElementById('typingIndicator');
+    const chatMessages = document.querySelector('#chatMessages');
+    let indicator = document.getElementById('typingIndicator');
     if (!indicator) {
-      const newIndicator = document.createElement('div');
-      newIndicator.id = 'typingIndicator';
-      newIndicator.className = 'typing-indicator';
-      newIndicator.style.display = 'none';
-      const chatHeader = document.querySelector('.chat-header');
-      if (chatHeader) {
-        chatHeader.appendChild(newIndicator);
-      }
+      indicator = document.createElement('div');
+      indicator.id = 'typingIndicator';
+      indicator.className = 'typing-indicator';
+      indicator.style.display = 'none';
+      indicator.innerHTML = `
+        <span>Typing</span>
+        <div class="typing-dots">
+          <div class="typing-dot"></div>
+          <div class="typing-dot"></div>
+          <div class="typing-dot"></div>
+        </div>
+      `;
+      chatMessages.appendChild(indicator);
     }
     db.collection('conversations').doc(chatId).collection('typing').doc(otherUid).onSnapshot(doc => {
       if (doc.exists && doc.data().typing) {
-        indicator.style.display = '';
-        indicator.textContent = 'Typing...';
+        indicator.style.display = 'flex';
       } else {
         indicator.style.display = 'none';
       }
@@ -440,11 +477,11 @@
 
   // --- Send Message & Typing ---
   function setupChatInput() {
-    const chatInputForm = document.getElementById('chatInputForm');
-    if (chatInputForm) {
-      chatInputForm.onsubmit = async function(e) {
+    const sendBtn = document.getElementById('sendBtn');
+    if (sendBtn) {
+      sendBtn.onclick = async function(e) {
         e.preventDefault();
-        const input = document.getElementById('chatInput');
+        const input = document.getElementById('messageInput');
         const text = input.value.trim();
         if (!text || !window.currentChatId) return;
         await db.collection('conversations').doc(window.currentChatId).collection('messages').add({
@@ -456,7 +493,7 @@
         input.value = '';
       };
       // Typing indicator
-      const input = document.getElementById('chatInput');
+      const input = document.getElementById('messageInput');
       let typingTimeout = null;
       input.addEventListener('input', function() {
         if (!window.currentChatId) return;
