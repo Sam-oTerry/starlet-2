@@ -661,6 +661,26 @@
         // Show star loading animation
         container.innerHTML = '<div class="col-12 text-center py-5"><div class="loading-container"><div class="star-loading"><div class="star"></div><div class="star"></div><div class="star"></div></div><div class="loading-text">Loading your saved listings...</div></div></div>';
         
+        // First, check if user document exists, create it if it doesn't
+        const userDocRef = db.collection('users').doc(uid);
+        const userDoc = await userDocRef.get();
+        
+        if (!userDoc.exists) {
+          // Create user document if it doesn't exist
+          await userDocRef.set({
+            email: window.currentUser.email,
+            displayName: window.currentUser.displayName || window.currentUser.email,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            firstName: window.currentUser.displayName ? window.currentUser.displayName.split(' ')[0] : '',
+            lastName: window.currentUser.displayName ? window.currentUser.displayName.split(' ').slice(1).join(' ') : '',
+            username: window.currentUser.email.split('@')[0],
+            avatar: '',
+            verified: false,
+            role: 'buyer'
+          });
+          console.log('Created user document for:', uid);
+        }
+        
         // Get user's saved listings
         const savedSnap = await db.collection('users').doc(uid).collection('savedListings').get();
         
