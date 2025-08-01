@@ -351,16 +351,28 @@
     db.collection('conversations').doc(chatId).get().then(chatDoc => {
       const d = chatDoc.data();
       const other = (d.participantDetails || []).find(u => u.uid !== window.currentUser.uid) || {};
-              document.querySelector('.chat-header-avatar img').src = other.avatar || '/img/avatar-placeholder.svg';
-      document.querySelector('.chat-header-name').textContent = other.name || 'Unknown';
+      
+      // Safely update header elements with null checks
+      const headerAvatar = document.querySelector('.chat-header-avatar img');
+      const headerName = document.querySelector('.chat-header-name');
+      
+      if (headerAvatar) {
+        headerAvatar.src = other.avatar || '/img/avatar-placeholder.svg';
+      }
+      
+      if (headerName) {
+        headerName.textContent = other.name || 'Unknown';
+      }
       
       // Set up presence status in chat header
       const headerStatus = document.querySelector('.chat-header-status');
-      if (other.uid) {
-        listenToUserPresence(other.uid, headerStatus);
-      } else {
-        headerStatus.textContent = 'offline';
-        headerStatus.className = 'chat-header-status offline';
+      if (headerStatus) {
+        if (other.uid) {
+          listenToUserPresence(other.uid, headerStatus);
+        } else {
+          headerStatus.textContent = 'offline';
+          headerStatus.className = 'chat-header-status offline';
+        }
       }
       
       listenTyping(chatId, other.uid);
@@ -403,7 +415,11 @@
     indicator.id = 'typingIndicator';
     indicator.className = 'typing-indicator';
     indicator.style.display = 'none';
-    document.querySelector('.chat-header-info').appendChild(indicator);
+    
+    const headerInfo = document.querySelector('.chat-header-info');
+    if (headerInfo) {
+      headerInfo.appendChild(indicator);
+    }
     db.collection('conversations').doc(chatId).collection('typing').doc(otherUid).onSnapshot(doc => {
       if (doc.exists && doc.data().typing) {
         indicator.style.display = '';
