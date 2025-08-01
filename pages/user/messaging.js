@@ -351,28 +351,22 @@
     db.collection('conversations').doc(chatId).get().then(chatDoc => {
       const d = chatDoc.data();
       const other = (d.participantDetails || []).find(u => u.uid !== window.currentUser.uid) || {};
-      
-      // Safely update header elements with null checks
-      const headerAvatar = document.querySelector('.chat-header-avatar img');
-      const headerName = document.querySelector('.chat-header-name');
-      
-      if (headerAvatar) {
-        headerAvatar.src = other.avatar || '/img/avatar-placeholder.svg';
-      }
-      
-      if (headerName) {
-        headerName.textContent = other.name || 'Unknown';
-      }
+              const avatarImg = document.querySelector('.chat-header .avatar');
+              if (avatarImg) {
+                avatarImg.src = other.avatar || '../../img/avatar-placeholder.svg';
+              }
+              const nameElement = document.querySelector('.chat-header .info h5');
+              if (nameElement) {
+                nameElement.textContent = other.name || 'Unknown';
+              }
       
       // Set up presence status in chat header
-      const headerStatus = document.querySelector('.chat-header-status');
-      if (headerStatus) {
-        if (other.uid) {
-          listenToUserPresence(other.uid, headerStatus);
-        } else {
-          headerStatus.textContent = 'offline';
-          headerStatus.className = 'chat-header-status offline';
-        }
+      const headerStatus = document.querySelector('.chat-header .info p');
+      if (other.uid && headerStatus) {
+        listenToUserPresence(other.uid, headerStatus);
+      } else if (headerStatus) {
+        headerStatus.textContent = 'offline';
+        headerStatus.className = 'offline';
       }
       
       listenTyping(chatId, other.uid);
@@ -411,14 +405,16 @@
 
   // --- Typing Indicator ---
   function listenTyping(chatId, otherUid) {
-    const indicator = document.getElementById('typingIndicator') || document.createElement('div');
-    indicator.id = 'typingIndicator';
-    indicator.className = 'typing-indicator';
-    indicator.style.display = 'none';
-    
-    const headerInfo = document.querySelector('.chat-header-info');
-    if (headerInfo) {
-      headerInfo.appendChild(indicator);
+    const indicator = document.getElementById('typingIndicator');
+    if (!indicator) {
+      const newIndicator = document.createElement('div');
+      newIndicator.id = 'typingIndicator';
+      newIndicator.className = 'typing-indicator';
+      newIndicator.style.display = 'none';
+      const chatHeader = document.querySelector('.chat-header');
+      if (chatHeader) {
+        chatHeader.appendChild(newIndicator);
+      }
     }
     db.collection('conversations').doc(chatId).collection('typing').doc(otherUid).onSnapshot(doc => {
       if (doc.exists && doc.data().typing) {

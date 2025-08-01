@@ -11,57 +11,20 @@ service cloud.firestore {
       return isAuthenticated() && request.auth.uid == userId;
     }
     
-    function isAdmin() {
-      return isAuthenticated() && 
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
-    }
-    
-    function isStaff() {
-      return isAuthenticated() && 
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['admin', 'staff'];
-    }
-    
-    function isAgent() {
-      return isAuthenticated() && 
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['admin', 'staff', 'agent'];
-    }
-    
-    function isSeller() {
-      return isAuthenticated() && 
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['admin', 'staff', 'agent', 'seller'];
-    }
-    
-    function isParticipant(participants) {
-      return isAuthenticated() && request.auth.uid in participants;
-    }
-    
-    function isListingOwner(listingData) {
-      return isAuthenticated() && 
-        (request.auth.uid == listingData.userId || 
-         request.auth.uid == listingData.agentId);
-    }
-    
-    function isInquiryOwner(inquiryData) {
-      return isAuthenticated() && 
-        (request.auth.uid == inquiryData.userId || 
-         request.auth.uid == inquiryData.assignedTo);
-    }
-    
-    function isStoreOwner(storeData) {
-      return isAuthenticated() && request.auth.uid == storeData.agentId;
-    }
-    
-    // Users collection - Very permissive for app functionality
+    // Users collection - More permissive for app functionality
     match /users/{userId} {
-      allow read, write: if isAuthenticated();
+      allow read: if isAuthenticated() && isOwner(userId);
+      allow create: if isAuthenticated() && isOwner(userId);
+      allow update: if isAuthenticated() && isOwner(userId);
+      allow delete: if false; // Only allow deletion through admin panel
       
       // User subcollections - Allow users to access their saved listings
       match /savedListings/{listingId} {
-        allow read, write: if isAuthenticated();
+        allow read, write: if isOwner(userId);
       }
       
       match /notifications/{notificationId} {
-        allow read, write: if isAuthenticated();
+        allow read, write: if isOwner(userId);
       }
     }
     
@@ -77,33 +40,39 @@ service cloud.firestore {
          request.auth.uid == resource.data.agentId);
     }
     
-    // Conversations/Chats collection - More permissive for messaging
+    // Conversations/Chats collection
     match /conversations/{conversationId} {
-      allow read, write: if isAuthenticated();
+      allow read, write: if isAuthenticated() && 
+        request.auth.uid in resource.data.participants;
       
       // Messages subcollection
       match /messages/{messageId} {
-        allow read, write: if isAuthenticated();
+        allow read, write: if isAuthenticated() && 
+          request.auth.uid in get(/databases/$(database)/documents/conversations/$(conversationId)).data.participants;
       }
       
       // Typing subcollection
       match /typing/{userId} {
-        allow read, write: if isAuthenticated();
+        allow read, write: if isAuthenticated() && 
+          request.auth.uid in get(/databases/$(database)/documents/conversations/$(conversationId)).data.participants;
       }
     }
     
     // Chats collection (alternative messaging structure)
     match /chats/{chatId} {
-      allow read, write: if isAuthenticated();
+      allow read, write: if isAuthenticated() && 
+        request.auth.uid in resource.data.participants;
       
       // Messages subcollection
       match /messages/{messageId} {
-        allow read, write: if isAuthenticated();
+        allow read, write: if isAuthenticated() && 
+          request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.participants;
       }
       
       // Typing subcollection
       match /typing/{userId} {
-        allow read, write: if isAuthenticated();
+        allow read, write: if isAuthenticated() && 
+          request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.participants;
       }
     }
     
@@ -203,4 +172,4 @@ service cloud.firestore {
       allow read, write: if false;
     }
   }
-}
+} 
