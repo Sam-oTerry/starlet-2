@@ -1084,74 +1084,290 @@ footer.footer {
 <!-- 1. Add emoji-picker-element script -->
 <script type="module" src="https://cdn.jsdelivr.net/npm/emoji-picker-element@^1.0.0/index.js"></script>
 </head>
+<body>
+  <!-- Navbar (copied from index.html) -->
+  <nav class="navbar navbar-expand-lg navbar-custom modern-navbar shadow-sm py-3 sticky-top w-100">
+    <div class="d-flex flex-row align-items-center justify-content-between w-100 px-3 px-md-4">
+      <!-- Brand Left -->
+      <a class="navbar-brand d-flex align-items-center gap-2 me-4 py-0" href="../../index.html">
+        <span class="brand-star">Star</span> <span class="brand-let">Let</span>
+      </a>
+      <!-- Toggler for mobile -->
+      <button class="navbar-toggler ms-auto" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse flex-grow-1" id="navbarNav">
+        <ul class="navbar-nav d-flex align-items-center gap-2 ms-auto mb-2 mb-lg-0 w-100 justify-content-end">
+          <li class="nav-item">
+            <a class="nav-link icon-circle" href="../user/saved.html" title="Saved" aria-label="Saved">
+              <i class="bi bi-bookmark"></i>
+            </a>
+          </li>
+          <li class="nav-item position-relative">
+            <a class="nav-link icon-circle position-relative" href="../user/messaging.html" title="Messages" aria-label="Messages" id="messagesNavLink">
+              <i class="bi bi-chat-dots"></i>
+              <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none" id="unreadMessagesBadge">0</span>
+            </a>
+          </li>
+          <li class="nav-item position-relative" id="nav-notification-bell">
+            <a class="nav-link icon-circle position-relative" href="../user/notifications.html" title="Notifications" aria-label="Notifications">
+              <i class="bi bi-bell"></i>
+              <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none" id="notification-badge">0</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link icon-circle" id="myListingsLink" href="../stores/index.html" title="My Listings" aria-label="My Listings">
+              <i class="bi bi-card-list"></i>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link icon-circle" id="profileLink" href="#" title="Profile" aria-label="Profile">
+              <i class="bi bi-person"></i>
+            </a>
+          </li>
+          <li class="vr mx-3 d-none d-lg-block" style="height: 32px; opacity: 0.15;"></li>
+          <li class="nav-item ms-lg-2">
+            <a class="btn btn-warning fw-bold px-4 rounded-pill shadow-sm" href="../dashboard/listings/add.html" style="color: #fff;">SELL</a>
+          </li>
+          <li class="nav-item ms-lg-2" id="authButtonContainer">
+            <a class="btn btn-outline-primary fw-bold px-4 rounded-pill shadow-sm" id="authButton" href="../auth/login.html">Login / Signup</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
 
-<!-- Restore user messaging logic -->
-<script src="../../js/main.js"></script>
-<script>
-  // Enforce authentication on this page
-  enforceAuth('/pages/auth/login.html');
-  // Setup My Listings link logic
- 
-  </script>
+  <!-- Main Content -->
+  <div class="messaging-container">
+    <!-- Header -->
+    <div class="messaging-header">
+      <h1>
+        <div class="icon">
+          <i class="bi bi-chat-dots"></i>
+        </div>
+        Messages
+      </h1>
+    </div>
+
+    <!-- Chat Layout -->
+    <div class="chat-layout">
+      <!-- Conversations Panel -->
+      <div class="conversations-panel">
+        <div class="conversations-header">
+          <h3>Conversations</h3>
+          <div class="search-box">
+            <i class="bi bi-search search-icon"></i>
+            <input type="text" placeholder="Search conversations..." id="searchConversations">
+          </div>
+        </div>
+        <div class="conversations-list" id="conversationsList">
+          <!-- Conversations will be loaded here -->
+        </div>
+      </div>
+
+      <!-- Chat Panel -->
+      <div class="chat-panel">
+        <!-- Chat Header -->
+        <div class="chat-header" id="chatHeader">
+          <img src="../../img/avatar-placeholder.svg" alt="User Avatar" class="chat-avatar" id="chatAvatar">
+          <div class="chat-user-info">
+            <div class="chat-user-name" id="chatUserName">Select a conversation</div>
+            <div class="chat-user-status" id="chatUserStatus">
+              <div class="status-indicator offline"></div>
+              <span>Offline</span>
+            </div>
+          </div>
+          <div class="chat-actions">
+            <button class="chat-action-btn" title="Voice Call">
+              <i class="bi bi-telephone"></i>
+            </button>
+            <button class="chat-action-btn" title="Video Call">
+              <i class="bi bi-camera-video"></i>
+            </button>
+            <button class="chat-action-btn" title="More Options">
+              <i class="bi bi-three-dots-vertical"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Chat Messages -->
+        <div class="chat-messages" id="chatMessages">
+          <div class="empty-state">
+            <div class="empty-state-icon">
+              <i class="bi bi-chat-dots"></i>
+            </div>
+            <h3>No conversation selected</h3>
+            <p>Choose a conversation from the list to start messaging</p>
+          </div>
+        </div>
+
+        <!-- Chat Input -->
+        <div class="chat-input-container">
+          <div class="chat-input-wrapper">
+            <textarea 
+              class="chat-input" 
+              id="messageInput" 
+              placeholder="Type a message..." 
+              rows="1"
+              disabled
+            ></textarea>
+            <div class="input-actions">
+              <button type="button" class="input-btn" id="emojiBtn" title="Add emoji">
+                <i class="bi bi-emoji-smile"></i>
+              </button>
+              <button type="button" class="input-btn" id="attachmentBtn" title="Attach file">
+                <i class="bi bi-paperclip"></i>
+              </button>
+              <input type="file" id="fileInput" multiple style="display: none;">
+              <button type="button" class="input-btn send" id="sendBtn" disabled title="Send message">
+                <i class="bi bi-send"></i>
+              </button>
+            </div>
+          </div>
+          <div id="filePreview" class="file-preview" style="display: none;"></div>
+          <emoji-picker id="emojiPicker" style="display: none;"></emoji-picker>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer (modern, from index.html, with correct relative links) -->
+  <footer class="footer mt-5">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-4 mb-4">
+          <h4>About Starlet Properties</h4>
+          <p>Uganda's premier real estate and vehicle marketplace, connecting buyers and sellers across the country.</p>
+          <div class="social-links">
+            <a href="#"><i class="fab fa-facebook"></i></a>
+            <a href="#"><i class="fab fa-twitter"></i></a>
+            <a href="#"><i class="fab fa-instagram"></i></a>
+            <a href="#"><i class="fab fa-linkedin"></i></a>
+          </div>
+        </div>
+        <div class="col-lg-2 col-md-6 mb-4">
+          <h4>Properties</h4>
+          <ul>
+            <li><a href="../properties/index.html?type=house_sale">Houses for Sale</a></li>
+            <li><a href="../properties/index.html?type=house_rent">Houses for Rent</a></li>
+            <li><a href="../properties/index.html?type=land_sale">Land for Sale</a></li>
+            <li><a href="../properties/index.html?type=land_rent">Land for Rent</a></li>
+            <li><a href="../properties/index.html?type=commercial">Commercial Property</a></li>
+            <li><a href="../properties/index.html?type=vacation_short_stay">Vacation & Short Stay</a></li>
+          </ul>
+        </div>
+        <div class="col-lg-2 col-md-6 mb-4">
+          <h4>Vehicles</h4>
+          <ul>
+            <li><a href="../vehicles/index.html?type=cars">Cars</a></li>
+            <li><a href="../vehicles/index.html?type=motorcycles">Motorcycles</a></li>
+            <li><a href="../vehicles/index.html?type=trucks">Trucks</a></li>
+            <li><a href="../vehicles/index.html?type=buses">Buses</a></li>
+            <li><a href="../vehicles/index.html?type=heavy_machinery">Heavy Machinery</a></li>
+            <li><a href="../vehicles/index.html?type=bicycles_ebikes">Bicycles & E-bikes</a></li>
+            <li><a href="../vehicles/index.html?type=boats_watercraft">Boats & Watercraft</a></li>
+          </ul>
+        </div>
+        <div class="col-lg-2 col-md-6 mb-4">
+          <h4>Company</h4>
+          <ul>
+            <li><a href="../about/index.html">About Us</a></li>
+            <li><a href="../about/contact.html">Contact</a></li>
+            <li><a href="../about/resources.html">Resources</a></li>
+            <li><a href="../stores/index.html">Our Stores</a></li>
+            <li><a href="../legal/privacy.html">Privacy Policy</a></li>
+          </ul>
+        </div>
+        <div class="col-lg-2 col-md-6 mb-4">
+          <h4>Contact</h4>
+          <ul>
+            <li><a href="tel:+256123456789"><i class="bi bi-telephone"></i> +256 123 456 789</a></li>
+            <li><a href="mailto:info@starlet.co.ug"><i class="bi bi-envelope"></i> info@starlet.co.ug</a></li>
+            <li><a href="#"><i class="bi bi-geo-alt"></i> Kampala, Uganda</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <div class="row">
+          <div class="col-md-6">
+            <p class="mb-0">&copy; 2024 Starlet Properties. All rights reserved.</p>
+          </div>
+          <div class="col-md-6 text-md-end">
+            <a href="../legal/terms.html" class="me-3">Terms of Service</a>
+            <a href="../legal/privacy.html">Privacy Policy</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Load all scripts at the end of body -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="../../assets/js/firebase-config.js"></script>
+  <script src="../../js/main.js"></script>
+  
   <script>
-    // Initialize Firebase Auth and check user status
-    
-    firebase.auth().onAuthStateChanged(function(user) {
-      if (!user) {
-        // No user logged in, redirect to login
-        console.log('No user logged in, redirecting to login');
-        window.location.href = '/pages/auth/login.html';
-      } else {
-        // User is logged in, store user info
-        window.currentUser = user;
-        console.log('User logged in:', user.email);
-        
-        // Update page title
-        document.title = `Messaging - ${user.email || 'User'} | Starlet Properties`;
-        
-        // Update navbar with user info if needed
-        updateNavbarWithUserInfo(user);
-        updateAuthButton(true);
-      }
-    });
-    
-    // Function to update navbar with user information
-    function updateNavbarWithUserInfo(user) {
-      // You can add user-specific navbar updates here if needed
-      console.log('User info available for navbar:', user.email);
-    }
-
-    // Update Login/Signup button to Logout if authenticated
-    function updateAuthButton(isAuthenticated) {
-      var authButton = document.getElementById('authButton');
-      if (!authButton) return;
-      if (isAuthenticated) {
-        authButton.textContent = 'Logout';
-        authButton.classList.remove('btn-outline-primary');
-        authButton.classList.add('btn-danger');
-        authButton.href = '#';
-        authButton.onclick = function(e) {
-          e.preventDefault();
-          firebase.auth().signOut().then(function() {
-            window.location.href = '/pages/auth/login.html';
-          });
-        };
-      } else {
-        authButton.textContent = 'Login / Signup';
-        authButton.classList.remove('btn-danger');
-        authButton.classList.add('btn-outline-primary');
-        authButton.href = '../auth/login.html';
-        authButton.onclick = null;
-      }
-    }
-
-    // On page load, check auth state for navbar button
+    // Wait for DOM to be ready before running scripts
     document.addEventListener('DOMContentLoaded', function() {
+      // Enforce authentication on this page
+      if (typeof enforceAuth === 'function') {
+        enforceAuth('/pages/auth/login.html');
+      }
+      
+      // Initialize Firebase Auth and check user status
+      firebase.auth().onAuthStateChanged(function(user) {
+        if (!user) {
+          // No user logged in, redirect to login
+          console.log('No user logged in, redirecting to login');
+          window.location.href = '/pages/auth/login.html';
+        } else {
+          // User is logged in, store user info
+          window.currentUser = user;
+          console.log('User logged in:', user.email);
+          
+          // Update page title
+          document.title = `Messaging - ${user.email || 'User'} | Starlet Properties`;
+          
+          // Update navbar with user info if needed
+          updateNavbarWithUserInfo(user);
+          updateAuthButton(true);
+        }
+      });
+      
+      // Function to update navbar with user information
+      function updateNavbarWithUserInfo(user) {
+        // You can add user-specific navbar updates here if needed
+        console.log('User info available for navbar:', user.email);
+      }
+
+      // Update Login/Signup button to Logout if authenticated
+      function updateAuthButton(isAuthenticated) {
+        var authButton = document.getElementById('authButton');
+        if (!authButton) return;
+        if (isAuthenticated) {
+          authButton.textContent = 'Logout';
+          authButton.classList.remove('btn-outline-primary');
+          authButton.classList.add('btn-danger');
+          authButton.href = '#';
+          authButton.onclick = function(e) {
+            e.preventDefault();
+            firebase.auth().signOut().then(function() {
+              window.location.href = '/pages/auth/login.html';
+            });
+          };
+        } else {
+          authButton.textContent = 'Login / Signup';
+          authButton.classList.remove('btn-danger');
+          authButton.classList.add('btn-outline-primary');
+          authButton.href = '../auth/login.html';
+          authButton.onclick = null;
+        }
+      }
+
+      // On page load, check auth state for navbar button
       firebase.auth().onAuthStateChanged(function(user) {
         updateAuthButton(!!user);
       });

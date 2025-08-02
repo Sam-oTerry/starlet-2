@@ -629,17 +629,27 @@ function getMessagingUrl(listingId, listerId) {
 
 // Inject floating support button if not present
 (function() {
-  if (!document.getElementById('floatingSupportBtn')) {
-    var btn = document.createElement('button');
-    btn.id = 'floatingSupportBtn';
-    btn.className = 'floating-support-btn';
-    btn.title = 'Chat with Support';
-    btn.innerHTML = '<i class="bi bi-headset"></i><span class="tooltip">Chat with Support</span>';
-    btn.onclick = function() {
-      var path = window.location.pathname;
-      var base = path.includes('/starlet-2/') ? '/starlet-2' : '';
-      window.location.href = base + '/pages/user/messaging.html?support=1';
-    };
-    document.body.appendChild(btn);
+  function injectFloatingSupportButton() {
+    if (!document.getElementById('floatingSupportBtn') && document.body) {
+      var btn = document.createElement('button');
+      btn.id = 'floatingSupportBtn';
+      btn.className = 'floating-support-btn';
+      btn.title = 'Chat with Support';
+      btn.innerHTML = '<i class="bi bi-headset"></i><span class="tooltip">Chat with Support</span>';
+      btn.onclick = function() {
+        var path = window.location.pathname;
+        var base = path.includes('/starlet-2/') ? '/starlet-2' : '';
+        window.location.href = base + '/pages/user/messaging.html?support=1';
+      };
+      document.body.appendChild(btn);
+    }
+  }
+  
+  // Try to inject immediately if body is available
+  if (document.body) {
+    injectFloatingSupportButton();
+  } else {
+    // Wait for DOM to be ready
+    document.addEventListener('DOMContentLoaded', injectFloatingSupportButton);
   }
 })();
