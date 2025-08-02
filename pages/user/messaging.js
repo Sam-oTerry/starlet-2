@@ -39,7 +39,7 @@
 
   // --- User Presence System ---
   function setupUserPresence(user) {
-    presenceRef = db.collection('presence').doc(user.uid);
+    presenceRef = window.db.collection('presence').doc(user.uid);
     
     // Set user as online
     presenceRef.set({
@@ -78,7 +78,7 @@
     conversationsList.innerHTML = '<div class="loading-state">Loading conversations...</div>';
 
     // Listen for conversations
-    db.collection('conversations')
+    window.db.collection('conversations')
       .where('participants', 'array-contains', window.currentUser.uid)
       .orderBy('lastMessageTime', 'desc')
       .onSnapshot(snap => {
@@ -107,7 +107,7 @@
           const otherUid = conv.participants.find(uid => uid !== window.currentUser.uid);
           
           // Get other user's info
-          db.collection('users').doc(otherUid).get().then(userDoc => {
+          window.db.collection('users').doc(otherUid).get().then(userDoc => {
             const userData = userDoc.data();
             const conversationDiv = document.createElement('div');
             conversationDiv.className = 'conversation-item';
@@ -292,7 +292,7 @@
   function listenToUserPresence(userId, statusElement, statusIndicator) {
     if (!userId || !statusElement) return;
     
-    db.collection('presence').doc(userId).onSnapshot(doc => {
+    window.db.collection('presence').doc(userId).onSnapshot(doc => {
       if (doc.exists) {
         const presence = doc.data();
         const isOnline = presence.online;
@@ -362,14 +362,14 @@
     }
     
     // Get conversation data
-    db.collection('conversations').doc(chatId).get().then(doc => {
+    window.db.collection('conversations').doc(chatId).get().then(doc => {
       if (!doc.exists) return;
       
       const conv = doc.data();
       const otherUid = conv.participants.find(uid => uid !== window.currentUser.uid);
       
       // Update chat header
-      db.collection('users').doc(otherUid).get().then(userDoc => {
+      window.db.collection('users').doc(otherUid).get().then(userDoc => {
         const userData = userDoc.data();
         const chatUserName = document.getElementById('chatUserName');
         const chatAvatar = document.getElementById('chatAvatar');
@@ -421,7 +421,7 @@
       `;
       chatMessages.appendChild(indicator);
     }
-    db.collection('conversations').doc(chatId).collection('typing').doc(otherUid).onSnapshot(doc => {
+    window.db.collection('conversations').doc(chatId).collection('typing').doc(otherUid).onSnapshot(doc => {
       if (doc.exists && doc.data().typing) {
         indicator.style.display = 'flex';
       } else {
@@ -432,7 +432,7 @@
 
   // --- Mark Messages as Read ---
   function markMessagesRead(chatId) {
-    const chatRef = db.collection('conversations').doc(chatId).collection('messages');
+    const chatRef = window.db.collection('conversations').doc(chatId).collection('messages');
     chatRef.get().then(snap => {
       snap.forEach(doc => {
         if (!doc.data().readBy || !doc.data().readBy.includes(window.currentUser.uid)) {
@@ -451,7 +451,7 @@
         const input = document.getElementById('messageInput');
         const text = input.value.trim();
         if (!text || !window.currentChatId) return;
-        await db.collection('conversations').doc(window.currentChatId).collection('messages').add({
+        await window.db.collection('conversations').doc(window.currentChatId).collection('messages').add({
           type: 'text',
           text,
           senderId: window.currentUser.uid,
@@ -464,10 +464,10 @@
       let typingTimeout = null;
       input.addEventListener('input', function() {
         if (!window.currentChatId) return;
-        db.collection('conversations').doc(window.currentChatId).collection('typing').doc(window.currentUser.uid).set({ typing: true });
+        window.db.collection('conversations').doc(window.currentChatId).collection('typing').doc(window.currentUser.uid).set({ typing: true });
         if (typingTimeout) clearTimeout(typingTimeout);
         typingTimeout = setTimeout(() => {
-          db.collection('conversations').doc(window.currentChatId).collection('typing').doc(window.currentUser.uid).set({ typing: false });
+          window.db.collection('conversations').doc(window.currentChatId).collection('typing').doc(window.currentUser.uid).set({ typing: false });
         }, 2000);
       });
     }
@@ -482,7 +482,7 @@
     const chatMessages = document.querySelector('#chatMessages');
     chatMessages.innerHTML = '<div class="empty-state"><div class="empty-state-icon"><i class="bi bi-arrow-clockwise"></i></div><h3>Loading...</h3></div>';
     
-    chatUnsub = db.collection('conversations').doc(chatId).collection('messages').orderBy('createdAt').onSnapshot(snap => {
+    chatUnsub = window.db.collection('conversations').doc(chatId).collection('messages').orderBy('createdAt').onSnapshot(snap => {
       chatMessages.innerHTML = '';
       
       if (snap.empty) {
