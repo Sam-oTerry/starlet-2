@@ -757,8 +757,8 @@
     }
     .chat-message .bubble {
       max-width: 70%;
-      padding: 0.8rem 1.2rem;
-      border-radius: 1.5rem;
+      padding: 0.75rem 1rem;
+      border-radius: 1.2rem;
       background: #fff;
       color: #333;
       font-size: 1rem;
@@ -766,8 +766,8 @@
       word-wrap: break-word;
       white-space: normal;
       word-break: normal;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-      margin-bottom: 4px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+      margin-bottom: 0.2rem;
       min-width: 60px;
       transition: all 0.2s ease;
       line-height: 1.4;
@@ -775,30 +775,33 @@
     .chat-message.sent .bubble {
       background: #0d6efd;
       color: #fff;
-      border-radius: 1.5rem 1.5rem 0.5rem 1.5rem;
-      box-shadow: 0 2px 12px rgba(13,110,253,0.15);
+      border-radius: 1.2rem 1.2rem 0.3rem 1.2rem;
+      box-shadow: 0 1px 3px rgba(13,110,253,0.15);
     }
     .chat-message.received .bubble {
       background: #fff;
       color: #333;
-      border-radius: 1.5rem 1.5rem 1.5rem 0.5rem;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      border-radius: 1.2rem 1.2rem 1.2rem 0.3rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
     }
     .chat-message .meta {
-      font-size: 0.75em;
+      font-size: 0.7em;
       color: #999;
       font-weight: 400;
-      margin-top: 0.3rem;
+      margin-top: 0.2rem;
       text-align: right;
       display: block;
-      position: absolute;
-      right: 8px;
-      bottom: 4px;
-      opacity: 0.7;
+      position: relative;
+      opacity: 0.8;
+      line-height: 1.2;
     }
     .chat-message.sent .meta {
-      right: 12px;
-      color: rgba(255,255,255,0.8);
+      text-align: right;
+      color: rgba(255,255,255,0.7);
+    }
+    .chat-message.received .meta {
+      text-align: left;
+      color: #999;
     }
     .chat-message .bubble .media-content {
       margin-top: 0.4rem;
@@ -1830,8 +1833,8 @@ body {
 
 .chat-message .bubble {
   max-width: 70%;
-  padding: 0.8rem 1.2rem;
-  border-radius: 1.5rem;
+  padding: 0.75rem 1rem;
+  border-radius: 1.2rem;
   background: #fff;
   color: #333;
   font-size: 1rem;
@@ -1839,8 +1842,8 @@ body {
   word-wrap: break-word;
   white-space: normal;
   word-break: normal;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-  margin-bottom: 4px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  margin-bottom: 0.2rem;
   min-width: 60px;
   transition: all 0.2s ease;
   line-height: 1.4;
@@ -1849,33 +1852,37 @@ body {
 .chat-message.sent .bubble {
   background: #0d6efd;
   color: #fff;
-  border-radius: 1.5rem 1.5rem 0.5rem 1.5rem;
-  box-shadow: 0 2px 12px rgba(13,110,253,0.15);
+  border-radius: 1.2rem 1.2rem 0.3rem 1.2rem;
+  box-shadow: 0 1px 3px rgba(13,110,253,0.15);
 }
 
 .chat-message.received .bubble {
   background: #fff;
   color: #333;
-  border-radius: 1.5rem 1.5rem 1.5rem 0.5rem;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  border-radius: 1.2rem 1.2rem 1.2rem 0.3rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
 }
 
 .chat-message .meta {
-  font-size: 0.75em;
+  font-size: 0.7em;
   color: #999;
   font-weight: 400;
-  margin-top: 0.3rem;
+  margin-top: 0.2rem;
   text-align: right;
   display: block;
-  position: absolute;
-  right: 8px;
-  bottom: 4px;
-  opacity: 0.7;
+  position: relative;
+  opacity: 0.8;
+  line-height: 1.2;
 }
 
 .chat-message.sent .meta {
-  right: 12px;
-  color: rgba(255,255,255,0.8);
+  text-align: right;
+  color: rgba(255,255,255,0.7);
+}
+
+.chat-message.received .meta {
+  text-align: left;
+  color: #999;
 }
 
 .chat-message .bubble .media-content {
@@ -2267,8 +2274,8 @@ body {
 
 .chat-message .bubble {
   max-width: 70%;
-  padding: 0.8rem 1.2rem;
-  border-radius: 1.5rem;
+  padding: 0.75rem 1rem;
+  border-radius: 1.2rem;
   background: #fff;
   color: #333;
   font-size: 1rem;
@@ -2276,8 +2283,8 @@ body {
   word-wrap: break-word;
   white-space: normal;
   word-break: normal;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-  margin-bottom: 4px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  margin-bottom: 0.2rem;
   min-width: 60px;
   transition: all 0.2s ease;
   line-height: 1.4;
@@ -2286,33 +2293,37 @@ body {
 .chat-message.sent .bubble {
   background: #0d6efd;
   color: #fff;
-  border-radius: 1.5rem 1.5rem 0.5rem 1.5rem;
-  box-shadow: 0 2px 12px rgba(13,110,253,0.15);
+  border-radius: 1.2rem 1.2rem 0.3rem 1.2rem;
+  box-shadow: 0 1px 3px rgba(13,110,253,0.15);
 }
 
 .chat-message.received .bubble {
   background: #fff;
   color: #333;
-  border-radius: 1.5rem 1.5rem 1.5rem 0.5rem;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  border-radius: 1.2rem 1.2rem 1.2rem 0.3rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
 }
 
 .chat-message .meta {
-  font-size: 0.75em;
+  font-size: 0.7em;
   color: #999;
   font-weight: 400;
-  margin-top: 0.3rem;
+  margin-top: 0.2rem;
   text-align: right;
   display: block;
-  position: absolute;
-  right: 8px;
-  bottom: 4px;
-  opacity: 0.7;
+  position: relative;
+  opacity: 0.8;
+  line-height: 1.2;
 }
 
 .chat-message.sent .meta {
-  right: 12px;
-  color: rgba(255,255,255,0.8);
+  text-align: right;
+  color: rgba(255,255,255,0.7);
+}
+
+.chat-message.received .meta {
+  text-align: left;
+  color: #999;
 }
 
 .chat-message .bubble .media-content {

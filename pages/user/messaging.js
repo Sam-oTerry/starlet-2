@@ -467,10 +467,10 @@
         
         meta.innerHTML = `${time}${readStatus}`;
         
-        // Assemble the message
-        bubble.appendChild(meta);
+        // Assemble the message - timestamp outside bubble like WhatsApp
         messageDiv.appendChild(avatar);
         messageDiv.appendChild(bubble);
+        messageDiv.appendChild(meta);
         
         chatMessages.appendChild(messageDiv);
       });
