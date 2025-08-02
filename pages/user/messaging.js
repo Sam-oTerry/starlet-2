@@ -29,9 +29,6 @@
       // Load conversations
       loadSidebarConversations();
       
-      // Setup search
-      setupMessageSearch();
-      
       // Setup chat input
       setupChatInput();
       
@@ -72,141 +69,10 @@
     }, 30000); // Update every 30 seconds
   }
 
-  // --- Message Search System ---
-  function setupMessageSearch() {
-    const searchInput = document.createElement('input');
-    searchInput.type = 'text';
-    searchInput.placeholder = 'Search messages...';
-    searchInput.className = 'form-control mb-3';
-    searchInput.id = 'messageSearchInput';
-    
-    const conversationsHeader = document.querySelector('.conversations-header');
-    if (conversationsHeader) {
-      conversationsHeader.appendChild(searchInput);
-    }
-    
-    let searchTimeout;
-    searchInput.addEventListener('input', function() {
-      clearTimeout(searchTimeout);
-      const query = this.value.trim();
-      
-      if (query.length === 0) {
-        isSearchMode = false;
-        loadSidebarConversations(); // Return to normal conversation list
-        return;
-      }
-      
-      searchTimeout = setTimeout(() => {
-        searchMessages(query);
-      }, 300); // Debounce search
-    });
-  }
-  
-  async function searchMessages(query) {
-    const conversationsList = document.getElementById('conversationsList');
-    if (!conversationsList) {
-      console.log('conversationsList element not found');
-      return;
-    }
-    
-    conversationsList.innerHTML = '<div class="text-center py-3">Searching...</div>';
-    
-    try {
-      const results = await db.collection('messages')
-        .where('text', '>=', query)
-        .where('text', '<=', query + '\uf8ff')
-        .orderBy('text')
-        .limit(20)
-        .get();
-      
-      if (results.empty) {
-        conversationsList.innerHTML = '<div class="text-center py-3 text-muted">No messages found for "' + query + '"</div>';
-        return;
-      }
-      
-      conversationsList.innerHTML = '';
-      
-      results.forEach(doc => {
-        const message = doc.data();
-        conversationsList.innerHTML += `
-          <div class="search-result-item" data-chat-id="${message.chatId}">
-            <div class="search-result-preview">
-              <strong>${message.senderName || 'Unknown'}</strong>
-              <span class="text-muted">${message.text}</span>
-            </div>
-            <div class="search-result-time">
-              ${message.timestamp ? new Date(message.timestamp.seconds*1000).toLocaleDateString() : ''}
-            </div>
-          </div>
-        `;
-      });
-      
-      // Add click handlers to search results
-      Array.from(conversationsList.querySelectorAll('.search-result-item')).forEach(item => {
-        item.addEventListener('click', () => {
-          const chatId = item.getAttribute('data-chat-id');
-          if (chatId) {
-            openChat(chatId);
-            loadSidebarConversations(); // Reload normal conversation list
-          }
-        });
-      });
-      
-    } catch (error) {
-      console.error('Search error:', error);
-      conversationsList.innerHTML = '<div class="text-center py-3 text-danger">Search failed</div>';
-    }
-  }
-  
-  function displaySearchResults(results, query) {
-    const conversationsList = document.getElementById('conversationsList');
-    
-    if (results.length === 0) {
-      conversationsList.innerHTML = `<div class="text-center py-3 text-muted">No messages found for "${query}"</div>`;
-      return;
-    }
-    
-    conversationsList.innerHTML = '';
-    results.forEach(result => {
-      const highlightedText = result.text.replace(
-        new RegExp(`(${escapeRegex(query)})`, 'gi'),
-        '<mark>$1</mark>'
-      );
-      
-      conversationsList.innerHTML += `
-        <div class="search-result-item" data-chat-id="${result.chatId}" tabindex="0">
-          <div class="user-avatar"><img src="${result.otherUser.avatar || '/img/avatar-placeholder.svg'}" alt="${result.otherUser.name || 'Unknown'}" /></div>
-          <div class="user-info">
-            <span class="user-name">${result.otherUser.name || 'Unknown'}</span>
-            <span class="user-last">${result.senderName}: ${highlightedText}</span>
-          </div>
-          <div class="user-meta">
-            <span class="user-time">${result.createdAt ? new Date(result.createdAt.seconds*1000).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : ''}</span>
-          </div>
-        </div>
-      `;
-    });
-    
-    // Add click handlers for search results
-    Array.from(conversationsList.querySelectorAll('.search-result-item')).forEach(item => {
-      item.onclick = function() {
-        const chatId = this.getAttribute('data-chat-id');
-        // Clear search and open chat
-        document.getElementById('messageSearchInput').value = '';
-        isSearchMode = false;
-        openChat(chatId);
-        loadSidebarConversations(); // Reload normal conversation list
-      };
-    });
-  }
-  
-  function escapeRegex(string) {
-    return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  }
-
   // --- Load Sidebar Conversations ---
   function loadSidebarConversations() {
     const conversationsList = document.getElementById('conversationsList');
+    const conversationCount = document.querySelector('.conversation-count');
     if (!conversationsList) return;
 
     conversationsList.innerHTML = '<div class="loading-state">Loading conversations...</div>';
@@ -217,6 +83,11 @@
       .orderBy('lastMessageTime', 'desc')
       .onSnapshot(snap => {
         conversationsList.innerHTML = '';
+        
+        // Update conversation count
+        if (conversationCount) {
+          conversationCount.textContent = snap.size;
+        }
         
         if (snap.empty) {
           conversationsList.innerHTML = `
@@ -272,7 +143,7 @@
             
             // Add touch feedback for mobile
             conversationDiv.addEventListener('touchstart', function() {
-              this.style.transform = 'scale(0.98)';
+              this.style.transform = 'scale(0.96)';
             });
             
             conversationDiv.addEventListener('touchend', function() {
@@ -313,6 +184,51 @@
       isScrolling = false;
     });
 
+    // Add swipe gestures for conversation items
+    let startY = 0;
+    let currentItem = null;
+
+    conversationsList.addEventListener('touchstart', (e) => {
+      const item = e.target.closest('.conversation-item');
+      if (item) {
+        currentItem = item;
+        startY = e.touches[0].clientY;
+        item.style.transition = 'none';
+      }
+    });
+
+    conversationsList.addEventListener('touchmove', (e) => {
+      if (currentItem) {
+        const deltaY = e.touches[0].clientY - startY;
+        if (Math.abs(deltaY) > 10) {
+          currentItem.style.transform = `translateY(${deltaY * 0.3}px)`;
+        }
+      }
+    });
+
+    conversationsList.addEventListener('touchend', (e) => {
+      if (currentItem) {
+        currentItem.style.transition = 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
+        currentItem.style.transform = '';
+        currentItem = null;
+      }
+    });
+
+    // Add haptic feedback for mobile devices
+    function triggerHapticFeedback() {
+      if ('vibrate' in navigator) {
+        navigator.vibrate(10);
+      }
+    }
+
+    // Enhanced click handler with haptic feedback
+    conversationsList.addEventListener('click', (e) => {
+      const item = e.target.closest('.conversation-item');
+      if (item) {
+        triggerHapticFeedback();
+      }
+    });
+
     // Auto-scroll to active conversation on mobile
     function scrollToActiveConversation() {
       const activeItem = conversationsList.querySelector('.conversation-item.active');
@@ -328,6 +244,45 @@
         });
       }
     }
+
+    // Add scroll indicator dots
+    function updateScrollIndicator() {
+      const container = conversationsList;
+      const scrollWidth = container.scrollWidth;
+      const clientWidth = container.clientWidth;
+      const scrollLeft = container.scrollLeft;
+      
+      // Create or update scroll indicator
+      let indicator = container.parentElement.querySelector('.swipe-indicator');
+      if (!indicator) {
+        indicator = document.createElement('div');
+        indicator.className = 'swipe-indicator';
+        container.parentElement.appendChild(indicator);
+      }
+      
+      // Calculate number of dots needed
+      const numDots = Math.ceil(scrollWidth / clientWidth);
+      indicator.innerHTML = '';
+      
+      for (let i = 0; i < numDots; i++) {
+        const dot = document.createElement('div');
+        dot.className = 'swipe-dot';
+        indicator.appendChild(dot);
+      }
+      
+      // Highlight active dot
+      const activeDotIndex = Math.round(scrollLeft / clientWidth);
+      const dots = indicator.querySelectorAll('.swipe-dot');
+      dots.forEach((dot, index) => {
+        dot.classList.toggle('active', index === activeDotIndex);
+      });
+    }
+
+    // Update scroll indicator on scroll
+    conversationsList.addEventListener('scroll', updateScrollIndicator);
+    
+    // Initial update
+    setTimeout(updateScrollIndicator, 100);
 
     // Call scroll function when chat is opened
     window.scrollToActiveConversation = scrollToActiveConversation;
