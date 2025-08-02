@@ -456,9 +456,38 @@
         const meta = document.createElement('div');
         meta.className = 'meta';
         
-        const time = m.createdAt ? new Date(m.createdAt.seconds * 1000).toLocaleString() : '';
-        let readStatus = '';
+        // Format timestamp in a more readable way
+        let time = '';
+        if (m.createdAt) {
+          let date;
+          // Handle both Firestore timestamps and regular Date objects
+          if (m.createdAt.seconds) {
+            // Firestore timestamp
+            date = new Date(m.createdAt.seconds * 1000);
+          } else if (m.createdAt.toDate) {
+            // Firestore timestamp with toDate method
+            date = m.createdAt.toDate();
+          } else {
+            // Regular Date object
+            date = new Date(m.createdAt);
+          }
+          
+          const now = new Date();
+          const diffInHours = (now - date) / (1000 * 60 * 60);
+          
+          if (diffInHours < 24) {
+            // Today - show time only
+            time = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+          } else if (diffInHours < 48) {
+            // Yesterday
+            time = 'Yesterday ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+          } else {
+            // Older - show date and time
+            time = date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+          }
+        }
         
+        let readStatus = '';
         if (sent && m.readBy && m.readBy.includes(window.currentUser.uid)) {
           readStatus = ' <i class="bi bi-check2-all"></i>';
         } else if (sent) {
@@ -466,6 +495,11 @@
         }
         
         meta.innerHTML = `${time}${readStatus}`;
+        
+        // Debug: log the timestamp to console
+        console.log('Message timestamp:', time, 'for message:', m.text);
+        console.log('Raw createdAt:', m.createdAt);
+        console.log('Message object:', m);
         
         // Create message content container for proper layout
         const messageContent = document.createElement('div');
@@ -539,7 +573,7 @@
           type: 'text',
           text,
           senderId: window.currentUser.uid,
-          createdAt: new Date()
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
         });
         input.value = '';
       };
