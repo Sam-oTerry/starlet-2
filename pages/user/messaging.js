@@ -467,10 +467,15 @@
         
         meta.innerHTML = `${time}${readStatus}`;
         
-        // Assemble the message - timestamp outside bubble like WhatsApp
+        // Create message content container for proper layout
+        const messageContent = document.createElement('div');
+        messageContent.className = 'message-content';
+        
+        // Assemble the message - timestamp below bubble like WhatsApp
+        messageContent.appendChild(bubble);
+        messageContent.appendChild(meta);
         messageDiv.appendChild(avatar);
-        messageDiv.appendChild(bubble);
-        messageDiv.appendChild(meta);
+        messageDiv.appendChild(messageContent);
         
         chatMessages.appendChild(messageDiv);
       });
