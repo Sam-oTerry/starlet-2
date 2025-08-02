@@ -352,28 +352,32 @@
   function openChat(chatId) {
     if (chatUnsub) chatUnsub();
     window.currentChatId = chatId;
-    // Highlight selected
+    
+    // Highlight selected conversation
     document.querySelectorAll('.conversation-item').forEach(a => a.classList.remove('active'));
     const activeA = document.querySelector(`.conversation-item[data-chat-id='${chatId}']`);
     if (activeA) activeA.classList.add('active');
-          // Enable input field
-      const messageInput = document.getElementById('messageInput');
-      const sendBtn = document.getElementById('sendBtn');
-      if (messageInput) messageInput.disabled = false;
-      if (sendBtn) sendBtn.disabled = false;
-      
-      // Load header
-      db.collection('conversations').doc(chatId).get().then(chatDoc => {
+    
+    // Enable input field
+    const messageInput = document.getElementById('messageInput');
+    const sendBtn = document.getElementById('sendBtn');
+    if (messageInput) messageInput.disabled = false;
+    if (sendBtn) sendBtn.disabled = false;
+    
+    // Load header
+    db.collection('conversations').doc(chatId).get().then(chatDoc => {
       const d = chatDoc.data();
       const other = (d.participantDetails || []).find(u => u.uid !== window.currentUser.uid) || {};
-              const avatarImg = document.querySelector('#chatAvatar');
-              if (avatarImg) {
-                avatarImg.src = other.avatar || '../../img/avatar-placeholder.svg';
-              }
-              const nameElement = document.querySelector('#chatUserName');
-              if (nameElement) {
-                nameElement.textContent = other.name || 'Unknown';
-              }
+      
+      const avatarImg = document.querySelector('#chatAvatar');
+      if (avatarImg) {
+        avatarImg.src = other.avatar || '../../img/avatar-placeholder.svg';
+      }
+      
+      const nameElement = document.querySelector('#chatUserName');
+      if (nameElement) {
+        nameElement.textContent = other.name || 'Unknown';
+      }
       
       // Set up presence status in chat header
       const headerStatus = document.querySelector('#chatUserStatus span');
@@ -389,53 +393,89 @@
       
       listenTyping(chatId, other.uid);
     });
+    
     // Listen for messages
     const chatMessages = document.querySelector('#chatMessages');
-          chatMessages.innerHTML = '<div class="empty-state"><div class="empty-state-icon"><i class="bi bi-arrow-clockwise"></i></div><h3>Loading...</h3></div>';
+    chatMessages.innerHTML = '<div class="empty-state"><div class="empty-state-icon"><i class="bi bi-arrow-clockwise"></i></div><h3>Loading...</h3></div>';
+    
     chatUnsub = db.collection('conversations').doc(chatId).collection('messages').orderBy('createdAt').onSnapshot(snap => {
       chatMessages.innerHTML = '';
+      
+      if (snap.empty) {
+        chatMessages.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-state-icon">
+              <i class="bi bi-chat-dots"></i>
+            </div>
+            <h3>No messages yet</h3>
+            <p>Start the conversation by sending a message</p>
+          </div>
+        `;
+        return;
+      }
+      
       snap.forEach(doc => {
         const m = doc.data();
         const sent = m.senderId === window.currentUser.uid;
-        let content = '';
-        if (m.type === 'text') {
-          content = `<div class="message-bubble">${escapeHTML(m.text)}</div>`;
-        } else if (m.type === 'image') {
-          content = `<div class="message-bubble"><img src="${m.url}" class="chat-img"><div class="img-caption">${escapeHTML(m.caption || '')}</div></div>`;
-        } else if (m.type === 'file') {
-          content = `<div class="message-bubble"><i class="bi bi-paperclip file-icon"></i><a href="${m.url}" target="_blank" class="file-link">${m.fileName}</a><div class="file-size">${formatFileSize(m.fileSize)}</div></div>`;
-        }
-        let readMark = '';
-        if (sent && m.readBy && m.readBy.includes(window.currentUser.uid)) {
-          readMark = '<span class="ms-1 text-success small"><i class="bi bi-check2-all"></i> Seen</span>';
-        }
-        const messageDiv = document.createElement('div');
-        messageDiv.className = `message ${sent ? 'sent' : 'received'}`;
         
+        // Create message container
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `chat-message ${sent ? 'sent' : 'received'}`;
+        
+        // Create avatar
         const avatar = document.createElement('img');
-        avatar.className = 'message-avatar';
-        avatar.src = sent ? (window.currentUser?.avatar || '../../img/avatar-placeholder.svg') : (m.senderAvatar || '../../img/avatar-placeholder.svg');
+        avatar.className = 'avatar';
+        avatar.src = sent ? (window.currentUser?.photoURL || '../../img/avatar-placeholder.svg') : (m.senderAvatar || '../../img/avatar-placeholder.svg');
         avatar.alt = 'Avatar';
         
-        const messageContent = document.createElement('div');
-        messageContent.className = 'message-content';
-        
+        // Create bubble container
         const bubble = document.createElement('div');
-        bubble.className = 'message-bubble';
-        bubble.innerHTML = content;
+        bubble.className = 'bubble';
         
-        const time = document.createElement('div');
-        time.className = 'message-time';
-        time.textContent = m.createdAt ? new Date(m.createdAt.seconds*1000).toLocaleString() : '';
+        // Add content based on message type
+        if (m.type === 'text') {
+          bubble.textContent = m.text;
+        } else if (m.type === 'image') {
+          bubble.innerHTML = `
+            <div class="media-content">
+              <img src="${m.url}" alt="Image" style="max-width: 100%; border-radius: 8px;">
+              ${m.caption ? `<div class="img-caption">${escapeHTML(m.caption)}</div>` : ''}
+            </div>
+          `;
+        } else if (m.type === 'file') {
+          bubble.innerHTML = `
+            <div class="media-content">
+              <i class="bi bi-paperclip"></i>
+              <a href="${m.url}" target="_blank" class="file-link">${m.fileName}</a>
+              <div class="file-size">${formatFileSize(m.fileSize)}</div>
+            </div>
+          `;
+        }
         
-        messageContent.appendChild(bubble);
-        messageContent.appendChild(time);
+        // Create meta information (time and read status)
+        const meta = document.createElement('div');
+        meta.className = 'meta';
         
+        const time = m.createdAt ? new Date(m.createdAt.seconds * 1000).toLocaleString() : '';
+        let readStatus = '';
+        
+        if (sent && m.readBy && m.readBy.includes(window.currentUser.uid)) {
+          readStatus = ' <i class="bi bi-check2-all"></i>';
+        } else if (sent) {
+          readStatus = ' <i class="bi bi-check2"></i>';
+        }
+        
+        meta.innerHTML = `${time}${readStatus}`;
+        
+        // Assemble the message
+        bubble.appendChild(meta);
         messageDiv.appendChild(avatar);
-        messageDiv.appendChild(messageContent);
+        messageDiv.appendChild(bubble);
         
         chatMessages.appendChild(messageDiv);
       });
+      
+      // Scroll to bottom
       chatMessages.scrollTop = chatMessages.scrollHeight;
       markMessagesRead(chatId);
     });

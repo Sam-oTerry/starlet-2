@@ -299,65 +299,7 @@
       background: #f8f9fa;
     }
 
-    .message {
-      margin-bottom: 16px;
-      display: flex;
-      gap: 12px;
-    }
 
-    .message.sent {
-      flex-direction: row-reverse;
-    }
-
-    .message-avatar {
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      object-fit: cover;
-      border: 2px solid var(--accent-gold);
-    }
-
-    .message-content {
-      max-width: 70%;
-      position: relative;
-    }
-
-    .message-bubble {
-      padding: 12px 16px;
-      border-radius: 18px;
-      font-size: 0.95rem;
-      line-height: 1.4;
-      position: relative;
-      word-wrap: break-word;
-    }
-
-    .message.sent .message-bubble {
-      background: linear-gradient(135deg, var(--accent-gold), #ffed4e);
-      color: var(--text-primary);
-      border-bottom-right-radius: 6px;
-    }
-
-    .message.received .message-bubble {
-      background: white;
-      color: var(--text-primary);
-      border: 1px solid var(--border-color);
-      border-bottom-left-radius: 6px;
-    }
-
-    .message-time {
-      font-size: 0.75rem;
-      color: var(--text-secondary);
-      margin-top: 4px;
-      text-align: right;
-    }
-
-    .message.sent .message-time {
-      text-align: right;
-    }
-
-    .message.received .message-time {
-      text-align: left;
-    }
 
     .chat-input-container {
       padding: 20px 24px;
@@ -555,9 +497,7 @@
         padding: 16px;
       }
 
-      .message-content {
-        max-width: 85%;
-      }
+
     }
 
     /* File Upload Styles */
