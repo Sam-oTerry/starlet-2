@@ -122,71 +122,77 @@
   }
   
   async function searchMessages(query) {
-    if (!window.currentUser || query.length < 2) return;
+    const conversationsList = document.getElementById('conversationsList');
+    if (!conversationsList) {
+      console.log('conversationsList element not found');
+      return;
+    }
     
-    isSearchMode = true;
-    const sidebar = document.querySelector('.user-list');
-    sidebar.innerHTML = '<div class="text-center py-3">Searching...</div>';
+    conversationsList.innerHTML = '<div class="text-center py-3">Searching...</div>';
     
     try {
-      // Search in all chats the user participates in
-      const chatsSnap = await db.collection('conversations')
-        .where('participants', 'array-contains', window.currentUser.uid)
+      const results = await db.collection('messages')
+        .where('text', '>=', query)
+        .where('text', '<=', query + '\uf8ff')
+        .orderBy('text')
+        .limit(20)
         .get();
       
-      const searchResults = [];
-      
-      for (const chatDoc of chatsSnap.docs) {
-        const chatData = chatDoc.data();
-        
-        // Search messages in this chat
-        const messagesSnap = await db.collection('conversations')
-          .doc(chatDoc.id)
-          .collection('messages')
-          .where('type', '==', 'text')
-          .orderBy('createdAt', 'desc')
-          .limit(50)
-          .get();
-        
-        messagesSnap.forEach(msgDoc => {
-          const msgData = msgDoc.data();
-          if (msgData.text && msgData.text.toLowerCase().includes(query.toLowerCase())) {
-            const other = (chatData.participantDetails || []).find(u => u.uid !== window.currentUser.uid) || {};
-            searchResults.push({
-              chatId: chatDoc.id,
-              messageId: msgDoc.id,
-              text: msgData.text,
-              createdAt: msgData.createdAt,
-              senderName: msgData.senderId === window.currentUser.uid ? 'You' : (other.name || 'Unknown'),
-              otherUser: other
-            });
-          }
-        });
+      if (results.empty) {
+        conversationsList.innerHTML = '<div class="text-center py-3 text-muted">No messages found for "' + query + '"</div>';
+        return;
       }
       
-      displaySearchResults(searchResults, query);
+      conversationsList.innerHTML = '';
+      
+      results.forEach(doc => {
+        const message = doc.data();
+        conversationsList.innerHTML += `
+          <div class="search-result-item" data-chat-id="${message.chatId}">
+            <div class="search-result-preview">
+              <strong>${message.senderName || 'Unknown'}</strong>
+              <span class="text-muted">${message.text}</span>
+            </div>
+            <div class="search-result-time">
+              ${message.timestamp ? new Date(message.timestamp.seconds*1000).toLocaleDateString() : ''}
+            </div>
+          </div>
+        `;
+      });
+      
+      // Add click handlers to search results
+      Array.from(conversationsList.querySelectorAll('.search-result-item')).forEach(item => {
+        item.addEventListener('click', () => {
+          const chatId = item.getAttribute('data-chat-id');
+          if (chatId) {
+            openChat(chatId);
+            loadSidebarConversations(); // Reload normal conversation list
+          }
+        });
+      });
+      
     } catch (error) {
       console.error('Search error:', error);
-      sidebar.innerHTML = '<div class="text-center py-3 text-danger">Search failed</div>';
+      conversationsList.innerHTML = '<div class="text-center py-3 text-danger">Search failed</div>';
     }
   }
   
   function displaySearchResults(results, query) {
-    const sidebar = document.querySelector('.user-list');
+    const conversationsList = document.getElementById('conversationsList');
     
     if (results.length === 0) {
-      sidebar.innerHTML = `<div class="text-center py-3 text-muted">No messages found for "${query}"</div>`;
+      conversationsList.innerHTML = `<div class="text-center py-3 text-muted">No messages found for "${query}"</div>`;
       return;
     }
     
-    sidebar.innerHTML = '';
+    conversationsList.innerHTML = '';
     results.forEach(result => {
       const highlightedText = result.text.replace(
         new RegExp(`(${escapeRegex(query)})`, 'gi'),
         '<mark>$1</mark>'
       );
       
-      sidebar.innerHTML += `
+      conversationsList.innerHTML += `
         <div class="search-result-item" data-chat-id="${result.chatId}" tabindex="0">
           <div class="user-avatar"><img src="${result.otherUser.avatar || '/img/avatar-placeholder.svg'}" alt="${result.otherUser.name || 'Unknown'}" /></div>
           <div class="user-info">
@@ -201,7 +207,7 @@
     });
     
     // Add click handlers for search results
-    Array.from(sidebar.querySelectorAll('.search-result-item')).forEach(item => {
+    Array.from(conversationsList.querySelectorAll('.search-result-item')).forEach(item => {
       item.onclick = function() {
         const chatId = this.getAttribute('data-chat-id');
         // Clear search and open chat
@@ -221,12 +227,12 @@
   function loadSidebarConversations() {
     if (isSearchMode) return; // Don't reload if in search mode
     
-    const sidebar = document.getElementById('chatSidebarList');
-    if (!sidebar) {
-      console.log('chatSidebarList element not found');
+    const conversationsList = document.getElementById('conversationsList');
+    if (!conversationsList) {
+      console.log('conversationsList element not found');
       return;
     }
-    sidebar.innerHTML = '<div class="text-center py-3">Loading...</div>';
+    conversationsList.innerHTML = '<div class="text-center py-3">Loading...</div>';
     
     console.log('Loading conversations for user:', window.currentUser.uid);
     
@@ -244,10 +250,10 @@
     db.collection('conversations').where('participants', 'array-contains', window.currentUser.uid).onSnapshot(snap => {
       console.log('Conversations snapshot:', snap.size, 'conversations found');
       if (snap.empty) {
-        sidebar.innerHTML = '<div class="text-center py-3">No conversations yet.</div>';
+        conversationsList.innerHTML = '<div class="text-center py-3">No conversations yet.</div>';
         return;
       }
-      sidebar.innerHTML = '';
+      conversationsList.innerHTML = '';
       
       snap.forEach(doc => {
         const d = doc.data();
@@ -272,7 +278,7 @@
           </div>
         `;
         
-        sidebar.appendChild(conversationItem);
+        conversationsList.appendChild(conversationItem);
         
         // Listen for presence status for this user
         if (other.uid) {
@@ -280,7 +286,7 @@
         }
       });
       
-              Array.from(sidebar.querySelectorAll('.conversation-item')).forEach(a => {
+              Array.from(conversationsList.querySelectorAll('.conversation-item')).forEach(a => {
         a.onclick = function(e) {
           e.preventDefault();
           openChat(this.getAttribute('data-chat-id'));
@@ -291,7 +297,7 @@
       if (!window.currentChatId && snap.docs.length > 0) openChat(snap.docs[0].id);
     }, error => {
       console.error('Error loading conversations:', error);
-      sidebar.innerHTML = '<div class="text-center py-3 text-danger">Error loading conversations. Please try again.</div>';
+      conversationsList.innerHTML = '<div class="text-center py-3 text-danger">Error loading conversations. Please try again.</div>';
     });
   }
   
