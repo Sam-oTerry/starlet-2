@@ -9,54 +9,35 @@
   let isSearchMode = false;
   
   function waitForFirebaseAndInit() {
-    // Check if Firebase is loaded and initialized
-    if (typeof firebase === 'undefined') {
-      console.log('Firebase not loaded yet, retrying...');
+    if (!window.firebase || !window.firebase.auth) {
       setTimeout(waitForFirebaseAndInit, 100);
       return;
     }
     
-    // Check if Firebase is initialized
-    if (!firebase.apps || firebase.apps.length === 0) {
-      console.log('Firebase not initialized yet, retrying...');
-      setTimeout(waitForFirebaseAndInit, 100);
-      return;
-    }
-    
-    // Check if DOM is ready
-    if (!document.getElementById('conversationsList')) {
-      console.log('DOM not ready yet, retrying...');
-      setTimeout(waitForFirebaseAndInit, 100);
-      return;
-    }
-    
-    try {
-      db = firebase.firestore();
-      auth = firebase.auth();
-      
-      if (!auth || typeof auth.onAuthStateChanged !== 'function') {
-        console.log('Firebase Auth not ready yet, retrying...');
-        setTimeout(waitForFirebaseAndInit, 100);
+    firebase.auth().onAuthStateChanged(user => {
+      if (!user) {
+        window.location.href = '/pages/auth/login.html';
         return;
       }
       
-      console.log('Firebase ready, setting up auth listener...');
-      auth.onAuthStateChanged(user => {
-        if (!user) {
-          window.location.href = '/pages/auth/login.html';
-          return;
-        }
-        window.currentUser = user;
-        console.log('User authenticated:', user.uid, user.email);
-        setupUserPresence(user);
-        loadSidebarConversations();
-        setupChatInput();
-        setupMessageSearch();
-      });
-    } catch (error) {
-      console.error('Error initializing Firebase services:', error);
-      setTimeout(waitForFirebaseAndInit, 100);
-    }
+      window.currentUser = user;
+      window.db = firebase.firestore();
+      
+      // Initialize mobile conversation selection
+      setupMobileConversationSelection();
+      
+      // Load conversations
+      loadSidebarConversations();
+      
+      // Setup search
+      setupMessageSearch();
+      
+      // Setup chat input
+      setupChatInput();
+      
+      // Setup user presence
+      setupUserPresence(user);
+    });
   }
 
   // --- User Presence System ---
@@ -223,82 +204,133 @@
     return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   }
 
-  // --- Sidebar: Load Conversations ---
+  // --- Load Sidebar Conversations ---
   function loadSidebarConversations() {
-    if (isSearchMode) return; // Don't reload if in search mode
-    
     const conversationsList = document.getElementById('conversationsList');
-    if (!conversationsList) {
-      console.log('conversationsList element not found');
-      return;
-    }
-    conversationsList.innerHTML = '<div class="text-center py-3">Loading...</div>';
-    
-    console.log('Loading conversations for user:', window.currentUser.uid);
-    
-    // Test if we can access the database
-    db.collection('conversations').limit(1).get().then(testSnap => {
-      console.log('Database access test:', testSnap.size, 'documents in conversations collection');
-      if (testSnap.size > 0) {
-        const sampleDoc = testSnap.docs[0];
-        console.log('Sample conversation document:', sampleDoc.data());
-      }
-    }).catch(err => {
-      console.error('Database access error:', err);
-    });
-    
-    db.collection('conversations').where('participants', 'array-contains', window.currentUser.uid).onSnapshot(snap => {
-      console.log('Conversations snapshot:', snap.size, 'conversations found');
-      if (snap.empty) {
-        conversationsList.innerHTML = '<div class="text-center py-3">No conversations yet.</div>';
-        return;
-      }
-      conversationsList.innerHTML = '';
-      
-      snap.forEach(doc => {
-        const d = doc.data();
-        const other = (d.participantDetails || []).find(u => u.uid !== window.currentUser.uid) || {};
-        const activeClass = doc.id === window.currentChatId ? 'active' : '';
+    if (!conversationsList) return;
+
+    conversationsList.innerHTML = '<div class="loading-state">Loading conversations...</div>';
+
+    // Listen for conversations
+    db.collection('conversations')
+      .where('participants', 'array-contains', window.currentUser.uid)
+      .orderBy('lastMessageTime', 'desc')
+      .onSnapshot(snap => {
+        conversationsList.innerHTML = '';
         
-        // Create conversation item with placeholder presence
-        const conversationItem = document.createElement('div');
-        conversationItem.className = `conversation-item ${activeClass}`;
-        conversationItem.setAttribute('data-chat-id', doc.id);
-        conversationItem.setAttribute('tabindex', '0');
-        
-        conversationItem.innerHTML = `
-          <img src="${other.avatar || '../../img/avatar-placeholder.svg'}" class="conversation-avatar" alt="Avatar">
-          <div class="conversation-info">
-            <div class="conversation-name">${other.name || 'Unknown'}</div>
-            <div class="conversation-preview">${d.lastMessage || 'No messages yet'}</div>
-          </div>
-          <div class="conversation-meta">
-            <div class="conversation-time">${d.lastMessageAt ? new Date(d.lastMessageAt.seconds*1000).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : ''}</div>
-            <div class="unread-badge" style="display: ${d.unread && d.unread[window.currentUser.uid] ? 'flex' : 'none'}">${d.unread && d.unread[window.currentUser.uid] ? d.unread[window.currentUser.uid] : 0}</div>
-          </div>
-        `;
-        
-        conversationsList.appendChild(conversationItem);
-        
-        // Listen for presence status for this user
-        if (other.uid) {
-          // Presence will be handled in the chat header when conversation is opened
+        if (snap.empty) {
+          conversationsList.innerHTML = `
+            <div class="empty-state">
+              <div class="empty-state-icon">
+                <i class="bi bi-chat-dots"></i>
+              </div>
+              <h3>No conversations yet</h3>
+              <p>Start a conversation by messaging someone</p>
+            </div>
+          `;
+          return;
         }
+
+        snap.forEach(doc => {
+          const conv = doc.data();
+          const otherUid = conv.participants.find(uid => uid !== window.currentUser.uid);
+          
+          // Get other user's info
+          db.collection('users').doc(otherUid).get().then(userDoc => {
+            const userData = userDoc.data();
+            const conversationDiv = document.createElement('div');
+            conversationDiv.className = 'conversation-item';
+            conversationDiv.setAttribute('data-chat-id', doc.id);
+            
+            // Add mobile-specific attributes
+            conversationDiv.setAttribute('role', 'button');
+            conversationDiv.setAttribute('tabindex', '0');
+            conversationDiv.setAttribute('aria-label', `Chat with ${userData?.displayName || userData?.email || 'User'}`);
+            
+            conversationDiv.innerHTML = `
+              <img src="${userData?.photoURL || '../../img/avatar-placeholder.svg'}" alt="Avatar" class="conversation-avatar">
+              <div class="conversation-info">
+                <div class="conversation-name">${userData?.displayName || userData?.email || 'Unknown User'}</div>
+                <div class="conversation-preview">${conv.lastMessage || 'No messages yet'}</div>
+              </div>
+              <div class="conversation-meta">
+                <div class="conversation-time">${conv.lastMessageTime ? new Date(conv.lastMessageTime.seconds * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}</div>
+                ${conv.unreadCount > 0 ? `<div class="unread-badge">${conv.unreadCount}</div>` : ''}
+              </div>
+            `;
+            
+            // Add click handler with mobile improvements
+            conversationDiv.addEventListener('click', () => openChat(doc.id));
+            
+            // Add keyboard support for accessibility
+            conversationDiv.addEventListener('keydown', (e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                openChat(doc.id);
+              }
+            });
+            
+            // Add touch feedback for mobile
+            conversationDiv.addEventListener('touchstart', function() {
+              this.style.transform = 'scale(0.98)';
+            });
+            
+            conversationDiv.addEventListener('touchend', function() {
+              this.style.transform = '';
+            });
+            
+            conversationsList.appendChild(conversationDiv);
+          });
+        });
       });
-      
-              Array.from(conversationsList.querySelectorAll('.conversation-item')).forEach(a => {
-        a.onclick = function(e) {
-          e.preventDefault();
-          openChat(this.getAttribute('data-chat-id'));
-        };
-      });
-      
-      // Auto-open first chat if none selected
-      if (!window.currentChatId && snap.docs.length > 0) openChat(snap.docs[0].id);
-    }, error => {
-      console.error('Error loading conversations:', error);
-      conversationsList.innerHTML = '<div class="text-center py-3 text-danger">Error loading conversations. Please try again.</div>';
+  }
+
+  // --- Mobile Conversation Selection Improvements ---
+  function setupMobileConversationSelection() {
+    const conversationsList = document.getElementById('conversationsList');
+    if (!conversationsList) return;
+
+    // Add smooth scrolling for mobile
+    let isScrolling = false;
+    let startX = 0;
+    let scrollLeft = 0;
+
+    conversationsList.addEventListener('touchstart', (e) => {
+      isScrolling = true;
+      startX = e.touches[0].pageX - conversationsList.offsetLeft;
+      scrollLeft = conversationsList.scrollLeft;
     });
+
+    conversationsList.addEventListener('touchmove', (e) => {
+      if (!isScrolling) return;
+      e.preventDefault();
+      const x = e.touches[0].pageX - conversationsList.offsetLeft;
+      const walk = (x - startX) * 2;
+      conversationsList.scrollLeft = scrollLeft - walk;
+    });
+
+    conversationsList.addEventListener('touchend', () => {
+      isScrolling = false;
+    });
+
+    // Auto-scroll to active conversation on mobile
+    function scrollToActiveConversation() {
+      const activeItem = conversationsList.querySelector('.conversation-item.active');
+      if (activeItem && window.innerWidth <= 768) {
+        const containerWidth = conversationsList.offsetWidth;
+        const itemWidth = activeItem.offsetWidth;
+        const itemLeft = activeItem.offsetLeft;
+        const scrollPosition = itemLeft - (containerWidth / 2) + (itemWidth / 2);
+        
+        conversationsList.scrollTo({
+          left: Math.max(0, scrollPosition),
+          behavior: 'smooth'
+        });
+      }
+    }
+
+    // Call scroll function when chat is opened
+    window.scrollToActiveConversation = scrollToActiveConversation;
   }
   
   // --- Listen to User Presence ---
@@ -348,53 +380,150 @@
   }
 
   // --- Main Chat: Load Messages ---
-  let chatUnsub = null;
+  // --- Open Chat ---
   function openChat(chatId) {
-    if (chatUnsub) chatUnsub();
+    if (!chatId) return;
+    
     window.currentChatId = chatId;
     
-    // Highlight selected conversation
-    document.querySelectorAll('.conversation-item').forEach(a => a.classList.remove('active'));
-    const activeA = document.querySelector(`.conversation-item[data-chat-id='${chatId}']`);
-    if (activeA) activeA.classList.add('active');
-    
-    // Enable input field
-    const messageInput = document.getElementById('messageInput');
-    const sendBtn = document.getElementById('sendBtn');
-    if (messageInput) messageInput.disabled = false;
-    if (sendBtn) sendBtn.disabled = false;
-    
-    // Load header
-    db.collection('conversations').doc(chatId).get().then(chatDoc => {
-      const d = chatDoc.data();
-      const other = (d.participantDetails || []).find(u => u.uid !== window.currentUser.uid) || {};
+    // Update active state in conversation list
+    const conversationsList = document.getElementById('conversationsList');
+    if (conversationsList) {
+      // Remove active class from all items
+      conversationsList.querySelectorAll('.conversation-item').forEach(item => {
+        item.classList.remove('active');
+      });
       
-      const avatarImg = document.querySelector('#chatAvatar');
-      if (avatarImg) {
-        avatarImg.src = other.avatar || '../../img/avatar-placeholder.svg';
-      }
-      
-      const nameElement = document.querySelector('#chatUserName');
-      if (nameElement) {
-        nameElement.textContent = other.name || 'Unknown';
-      }
-      
-      // Set up presence status in chat header
-      const headerStatus = document.querySelector('#chatUserStatus span');
-      const statusIndicator = document.querySelector('#chatUserStatus .status-indicator');
-      if (other.uid && headerStatus) {
-        listenToUserPresence(other.uid, headerStatus, statusIndicator);
-      } else if (headerStatus) {
-        headerStatus.textContent = 'Offline';
-        if (statusIndicator) {
-          statusIndicator.className = 'status-indicator offline';
+      // Add active class to selected item
+      const selectedItem = conversationsList.querySelector(`[data-chat-id="${chatId}"]`);
+      if (selectedItem) {
+        selectedItem.classList.add('active');
+        
+        // Auto-scroll to active conversation on mobile
+        if (window.scrollToActiveConversation) {
+          setTimeout(() => window.scrollToActiveConversation(), 100);
         }
       }
-      
-      listenTyping(chatId, other.uid);
-    });
+    }
     
-    // Listen for messages
+    // Get conversation data
+    db.collection('conversations').doc(chatId).get().then(doc => {
+      if (!doc.exists) return;
+      
+      const conv = doc.data();
+      const otherUid = conv.participants.find(uid => uid !== window.currentUser.uid);
+      
+      // Update chat header
+      db.collection('users').doc(otherUid).get().then(userDoc => {
+        const userData = userDoc.data();
+        const chatUserName = document.getElementById('chatUserName');
+        const chatAvatar = document.getElementById('chatAvatar');
+        
+        if (chatUserName) {
+          chatUserName.textContent = userData?.displayName || userData?.email || 'Unknown User';
+        }
+        
+        if (chatAvatar) {
+          chatAvatar.src = userData?.photoURL || '../../img/avatar-placeholder.svg';
+        }
+        
+        // Enable input
+        const messageInput = document.getElementById('messageInput');
+        const sendBtn = document.getElementById('sendBtn');
+        if (messageInput) messageInput.disabled = false;
+        if (sendBtn) sendBtn.disabled = false;
+        
+        // Listen for user presence
+        if (otherUid) {
+          listenToUserPresence(otherUid, document.getElementById('chatUserStatus'), document.querySelector('.status-indicator'));
+        }
+        
+        // Load messages
+        loadChatMessages(chatId);
+        
+        // Setup typing indicator
+        listenTyping(chatId, otherUid);
+      });
+    });
+  }
+
+  // --- Typing Indicator ---
+  function listenTyping(chatId, otherUid) {
+    const chatMessages = document.querySelector('#chatMessages');
+    let indicator = document.getElementById('typingIndicator');
+    if (!indicator) {
+      indicator = document.createElement('div');
+      indicator.id = 'typingIndicator';
+      indicator.className = 'typing-indicator';
+      indicator.style.display = 'none';
+      indicator.innerHTML = `
+        <span>Typing</span>
+        <div class="typing-dots">
+          <div class="typing-dot"></div>
+          <div class="typing-dot"></div>
+          <div class="typing-dot"></div>
+        </div>
+      `;
+      chatMessages.appendChild(indicator);
+    }
+    db.collection('conversations').doc(chatId).collection('typing').doc(otherUid).onSnapshot(doc => {
+      if (doc.exists && doc.data().typing) {
+        indicator.style.display = 'flex';
+      } else {
+        indicator.style.display = 'none';
+      }
+    });
+  }
+
+  // --- Mark Messages as Read ---
+  function markMessagesRead(chatId) {
+    const chatRef = db.collection('conversations').doc(chatId).collection('messages');
+    chatRef.get().then(snap => {
+      snap.forEach(doc => {
+        if (!doc.data().readBy || !doc.data().readBy.includes(window.currentUser.uid)) {
+          chatRef.doc(doc.id).update({ readBy: firebase.firestore.FieldValue.arrayUnion(window.currentUser.uid) });
+        }
+      });
+    });
+  }
+
+  // --- Send Message & Typing ---
+  function setupChatInput() {
+    const sendBtn = document.getElementById('sendBtn');
+    if (sendBtn) {
+      sendBtn.onclick = async function(e) {
+        e.preventDefault();
+        const input = document.getElementById('messageInput');
+        const text = input.value.trim();
+        if (!text || !window.currentChatId) return;
+        await db.collection('conversations').doc(window.currentChatId).collection('messages').add({
+          type: 'text',
+          text,
+          senderId: window.currentUser.uid,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        input.value = '';
+      };
+      // Typing indicator
+      const input = document.getElementById('messageInput');
+      let typingTimeout = null;
+      input.addEventListener('input', function() {
+        if (!window.currentChatId) return;
+        db.collection('conversations').doc(window.currentChatId).collection('typing').doc(window.currentUser.uid).set({ typing: true });
+        if (typingTimeout) clearTimeout(typingTimeout);
+        typingTimeout = setTimeout(() => {
+          db.collection('conversations').doc(window.currentChatId).collection('typing').doc(window.currentUser.uid).set({ typing: false });
+        }, 2000);
+      });
+    }
+  }
+
+  // --- Load Chat Messages ---
+  let chatUnsub = null;
+  
+  function loadChatMessages(chatId) {
+    if (chatUnsub) chatUnsub();
+    
     const chatMessages = document.querySelector('#chatMessages');
     chatMessages.innerHTML = '<div class="empty-state"><div class="empty-state-icon"><i class="bi bi-arrow-clockwise"></i></div><h3>Loading...</h3></div>';
     
@@ -518,77 +647,6 @@
       chatMessages.scrollTop = chatMessages.scrollHeight;
       markMessagesRead(chatId);
     });
-  }
-
-  // --- Typing Indicator ---
-  function listenTyping(chatId, otherUid) {
-    const chatMessages = document.querySelector('#chatMessages');
-    let indicator = document.getElementById('typingIndicator');
-    if (!indicator) {
-      indicator = document.createElement('div');
-      indicator.id = 'typingIndicator';
-      indicator.className = 'typing-indicator';
-      indicator.style.display = 'none';
-      indicator.innerHTML = `
-        <span>Typing</span>
-        <div class="typing-dots">
-          <div class="typing-dot"></div>
-          <div class="typing-dot"></div>
-          <div class="typing-dot"></div>
-        </div>
-      `;
-      chatMessages.appendChild(indicator);
-    }
-    db.collection('conversations').doc(chatId).collection('typing').doc(otherUid).onSnapshot(doc => {
-      if (doc.exists && doc.data().typing) {
-        indicator.style.display = 'flex';
-      } else {
-        indicator.style.display = 'none';
-      }
-    });
-  }
-
-  // --- Mark Messages as Read ---
-  function markMessagesRead(chatId) {
-    const chatRef = db.collection('conversations').doc(chatId).collection('messages');
-    chatRef.get().then(snap => {
-      snap.forEach(doc => {
-        if (!doc.data().readBy || !doc.data().readBy.includes(window.currentUser.uid)) {
-          chatRef.doc(doc.id).update({ readBy: firebase.firestore.FieldValue.arrayUnion(window.currentUser.uid) });
-        }
-      });
-    });
-  }
-
-  // --- Send Message & Typing ---
-  function setupChatInput() {
-    const sendBtn = document.getElementById('sendBtn');
-    if (sendBtn) {
-      sendBtn.onclick = async function(e) {
-        e.preventDefault();
-        const input = document.getElementById('messageInput');
-        const text = input.value.trim();
-        if (!text || !window.currentChatId) return;
-        await db.collection('conversations').doc(window.currentChatId).collection('messages').add({
-          type: 'text',
-          text,
-          senderId: window.currentUser.uid,
-          createdAt: firebase.firestore.FieldValue.serverTimestamp()
-        });
-        input.value = '';
-      };
-      // Typing indicator
-      const input = document.getElementById('messageInput');
-      let typingTimeout = null;
-      input.addEventListener('input', function() {
-        if (!window.currentChatId) return;
-        db.collection('conversations').doc(window.currentChatId).collection('typing').doc(window.currentUser.uid).set({ typing: true });
-        if (typingTimeout) clearTimeout(typingTimeout);
-        typingTimeout = setTimeout(() => {
-          db.collection('conversations').doc(window.currentChatId).collection('typing').doc(window.currentUser.uid).set({ typing: false });
-        }, 2000);
-      });
-    }
   }
 
   // --- Helpers ---
