@@ -24,7 +24,7 @@
     }
     
     // Check if DOM is ready
-    if (!document.getElementById('chatSidebar')) {
+    if (!document.getElementById('conversationsList')) {
       console.log('DOM not ready yet, retrying...');
       setTimeout(waitForFirebaseAndInit, 100);
       return;
@@ -99,9 +99,9 @@
     searchInput.className = 'form-control mb-3';
     searchInput.id = 'messageSearchInput';
     
-    const sidebarHeader = document.querySelector('.sidebar-header');
-    if (sidebarHeader) {
-      sidebarHeader.appendChild(searchInput);
+    const conversationsHeader = document.querySelector('.conversations-header');
+    if (conversationsHeader) {
+      conversationsHeader.appendChild(searchInput);
     }
     
     let searchTimeout;
