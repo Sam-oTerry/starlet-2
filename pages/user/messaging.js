@@ -18,32 +18,52 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function initializeMessaging() {
+    console.log('Initializing messaging system...');
+    
     // Wait for Firebase to be available
     if (typeof firebase === 'undefined') {
+        console.log('Firebase not available, retrying...');
         setTimeout(initializeMessaging, 100);
-      return;
+        return;
     }
+    
+    console.log('Firebase available, initializing services...');
     
     // Initialize Firebase services
     db = firebase.firestore();
     auth = firebase.auth();
     storage = firebase.storage();
 
+    console.log('Firebase services initialized');
+
     // Check authentication
     auth.onAuthStateChanged(function(user) {
-      if (!user) {
-        window.location.href = '/pages/auth/login.html';
-        return;
-      }
-      
+        console.log('Auth state changed:', user ? 'User logged in' : 'No user');
+        
+        if (!user) {
+            console.log('No user authenticated, redirecting to login');
+            window.location.href = '/pages/auth/login.html';
+            return;
+        }
+        
         currentUser = user;
-        console.log('User authenticated:', user.email);
+        console.log('User authenticated:', user.email, 'UID:', user.uid);
         
         // Initialize messaging features
         loadConversations();
         setupEventListeners();
         setupEmojiPicker();
         setupFileUpload();
+        
+        // Add a test button to create sample data
+        const header = document.querySelector('.messaging-header');
+        if (header) {
+            const testButton = document.createElement('button');
+            testButton.className = 'btn btn-outline-secondary btn-sm ms-2';
+            testButton.textContent = 'Create Sample Data';
+            testButton.onclick = populateSampleData;
+            header.querySelector('h1').appendChild(testButton);
+        }
     });
 }
 
@@ -52,24 +72,30 @@ async function loadConversations() {
     const conversationsList = document.getElementById('conversationsList');
     const conversationCount = document.querySelector('.conversation-count');
     
-    if (!conversationsList) return;
+    if (!conversationsList) {
+        console.error('Conversations list element not found');
+        return;
+    }
+
+    console.log('Loading conversations for user:', currentUser.uid);
 
     try {
         // Show loading state
-          conversationsList.innerHTML = `
+        conversationsList.innerHTML = `
             <div class="text-center py-4">
                 <div class="spinner-border text-primary" role="status">
                     <span class="visually-hidden">Loading...</span>
-              </div>
+                </div>
                 <p class="mt-2 text-muted">Loading conversations...</p>
             </div>
-          `;
+        `;
 
         // Listen for conversations in real-time
         conversationsUnsub = db.collection('chats')
             .where('participants', 'array-contains', currentUser.uid)
             .orderBy('lastMessageAt', 'desc')
             .onSnapshot(snapshot => {
+                console.log('Conversations snapshot received:', snapshot.size, 'conversations');
                 const conversations = [];
                 snapshot.forEach(doc => {
                     const data = doc.data();
@@ -79,6 +105,7 @@ async function loadConversations() {
                     });
                 });
 
+                console.log('Processed conversations:', conversations);
                 renderConversations(conversations);
                 updateConversationCount(conversations.length);
             }, error => {
@@ -87,13 +114,24 @@ async function loadConversations() {
                     <div class="text-center py-4">
                         <i class="bi bi-exclamation-triangle text-warning" style="font-size: 2rem;"></i>
                         <p class="mt-2 text-muted">Failed to load conversations</p>
+                        <p class="small text-muted">Error: ${error.message}</p>
                         <button class="btn btn-outline-primary btn-sm" onclick="loadConversations()">Retry</button>
-              </div>
-            `;
+                        <button class="btn btn-outline-secondary btn-sm" onclick="populateSampleData()">Load Sample Data</button>
+                    </div>
+                `;
             });
 
     } catch (error) {
         console.error('Error setting up conversations listener:', error);
+        conversationsList.innerHTML = `
+            <div class="text-center py-4">
+                <i class="bi bi-exclamation-triangle text-warning" style="font-size: 2rem;"></i>
+                <p class="mt-2 text-muted">Failed to load conversations</p>
+                <p class="small text-muted">Error: ${error.message}</p>
+                <button class="btn btn-outline-primary btn-sm" onclick="loadConversations()">Retry</button>
+                <button class="btn btn-outline-secondary btn-sm" onclick="populateSampleData()">Load Sample Data</button>
+            </div>
+        `;
     }
 }
 
@@ -101,12 +139,15 @@ async function loadConversations() {
 function renderConversations(conversations) {
     const conversationsList = document.getElementById('conversationsList');
     
+    console.log('Rendering conversations:', conversations);
+    
     if (conversations.length === 0) {
         conversationsList.innerHTML = `
             <div class="text-center py-4">
                 <i class="bi bi-chat-dots text-muted" style="font-size: 2rem;"></i>
                 <p class="mt-2 text-muted">No conversations yet</p>
                 <p class="small text-muted">Start a conversation by messaging a seller or agent</p>
+                <button class="btn btn-outline-primary btn-sm mt-2" onclick="populateSampleData()">Load Sample Data</button>
             </div>
         `;
         return;
@@ -650,7 +691,105 @@ window.addEventListener('beforeunload', function() {
     if (conversationsUnsub) conversationsUnsub();
 });
 
+// Populate sample data for testing
+async function populateSampleData() {
+    if (!currentUser) {
+        console.error('No user authenticated');
+        return;
+    }
+
+    console.log('Populating sample data for user:', currentUser.uid);
+
+    try {
+        // Create sample conversations
+        const sampleConversations = [
+            {
+                participants: [currentUser.uid, 'agent1'],
+                participantDetails: [
+                    {
+                        uid: currentUser.uid,
+                        name: currentUser.displayName || currentUser.email,
+                        email: currentUser.email,
+                        avatar: currentUser.photoURL || '../../img/avatar-placeholder.svg'
+                    },
+                    {
+                        uid: 'agent1',
+                        name: 'Sarah Johnson',
+                        email: 'sarah@starletproperties.ug',
+                        avatar: 'https://randomuser.me/api/portraits/women/1.jpg'
+                    }
+                ],
+                listingTitle: 'Beautiful 3-Bedroom House in Kampala',
+                lastMessage: 'Thank you for your interest! When would you like to schedule a viewing?',
+                lastMessageAt: firebase.firestore.FieldValue.serverTimestamp(),
+                unread: {
+                    [currentUser.uid]: 2
+                }
+            },
+            {
+                participants: [currentUser.uid, 'agent2'],
+                participantDetails: [
+                    {
+                        uid: currentUser.uid,
+                        name: currentUser.displayName || currentUser.email,
+                        email: currentUser.email,
+                        avatar: currentUser.photoURL || '../../img/avatar-placeholder.svg'
+                    },
+                    {
+                        uid: 'agent2',
+                        name: 'Michael Chen',
+                        email: 'michael@starletproperties.ug',
+                        avatar: 'https://randomuser.me/api/portraits/men/2.jpg'
+                    }
+                ],
+                listingTitle: 'Luxury SUV for Sale',
+                lastMessage: 'The vehicle is still available. Would you like to see it this weekend?',
+                lastMessageAt: firebase.firestore.FieldValue.serverTimestamp(),
+                unread: {}
+            }
+        ];
+
+        // Add conversations to Firestore
+        for (const conversation of sampleConversations) {
+            const chatRef = await db.collection('chats').add(conversation);
+            console.log('Created conversation:', chatRef.id);
+
+            // Add sample messages
+            const sampleMessages = [
+                {
+                    content: 'Hi! I\'m interested in this property. Is it still available?',
+                    type: 'text',
+                    senderId: currentUser.uid,
+                    senderName: currentUser.displayName || currentUser.email,
+                    senderAvatar: currentUser.photoURL || '../../img/avatar-placeholder.svg',
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                },
+                {
+                    content: 'Hello! Yes, it\'s still available. Would you like to schedule a viewing?',
+                    type: 'text',
+                    senderId: conversation.participants.find(p => p !== currentUser.uid),
+                    senderName: conversation.participantDetails.find(p => p.uid !== currentUser.uid).name,
+                    senderAvatar: conversation.participantDetails.find(p => p.uid !== currentUser.uid).avatar,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                }
+            ];
+
+            for (const message of sampleMessages) {
+                await chatRef.collection('messages').add(message);
+            }
+        }
+
+        console.log('Sample data populated successfully');
+        alert('Sample conversations created! Refresh the page to see them.');
+
+    } catch (error) {
+        console.error('Error populating sample data:', error);
+        alert('Failed to create sample data: ' + error.message);
+    }
+}
+
 // Export functions for global access
 window.openChat = openChat;
 window.removeFile = removeFile;
 window.uploadAndSendFiles = uploadAndSendFiles;
+window.populateSampleData = populateSampleData;
