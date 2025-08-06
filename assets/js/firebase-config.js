@@ -23,26 +23,37 @@ let db, auth, storage;
 // Wait for Firebase to be available
 function initializeFirebaseServices() {
   if (typeof firebase !== 'undefined') {
-    db = firebase.firestore();
-    auth = firebase.auth();
-    storage = firebase.storage();
+    try {
+      db = firebase.firestore();
+      auth = firebase.auth();
+      
+      // Check if storage is available
+      if (typeof firebase.storage === 'function') {
+        storage = firebase.storage();
+      } else {
+        console.warn('Firebase Storage not available, file uploads will be disabled');
+        storage = null;
+      }
 
-    // Make services globally available
-    window.firebaseDB = db;
-    window.firebaseAuth = auth;
-    window.firebaseStorage = storage;
+      // Make services globally available
+      window.firebaseDB = db;
+      window.firebaseAuth = auth;
+      window.firebaseStorage = storage;
 
-    // Enable offline persistence for Firestore
-    db.enablePersistence()
-      .catch((err) => {
-        if (err.code == 'failed-precondition') {
-          console.log('Multiple tabs open, persistence can only be enabled in one tab at a time.');
-        } else if (err.code == 'unimplemented') {
-          console.log('The current browser does not support persistence.');
-        }
-      });
+      // Enable offline persistence for Firestore
+      db.enablePersistence()
+        .catch((err) => {
+          if (err.code == 'failed-precondition') {
+            console.log('Multiple tabs open, persistence can only be enabled in one tab at a time.');
+          } else if (err.code == 'unimplemented') {
+            console.log('The current browser does not support persistence.');
+          }
+        });
 
-    console.log('Firebase initialized successfully');
+      console.log('Firebase initialized successfully');
+    } catch (error) {
+      console.error('Error initializing Firebase services:', error);
+    }
   } else {
     setTimeout(initializeFirebaseServices, 100);
   }

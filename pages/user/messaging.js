@@ -32,7 +32,14 @@ function initializeMessaging() {
     // Initialize Firebase services
     db = firebase.firestore();
     auth = firebase.auth();
-    storage = firebase.storage();
+    
+    // Check if storage is available
+    if (typeof firebase.storage === 'function') {
+        storage = firebase.storage();
+    } else {
+        console.warn('Firebase Storage not available, file uploads will be disabled');
+        storage = null;
+    }
 
     console.log('Firebase services initialized');
 
@@ -474,8 +481,19 @@ function setupEmojiPicker() {
 function setupFileUpload() {
     const fileInput = document.getElementById('fileInput');
     const filePreview = document.getElementById('filePreview');
+    const attachmentBtn = document.getElementById('attachmentBtn');
 
     fileInput.addEventListener('change', handleFileSelect);
+    
+    // Disable attachment button if storage is not available
+    if (!storage) {
+        if (attachmentBtn) {
+            attachmentBtn.disabled = true;
+            attachmentBtn.title = 'File uploads not available';
+            attachmentBtn.style.opacity = '0.5';
+        }
+        console.log('File uploads disabled - Firebase Storage not available');
+    }
 }
 
 // Handle file selection
@@ -516,6 +534,12 @@ function removeFile(fileName) {
 // Upload files and send message
 async function uploadAndSendFiles() {
     if (!selectedFiles.length || !currentChatId) return;
+
+    // Check if storage is available
+    if (!storage) {
+        alert('File uploads are not available. Please try again later.');
+        return;
+    }
 
     try {
         const sendBtn = document.getElementById('sendBtn');
