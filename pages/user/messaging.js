@@ -9,7 +9,7 @@ let typingUnsub = null;
 let conversationsUnsub = null;
 let selectedFiles = [];
 
-// Firebase services
+// Firebase services - will be initialized from global services
 let db, auth, storage;
 
 // Initialize messaging system
@@ -27,21 +27,25 @@ function initializeMessaging() {
         return;
     }
     
-    console.log('Firebase available, initializing services...');
+    console.log('Firebase available, getting services from global scope...');
     
-    // Initialize Firebase services
-    db = firebase.firestore();
-    auth = firebase.auth();
-    
-    // Check if storage is available
-    if (typeof firebase.storage === 'function') {
-        storage = firebase.storage();
-    } else {
-        console.warn('Firebase Storage not available, file uploads will be disabled');
-        storage = null;
+    // Use global Firebase services instead of redeclaring
+    db = window.firebaseDB || firebase.firestore();
+    auth = window.firebaseAuth || firebase.auth();
+    storage = window.firebaseStorage || (typeof firebase.storage === 'function' ? firebase.storage() : null);
+
+    // Verify services are available
+    if (!db || !auth) {
+        console.error('Firebase services not properly initialized, retrying...');
+        setTimeout(initializeMessaging, 100);
+        return;
     }
 
-    console.log('Firebase services initialized');
+    if (!storage) {
+        console.warn('Firebase Storage not available, file uploads will be disabled');
+    }
+
+    console.log('Firebase services initialized from global scope');
 
     // Check authentication
     auth.onAuthStateChanged(function(user) {
