@@ -2,20 +2,30 @@
 // Handles conversations, real-time messaging, file uploads, emoji picker, and responsive design
 
 // Global variables
-let currentUser = null;
-let currentChatId = null;
-let chatUnsub = null;
-let typingUnsub = null;
-let conversationsUnsub = null;
+// Use undefined instead of null for uninitialized variables to avoid potential issues with strict null checks or type coercion
+let currentUser;           // Will hold the current user's info after authentication
+let currentChatId;         // Will hold the currently selected chat/conversation ID
+let chatUnsub;             // Will hold the unsubscribe function for chat listener
+let typingUnsub;           // Will hold the unsubscribe function for typing indicator listener
+let conversationsUnsub;    // Will hold the unsubscribe function for conversations list listener
 let selectedFiles = [];
 
-// Firebase services - will be initialized from global services
-let db, auth, storage;
+// Firebase services - will use global services from firebase-config.js
 
 // Initialize messaging system
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM loaded, initializing messaging...');
     initializeMessaging();
 });
+
+// Also try to initialize if DOM is already loaded
+if (document.readyState === 'loading') {
+    // DOM is still loading, wait for DOMContentLoaded
+} else {
+    // DOM is already loaded
+    console.log('DOM already loaded, initializing messaging immediately...');
+    initializeMessaging();
+}
 
 function initializeMessaging() {
     console.log('Initializing messaging system...');
@@ -27,12 +37,12 @@ function initializeMessaging() {
         return;
     }
     
-    console.log('Firebase available, getting services from global scope...');
+    console.log('Firebase available, using global services...');
     
-    // Use global Firebase services instead of redeclaring
-    db = window.firebaseDB || firebase.firestore();
-    auth = window.firebaseAuth || firebase.auth();
-    storage = window.firebaseStorage || (typeof firebase.storage === 'function' ? firebase.storage() : null);
+    // Use global Firebase services directly
+    const db = window.firebaseDB || firebase.firestore();
+    const auth = window.firebaseAuth || firebase.auth();
+    const storage = window.firebaseStorage || (typeof firebase.storage === 'function' ? firebase.storage() : null);
 
     // Verify services are available
     if (!db || !auth) {
@@ -74,6 +84,13 @@ function initializeMessaging() {
             testButton.textContent = 'Create Sample Data';
             testButton.onclick = populateSampleData;
             header.querySelector('h1').appendChild(testButton);
+            
+            // Add a test button to check Firebase connection
+            const testConnectionButton = document.createElement('button');
+            testConnectionButton.className = 'btn btn-outline-info btn-sm ms-2';
+            testConnectionButton.textContent = 'Test Connection';
+            testConnectionButton.onclick = testFirebaseConnection;
+            header.querySelector('h1').appendChild(testConnectionButton);
         }
     });
 }
@@ -89,6 +106,9 @@ async function loadConversations() {
     }
 
     console.log('Loading conversations for user:', currentUser.uid);
+
+    // Get Firebase services from global scope
+    const db = window.firebaseDB || firebase.firestore();
 
     try {
         // Show loading state
@@ -202,6 +222,9 @@ async function openChat(chatId) {
       });
     document.querySelector(`[data-chat-id="${chatId}"]`)?.classList.add('active');
 
+    // Get Firebase services from global scope
+    const db = window.firebaseDB || firebase.firestore();
+
     try {
         // Get chat details
         const chatDoc = await db.collection('chats').doc(chatId).get();
@@ -255,6 +278,9 @@ function updateChatHeader(otherUser, chatData) {
 // Load messages
 function loadMessages(chatId) {
     const chatMessages = document.getElementById('chatMessages');
+    
+    // Get Firebase services from global scope
+    const db = window.firebaseDB || firebase.firestore();
     
     // Show loading
     chatMessages.innerHTML = `
@@ -365,6 +391,9 @@ async function sendMessage() {
     const content = messageInput.value.trim();
     
     if (!content || !currentChatId) return;
+
+    // Get Firebase services from global scope
+    const db = window.firebaseDB || firebase.firestore();
 
     try {
         // Disable input temporarily
@@ -489,6 +518,9 @@ function setupFileUpload() {
 
     fileInput.addEventListener('change', handleFileSelect);
     
+    // Get Firebase services from global scope
+    const storage = window.firebaseStorage || (typeof firebase.storage === 'function' ? firebase.storage() : null);
+    
     // Disable attachment button if storage is not available
     if (!storage) {
         if (attachmentBtn) {
@@ -538,6 +570,10 @@ function removeFile(fileName) {
 // Upload files and send message
 async function uploadAndSendFiles() {
     if (!selectedFiles.length || !currentChatId) return;
+
+    // Get Firebase services from global scope
+    const db = window.firebaseDB || firebase.firestore();
+    const storage = window.firebaseStorage || (typeof firebase.storage === 'function' ? firebase.storage() : null);
 
     // Check if storage is available
     if (!storage) {
@@ -595,6 +631,9 @@ async function uploadAndSendFiles() {
 
 // Mark messages as read
 async function markMessagesAsRead(chatId) {
+    // Get Firebase services from global scope
+    const db = window.firebaseDB || firebase.firestore();
+    
     try {
         await db.collection('chats').doc(chatId).update({
             [`unread.${currentUser.uid}`]: 0
@@ -606,6 +645,9 @@ async function markMessagesAsRead(chatId) {
 
 // Listen for typing indicators
 function listenForTyping(chatId, otherUserId) {
+    // Get Firebase services from global scope
+    const db = window.firebaseDB || firebase.firestore();
+    
     typingUnsub = db.collection('chats').doc(chatId)
         .collection('typing')
         .doc(otherUserId)
@@ -728,6 +770,9 @@ async function populateSampleData() {
 
     console.log('Populating sample data for user:', currentUser.uid);
 
+    // Get Firebase services from global scope
+    const db = window.firebaseDB || firebase.firestore();
+
     try {
         // Create sample conversations
         const sampleConversations = [
@@ -816,8 +861,38 @@ async function populateSampleData() {
     }
 }
 
+// Test Firebase connection
+async function testFirebaseConnection() {
+    console.log('Testing Firebase connection...');
+    
+    try {
+        const db = window.firebaseDB || firebase.firestore();
+        const auth = window.firebaseAuth || firebase.auth();
+        const storage = window.firebaseStorage || (typeof firebase.storage === 'function' ? firebase.storage() : null);
+        
+        console.log('Firebase services status:');
+        console.log('- Firestore:', db ? 'Available' : 'Not available');
+        console.log('- Auth:', auth ? 'Available' : 'Not available');
+        console.log('- Storage:', storage ? 'Available' : 'Not available');
+        console.log('- Current user:', currentUser ? currentUser.email : 'Not authenticated');
+        
+        // Test Firestore connection
+        if (db) {
+            const testDoc = await db.collection('test').doc('connection-test').get();
+            console.log('Firestore connection test:', testDoc.exists ? 'Success' : 'Success (doc does not exist)');
+        }
+        
+        alert('Firebase connection test completed. Check console for details.');
+        
+    } catch (error) {
+        console.error('Firebase connection test failed:', error);
+        alert('Firebase connection test failed: ' + error.message);
+    }
+}
+
 // Export functions for global access
 window.openChat = openChat;
 window.removeFile = removeFile;
 window.uploadAndSendFiles = uploadAndSendFiles;
 window.populateSampleData = populateSampleData;
+window.testFirebaseConnection = testFirebaseConnection;
