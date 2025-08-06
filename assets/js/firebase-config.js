@@ -17,17 +17,15 @@ if (typeof firebase !== 'undefined' && !firebase.apps.length) {
   firebase.initializeApp(firebaseConfig);
 }
 
-// Initialize services
-let db, auth, storage;
-
 // Wait for Firebase to be available
 function initializeFirebaseServices() {
   if (typeof firebase !== 'undefined') {
     try {
-      db = firebase.firestore();
-      auth = firebase.auth();
+      const db = firebase.firestore();
+      const auth = firebase.auth();
       
       // Check if storage is available
+      let storage;
       if (typeof firebase.storage === 'function') {
         storage = firebase.storage();
       } else {
