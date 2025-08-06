@@ -1,491 +1,248 @@
-// messaging.js - Modern Chat UI Functionality for messaging.html
-// Assumes Firebase SDK is loaded and initialized globally as firebase
+// messaging.js - Comprehensive messaging functionality for Starlet Properties
+// Handles conversations, real-time messaging, file uploads, emoji picker, and responsive design
 
-(function() {
-  // --- Firebase Setup ---
-  let db, auth;
-  let presenceRef = null;
-  let searchResults = [];
-  let isSearchMode = false;
-  
-  function waitForFirebaseAndInit() {
-    if (!window.firebase || !window.firebase.auth) {
-      setTimeout(waitForFirebaseAndInit, 100);
+// Global variables
+let currentUser = null;
+let currentChatId = null;
+let chatUnsub = null;
+let typingUnsub = null;
+let conversationsUnsub = null;
+let selectedFiles = [];
+
+// Firebase services
+let db, auth, storage;
+
+// Initialize messaging system
+document.addEventListener('DOMContentLoaded', function() {
+    initializeMessaging();
+});
+
+function initializeMessaging() {
+    // Wait for Firebase to be available
+    if (typeof firebase === 'undefined') {
+        setTimeout(initializeMessaging, 100);
       return;
     }
     
-    firebase.auth().onAuthStateChanged(user => {
+    // Initialize Firebase services
+    db = firebase.firestore();
+    auth = firebase.auth();
+    storage = firebase.storage();
+
+    // Check authentication
+    auth.onAuthStateChanged(function(user) {
       if (!user) {
         window.location.href = '/pages/auth/login.html';
         return;
       }
       
-      window.currentUser = user;
-      window.db = firebase.firestore();
-      
-      // Initialize mobile conversation selection
-      setupMobileConversationSelection();
-      
-      // Load conversations
-      loadSidebarConversations();
-      
-      // Setup chat input
-      setupChatInput();
-      
-      // Setup user presence
-      setupUserPresence(user);
+        currentUser = user;
+        console.log('User authenticated:', user.email);
+        
+        // Initialize messaging features
+        loadConversations();
+        setupEventListeners();
+        setupEmojiPicker();
+        setupFileUpload();
     });
-  }
+}
 
-  // --- User Presence System ---
-  function setupUserPresence(user) {
-    presenceRef = window.db.collection('presence').doc(user.uid);
-    
-    // Set user as online
-    presenceRef.set({
-      online: true,
-      lastSeen: firebase.firestore.FieldValue.serverTimestamp(),
-      uid: user.uid,
-      name: user.displayName || user.email || 'Anonymous',
-      avatar: user.photoURL || '/img/avatar-placeholder.svg'
-    });
-    
-    // Set user as offline when they leave
-    window.addEventListener('beforeunload', () => {
-      presenceRef.update({
-        online: false,
-        lastSeen: firebase.firestore.FieldValue.serverTimestamp()
-      });
-    });
-    
-    // Keep presence alive with periodic updates
-    setInterval(() => {
-      if (presenceRef) {
-        presenceRef.update({
-          online: true,
-          lastSeen: firebase.firestore.FieldValue.serverTimestamp()
-        });
-      }
-    }, 30000); // Update every 30 seconds
-  }
-
-  // --- Load Sidebar Conversations ---
-  function loadSidebarConversations() {
+// Load conversations
+async function loadConversations() {
     const conversationsList = document.getElementById('conversationsList');
     const conversationCount = document.querySelector('.conversation-count');
+    
     if (!conversationsList) return;
 
-    conversationsList.innerHTML = '<div class="loading-state">Loading conversations...</div>';
-
-    // Listen for conversations
-    window.db.collection('conversations')
-      .where('participants', 'array-contains', window.currentUser.uid)
-      .orderBy('lastMessageTime', 'desc')
-      .onSnapshot(snap => {
-        conversationsList.innerHTML = '';
-        
-        // Update conversation count
-        if (conversationCount) {
-          conversationCount.textContent = snap.size;
-        }
-        
-        if (snap.empty) {
+    try {
+        // Show loading state
           conversationsList.innerHTML = `
-            <div class="empty-state">
-              <div class="empty-state-icon">
-                <i class="bi bi-chat-dots"></i>
+            <div class="text-center py-4">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
               </div>
-              <h3>No conversations yet</h3>
-              <p>Start a conversation by messaging someone</p>
+                <p class="mt-2 text-muted">Loading conversations...</p>
             </div>
           `;
-          return;
-        }
 
-        snap.forEach(doc => {
-          const conv = doc.data();
-          const otherUid = conv.participants.find(uid => uid !== window.currentUser.uid);
-          
-          // Get other user's info
-          window.db.collection('users').doc(otherUid).get().then(userDoc => {
-            const userData = userDoc.data();
-            const conversationDiv = document.createElement('div');
-            conversationDiv.className = 'conversation-item';
-            conversationDiv.setAttribute('data-chat-id', doc.id);
-            
-            // Add mobile-specific attributes
-            conversationDiv.setAttribute('role', 'button');
-            conversationDiv.setAttribute('tabindex', '0');
-            conversationDiv.setAttribute('aria-label', `Chat with ${userData?.displayName || userData?.email || 'User'}`);
-            
-            conversationDiv.innerHTML = `
-              <img src="${userData?.photoURL || '../../img/avatar-placeholder.svg'}" alt="Avatar" class="conversation-avatar">
-              <div class="conversation-info">
-                <div class="conversation-name">${userData?.displayName || userData?.email || 'Unknown User'}</div>
-                <div class="conversation-preview">${conv.lastMessage || 'No messages yet'}</div>
-              </div>
-              <div class="conversation-meta">
-                <div class="conversation-time">${conv.lastMessageTime ? new Date(conv.lastMessageTime.seconds * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}</div>
-                ${conv.unreadCount > 0 ? `<div class="unread-badge">${conv.unreadCount}</div>` : ''}
+        // Listen for conversations in real-time
+        conversationsUnsub = db.collection('chats')
+            .where('participants', 'array-contains', currentUser.uid)
+            .orderBy('lastMessageAt', 'desc')
+            .onSnapshot(snapshot => {
+                const conversations = [];
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    conversations.push({
+                        id: doc.id,
+                        ...data
+                    });
+                });
+
+                renderConversations(conversations);
+                updateConversationCount(conversations.length);
+            }, error => {
+                console.error('Error loading conversations:', error);
+                conversationsList.innerHTML = `
+                    <div class="text-center py-4">
+                        <i class="bi bi-exclamation-triangle text-warning" style="font-size: 2rem;"></i>
+                        <p class="mt-2 text-muted">Failed to load conversations</p>
+                        <button class="btn btn-outline-primary btn-sm" onclick="loadConversations()">Retry</button>
               </div>
             `;
-            
-            // Add click handler with mobile improvements
-            conversationDiv.addEventListener('click', () => openChat(doc.id));
-            
-            // Add keyboard support for accessibility
-            conversationDiv.addEventListener('keydown', (e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                openChat(doc.id);
-              }
             });
-            
-            // Add touch feedback for mobile
-            conversationDiv.addEventListener('touchstart', function() {
-              this.style.transform = 'scale(0.96)';
-            });
-            
-            conversationDiv.addEventListener('touchend', function() {
-              this.style.transform = '';
-            });
-            
-            conversationsList.appendChild(conversationDiv);
-          });
-        });
-      });
-  }
 
-  // --- Mobile Conversation Selection Improvements ---
-  function setupMobileConversationSelection() {
+    } catch (error) {
+        console.error('Error setting up conversations listener:', error);
+    }
+}
+
+// Render conversations list
+function renderConversations(conversations) {
     const conversationsList = document.getElementById('conversationsList');
-    if (!conversationsList) return;
-
-    // Add smooth scrolling for mobile
-    let isScrolling = false;
-    let startX = 0;
-    let scrollLeft = 0;
-
-    conversationsList.addEventListener('touchstart', (e) => {
-      isScrolling = true;
-      startX = e.touches[0].pageX - conversationsList.offsetLeft;
-      scrollLeft = conversationsList.scrollLeft;
-    });
-
-    conversationsList.addEventListener('touchmove', (e) => {
-      if (!isScrolling) return;
-      e.preventDefault();
-      const x = e.touches[0].pageX - conversationsList.offsetLeft;
-      const walk = (x - startX) * 2;
-      conversationsList.scrollLeft = scrollLeft - walk;
-    });
-
-    conversationsList.addEventListener('touchend', () => {
-      isScrolling = false;
-    });
-
-    // Add swipe gestures for conversation items
-    let startY = 0;
-    let currentItem = null;
-
-    conversationsList.addEventListener('touchstart', (e) => {
-      const item = e.target.closest('.conversation-item');
-      if (item) {
-        currentItem = item;
-        startY = e.touches[0].clientY;
-        item.style.transition = 'none';
-      }
-    });
-
-    conversationsList.addEventListener('touchmove', (e) => {
-      if (currentItem) {
-        const deltaY = e.touches[0].clientY - startY;
-        if (Math.abs(deltaY) > 10) {
-          currentItem.style.transform = `translateY(${deltaY * 0.3}px)`;
-        }
-      }
-    });
-
-    conversationsList.addEventListener('touchend', (e) => {
-      if (currentItem) {
-        currentItem.style.transition = 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
-        currentItem.style.transform = '';
-        currentItem = null;
-      }
-    });
-
-    // Add haptic feedback for mobile devices
-    function triggerHapticFeedback() {
-      if ('vibrate' in navigator) {
-        navigator.vibrate(10);
-      }
+    
+    if (conversations.length === 0) {
+        conversationsList.innerHTML = `
+            <div class="text-center py-4">
+                <i class="bi bi-chat-dots text-muted" style="font-size: 2rem;"></i>
+                <p class="mt-2 text-muted">No conversations yet</p>
+                <p class="small text-muted">Start a conversation by messaging a seller or agent</p>
+            </div>
+        `;
+        return;
     }
 
-    // Enhanced click handler with haptic feedback
-    conversationsList.addEventListener('click', (e) => {
-      const item = e.target.closest('.conversation-item');
-      if (item) {
-        triggerHapticFeedback();
-      }
-    });
-
-    // Auto-scroll to active conversation on mobile
-    function scrollToActiveConversation() {
-      const activeItem = conversationsList.querySelector('.conversation-item.active');
-      if (activeItem && window.innerWidth <= 768) {
-        const containerWidth = conversationsList.offsetWidth;
-        const itemWidth = activeItem.offsetWidth;
-        const itemLeft = activeItem.offsetLeft;
-        const scrollPosition = itemLeft - (containerWidth / 2) + (itemWidth / 2);
+    conversationsList.innerHTML = conversations.map(conversation => {
+        const otherUser = (conversation.participantDetails || []).find(u => u.uid !== currentUser.uid) || {};
+        const isActive = conversation.id === currentChatId;
+        const unreadCount = conversation.unread && conversation.unread[currentUser.uid] ? conversation.unread[currentUser.uid] : 0;
         
-        conversationsList.scrollTo({
-          left: Math.max(0, scrollPosition),
-          behavior: 'smooth'
-        });
-      }
-    }
+        return `
+            <div class="conversation-item ${isActive ? 'active' : ''}" 
+                 data-chat-id="${conversation.id}" 
+                 onclick="openChat('${conversation.id}')">
+                <img src="${otherUser.avatar || '../../img/avatar-placeholder.svg'}" 
+                     alt="${otherUser.name || 'User'}" 
+                     class="conversation-avatar">
+                <div class="conversation-info">
+                    <div class="conversation-name">${otherUser.name || 'Unknown User'}</div>
+                    <div class="conversation-preview">${conversation.lastMessage || 'No messages yet'}</div>
+                </div>
+                <div class="conversation-meta">
+                    <div class="conversation-time">${formatTime(conversation.lastMessageAt)}</div>
+                    ${unreadCount > 0 ? `<div class="unread-badge">${unreadCount}</div>` : ''}
+                </div>
+            </div>
+        `;
+    }).join('');
+}
 
-    // Add scroll indicator dots
-    function updateScrollIndicator() {
-      const container = conversationsList;
-      const scrollWidth = container.scrollWidth;
-      const clientWidth = container.clientWidth;
-      const scrollLeft = container.scrollLeft;
-      
-      // Create or update scroll indicator
-      let indicator = container.parentElement.querySelector('.swipe-indicator');
-      if (!indicator) {
-        indicator = document.createElement('div');
-        indicator.className = 'swipe-indicator';
-        container.parentElement.appendChild(indicator);
-      }
-      
-      // Calculate number of dots needed
-      const numDots = Math.ceil(scrollWidth / clientWidth);
-      indicator.innerHTML = '';
-      
-      for (let i = 0; i < numDots; i++) {
-        const dot = document.createElement('div');
-        dot.className = 'swipe-dot';
-        indicator.appendChild(dot);
-      }
-      
-      // Highlight active dot
-      const activeDotIndex = Math.round(scrollLeft / clientWidth);
-      const dots = indicator.querySelectorAll('.swipe-dot');
-      dots.forEach((dot, index) => {
-        dot.classList.toggle('active', index === activeDotIndex);
-      });
-    }
+// Open chat and load messages
+async function openChat(chatId) {
+    if (chatUnsub) chatUnsub();
+    if (typingUnsub) typingUnsub();
 
-    // Update scroll indicator on scroll
-    conversationsList.addEventListener('scroll', updateScrollIndicator);
-    
-    // Initial update
-    setTimeout(updateScrollIndicator, 100);
+    currentChatId = chatId;
 
-    // Call scroll function when chat is opened
-    window.scrollToActiveConversation = scrollToActiveConversation;
-  }
-  
-  // --- Listen to User Presence ---
-  function listenToUserPresence(userId, statusElement, statusIndicator) {
-    if (!userId || !statusElement) return;
-    
-    window.db.collection('presence').doc(userId).onSnapshot(doc => {
-      if (doc.exists) {
-        const presence = doc.data();
-        const isOnline = presence.online;
-        const lastSeen = presence.lastSeen;
-        
-        if (isOnline) {
-          statusElement.textContent = 'Online';
-          if (statusIndicator) {
-            statusIndicator.className = 'status-indicator';
-          }
-        } else {
-          if (statusIndicator) {
-            statusIndicator.className = 'status-indicator offline';
-          }
-          if (lastSeen) {
-            const lastSeenDate = lastSeen.toDate();
-            const now = new Date();
-            const diffMinutes = Math.floor((now - lastSeenDate) / (1000 * 60));
-            
-            if (diffMinutes < 1) {
-              statusElement.textContent = 'Just now';
-            } else if (diffMinutes < 60) {
-              statusElement.textContent = `${diffMinutes}m ago`;
-            } else if (diffMinutes < 1440) {
-              statusElement.textContent = `${Math.floor(diffMinutes / 60)}h ago`;
-            } else {
-              statusElement.textContent = `${Math.floor(diffMinutes / 1440)}d ago`;
-            }
-          } else {
-            statusElement.textContent = 'Offline';
-          }
-        }
-      } else {
-        statusElement.textContent = 'Offline';
-        if (statusIndicator) {
-          statusIndicator.className = 'status-indicator offline';
-        }
-      }
-    });
-  }
-
-  // --- Main Chat: Load Messages ---
-  // --- Open Chat ---
-  function openChat(chatId) {
-    if (!chatId) return;
-    
-    window.currentChatId = chatId;
-    
-    // Update active state in conversation list
-    const conversationsList = document.getElementById('conversationsList');
-    if (conversationsList) {
-      // Remove active class from all items
-      conversationsList.querySelectorAll('.conversation-item').forEach(item => {
+    // Update active conversation
+    document.querySelectorAll('.conversation-item').forEach(item => {
         item.classList.remove('active');
       });
-      
-      // Add active class to selected item
-      const selectedItem = conversationsList.querySelector(`[data-chat-id="${chatId}"]`);
-      if (selectedItem) {
-        selectedItem.classList.add('active');
-        
-        // Auto-scroll to active conversation on mobile
-        if (window.scrollToActiveConversation) {
-          setTimeout(() => window.scrollToActiveConversation(), 100);
+    document.querySelector(`[data-chat-id="${chatId}"]`)?.classList.add('active');
+
+    try {
+        // Get chat details
+        const chatDoc = await db.collection('chats').doc(chatId).get();
+        if (!chatDoc.exists) {
+            showEmptyState('Chat not found');
+            return;
         }
-      }
-    }
-    
-    // Get conversation data
-    window.db.collection('conversations').doc(chatId).get().then(doc => {
-      if (!doc.exists) return;
-      
-      const conv = doc.data();
-      const otherUid = conv.participants.find(uid => uid !== window.currentUser.uid);
+
+        const chatData = chatDoc.data();
+        const otherUser = (chatData.participantDetails || []).find(u => u.uid !== currentUser.uid) || {};
       
       // Update chat header
-      window.db.collection('users').doc(otherUid).get().then(userDoc => {
-        const userData = userDoc.data();
-        const chatUserName = document.getElementById('chatUserName');
-        const chatAvatar = document.getElementById('chatAvatar');
-        
-        if (chatUserName) {
-          chatUserName.textContent = userData?.displayName || userData?.email || 'Unknown User';
-        }
-        
-        if (chatAvatar) {
-          chatAvatar.src = userData?.photoURL || '../../img/avatar-placeholder.svg';
-        }
+        updateChatHeader(otherUser, chatData);
         
         // Enable input
         const messageInput = document.getElementById('messageInput');
         const sendBtn = document.getElementById('sendBtn');
-        if (messageInput) messageInput.disabled = false;
-        if (sendBtn) sendBtn.disabled = false;
-        
-        // Listen for user presence
-        if (otherUid) {
-          listenToUserPresence(otherUid, document.getElementById('chatUserStatus'), document.querySelector('.status-indicator'));
-        }
+        messageInput.disabled = false;
+        sendBtn.disabled = false;
         
         // Load messages
-        loadChatMessages(chatId);
-        
-        // Setup typing indicator
-        listenTyping(chatId, otherUid);
-      });
-    });
-  }
+        loadMessages(chatId);
 
-  // --- Typing Indicator ---
-  function listenTyping(chatId, otherUid) {
-    const chatMessages = document.querySelector('#chatMessages');
-    let indicator = document.getElementById('typingIndicator');
-    if (!indicator) {
-      indicator = document.createElement('div');
-      indicator.id = 'typingIndicator';
-      indicator.className = 'typing-indicator';
-      indicator.style.display = 'none';
-      indicator.innerHTML = `
-        <span>Typing</span>
-        <div class="typing-dots">
-          <div class="typing-dot"></div>
-          <div class="typing-dot"></div>
-          <div class="typing-dot"></div>
+        // Mark messages as read
+        markMessagesAsRead(chatId);
+
+        // Listen for typing
+        listenForTyping(chatId, otherUser.uid);
+
+    } catch (error) {
+        console.error('Error opening chat:', error);
+        showEmptyState('Failed to load chat');
+    }
+}
+
+// Update chat header
+function updateChatHeader(otherUser, chatData) {
+    const chatUserName = document.getElementById('chatUserName');
+    const chatUserStatus = document.getElementById('chatUserStatus');
+    const chatAvatar = document.getElementById('chatAvatar');
+
+    chatUserName.textContent = otherUser.name || 'Unknown User';
+    chatAvatar.src = otherUser.avatar || '../../img/avatar-placeholder.svg';
+    
+    // Update status (you can implement online/offline logic here)
+    const statusIndicator = chatUserStatus.querySelector('.status-indicator');
+    statusIndicator.className = 'status-indicator offline';
+    chatUserStatus.querySelector('span').textContent = 'Offline';
+}
+
+// Load messages
+function loadMessages(chatId) {
+    const chatMessages = document.getElementById('chatMessages');
+    
+    // Show loading
+    chatMessages.innerHTML = `
+        <div class="text-center py-4">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading messages...</span>
+            </div>
         </div>
       `;
-      chatMessages.appendChild(indicator);
-    }
-    window.db.collection('conversations').doc(chatId).collection('typing').doc(otherUid).onSnapshot(doc => {
-      if (doc.exists && doc.data().typing) {
-        indicator.style.display = 'flex';
-      } else {
-        indicator.style.display = 'none';
-      }
-    });
-  }
 
-  // --- Mark Messages as Read ---
-  function markMessagesRead(chatId) {
-    const chatRef = window.db.collection('conversations').doc(chatId).collection('messages');
-    chatRef.get().then(snap => {
-      snap.forEach(doc => {
-        if (!doc.data().readBy || !doc.data().readBy.includes(window.currentUser.uid)) {
-          chatRef.doc(doc.id).update({ readBy: firebase.firestore.FieldValue.arrayUnion(window.currentUser.uid) });
-        }
+    // Listen for messages in real-time
+    chatUnsub = db.collection('chats').doc(chatId)
+        .collection('messages')
+        .orderBy('timestamp', 'asc')
+        .onSnapshot(snapshot => {
+            const messages = [];
+            snapshot.forEach(doc => {
+                messages.push({
+                    id: doc.id,
+                    ...doc.data()
       });
     });
-  }
 
-  // --- Send Message & Typing ---
-  function setupChatInput() {
-    const sendBtn = document.getElementById('sendBtn');
-    if (sendBtn) {
-      sendBtn.onclick = async function(e) {
-        e.preventDefault();
-        const input = document.getElementById('messageInput');
-        const text = input.value.trim();
-        if (!text || !window.currentChatId) return;
-        await window.db.collection('conversations').doc(window.currentChatId).collection('messages').add({
-          type: 'text',
-          text,
-          senderId: window.currentUser.uid,
-          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            renderMessages(messages);
+        }, error => {
+            console.error('Error loading messages:', error);
+            chatMessages.innerHTML = `
+                <div class="text-center py-4">
+                    <i class="bi bi-exclamation-triangle text-warning" style="font-size: 2rem;"></i>
+                    <p class="mt-2 text-muted">Failed to load messages</p>
+                </div>
+            `;
         });
-        input.value = '';
-      };
-      // Typing indicator
-      const input = document.getElementById('messageInput');
-      let typingTimeout = null;
-      input.addEventListener('input', function() {
-        if (!window.currentChatId) return;
-        window.db.collection('conversations').doc(window.currentChatId).collection('typing').doc(window.currentUser.uid).set({ typing: true });
-        if (typingTimeout) clearTimeout(typingTimeout);
-        typingTimeout = setTimeout(() => {
-          window.db.collection('conversations').doc(window.currentChatId).collection('typing').doc(window.currentUser.uid).set({ typing: false });
-        }, 2000);
-      });
-    }
-  }
+}
 
-  // --- Load Chat Messages ---
-  let chatUnsub = null;
-  
-  function loadChatMessages(chatId) {
-    if (chatUnsub) chatUnsub();
+// Render messages
+function renderMessages(messages) {
+    const chatMessages = document.getElementById('chatMessages');
     
-    const chatMessages = document.querySelector('#chatMessages');
-    chatMessages.innerHTML = '<div class="empty-state"><div class="empty-state-icon"><i class="bi bi-arrow-clockwise"></i></div><h3>Loading...</h3></div>';
-    
-    chatUnsub = window.db.collection('conversations').doc(chatId).collection('messages').orderBy('createdAt').onSnapshot(snap => {
-      chatMessages.innerHTML = '';
-      
-      if (snap.empty) {
+    if (messages.length === 0) {
         chatMessages.innerHTML = `
           <div class="empty-state">
             <div class="empty-state-icon">
@@ -498,127 +255,402 @@
         return;
       }
       
-      snap.forEach(doc => {
-        const m = doc.data();
-        const sent = m.senderId === window.currentUser.uid;
+    chatMessages.innerHTML = messages.map(message => {
+        const isOwnMessage = message.senderId === currentUser.uid;
+        const messageClass = isOwnMessage ? 'sent' : 'received';
         
-        // Create message container
-        const messageDiv = document.createElement('div');
-        messageDiv.className = `chat-message ${sent ? 'sent' : 'received'}`;
-        
-        // Create avatar
-        const avatar = document.createElement('img');
-        avatar.className = 'avatar';
-        avatar.src = sent ? (window.currentUser?.photoURL || '../../img/avatar-placeholder.svg') : (m.senderAvatar || '../../img/avatar-placeholder.svg');
-        avatar.alt = 'Avatar';
-        
-        // Create bubble container
-        const bubble = document.createElement('div');
-        bubble.className = 'bubble';
-        
-        // Add content based on message type
-        if (m.type === 'text') {
-          bubble.textContent = m.text;
-        } else if (m.type === 'image') {
-          bubble.innerHTML = `
-            <div class="media-content">
-              <img src="${m.url}" alt="Image" style="max-width: 100%; border-radius: 8px;">
-              ${m.caption ? `<div class="img-caption">${escapeHTML(m.caption)}</div>` : ''}
+        return `
+            <div class="chat-message ${messageClass}" data-message-id="${message.id}">
+                <img src="${isOwnMessage ? (currentUser.photoURL || '../../img/avatar-placeholder.svg') : (message.senderAvatar || '../../img/avatar-placeholder.svg')}" 
+                     alt="Avatar" class="avatar">
+                <div class="message-content">
+                    <div class="bubble">
+                        ${message.type === 'text' ? escapeHTML(message.content) : renderMessageContent(message)}
+                        <div class="meta">
+                            ${formatTime(message.timestamp)}
+                            ${isOwnMessage ? '<i class="bi bi-check2-all"></i>' : ''}
+                        </div>
+                    </div>
+                </div>
             </div>
           `;
-        } else if (m.type === 'file') {
-          bubble.innerHTML = `
-            <div class="media-content">
-              <i class="bi bi-paperclip"></i>
-              <a href="${m.url}" target="_blank" class="file-link">${m.fileName}</a>
-              <div class="file-size">${formatFileSize(m.fileSize)}</div>
+    }).join('');
+
+    // Scroll to bottom
+    setTimeout(() => {
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }, 100);
+}
+
+// Render different message content types
+function renderMessageContent(message) {
+    switch (message.type) {
+        case 'image':
+            return `<div class="media-content">
+                        <img src="${message.content}" alt="Image" onclick="openImageModal('${message.content}')">
+                    </div>`;
+        case 'file':
+            return `<div class="media-content">
+                        <div class="file-item">
+                            <i class="bi bi-file-earmark"></i>
+                            <div class="file-info">
+                                <div class="file-name">${message.fileName}</div>
+                                <div class="file-size">${formatFileSize(message.fileSize)}</div>
+                            </div>
+                            <a href="${message.content}" download class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-download"></i>
+                            </a>
             </div>
-          `;
+                    </div>`;
+        default:
+            return escapeHTML(message.content);
+    }
+}
+
+// Send message
+async function sendMessage() {
+    const messageInput = document.getElementById('messageInput');
+    const content = messageInput.value.trim();
+    
+    if (!content || !currentChatId) return;
+
+    try {
+        // Disable input temporarily
+        messageInput.disabled = true;
+        const sendBtn = document.getElementById('sendBtn');
+        sendBtn.disabled = true;
+
+        // Create message object
+        const message = {
+            content: content,
+            type: 'text',
+            senderId: currentUser.uid,
+            senderName: currentUser.displayName || currentUser.email,
+            senderAvatar: currentUser.photoURL,
+            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        };
+
+        // Add message to Firestore
+        await db.collection('chats').doc(currentChatId)
+            .collection('messages').add(message);
+
+        // Update chat's last message
+        await db.collection('chats').doc(currentChatId).update({
+            lastMessage: content,
+            lastMessageAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+
+        // Clear input
+        messageInput.value = '';
+        messageInput.style.height = 'auto';
+
+        // Re-enable input
+        messageInput.disabled = false;
+        sendBtn.disabled = false;
+        messageInput.focus();
+
+    } catch (error) {
+        console.error('Error sending message:', error);
+        alert('Failed to send message. Please try again.');
+        
+        // Re-enable input
+        messageInput.disabled = false;
+        sendBtn.disabled = false;
+    }
+}
+
+// Setup event listeners
+function setupEventListeners() {
+    const messageInput = document.getElementById('messageInput');
+    const sendBtn = document.getElementById('sendBtn');
+    const emojiBtn = document.getElementById('emojiBtn');
+    const attachmentBtn = document.getElementById('attachmentBtn');
+
+    // Send message on Enter (Shift+Enter for new line)
+    messageInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            sendMessage();
         }
-        
-        // Create meta information (time and read status)
-        const meta = document.createElement('div');
-        meta.className = 'meta';
-        
-        // Format timestamp in a more readable way
-        let time = '';
-        if (m.createdAt) {
-          let date;
-          // Handle both Firestore timestamps and regular Date objects
-          if (m.createdAt.seconds) {
-            // Firestore timestamp
-            date = new Date(m.createdAt.seconds * 1000);
-          } else if (m.createdAt.toDate) {
-            // Firestore timestamp with toDate method
-            date = m.createdAt.toDate();
-          } else {
-            // Regular Date object
-            date = new Date(m.createdAt);
-          }
-          
-          const now = new Date();
-          const diffInHours = (now - date) / (1000 * 60 * 60);
-          
-          if (diffInHours < 24) {
-            // Today - show time only
-            time = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-          } else if (diffInHours < 48) {
-            // Yesterday
-            time = 'Yesterday ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-          } else {
-            // Older - show date and time
-            time = date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-          }
-        }
-        
-        let readStatus = '';
-        if (sent && m.readBy && m.readBy.includes(window.currentUser.uid)) {
-          readStatus = ' <i class="bi bi-check2-all"></i>';
-        } else if (sent) {
-          readStatus = ' <i class="bi bi-check2"></i>';
-        }
-        
-        meta.innerHTML = `${time}${readStatus}`;
-        
-        // Debug: log the timestamp to console
-        console.log('Message timestamp:', time, 'for message:', m.text);
-        console.log('Raw createdAt:', m.createdAt);
-        console.log('Message object:', m);
-        
-        // Create message content container for proper layout
-        const messageContent = document.createElement('div');
-        messageContent.className = 'message-content';
-        
-        // Assemble the message - timestamp below bubble like WhatsApp
-        messageContent.appendChild(bubble);
-        messageContent.appendChild(meta);
-        messageDiv.appendChild(avatar);
-        messageDiv.appendChild(messageContent);
-        
-        chatMessages.appendChild(messageDiv);
-      });
-      
-      // Scroll to bottom
-      chatMessages.scrollTop = chatMessages.scrollHeight;
-      markMessagesRead(chatId);
     });
-  }
 
-  // --- Helpers ---
-  function escapeHTML(str) {
-    return str.replace(/[&<>'"]/g, tag => ({'&':'&amp;','<':'&lt;','>':'&gt;','\'':'&#39;','"':'&quot;'}[tag]));
-  }
+    // Auto-resize textarea
+    messageInput.addEventListener('input', function() {
+        this.style.height = 'auto';
+        this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+        
+        // Enable/disable send button
+        sendBtn.disabled = !this.value.trim() || !currentChatId;
+    });
+
+    // Send button click
+    sendBtn.addEventListener('click', sendMessage);
+
+    // Emoji button click
+    emojiBtn.addEventListener('click', function() {
+        const emojiPicker = document.getElementById('emojiPicker');
+        emojiPicker.style.display = emojiPicker.style.display === 'none' ? 'block' : 'none';
+    });
+
+    // Attachment button click
+    attachmentBtn.addEventListener('click', function() {
+        document.getElementById('fileInput').click();
+    });
+
+    // File input change
+    document.getElementById('fileInput').addEventListener('change', handleFileSelect);
+}
+
+// Setup emoji picker
+function setupEmojiPicker() {
+    const emojiPicker = document.getElementById('emojiPicker');
+    const messageInput = document.getElementById('messageInput');
+
+    if (emojiPicker) {
+        emojiPicker.addEventListener('emoji-click', event => {
+            const cursorPos = messageInput.selectionStart;
+            const textBefore = messageInput.value.substring(0, cursorPos);
+            const textAfter = messageInput.value.substring(cursorPos);
+            
+            messageInput.value = textBefore + event.detail.unicode + textAfter;
+            messageInput.setSelectionRange(cursorPos + event.detail.unicode.length, cursorPos + event.detail.unicode.length);
+            messageInput.focus();
+            
+            // Trigger input event to update send button
+            messageInput.dispatchEvent(new Event('input'));
+        });
+
+        // Hide emoji picker when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!emojiPicker.contains(e.target) && !document.getElementById('emojiBtn').contains(e.target)) {
+                emojiPicker.style.display = 'none';
+            }
+        });
+    }
+}
+
+// Setup file upload
+function setupFileUpload() {
+    const fileInput = document.getElementById('fileInput');
+    const filePreview = document.getElementById('filePreview');
+
+    fileInput.addEventListener('change', handleFileSelect);
+}
+
+// Handle file selection
+function handleFileSelect(event) {
+    const files = Array.from(event.target.files);
+    selectedFiles = files;
+    
+    if (files.length === 0) return;
+
+    const filePreview = document.getElementById('filePreview');
+    filePreview.style.display = 'block';
+    
+    filePreview.innerHTML = files.map(file => `
+        <div class="file-item">
+            <i class="file-icon bi bi-file-earmark"></i>
+            <div class="file-info">
+                <div class="file-name">${file.name}</div>
+                <div class="file-size">${formatFileSize(file.size)}</div>
+            </div>
+            <button class="remove-file" onclick="removeFile('${file.name}')">
+                <i class="bi bi-x"></i>
+            </button>
+        </div>
+    `).join('');
+}
+
+// Remove file from selection
+function removeFile(fileName) {
+    selectedFiles = selectedFiles.filter(file => file.name !== fileName);
+    
+    if (selectedFiles.length === 0) {
+        document.getElementById('filePreview').style.display = 'none';
+          } else {
+        handleFileSelect({ target: { files: selectedFiles } });
+    }
+}
+
+// Upload files and send message
+async function uploadAndSendFiles() {
+    if (!selectedFiles.length || !currentChatId) return;
+
+    try {
+        const sendBtn = document.getElementById('sendBtn');
+        sendBtn.disabled = true;
+
+        for (const file of selectedFiles) {
+            // Upload file to Firebase Storage
+            const fileRef = storage.ref(`chat-files/${currentChatId}/${Date.now()}_${file.name}`);
+            const snapshot = await fileRef.put(file);
+            const downloadURL = await snapshot.ref.getDownloadURL();
+
+            // Create message object
+            const message = {
+                content: downloadURL,
+                type: file.type.startsWith('image/') ? 'image' : 'file',
+                fileName: file.name,
+                fileSize: file.size,
+                fileType: file.type,
+                senderId: currentUser.uid,
+                senderName: currentUser.displayName || currentUser.email,
+                senderAvatar: currentUser.photoURL,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            };
+
+            // Add message to Firestore
+            await db.collection('chats').doc(currentChatId)
+                .collection('messages').add(message);
+        }
+
+        // Update chat's last message
+        await db.collection('chats').doc(currentChatId).update({
+            lastMessage: `Sent ${selectedFiles.length} file${selectedFiles.length > 1 ? 's' : ''}`,
+            lastMessageAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+
+        // Clear file selection
+        selectedFiles = [];
+        document.getElementById('filePreview').style.display = 'none';
+        document.getElementById('fileInput').value = '';
+
+        sendBtn.disabled = false;
+
+    } catch (error) {
+        console.error('Error uploading files:', error);
+        alert('Failed to upload files. Please try again.');
+        sendBtn.disabled = false;
+    }
+}
+
+// Mark messages as read
+async function markMessagesAsRead(chatId) {
+    try {
+        await db.collection('chats').doc(chatId).update({
+            [`unread.${currentUser.uid}`]: 0
+        });
+    } catch (error) {
+        console.error('Error marking messages as read:', error);
+    }
+}
+
+// Listen for typing indicators
+function listenForTyping(chatId, otherUserId) {
+    typingUnsub = db.collection('chats').doc(chatId)
+        .collection('typing')
+        .doc(otherUserId)
+        .onSnapshot(doc => {
+            const typingIndicator = document.querySelector('.typing-indicator');
+            if (doc.exists && doc.data().isTyping) {
+                if (!typingIndicator) {
+                    const indicator = document.createElement('div');
+                    indicator.className = 'typing-indicator';
+                    indicator.innerHTML = `
+                        <span>Typing</span>
+                        <div class="typing-dots">
+                            <div class="typing-dot"></div>
+                            <div class="typing-dot"></div>
+                            <div class="typing-dot"></div>
+                        </div>
+                    `;
+                    document.getElementById('chatMessages').appendChild(indicator);
+                }
+            } else {
+                if (typingIndicator) {
+                    typingIndicator.remove();
+                }
+            }
+        });
+}
+
+// Update conversation count
+function updateConversationCount(count) {
+    const countElement = document.querySelector('.conversation-count');
+    if (countElement) {
+        countElement.textContent = count;
+    }
+}
+
+// Show empty state
+function showEmptyState(message) {
+    const chatMessages = document.getElementById('chatMessages');
+    chatMessages.innerHTML = `
+        <div class="empty-state">
+            <div class="empty-state-icon">
+                <i class="bi bi-chat-dots"></i>
+            </div>
+            <h3>${message}</h3>
+            <p>Select a conversation to start messaging</p>
+        </div>
+    `;
+}
+
+// Utility functions
+function formatTime(timestamp) {
+    if (!timestamp) return '';
+    
+    const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+    const now = new Date();
+    const diff = now - date;
+    
+    if (diff < 60000) return 'Just now';
+    if (diff < 3600000) return Math.floor(diff / 60000) + 'm ago';
+    if (diff < 86400000) return Math.floor(diff / 3600000) + 'h ago';
+    if (diff < 604800000) return Math.floor(diff / 86400000) + 'd ago';
+    
+    return date.toLocaleDateString();
+}
+
   function formatFileSize(bytes) {
-    if (bytes < 1024) return bytes + ' B';
-    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
-    if (bytes < 1024 * 1024 * 1024) return (bytes / 1024 / 1024).toFixed(1) + ' MB';
-    return (bytes / 1024 / 1024 / 1024).toFixed(1) + ' GB';
-  }
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+}
 
-  // --- Init ---
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', waitForFirebaseAndInit);
-  } else {
-    waitForFirebaseAndInit();
-  }
-})();
+function escapeHTML(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+// Open image modal
+function openImageModal(imageUrl) {
+    const modal = document.createElement('div');
+    modal.className = 'modal fade';
+    modal.innerHTML = `
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Image</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <img src="${imageUrl}" class="img-fluid" alt="Image">
+                </div>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(modal);
+    
+    const bootstrapModal = new bootstrap.Modal(modal);
+    bootstrapModal.show();
+    
+    modal.addEventListener('hidden.bs.modal', function() {
+        document.body.removeChild(modal);
+    });
+}
+
+// Cleanup on page unload
+window.addEventListener('beforeunload', function() {
+    if (chatUnsub) chatUnsub();
+    if (typingUnsub) typingUnsub();
+    if (conversationsUnsub) conversationsUnsub();
+});
+
+// Export functions for global access
+window.openChat = openChat;
+window.removeFile = removeFile;
+window.uploadAndSendFiles = uploadAndSendFiles;

@@ -1,50 +1,39 @@
-// Firebase configuration and initialization for Starlet Properties
+// Firebase Configuration for Starlet Properties
+// This file initializes Firebase services for the application
+
+// Firebase configuration
 const firebaseConfig = {
   apiKey: "AIzaSyDH1sMk2NwceMAEfvH07azxaoPXpOI1Sek",
   authDomain: "starlet-properties-41509.firebaseapp.com",
   projectId: "starlet-properties-41509",
   storageBucket: "starlet-properties-41509.appspot.com",
-  messagingSenderId: "393372988481",
-  appId: "1:393372988481:web:c92584d7408296457b02c0",
-  measurementId: "G-F02K9SP07C"
+  messagingSenderId: "123456789012",
+  appId: "1:123456789012:web:abcdef1234567890"
 };
 
-// Wait for Firebase SDK to load and initialize
-function initializeFirebase() {
-  if (typeof firebase === 'undefined') {
-    console.warn('Firebase SDK not loaded yet, retrying...');
-    setTimeout(initializeFirebase, 100);
-    return;
-  }
-  
-  // Only initialize if not already initialized
-  if (!window.firebaseAppInitialized) {
-    try {
-      if (!firebase.apps.length) {
-        firebase.initializeApp(firebaseConfig);
-      }
-      window.firebaseAuth = firebase.auth();
-      window.firebaseDB = firebase.firestore();
-      window.firebaseAppInitialized = true;
-      console.log('Firebase initialized successfully');
-    } catch (error) {
-      console.error('Error initializing Firebase:', error);
-    }
-  }
-  
-  // Initialize additional Firebase services if available
-  if (firebase.storage && !window.firebaseStorage) {
-    window.firebaseStorage = firebase.storage();
-  }
-  
-  if (firebase.messaging && !window.firebaseMessaging) {
-    try {
-      window.firebaseMessaging = firebase.messaging();
-    } catch (e) {
-      console.warn('Firebase Messaging not available:', e);
-    }
-  }
+// Initialize Firebase
+if (typeof firebase !== 'undefined' && !firebase.apps.length) {
+  firebase.initializeApp(firebaseConfig);
 }
 
-// Start initialization
-initializeFirebase(); 
+// Initialize services
+const db = firebase.firestore();
+const auth = firebase.auth();
+const storage = firebase.storage();
+
+// Make services globally available
+window.firebaseDB = db;
+window.firebaseAuth = auth;
+window.firebaseStorage = storage;
+
+// Enable offline persistence for Firestore
+db.enablePersistence()
+  .catch((err) => {
+    if (err.code == 'failed-precondition') {
+      console.log('Multiple tabs open, persistence can only be enabled in one tab at a time.');
+    } else if (err.code == 'unimplemented') {
+      console.log('The current browser does not support persistence.');
+    }
+  });
+
+console.log('Firebase initialized successfully'); 
