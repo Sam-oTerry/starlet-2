@@ -538,8 +538,8 @@ async function renderFeaturedListings() {
     // Sort listings by priority (official store first, then featured, then trending, etc.)
     allListings.sort((a, b) => a.priority - b.priority);
     
-    // Limit to 12 listings maximum
-    allListings = allListings.slice(0, 12);
+    // Limit to 8 listings maximum (2 rows of 4)
+    allListings = allListings.slice(0, 8);
     
     console.log(`Found ${allListings.length} total listings using mixed query approach`);
     
@@ -584,7 +584,7 @@ async function renderFeaturedListings() {
     allListings.forEach(listing => {
       const isSaved = savedIds.has(listing.id);
       const card = document.createElement('div');
-      card.className = 'col-md-4 col-lg-3 mb-4';
+      card.className = 'col-md-6 col-lg-3 mb-4';
       
       // Determine listing type for display
       let typeLabel = listing.type || listing.listingType || '';
@@ -593,6 +593,55 @@ async function renderFeaturedListings() {
       } else if (listing.listingType === 'vehicle' && listing.vehicleType) {
         typeLabel = listing.vehicleType;
       }
+      
+      // Get appropriate icon for the listing type
+      function getListingIcon(listing) {
+        const type = listing.type || listing.listingType || '';
+        const propertyType = listing.propertyType || '';
+        const vehicleType = listing.vehicleType || '';
+        
+        // Property icons
+        if (type === 'property' || type.includes('house') || type.includes('land')) {
+          if (propertyType.includes('house') || type.includes('house')) {
+            return 'bi-house-door-fill';
+          } else if (propertyType.includes('land') || type.includes('land')) {
+            return 'bi-tree-fill';
+          } else if (propertyType.includes('commercial') || type.includes('commercial')) {
+            return 'bi-building-fill';
+          } else if (propertyType.includes('vacation') || type.includes('vacation')) {
+            return 'bi-umbrella-beach-fill';
+          } else {
+            return 'bi-house-door-fill';
+          }
+        }
+        
+        // Vehicle icons
+        if (type === 'vehicle' || type.includes('vehicle') || type.includes('car') || type.includes('motorcycle')) {
+          if (vehicleType.includes('car') || type.includes('car')) {
+            return 'bi-car-front-fill';
+          } else if (vehicleType.includes('motorcycle') || type.includes('motorcycle')) {
+            return 'bi-bicycle';
+          } else if (vehicleType.includes('truck') || type.includes('truck')) {
+            return 'bi-truck-flatbed';
+          } else if (vehicleType.includes('bus') || type.includes('bus')) {
+            return 'bi-bus-front-fill';
+          } else if (vehicleType.includes('heavy') || type.includes('machinery')) {
+            return 'bi-gear-fill';
+          } else if (vehicleType.includes('boat') || type.includes('boat')) {
+            return 'bi-water';
+          } else if (vehicleType.includes('bicycle') || type.includes('bicycle')) {
+            return 'bi-bicycle';
+          } else {
+            return 'bi-car-front-fill';
+          }
+        }
+        
+        // Default icon
+        return 'bi-tag-fill';
+      }
+      
+      const listingIcon = getListingIcon(listing);
+      const hasImage = listing.image || listing.imageUrls?.[0] || listing.images?.[0];
       
       // Determine the correct details page URL
       let detailsUrl = 'details.html?id=' + listing.id;
@@ -604,8 +653,13 @@ async function renderFeaturedListings() {
       
       card.innerHTML = `
         <div class="card listing-card h-100 border-0 rounded-4 shadow-sm overflow-hidden position-relative card-modern">
-          <div class="position-relative" style="aspect-ratio: 4/3; background: #f5f5f5;">
-            <img src="${listing.image || listing.imageUrls?.[0] || listing.images?.[0] || 'https://via.placeholder.com/400x300?text=No+Image'}" class="card-img-top w-100 h-100 object-fit-cover" alt="${listing.title || 'Listing Image'}" style="object-fit: cover; min-height: 180px;" onerror="this.src='https://via.placeholder.com/400x300?text=No+Image'">
+          <div class="position-relative" style="aspect-ratio: 4/3; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);">
+            ${hasImage ? 
+              `<img src="${hasImage}" class="card-img-top w-100 h-100 object-fit-cover" alt="${listing.title || 'Listing Image'}" style="object-fit: cover; min-height: 180px;" onerror="this.parentElement.innerHTML='<div class=\'d-flex align-items-center justify-content-center h-100\'><i class=\'${listingIcon}\' style=\'font-size: 4rem; color: #6c757d;\'></i></div>'">` :
+              `<div class="d-flex align-items-center justify-content-center h-100">
+                <i class="${listingIcon}" style="font-size: 4rem; color: #6c757d;"></i>
+              </div>`
+            }
             <span class="position-absolute top-0 start-0 m-2 px-3 py-1 badge bg-dark bg-opacity-75 text-white rounded-pill fs-6 shadow-sm">${typeLabel}</span>
             <span class="position-absolute bottom-0 end-0 m-2 px-3 py-1 badge bg-primary bg-opacity-90 text-white rounded-pill fs-6 shadow price-badge">USh ${listing.price ? Number(listing.price).toLocaleString() : 'N/A'}</span>
             ${listing.officialStore ? '<span class=\'position-absolute top-0 end-0 m-2 px-2 py-1 badge bg-info text-white rounded-pill fs-6 shadow-sm\'><i class=\'bi bi-patch-check\'></i> Official Store</span>' : ''}
