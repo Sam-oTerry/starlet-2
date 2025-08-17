@@ -409,22 +409,170 @@ if (window.firebase && firebase.auth) {
   });
 }
 
-// Replace renderFeaturedListings with Firestore-powered version
+// Enhanced renderFeaturedListings with mixed priority listings
 async function renderFeaturedListings() {
   const container = document.getElementById('featured-listings');
   if (!container) return;
   container.innerHTML = '<div class="text-center w-100 py-4">Loading featured listings...</div>';
+  
   try {
     const db = window.firebaseDB || (window.firebase && firebase.firestore());
     if (!db) {
       container.innerHTML = '<div class="text-danger text-center">Firestore not initialized. Please check your Firebase setup.</div>';
       return;
     }
-    const querySnap = await db.collection('listings').where('featured', '==', true).limit(12).get();
-    if (querySnap.empty) {
-      container.innerHTML = '<div class="text-muted text-center">No featured listings found.</div>';
+
+    console.log('Starting mixed listings query...');
+    
+    // Try to get a mix of official store, featured, and trending listings
+    let allListings = [];
+    let queryType = 'mixed';
+    
+    // 1. Get Official Store listings (highest priority)
+    try {
+      console.log('Fetching official store listings...');
+      const officialSnap = await db.collection('listings').where('officialStore', '==', true).limit(6).get();
+      if (!officialSnap.empty) {
+        officialSnap.forEach(doc => {
+          allListings.push({ ...doc.data(), id: doc.id, priority: 1, source: 'official' });
+        });
+        console.log(`Found ${officialSnap.size} official store listings`);
+      }
+    } catch (err) {
+      console.log('Official store listings query failed:', err);
+    }
+    
+    // 2. Get Featured listings (second priority)
+    try {
+      console.log('Fetching featured listings...');
+      const featuredSnap = await db.collection('listings').where('featured', '==', true).limit(4).get();
+      if (!featuredSnap.empty) {
+        featuredSnap.forEach(doc => {
+          // Avoid duplicates
+          if (!allListings.find(listing => listing.id === doc.id)) {
+            allListings.push({ ...doc.data(), id: doc.id, priority: 2, source: 'featured' });
+          }
+        });
+        console.log(`Found ${featuredSnap.size} featured listings`);
+      }
+    } catch (err) {
+      console.log('Featured listings query failed:', err);
+    }
+    
+    // 3. Get Trending listings (third priority)
+    try {
+      console.log('Fetching trending listings...');
+      const trendingSnap = await db.collection('listings').where('trending', '==', true).limit(4).get();
+      if (!trendingSnap.empty) {
+        trendingSnap.forEach(doc => {
+          // Avoid duplicates
+          if (!allListings.find(listing => listing.id === doc.id)) {
+            allListings.push({ ...doc.data(), id: doc.id, priority: 3, source: 'trending' });
+          }
+        });
+        console.log(`Found ${trendingSnap.size} trending listings`);
+      }
+    } catch (err) {
+      console.log('Trending listings query failed:', err);
+    }
+    
+    // 4. If we don't have enough listings, get recent approved listings
+    if (allListings.length < 8) {
+      try {
+        console.log('Fetching recent approved listings to fill gaps...');
+        const recentSnap = await db.collection('listings').where('status', '==', 'approved').orderBy('createdAt', 'desc').limit(8).get();
+        if (!recentSnap.empty) {
+          recentSnap.forEach(doc => {
+            // Avoid duplicates
+            if (!allListings.find(listing => listing.id === doc.id)) {
+              allListings.push({ ...doc.data(), id: doc.id, priority: 4, source: 'recent' });
+            }
+          });
+          console.log(`Found ${recentSnap.size} recent approved listings`);
+        }
+      } catch (err) {
+        console.log('Recent listings query failed:', err);
+      }
+    }
+    
+    // 5. Last resort: Any approved listings
+    if (allListings.length === 0) {
+      try {
+        console.log('Trying any approved listings query...');
+        const approvedSnap = await db.collection('listings').where('status', '==', 'approved').limit(12).get();
+        if (!approvedSnap.empty) {
+          approvedSnap.forEach(doc => {
+            allListings.push({ ...doc.data(), id: doc.id, priority: 5, source: 'approved' });
+          });
+          queryType = 'approved';
+          console.log(`Found ${approvedSnap.size} approved listings`);
+        }
+      } catch (err) {
+        console.log('Approved listings query failed:', err);
+      }
+    }
+    
+    // 6. Final fallback: Any listings
+    if (allListings.length === 0) {
+      try {
+        console.log('Trying any listings query (last resort)...');
+        const anySnap = await db.collection('listings').limit(12).get();
+        if (!anySnap.empty) {
+          anySnap.forEach(doc => {
+            allListings.push({ ...doc.data(), id: doc.id, priority: 6, source: 'any' });
+          });
+          queryType = 'any';
+          console.log(`Found ${anySnap.size} any listings`);
+        }
+      } catch (err) {
+        console.log('Any listings query failed:', err);
+      }
+    }
+
+    if (allListings.length === 0) {
+      container.innerHTML = '<div class="text-muted text-center">No listings available at the moment.</div>';
+      console.log('No listings found after trying all fallback queries');
       return;
     }
+
+    // Sort listings by priority (official store first, then featured, then trending, etc.)
+    allListings.sort((a, b) => a.priority - b.priority);
+    
+    // Limit to 12 listings maximum
+    allListings = allListings.slice(0, 12);
+    
+    console.log(`Found ${allListings.length} total listings using mixed query approach`);
+    
+
+
+    // Update section header based on what we found
+    const sectionHeader = document.querySelector('.section-header h2');
+    if (sectionHeader) {
+      switch (queryType) {
+        case 'mixed':
+          sectionHeader.textContent = 'Premium Listings';
+          break;
+        case 'featured':
+          sectionHeader.textContent = 'Featured Listings';
+          break;
+        case 'official':
+          sectionHeader.textContent = 'Official Store Listings';
+          break;
+        case 'recent':
+          sectionHeader.textContent = 'Recent Listings';
+          break;
+        case 'approved':
+          sectionHeader.textContent = 'Available Listings';
+          break;
+        case 'any':
+          sectionHeader.textContent = 'All Listings';
+          break;
+        default:
+          sectionHeader.textContent = 'Premium Listings';
+          break;
+      }
+    }
+
     container.innerHTML = '';
     let savedIds = new Set();
     if (window.currentUser) {
@@ -432,49 +580,68 @@ async function renderFeaturedListings() {
       const savedSnap = await db.collection('users').doc(window.currentUser.uid).collection('savedListings').get();
       savedIds = new Set(savedSnap.docs.map(doc => doc.id));
     }
-    querySnap.forEach(doc => {
-      const listing = doc.data();
-      const isSaved = savedIds.has(doc.id);
+    
+    allListings.forEach(listing => {
+      const isSaved = savedIds.has(listing.id);
       const card = document.createElement('div');
       card.className = 'col-md-4 col-lg-3 mb-4';
+      
+      // Determine listing type for display
+      let typeLabel = listing.type || listing.listingType || '';
+      if (listing.type === 'property' && listing.propertyType) {
+        typeLabel = listing.propertyType;
+      } else if (listing.listingType === 'vehicle' && listing.vehicleType) {
+        typeLabel = listing.vehicleType;
+      }
+      
+      // Determine the correct details page URL
+      let detailsUrl = 'details.html?id=' + listing.id;
+      if (listing.listingType === 'vehicle' || listing.type === 'vehicle') {
+        detailsUrl = '../vehicles/details.html?id=' + listing.id;
+      } else if (listing.type === 'property' || listing.listingType === 'property') {
+        detailsUrl = '../properties/details.html?id=' + listing.id;
+      }
+      
       card.innerHTML = `
         <div class="card listing-card h-100 border-0 rounded-4 shadow-sm overflow-hidden position-relative card-modern">
           <div class="position-relative" style="aspect-ratio: 4/3; background: #f5f5f5;">
-            <img src="${listing.image || ''}" class="card-img-top w-100 h-100 object-fit-cover" alt="${listing.title || ''}" style="object-fit: cover; min-height: 180px;">
-            <span class="position-absolute top-0 start-0 m-2 px-3 py-1 badge bg-dark bg-opacity-75 text-white rounded-pill fs-6 shadow-sm">${listing.type || ''}</span>
-            <span class="position-absolute bottom-0 end-0 m-2 px-3 py-1 badge bg-primary bg-opacity-90 text-white rounded-pill fs-6 shadow price-badge">USh ${listing.price ? listing.price.toLocaleString() : ''}</span>
-            ${listing.featured ? '<span class=\'position-absolute top-0 end-0 m-2 px-2 py-1 badge bg-warning text-dark rounded-pill fs-6 shadow-sm\'>Featured</span>' : ''}
-            ${listing.officialStore ? '<span class=\'position-absolute top-0 end-0 m-2 px-2 py-1 badge bg-info text-white rounded-pill fs-6 shadow-sm\' style=\'right: 90px !important;\'><i class=\'bi bi-patch-check\'></i> Official Store</span>' : ''}
+            <img src="${listing.image || listing.imageUrls?.[0] || listing.images?.[0] || 'https://via.placeholder.com/400x300?text=No+Image'}" class="card-img-top w-100 h-100 object-fit-cover" alt="${listing.title || 'Listing Image'}" style="object-fit: cover; min-height: 180px;" onerror="this.src='https://via.placeholder.com/400x300?text=No+Image'">
+            <span class="position-absolute top-0 start-0 m-2 px-3 py-1 badge bg-dark bg-opacity-75 text-white rounded-pill fs-6 shadow-sm">${typeLabel}</span>
+            <span class="position-absolute bottom-0 end-0 m-2 px-3 py-1 badge bg-primary bg-opacity-90 text-white rounded-pill fs-6 shadow price-badge">USh ${listing.price ? Number(listing.price).toLocaleString() : 'N/A'}</span>
+            ${listing.officialStore ? '<span class=\'position-absolute top-0 end-0 m-2 px-2 py-1 badge bg-info text-white rounded-pill fs-6 shadow-sm\'><i class=\'bi bi-patch-check\'></i> Official Store</span>' : ''}
+            ${listing.featured ? '<span class=\'position-absolute top-0 end-0 m-2 px-2 py-1 badge bg-warning text-dark rounded-pill fs-6 shadow-sm\' style=\'right: 90px !important;\'><i class=\'bi bi-star\'></i> Featured</span>' : ''}
+            ${listing.trending ? '<span class=\'position-absolute top-0 end-0 m-2 px-2 py-1 badge bg-success text-white rounded-pill fs-6 shadow-sm\' style=\'right: 180px !important;\'><i class=\'bi bi-fire\'></i> Trending</span>' : ''}
             ${window.currentUser ? `
-              <button class="btn btn-light btn-sm position-absolute top-0 end-0 m-2 save-btn" data-id="${doc.id}" title="${isSaved ? 'Remove from saved' : 'Save listing'}">
+              <button class="btn btn-light btn-sm position-absolute top-0 end-0 m-2 save-btn" data-id="${listing.id}" title="${isSaved ? 'Remove from saved' : 'Save listing'}">
                 <i class="${isSaved ? 'bi bi-heart-fill text-danger' : 'bi bi-heart'}"></i>
               </button>
             ` : ''}
           </div>
           <div class="card-body d-flex flex-column p-3">
-            <h5 class="card-title fw-bold mb-1 fs-5">${listing.title || ''}</h5>
-            <div class="mb-2 text-muted small"><i class="bi bi-geo-alt"></i> ${listing.location || ''}</div>
+            <h5 class="card-title fw-bold mb-1 fs-5">${listing.title || 'Untitled Listing'}</h5>
+            <div class="mb-2 text-muted small"><i class="bi bi-geo-alt"></i> ${listing.location || listing.location?.district || listing.location?.city || listing.location?.neighborhood || 'Location not specified'}</div>
             <div class="d-flex align-items-center mb-2 gap-2">
-              <img src="${(listing.agent && listing.agent.avatar) || 'https://randomuser.me/api/portraits/lego/1.jpg'}" alt="${(listing.agent && listing.agent.name) || 'Agent'}" class="rounded-circle border border-2" width="32" height="32">
-              <span class="fw-semibold small">${(listing.agent && listing.agent.name) || 'Agent'}</span>
-              ${(listing.agent && listing.agent.verified) ? '<i class="bi bi-patch-check-fill text-primary ms-1" title="Verified"></i>' : ''}
+              <img src="${(listing.agent && listing.agent.avatar) || (listing.storeName ? 'https://randomuser.me/api/portraits/lego/1.jpg' : 'https://randomuser.me/api/portraits/lego/2.jpg')}" alt="${(listing.agent && listing.agent.name) || listing.storeName || 'Agent'}" class="rounded-circle border border-2" width="32" height="32">
+              <span class="fw-semibold small">${(listing.agent && listing.agent.name) || listing.storeName || 'Agent'}</span>
+              ${(listing.agent && listing.agent.verified) || listing.officialStore ? '<i class="bi bi-patch-check-fill text-primary ms-1" title="Verified"></i>' : ''}
             </div>
             <div class="mb-2 text-secondary small">
               ${listing.bedrooms ? `<i class='bi bi-house-door'></i> ${listing.bedrooms} bd` : ''}
               ${listing.bathrooms ? `&nbsp; <i class='bi bi-droplet'></i> ${listing.bathrooms} ba` : ''}
               ${listing.year ? `<i class='bi bi-calendar'></i> ${listing.year}` : ''}
-              ${listing.mileage ? `&nbsp; <i class='bi bi-speedometer2'></i> ${listing.mileage.toLocaleString()} km` : ''}
+              ${listing.mileage ? `&nbsp; <i class='bi bi-speedometer2'></i> ${Number(listing.mileage).toLocaleString()} km` : ''}
             </div>
             <div class="mb-2 text-truncate" title="${listing.description || ''}">
-              <span class="small">${listing.description && listing.description.length > 60 ? listing.description.slice(0, 60) + '…' : (listing.description || '')}</span>
+              <span class="small">${listing.description && listing.description.length > 60 ? listing.description.slice(0, 60) + '…' : (listing.description || 'No description available')}</span>
             </div>
-            <a href="details.html?id=${doc.id}" class="btn btn-primary mt-auto w-100 rounded-pill">View Details</a>
-            ${window.currentUser ? `<a href="${getMessagingUrl(doc.id)}" class="btn btn-outline-secondary mt-2 w-100 rounded-pill"><i class="bi bi-chat-dots"></i> Message Agent</a>` : ''}
+            <a href="${detailsUrl}" class="btn btn-primary mt-auto w-100 rounded-pill">View Details</a>
+            ${window.currentUser ? `<a href="${getMessagingUrl(listing.id)}" class="btn btn-outline-secondary mt-2 w-100 rounded-pill"><i class="bi bi-chat-dots"></i> Message Agent</a>` : ''}
           </div>
         </div>
       `;
       container.appendChild(card);
     });
+    
     // Add event listeners for save buttons
     if (window.currentUser) {
       container.querySelectorAll('.save-btn').forEach(btn => {
