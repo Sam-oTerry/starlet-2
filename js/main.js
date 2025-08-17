@@ -562,7 +562,7 @@ async function renderFeaturedListings() {
     
     allListings.forEach(listing => {
       const isSaved = savedIds.has(listing.id);
-             const card = document.createElement('div');
+      const card = document.createElement('div');
        card.className = 'col-md-6 col-lg-4 mb-4';
       
       // Determine listing type for display
