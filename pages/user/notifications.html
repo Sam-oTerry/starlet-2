@@ -289,6 +289,17 @@
        margin-top: 1.5rem;
      }
      
+     /* Full width notifications */
+     .notification-card {
+       width: 100%;
+       max-width: none;
+     }
+     
+     #notifications-container .col-12 {
+       padding-left: 0;
+       padding-right: 0;
+     }
+     
      /* Responsive adjustments */
      @media (max-width: 768px) {
        .notification-header-icon {
@@ -502,11 +513,11 @@
         setupMyListingsLink('#myListingsLink', '../../auth/login.html', '../../stores/agent-stores/dashboard.html', '../../stores/agent-stores/create.html');
     });
     </script>
-     <main class="container py-5">
-     <!-- Header Section -->
-     <div class="row mb-5">
-       <div class="col-12">
-         <div class="d-flex align-items-center justify-content-between mb-5">
+     <main class="container-fluid py-5">
+           <!-- Header Section -->
+      <div class="row mb-5">
+        <div class="col-12">
+          <div class="d-flex align-items-center justify-content-between mb-5 px-3">
           <div class="d-flex align-items-center gap-3">
             <div class="notification-header-icon">
               <i class="bi bi-bell-fill"></i>
@@ -540,10 +551,10 @@
       </div>
     </div>
     
-         <!-- Notifications Grid -->
-     <div id="notifications-container" class="row g-4 mb-5 px-2">
-       <!-- Notifications will be loaded here -->
-     </div>
+                   <!-- Notifications Grid -->
+      <div id="notifications-container" class="row g-4 mb-5">
+        <!-- Notifications will be loaded here -->
+      </div>
     
          <!-- Empty State -->
      <div id="no-notifications" class="text-center py-5 d-none">
