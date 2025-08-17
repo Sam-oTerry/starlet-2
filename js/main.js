@@ -538,40 +538,19 @@ async function renderFeaturedListings() {
     // Sort listings by priority (official store first, then featured, then trending, etc.)
     allListings.sort((a, b) => a.priority - b.priority);
     
-    // Limit to 8 listings maximum (2 rows of 4)
-    allListings = allListings.slice(0, 8);
+    // Limit to 6 listings maximum (2 rows of 3)
+    allListings = allListings.slice(0, 6);
     
     console.log(`Found ${allListings.length} total listings using mixed query approach`);
     
 
 
-    // Update section header based on what we found
-    const sectionHeader = document.querySelector('.section-header h2');
-    if (sectionHeader) {
-      switch (queryType) {
-        case 'mixed':
-          sectionHeader.textContent = 'Premium Listings';
-          break;
-        case 'featured':
-          sectionHeader.textContent = 'Featured Listings';
-          break;
-        case 'official':
-          sectionHeader.textContent = 'Official Store Listings';
-          break;
-        case 'recent':
-          sectionHeader.textContent = 'Recent Listings';
-          break;
-        case 'approved':
-          sectionHeader.textContent = 'Available Listings';
-          break;
-        case 'any':
-          sectionHeader.textContent = 'All Listings';
-          break;
-        default:
-          sectionHeader.textContent = 'Premium Listings';
-          break;
-      }
-    }
+         // Update section header to be more appealing and persuasive
+     const sectionHeader = document.querySelector('.section-header h2');
+     if (sectionHeader) {
+       // Use a more appealing and persuasive heading regardless of content type
+       sectionHeader.textContent = 'Recommended for You';
+     }
 
     container.innerHTML = '';
     let savedIds = new Set();
@@ -583,8 +562,8 @@ async function renderFeaturedListings() {
     
     allListings.forEach(listing => {
       const isSaved = savedIds.has(listing.id);
-      const card = document.createElement('div');
-      card.className = 'col-md-6 col-lg-3 mb-4';
+             const card = document.createElement('div');
+       card.className = 'col-md-6 col-lg-4 mb-4';
       
       // Determine listing type for display
       let typeLabel = listing.type || listing.listingType || '';

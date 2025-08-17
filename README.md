@@ -148,14 +148,12 @@ The homepage features an intelligent mixed listings system that dynamically comb
 - A listing that's both featured and trending appears only once
 - Maintains list integrity and user experience
 
-#### Dynamic Section Headers
-- Automatically updates based on content type:
-  - "Premium Listings" for mixed content
-  - "Official Store Listings" for store-only content
-  - "Featured Listings" for featured-only content
-  - "Recent Listings" for recent content
-  - "Available Listings" for approved content
-  - "All Listings" for any content
+#### Persuasive Section Headers
+- Uses "Recommended for You" as the primary heading
+- Creates personalized appeal and user engagement
+- Removes technical jargon like "listings" for better user experience
+- Focuses on user benefit rather than content categorization
+- Maintains professional and appealing presentation
 
 #### Visual Indicators
 - **Official Store**: Blue badge with checkmark (highest priority)
@@ -176,10 +174,11 @@ The homepage features an intelligent mixed listings system that dynamically comb
 
 #### Enhanced Display Features
 - **Fallback Icons**: Category-specific icons when images are unavailable
-- **Responsive Grid**: 4 columns on large screens, 2 on medium, 1 on small
-- **Limited Display**: Maximum 8 listings (2 rows) for better focus
+- **Responsive Grid**: 3 columns on large screens, 2 on medium, 1 on small
+- **Limited Display**: Maximum 6 listings (2 rows) for better focus
 - **Visual Hierarchy**: Clear priority indicators and badges
 - **Gradient Backgrounds**: Enhanced visual appeal for icon-only displays
+- **Persuasive Headings**: "Recommended for You" creates personalized appeal
 
 ### Technical Implementation
 
@@ -226,9 +225,9 @@ The system automatically selects appropriate icons based on listing type:
 
 #### Sorting and Display
 - Listings sorted by priority (lowest number first)
-- Maximum 8 listings displayed (2 rows of 4)
+- Maximum 6 listings displayed (2 rows of 3)
 - Automatic duplicate removal
-- Responsive grid layout (4 columns on large screens, 2 on medium, 1 on small)
+- Responsive grid layout (3 columns on large screens, 2 on medium, 1 on small)
 - Fallback icons for missing images based on listing type
 
 ### Benefits
@@ -249,7 +248,7 @@ const OFFICIAL_STORE_LIMIT = 6;
 const FEATURED_LIMIT = 4;
 const TRENDING_LIMIT = 4;
 const RECENT_LIMIT = 8;
-const TOTAL_MAX_LIMIT = 8; // 2 rows of 4 listings
+const TOTAL_MAX_LIMIT = 6; // 2 rows of 3 listings
 ```
 
 ## 📱 Mobile Responsiveness
