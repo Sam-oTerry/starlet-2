@@ -30,6 +30,7 @@
        position: relative;
        animation: slideInUp 0.5s ease-out;
        max-width: 100%;
+       margin-bottom: 1.5rem;
      }
     
     .notification-card:hover {
@@ -52,39 +53,40 @@
       background: linear-gradient(90deg, var(--primary-color), #007bff);
     }
     
-    /* Header Icon */
-    .notification-header-icon {
-      width: 60px;
-      height: 60px;
-      background: linear-gradient(135deg, var(--primary-color), #007bff);
-      border-radius: 16px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      font-size: 1.5rem;
-      box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
-    }
+         /* Header Icon */
+     .notification-header-icon {
+       width: 70px;
+       height: 70px;
+       background: linear-gradient(135deg, var(--primary-color), #007bff);
+       border-radius: 18px;
+       display: flex;
+       align-items: center;
+       justify-content: center;
+       color: white;
+       font-size: 1.75rem;
+       box-shadow: 0 6px 20px rgba(0, 123, 255, 0.25);
+       margin-right: 1rem;
+     }
     
-    /* Empty and Error States */
-    .empty-state-container,
-    .error-state-container {
-      max-width: 400px;
-      margin: 0 auto;
-      padding: 3rem 1rem;
-    }
+         /* Empty and Error States */
+     .empty-state-container,
+     .error-state-container {
+       max-width: 450px;
+       margin: 0 auto;
+       padding: 4rem 2rem;
+     }
     
-    .empty-state-icon,
-    .error-state-icon {
-      width: 80px;
-      height: 80px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 2rem;
-      margin: 0 auto 1.5rem;
-    }
+         .empty-state-icon,
+     .error-state-icon {
+       width: 100px;
+       height: 100px;
+       border-radius: 50%;
+       display: flex;
+       align-items: center;
+       justify-content: center;
+       font-size: 2.5rem;
+       margin: 0 auto 2rem;
+     }
     
     .empty-state-icon {
       background: linear-gradient(135deg, #f8f9fa, #e9ecef);
@@ -96,17 +98,18 @@
       color: #dc3545;
     }
     
-    /* Notification Type Icons */
-    .notification-type-icon {
-      width: 48px;
-      height: 48px;
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.25rem;
-      margin-right: 1rem;
-    }
+         /* Notification Type Icons */
+     .notification-type-icon {
+       width: 56px;
+       height: 56px;
+       border-radius: 14px;
+       display: flex;
+       align-items: center;
+       justify-content: center;
+       font-size: 1.4rem;
+       margin-right: 1.25rem;
+       flex-shrink: 0;
+     }
     
     .notification-type-icon.message {
       background: linear-gradient(135deg, #e3f2fd, #bbdefb);
@@ -123,33 +126,40 @@
       color: #f57c00;
     }
     
-    .notification-type-icon.alert {
-      background: linear-gradient(135deg, #ffebee, #ffcdd2);
-      color: #d32f2f;
-    }
+         .notification-type-icon.alert {
+       background: linear-gradient(135deg, #ffebee, #ffcdd2);
+       color: #d32f2f;
+     }
+     
+     .notification-type-icon.welcome {
+       background: linear-gradient(135deg, #fff8e1, #ffecb3);
+       color: #f57c00;
+     }
     
-    /* Action Buttons */
-    .notification-actions {
-      opacity: 0;
-      transition: opacity 0.3s ease;
-    }
+         /* Action Buttons */
+     .notification-actions {
+       opacity: 0;
+       transition: opacity 0.3s ease;
+       margin-left: 0.5rem;
+     }
     
     .notification-card:hover .notification-actions {
       opacity: 1;
     }
     
-    .action-btn {
-      width: 36px;
-      height: 36px;
-      border-radius: 8px;
-      border: none;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.2s ease;
-      background: #f8f9fa;
-      color: #6c757d;
-    }
+         .action-btn {
+       width: 40px;
+       height: 40px;
+       border-radius: 10px;
+       border: none;
+       display: flex;
+       align-items: center;
+       justify-content: center;
+       transition: all 0.2s ease;
+       background: #f8f9fa;
+       color: #6c757d;
+       margin-left: 0.25rem;
+     }
     
     .action-btn:hover {
       background: var(--primary-color);
@@ -210,49 +220,56 @@
     .notification-card:nth-child(5) { animation-delay: 0.5s; }
     .notification-card:nth-child(6) { animation-delay: 0.6s; }
     
-    /* Toast notification styles */
-    .toast-notification {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      z-index: 9999;
-      background: white;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-      min-width: 300px;
-      max-width: 400px;
-      animation: slideInRight 0.3s ease;
-    }
+         /* Toast notification styles */
+     .toast-notification {
+       position: fixed;
+       top: 30px;
+       right: 30px;
+       z-index: 9999;
+       background: white;
+       border: 1px solid #ddd;
+       border-radius: 12px;
+       box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+       min-width: 350px;
+       max-width: 450px;
+       animation: slideInRight 0.3s ease;
+     }
     
-    .toast-notification .toast-header {
-      background: var(--primary-color);
-      color: white;
-      padding: 0.75rem 1rem;
-      border-radius: 8px 8px 0 0;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
+         .toast-notification .toast-header {
+       background: var(--primary-color);
+       color: white;
+       padding: 1rem 1.25rem;
+       border-radius: 12px 12px 0 0;
+       display: flex;
+       justify-content: space-between;
+       align-items: center;
+     }
     
-    .toast-notification .toast-body {
-      padding: 1rem;
-      color: #333;
-    }
+         .toast-notification .toast-body {
+       padding: 1.25rem;
+       color: #333;
+       line-height: 1.5;
+     }
     
-    .toast-notification .btn-close {
-      background: none;
-      border: none;
-      color: white;
-      font-size: 1.2rem;
-      cursor: pointer;
-      padding: 0;
-      width: 20px;
-      height: 20px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
+         .toast-notification .btn-close {
+       background: none;
+       border: none;
+       color: white;
+       font-size: 1.3rem;
+       cursor: pointer;
+       padding: 0;
+       width: 24px;
+       height: 24px;
+       display: flex;
+       align-items: center;
+       justify-content: center;
+       border-radius: 50%;
+       transition: background-color 0.2s ease;
+     }
+     
+     .toast-notification .btn-close:hover {
+       background-color: rgba(255, 255, 255, 0.1);
+     }
     
     @keyframes slideInRight {
       from {
@@ -267,10 +284,126 @@
     
     /* Star loading styles are already included in style.css */
     
-    /* Error state */
-    #error-notifications .btn {
-      margin-top: 1rem;
-    }
+         /* Error state */
+     #error-notifications .btn {
+       margin-top: 1.5rem;
+     }
+     
+     /* Responsive adjustments */
+     @media (max-width: 768px) {
+       .notification-header-icon {
+         width: 60px;
+         height: 60px;
+         font-size: 1.5rem;
+         margin-right: 0.75rem;
+       }
+       
+       .notification-type-icon {
+         width: 48px;
+         height: 48px;
+         font-size: 1.25rem;
+         margin-right: 1rem;
+       }
+       
+       .action-btn {
+         width: 36px;
+         height: 36px;
+       }
+       
+       .toast-notification {
+         top: 20px;
+         right: 20px;
+         min-width: 300px;
+         max-width: 350px;
+       }
+       
+       .empty-state-container,
+       .error-state-container {
+         padding: 3rem 1rem;
+       }
+       
+       .notification-card {
+         margin-bottom: 1rem;
+       }
+       
+       .notification-card .card-body {
+         padding: 1rem !important;
+       }
+       
+       .notification-details {
+         padding: 1rem !important;
+       }
+     }
+     
+     @media (max-width: 576px) {
+       .notification-header-icon {
+         width: 50px;
+         height: 50px;
+         font-size: 1.25rem;
+         margin-right: 0.5rem;
+       }
+       
+       .notification-type-icon {
+         width: 40px;
+         height: 40px;
+         font-size: 1rem;
+         margin-right: 0.75rem;
+       }
+       
+       .action-btn {
+         width: 32px;
+         height: 32px;
+       }
+       
+       .btn-sm {
+         font-size: 0.75rem;
+         padding: 0.25rem 0.5rem;
+       }
+       
+       .notification-card .card-body {
+         padding: 0.75rem !important;
+       }
+       
+       .notification-details {
+         padding: 0.75rem !important;
+       }
+     }
+     
+     /* Expandable notification styles */
+     .notification-details {
+       display: none;
+       background: #f8f9fa;
+       border-top: 1px solid #e9ecef;
+       padding: 1.5rem;
+       animation: slideDown 0.3s ease-out;
+     }
+     
+     .notification-details.show {
+       display: block;
+     }
+     
+     @keyframes slideDown {
+       from {
+         opacity: 0;
+         max-height: 0;
+       }
+       to {
+         opacity: 1;
+         max-height: 500px;
+       }
+     }
+     
+     .notification-card.expanded {
+       box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+     }
+     
+     .expand-icon {
+       transition: transform 0.3s ease;
+     }
+     
+     .notification-card.expanded .expand-icon {
+       transform: rotate(180deg);
+     }
   </style>
 </head>
 <body>
@@ -369,11 +502,11 @@
         setupMyListingsLink('#myListingsLink', '../../auth/login.html', '../../stores/agent-stores/dashboard.html', '../../stores/agent-stores/create.html');
     });
     </script>
-  <main class="container py-5">
-    <!-- Header Section -->
-    <div class="row mb-5">
-      <div class="col-12">
-        <div class="d-flex align-items-center justify-content-between mb-4">
+     <main class="container py-5">
+     <!-- Header Section -->
+     <div class="row mb-5">
+       <div class="col-12">
+         <div class="d-flex align-items-center justify-content-between mb-5">
           <div class="d-flex align-items-center gap-3">
             <div class="notification-header-icon">
               <i class="bi bi-bell-fill"></i>
@@ -383,18 +516,12 @@
               <p class="text-muted mb-0">Stay updated with your latest activities</p>
             </div>
           </div>
-                     <div class="d-flex gap-2">
-             <button class="btn btn-outline-success btn-sm rounded-pill" onclick="addSampleNotifications()" title="Add sample notifications for demonstration">
-               <i class="bi bi-plus-circle me-1"></i>Add Samples
+                     <div class="d-flex gap-2 gap-md-3 flex-wrap">
+             <button class="btn btn-outline-primary btn-sm rounded-pill px-2 px-md-3 py-2" onclick="markAllAsRead()">
+               <i class="bi bi-check-all me-1 me-md-2"></i><span class="d-none d-md-inline">Mark All Read</span>
              </button>
-             <button class="btn btn-outline-warning btn-sm rounded-pill" onclick="clearSampleNotifications()" title="Clear sample notifications">
-               <i class="bi bi-trash me-1"></i>Clear Samples
-             </button>
-             <button class="btn btn-outline-primary btn-sm rounded-pill" onclick="markAllAsRead()">
-               <i class="bi bi-check-all me-1"></i>Mark All Read
-             </button>
-             <button class="btn btn-outline-secondary btn-sm rounded-pill" onclick="refreshNotifications()">
-               <i class="bi bi-arrow-clockwise me-1"></i>Refresh
+             <button class="btn btn-outline-secondary btn-sm rounded-pill px-2 px-md-3 py-2" onclick="refreshNotifications()">
+               <i class="bi bi-arrow-clockwise me-1 me-md-2"></i><span class="d-none d-md-inline">Refresh</span>
              </button>
            </div>
         </div>
@@ -413,10 +540,10 @@
       </div>
     </div>
     
-    <!-- Notifications Grid -->
-    <div id="notifications-container" class="row g-4 mb-5">
-      <!-- Notifications will be loaded here -->
-    </div>
+         <!-- Notifications Grid -->
+     <div id="notifications-container" class="row g-4 mb-5 px-2">
+       <!-- Notifications will be loaded here -->
+     </div>
     
          <!-- Empty State -->
      <div id="no-notifications" class="text-center py-5 d-none">
@@ -426,15 +553,12 @@
          </div>
          <h3 class="h4 mb-3 text-muted">No notifications yet</h3>
          <p class="text-muted mb-4">We'll notify you when there's something new to see</p>
-         <div class="d-flex gap-2 justify-content-center">
-           <button class="btn btn-primary rounded-pill" onclick="refreshNotifications()">
-             <i class="bi bi-arrow-clockwise me-2"></i>Check for updates
-           </button>
-           <button class="btn btn-outline-success rounded-pill" onclick="addSampleNotifications()">
-             <i class="bi bi-plus-circle me-2"></i>Add Sample Notifications
+         <div class="d-flex gap-2 gap-md-3 justify-content-center flex-wrap">
+           <button class="btn btn-primary rounded-pill px-3 px-md-4 py-2" onclick="refreshNotifications()">
+             <i class="bi bi-arrow-clockwise me-1 me-md-2"></i>Check for updates
            </button>
          </div>
-         <p class="text-muted small mt-3">Click "Add Sample Notifications" to see how the notification system works</p>
+         <p class="text-muted small mt-3">We'll notify you when there's something new to see</p>
        </div>
      </div>
     
@@ -446,9 +570,9 @@
         </div>
         <h3 class="h4 mb-3 text-danger">Oops! Something went wrong</h3>
         <p class="text-muted mb-4">We couldn't load your notifications. Please try again.</p>
-        <button class="btn btn-primary rounded-pill" onclick="retryLoadNotifications()">
-          <i class="bi bi-arrow-clockwise me-2"></i>Try Again
-        </button>
+                 <button class="btn btn-primary rounded-pill px-3 px-md-4 py-2" onclick="retryLoadNotifications()">
+           <i class="bi bi-arrow-clockwise me-1 me-md-2"></i>Try Again
+         </button>
       </div>
     </div>
   </main>
@@ -546,110 +670,104 @@
       
       console.log('Firebase is ready, setting up auth listener...');
       
-    // Redirect to login if not logged in
-    firebase.auth().onAuthStateChanged(function(user) {
-      if (!user) {
-        window.location.href = '/pages/auth/login.html';
-      } else {
-          window.currentUser = user;
-        loadNotifications(user.uid);
-          setupRealTimeNotifications(user.uid);
-      }
-    });
+         // Redirect to login if not logged in
+     firebase.auth().onAuthStateChanged(async function(user) {
+       if (!user) {
+         window.location.href = '/pages/auth/login.html';
+       } else {
+         window.currentUser = user;
+         await addWelcomeNotification(user);
+         loadNotifications(user.uid);
+         setupRealTimeNotifications(user.uid);
+       }
+     });
     }
 
          // Start the process
      waitForFirebase();
      
-     // Add sample notifications for demonstration
-     function addSampleNotifications() {
-       if (!window.currentUser) return;
+     // Add welcome notification for new users
+     async function addWelcomeNotification(user) {
+       if (!user) return;
        
        const db = firebase.firestore();
-       const sampleNotifications = [
-         {
-           title: 'New Message Received',
-           body: 'John Doe sent you a message about your property listing in Kampala.',
-           type: 'message',
-           read: false,
-           createdAt: new Date(Date.now() - 1000 * 60 * 5) // 5 minutes ago
-         },
-         {
-           title: 'Property Listing Approved',
-           body: 'Your house listing "Modern 3-Bedroom Villa" has been approved and is now live.',
-           type: 'listing',
-           read: false,
-           createdAt: new Date(Date.now() - 1000 * 60 * 30) // 30 minutes ago
-         },
-         {
-           title: 'Price Drop Alert',
-           body: 'A property similar to your saved listing has dropped in price by 15%.',
-           type: 'alert',
-           read: true,
-           createdAt: new Date(Date.now() - 1000 * 60 * 60 * 2) // 2 hours ago
-         },
-         {
-           title: 'Welcome to Starlet Properties!',
-           body: 'Thank you for joining our platform. Start exploring properties and vehicles today.',
-           type: 'system',
-           read: true,
-           createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24) // 1 day ago
-         },
-         {
-           title: 'Vehicle Inquiry',
-           body: 'Sarah Smith is interested in your Toyota Land Cruiser listing.',
-           type: 'message',
-           read: false,
-           createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2) // 2 days ago
-         },
-         {
-           title: 'Store Verification Complete',
-           body: 'Your store "Premium Properties Ltd" has been verified successfully.',
-           type: 'system',
-           read: true,
-           createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 3) // 3 days ago
+       
+       // Check if user already has notifications
+       const existingNotifications = await db.collection('users').doc(user.uid)
+         .collection('notifications').limit(1).get();
+       
+       if (!existingNotifications.empty) {
+         console.log('User already has notifications, skipping welcome notification');
+         return;
+       }
+       
+       // Get user details from Firestore
+       let userData = {};
+       try {
+         const userDoc = await db.collection('users').doc(user.uid).get();
+         if (userDoc.exists) {
+           userData = userDoc.data();
          }
-       ];
+       } catch (err) {
+         console.error('Error fetching user data:', err);
+       }
        
-       const batch = db.batch();
-       sampleNotifications.forEach((notification, index) => {
-         const docRef = db.collection('users').doc(window.currentUser.uid)
-           .collection('notifications').doc(`sample-${index + 1}`);
-         batch.set(docRef, notification);
-       });
+       const userName = userData.displayName || userData.firstName || userData.name || user.displayName || 'there';
+       const userEmail = user.email || userData.email || '';
        
-       batch.commit().then(() => {
-         console.log('Sample notifications added successfully');
-         loadNotifications(window.currentUser.uid);
-         showToastNotification('Sample notifications added', 'success');
-       }).catch(err => {
-         console.error('Error adding sample notifications:', err);
-         showToastNotification('Error adding sample notifications', 'error');
-       });
-     }
-     
-     function clearSampleNotifications() {
-       if (!window.currentUser) return;
-       
-       if (confirm('Are you sure you want to clear all sample notifications?')) {
-         const db = firebase.firestore();
-         const batch = db.batch();
-         
-         // Delete all sample notifications
-         for (let i = 1; i <= 6; i++) {
-           const docRef = db.collection('users').doc(window.currentUser.uid)
-             .collection('notifications').doc(`sample-${i}`);
-           batch.delete(docRef);
+       const welcomeNotification = {
+         title: `Welcome to Starlet Properties, ${userName}!`,
+         body: `Thank you for joining Uganda's premier real estate and vehicle marketplace.`,
+         type: 'welcome',
+         read: false,
+         createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+         details: {
+           userName: userName,
+           userEmail: userEmail,
+           joinDate: new Date().toLocaleDateString(),
+           features: [
+             'Browse thousands of properties and vehicles',
+             'Connect with verified sellers and agents',
+             'Save your favorite listings',
+             'Get real-time notifications',
+             'Secure messaging system'
+           ],
+           tiers: [
+             {
+               name: 'Basic Tier',
+               price: 'Free',
+               features: ['Browse listings', 'Save favorites', 'Basic messaging']
+             },
+             {
+               name: 'Premium Tier',
+               price: 'UGX 50,000/month',
+               features: ['Priority listings', 'Advanced search', 'Premium support', 'Analytics dashboard']
+             },
+             {
+               name: 'Enterprise Tier',
+               price: 'UGX 150,000/month',
+               features: ['Multiple store management', 'Bulk listing tools', 'API access', 'Dedicated support']
+             }
+           ],
+           sellingGuide: {
+             title: 'How to Start Selling',
+             steps: [
+               'Create a store account',
+               'Choose your agent tier',
+               'Upload your listings',
+               'Get verified by our team',
+               'Start receiving inquiries'
+             ]
+           }
          }
-         
-         batch.commit().then(() => {
-           console.log('Sample notifications cleared successfully');
-           loadNotifications(window.currentUser.uid);
-           showToastNotification('Sample notifications cleared', 'success');
-         }).catch(err => {
-           console.error('Error clearing sample notifications:', err);
-           showToastNotification('Error clearing sample notifications', 'error');
-         });
+       };
+       
+       try {
+         await db.collection('users').doc(user.uid)
+           .collection('notifications').doc('welcome').set(welcomeNotification);
+         console.log('Welcome notification added successfully');
+       } catch (err) {
+         console.error('Error adding welcome notification:', err);
        }
      }
 
@@ -717,7 +835,7 @@
         });
     }
 
-         function createNotificationItem(docId, notification) {
+              function createNotificationItem(docId, notification) {
        const card = document.createElement('div');
        card.className = `col-12`;
        card.dataset.notificationId = docId;
@@ -728,43 +846,55 @@
       
       const timeAgo = getTimeAgo(timestamp);
       const notificationType = getNotificationType(notification);
+      const hasDetails = notification.details && Object.keys(notification.details).length > 0;
       
-      card.innerHTML = `
-        <div class="notification-card ${notification.read === false ? 'unread' : ''}">
-          <div class="card-body p-4">
-            <div class="d-flex align-items-start">
-              <div class="notification-type-icon ${notificationType.class}">
-                <i class="bi ${notificationType.icon}"></i>
-              </div>
-              <div class="flex-grow-1">
-                <div class="d-flex justify-content-between align-items-start mb-2">
-                  <h6 class="mb-1 fw-bold text-dark">${notification.title || 'Notification'}</h6>
-                  <div class="notification-actions d-flex gap-1">
-                    ${notification.read === false ? 
-                      `<button class="action-btn mark-read" onclick="markAsRead('${docId}')" title="Mark as read">
-                        <i class="bi bi-check"></i>
-                      </button>` : ''
-                    }
-                    <button class="action-btn" onclick="deleteNotification('${docId}')" title="Delete">
-                      <i class="bi bi-trash"></i>
-                    </button>
-                  </div>
-                </div>
-                <p class="mb-2 text-muted small">${notification.body || ''}</p>
-                <div class="d-flex align-items-center justify-content-between">
-                  <small class="text-muted">
-                    <i class="bi bi-clock me-1"></i>${timeAgo}
-                  </small>
-                  ${notification.read === false ? 
-                    '<span class="badge bg-primary rounded-pill">New</span>' : 
-                    '<span class="badge bg-light text-muted rounded-pill">Read</span>'
-                  }
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      `;
+      let detailsHtml = '';
+      if (hasDetails && notification.details) {
+        detailsHtml = createNotificationDetails(notification.details, notification.type);
+      }
+      
+             card.innerHTML = `
+         <div class="notification-card ${notification.read === false ? 'unread' : ''}">
+           <div class="card-body p-5">
+             <div class="d-flex align-items-start">
+               <div class="notification-type-icon ${notificationType.class}">
+                 <i class="bi ${notificationType.icon}"></i>
+               </div>
+               <div class="flex-grow-1">
+                 <div class="d-flex justify-content-between align-items-start mb-2">
+                   <h6 class="mb-1 fw-bold text-dark">${notification.title || 'Notification'}</h6>
+                   <div class="notification-actions d-flex gap-1">
+                     ${hasDetails ? 
+                       `<button class="action-btn" onclick="toggleNotificationDetails('${docId}')" title="View details">
+                         <i class="bi bi-chevron-down expand-icon"></i>
+                       </button>` : ''
+                     }
+                     ${notification.read === false ? 
+                       `<button class="action-btn mark-read" onclick="markAsRead('${docId}')" title="Mark as read">
+                         <i class="bi bi-check"></i>
+                       </button>` : ''
+                     }
+                     <button class="action-btn" onclick="deleteNotification('${docId}')" title="Delete">
+                       <i class="bi bi-trash"></i>
+                     </button>
+                   </div>
+                 </div>
+                 <p class="mb-2 text-muted small">${notification.body || ''}</p>
+                 <div class="d-flex align-items-center justify-content-between">
+                   <small class="text-muted">
+                     <i class="bi bi-clock me-1"></i>${timeAgo}
+                   </small>
+                   ${notification.read === false ? 
+                     '<span class="badge bg-primary rounded-pill">New</span>' : 
+                     '<span class="badge bg-light text-muted rounded-pill">Read</span>'
+                   }
+                 </div>
+               </div>
+             </div>
+           </div>
+           ${hasDetails ? `<div class="notification-details" id="details-${docId}">${detailsHtml}</div>` : ''}
+         </div>
+       `;
       
       // Add click handler to mark as read
       card.addEventListener('click', function(e) {
@@ -774,24 +904,107 @@
       });
       
       return card;
-    }
+     }
+     
+     function createNotificationDetails(details, type) {
+       if (type === 'welcome') {
+         return `
+           <div class="row">
+             <div class="col-md-6 mb-3">
+               <h6 class="fw-bold text-primary mb-3">Welcome Information</h6>
+               <div class="mb-3">
+                 <strong>Name:</strong> ${details.userName}<br>
+                 <strong>Email:</strong> ${details.userEmail}<br>
+                 <strong>Join Date:</strong> ${details.joinDate}
+               </div>
+               
+               <h6 class="fw-bold text-success mb-2">Platform Features</h6>
+               <ul class="list-unstyled">
+                 ${details.features.map(feature => `<li><i class="bi bi-check-circle text-success me-2"></i>${feature}</li>`).join('')}
+               </ul>
+             </div>
+             
+             <div class="col-md-6 mb-3">
+               <h6 class="fw-bold text-warning mb-3">Agent Tiers</h6>
+               ${details.tiers.map(tier => `
+                 <div class="card mb-2 border-0 bg-light">
+                   <div class="card-body p-3">
+                     <h6 class="fw-bold mb-1">${tier.name}</h6>
+                     <p class="text-primary fw-bold mb-2">${tier.price}</p>
+                     <ul class="list-unstyled small">
+                       ${tier.features.map(feature => `<li><i class="bi bi-dot me-1"></i>${feature}</li>`).join('')}
+                     </ul>
+                   </div>
+                 </div>
+               `).join('')}
+             </div>
+             
+             <div class="col-12">
+               <h6 class="fw-bold text-info mb-3">${details.sellingGuide.title}</h6>
+               <div class="row">
+                 ${details.sellingGuide.steps.map((step, index) => `
+                   <div class="col-md-2 col-6 mb-2">
+                     <div class="text-center">
+                       <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-2" style="width: 40px; height: 40px;">
+                         ${index + 1}
+                       </div>
+                       <small class="d-block">${step}</small>
+                     </div>
+                   </div>
+                 `).join('')}
+               </div>
+               <div class="text-center mt-3">
+                 <a href="../stores/agent-stores/create.html" class="btn btn-primary btn-sm rounded-pill">
+                   <i class="bi bi-plus-circle me-2"></i>Start Selling Now
+                 </a>
+               </div>
+             </div>
+           </div>
+         `;
+       }
+       
+       return `
+         <div class="text-muted">
+           <p>No additional details available for this notification.</p>
+         </div>
+       `;
+     }
     
-    function getNotificationType(notification) {
-      // Determine notification type based on content or type field
-      const type = notification.type || '';
-      const title = (notification.title || '').toLowerCase();
-      const body = (notification.body || '').toLowerCase();
-      
-      if (type.includes('message') || title.includes('message') || body.includes('message')) {
-        return { class: 'message', icon: 'bi-chat-dots' };
-      } else if (type.includes('listing') || title.includes('listing') || body.includes('property') || body.includes('vehicle')) {
-        return { class: 'listing', icon: 'bi-house-door' };
-      } else if (type.includes('alert') || title.includes('alert') || body.includes('alert')) {
-        return { class: 'alert', icon: 'bi-exclamation-triangle' };
-      } else {
-        return { class: 'system', icon: 'bi-bell' };
-      }
-    }
+         function getNotificationType(notification) {
+       // Determine notification type based on content or type field
+       const type = notification.type || '';
+       const title = (notification.title || '').toLowerCase();
+       const body = (notification.body || '').toLowerCase();
+       
+       if (type === 'welcome') {
+         return { class: 'welcome', icon: 'bi-star-fill' };
+       } else if (type.includes('message') || title.includes('message') || body.includes('message')) {
+         return { class: 'message', icon: 'bi-chat-dots' };
+       } else if (type.includes('listing') || title.includes('listing') || body.includes('property') || body.includes('vehicle')) {
+         return { class: 'listing', icon: 'bi-house-door' };
+       } else if (type.includes('alert') || title.includes('alert') || body.includes('alert')) {
+         return { class: 'alert', icon: 'bi-exclamation-triangle' };
+       } else {
+         return { class: 'system', icon: 'bi-bell' };
+       }
+     }
+     
+     function toggleNotificationDetails(notificationId) {
+       const card = document.querySelector(`[data-notification-id="${notificationId}"] .notification-card`);
+       const details = document.getElementById(`details-${notificationId}`);
+       
+       if (card && details) {
+         const isExpanded = card.classList.contains('expanded');
+         
+         if (isExpanded) {
+           card.classList.remove('expanded');
+           details.classList.remove('show');
+         } else {
+           card.classList.add('expanded');
+           details.classList.add('show');
+         }
+       }
+     }
     
     function getTimeAgo(date) {
       const now = new Date();
