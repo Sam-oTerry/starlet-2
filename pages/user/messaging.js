@@ -23,16 +23,12 @@
       window.currentUser = user;
       window.db = firebase.firestore();
       
-      // Initialize mobile conversation selection
+      // Initialize UI components
+      initNewMessageModal();
+      initEventHandlers();
       setupMobileConversationSelection();
-      
-      // Load conversations
       loadSidebarConversations();
-      
-      // Setup chat input
       setupChatInput();
-      
-      // Setup user presence
       setupUserPresence(user);
     });
   }
@@ -431,15 +427,30 @@
   }
 
   // --- Mark Messages as Read ---
-  function markMessagesRead(chatId) {
-    const chatRef = window.db.collection('conversations').doc(chatId).collection('messages');
-    chatRef.get().then(snap => {
-      snap.forEach(doc => {
-        if (!doc.data().readBy || !doc.data().readBy.includes(window.currentUser.uid)) {
-          chatRef.doc(doc.id).update({ readBy: firebase.firestore.FieldValue.arrayUnion(window.currentUser.uid) });
-        }
+  async function markMessagesRead(chatId) {
+    if (!chatId || !window.currentUser) return;
+    
+    try {
+      const conversationRef = window.db.collection('conversations').doc(chatId);
+      await window.db.runTransaction(async (transaction) => {
+        const conversation = await transaction.get(conversationRef);
+        if (!conversation.exists) return;
+        
+        const unreadCount = {
+          ...conversation.data().unreadCount,
+          [window.currentUser.uid]: 0
+        };
+        
+        transaction.update(conversationRef, { unreadCount });
       });
-    });
+      
+      // Update UI to show messages as read
+      document.querySelectorAll(`.conversation-item[data-conversation-id="${chatId}"]`)
+        .forEach(el => el.classList.remove('unread'));
+        
+    } catch (error) {
+      console.error('Error marking messages as read:', error);
+    }
   }
 
   // --- Send Message & Typing ---
@@ -455,7 +466,7 @@
           type: 'text',
           text,
           senderId: window.currentUser.uid,
-          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+          timestamp: firebase.firestore.FieldValue.serverTimestamp()
         });
         input.value = '';
       };
@@ -613,6 +624,458 @@
     if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
     if (bytes < 1024 * 1024 * 1024) return (bytes / 1024 / 1024).toFixed(1) + ' MB';
     return (bytes / 1024 / 1024 / 1024).toFixed(1) + ' GB';
+  }
+
+  // --- New Message Button ---
+  const newMessageBtn = document.getElementById('new-message-btn');
+  newMessageBtn.addEventListener('click', () => {
+    // Logic to open a new message compose UI or modal
+    openNewMessageModal();
+  });
+
+  // --- Delete Chat Button ---
+  const deleteChatBtn = document.getElementById('delete-chat-btn');
+  deleteChatBtn.addEventListener('click', () => {
+    if (window.currentChatId) {
+      if (confirm('Are you sure you want to delete this conversation?')) {
+        deleteConversation(window.currentChatId).then(() => {
+          alert('Conversation deleted');
+          // Refresh conversation list and clear chat panel
+          loadSidebarConversations();
+          clearChatPanel();
+        }).catch(err => {
+          console.error('Error deleting conversation:', err);
+          alert('Failed to delete conversation');
+        });
+      }
+    }
+  });
+
+  // --- Mark as Read Button ---
+  const markReadBtn = document.getElementById('mark-read-btn');
+  markReadBtn.addEventListener('click', () => {
+    if (window.currentChatId) {
+      markMessagesRead(window.currentChatId);
+    }
+  });
+
+  // --- Search Button ---
+  const messageSearchBtn = document.getElementById('message-search-btn');
+  messageSearchBtn.addEventListener('click', () => {
+    const query = document.getElementById('message-search-input').value.trim();
+    if (query.length > 0) {
+      searchMessages(query);
+    } else {
+      // If search is empty, reload conversations normally
+      loadSidebarConversations();
+    }
+  });
+
+  // --- Search Input Enter Key ---
+  const messageSearchInput = document.getElementById('message-search-input');
+  messageSearchInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      messageSearchBtn.click();
+    }
+  });
+
+  // --- Send Message Button ---
+  const chatMessageForm = document.getElementById('chat-message-form');
+  chatMessageForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const messageInput = document.getElementById('chat-message-input');
+    const messageText = messageInput.value.trim();
+    if (messageText.length > 0 && window.currentChatId) {
+      sendMessage(window.currentChatId, messageText).then(() => {
+        messageInput.value = '';
+      }).catch(err => {
+        console.error('Error sending message:', err);
+        alert('Failed to send message');
+      });
+    }
+  });
+
+  // --- Helper Functions ---
+  function clearChatPanel() {
+    document.getElementById('chat-username').textContent = 'Select a conversation';
+    document.getElementById('chat-avatar').src = '/img/avatar-placeholder.svg';
+    document.getElementById('chat-messages').innerHTML = '';
+    window.currentChatId = null;
+  }
+
+  function openNewMessageModal() {
+    alert('Open new message compose UI - to be implemented');
+  }
+
+  function deleteConversation(chatId) {
+    return window.db.collection('conversations').doc(chatId).delete();
+  }
+
+  async function searchMessages(query) {
+    if (!query || !window.currentUser) return;
+    
+    const searchResultsContainer = document.getElementById('search-results');
+    searchResultsContainer.innerHTML = '<div class="text-center py-3"><div class="spinner-border" role="status"></div></div>';
+    
+    try {
+      // Search in messages
+      const messagesSnapshot = await window.db.collectionGroup('messages')
+        .where('text', '>=', query)
+        .where('text', '<=', query + '\uf8ff')
+        .where('participants', 'array-contains', window.currentUser.uid)
+        .orderBy('timestamp', 'desc')
+        .limit(20)
+        .get();
+      
+      if (messagesSnapshot.empty) {
+        searchResultsContainer.innerHTML = '<div class="text-center py-3">No results found</div>';
+        return;
+      }
+      
+      // Group messages by conversation
+      const resultsByConversation = {};
+      const conversationPromises = [];
+      
+      messagesSnapshot.forEach(doc => {
+        const message = doc.data();
+        const conversationId = doc.ref.parent.parent.id;
+        
+        if (!resultsByConversation[conversationId]) {
+          resultsByConversation[conversationId] = [];
+          // Get conversation data
+          conversationPromises.push(
+            window.db.collection('conversations').doc(conversationId).get()
+              .then(conversationDoc => {
+                if (conversationDoc.exists) {
+                  resultsByConversation[conversationId].conversation = 
+                    { id: conversationId, ...conversationDoc.data() };
+                }
+              })
+          );
+        }
+        
+        resultsByConversation[conversationId].push({
+          id: doc.id,
+          ...message
+        });
+      });
+      
+      // Wait for all conversation data to load
+      await Promise.all(conversationPromises);
+      
+      // Render search results
+      let searchResultsHtml = '';
+      
+      for (const [conversationId, data] of Object.entries(resultsByConversation)) {
+        const { conversation, ...messages } = data;
+        const otherUser = conversation.participants.find(id => id !== window.currentUser.uid);
+        
+        searchResultsHtml += `
+          <div class="search-result-conversation mb-4">
+            <div class="conversation-header d-flex justify-content-between align-items-center mb-2">
+              <h6>Conversation about: ${conversation.productTitle || 'Product'}</h6>
+              <button class="btn btn-sm btn-outline-primary view-conversation" 
+                      data-conversation-id="${conversationId}">
+                View Conversation
+              </button>
+            </div>
+            <div class="search-messages">
+        `;
+        
+        // Sort messages by timestamp
+        const sortedMessages = Object.values(messages).sort((a, b) => 
+          a.timestamp?.toDate() - b.timestamp?.toDate()
+        );
+        
+        sortedMessages.forEach(msg => {
+          const isCurrentUser = msg.senderId === window.currentUser.uid;
+          searchResultsHtml += `
+            <div class="search-message ${isCurrentUser ? 'sent' : 'received'} mb-2 p-2">
+              <div class="message-sender small text-muted">
+                ${isCurrentUser ? 'You' : (conversation.otherUserName || 'User')} • 
+                ${msg.timestamp?.toDate().toLocaleString()}
+              </div>
+              <div class="message-text">${msg.text}</div>
+            </div>
+          `;
+        });
+        
+        searchResultsHtml += '</div></div>';
+      }
+      
+      searchResultsContainer.innerHTML = searchResultsHtml || '<div class="text-center py-3">No results found</div>';
+      
+      // Add event listeners to view conversation buttons
+      document.querySelectorAll('.view-conversation').forEach(button => {
+        button.addEventListener('click', (e) => {
+          const conversationId = e.target.dataset.conversationId;
+          if (conversationId) {
+            // Close search and open the conversation
+            document.getElementById('search-results').innerHTML = '';
+            document.getElementById('message-search-input').value = '';
+            openChat(conversationId);
+          }
+        });
+      });
+      
+    } catch (error) {
+      console.error('Error searching messages:', error);
+      searchResultsContainer.innerHTML = `
+        <div class="alert alert-danger">
+          Error searching messages. Please try again.
+        </div>
+      `;
+    }
+  }
+
+  // Update the search input handler
+  function setupSearchHandlers() {
+    const searchInput = document.getElementById('message-search-input');
+    let searchTimeout;
+    
+    searchInput.addEventListener('input', (e) => {
+      clearTimeout(searchTimeout);
+      const query = e.target.value.trim();
+      
+      if (query.length < 2) {
+        document.getElementById('search-results').innerHTML = '';
+        return;
+      }
+      
+      searchTimeout = setTimeout(() => {
+        searchMessages(query);
+      }, 500);
+    });
+    
+    // Clear search when clicking the clear button (X) in the search input
+    searchInput.addEventListener('search', () => {
+      if (!searchInput.value) {
+        document.getElementById('search-results').innerHTML = '';
+        loadSidebarConversations();
+      }
+    });
+  }
+
+  // Initialize all event handlers
+  function initEventHandlers() {
+    setupSearchHandlers();
+    setupMessageStatusAndActions();
+    
+    // Initialize any other event handlers here
+    document.addEventListener('click', (e) => {
+      // Handle conversation item clicks
+      const conversationItem = e.target.closest('.conversation-item');
+      if (conversationItem) {
+        const conversationId = conversationItem.dataset.conversationId;
+        if (conversationId) {
+          openChat(conversationId);
+        }
+      }
+    });
+  }
+
+  // Update waitForFirebaseAndInit to include new initializations
+  function waitForFirebaseAndInit() {
+    if (!window.firebase || !window.firebase.auth) {
+      setTimeout(waitForFirebaseAndInit, 100);
+      return;
+    }
+    
+    firebase.auth().onAuthStateChanged(user => {
+      if (!user) {
+        window.location.href = '/pages/auth/login.html';
+        return;
+      }
+      
+      window.currentUser = user;
+      window.db = firebase.firestore();
+      
+      // Initialize UI components
+      initNewMessageModal();
+      initEventHandlers();
+      setupMobileConversationSelection();
+      loadSidebarConversations();
+      setupChatInput();
+      setupUserPresence(user);
+    });
+  }
+
+  // --- New Message Modal Functionality ---
+  let newMessageModal = null;
+
+  // Initialize the new message modal when DOM is loaded
+  function initNewMessageModal() {
+    newMessageModal = new bootstrap.Modal(document.getElementById('newMessageModal'));
+    
+    // Load user's products into the dropdown
+    loadUserProducts();
+    
+    // Handle new message form submission
+    document.getElementById('new-message-form').addEventListener('submit', handleNewMessageSubmit);
+  }
+
+  // Load user's products into the product select dropdown
+  async function loadUserProducts() {
+    const productSelect = document.getElementById('product-select');
+    try {
+      // Clear existing options except the first one
+      while (productSelect.options.length > 1) {
+        productSelect.remove(1);
+      }
+      
+      // Fetch user's products from Firestore
+      const productsSnapshot = await window.db.collection('products')
+        .where('sellerId', '==', window.currentUser.uid)
+        .limit(20)
+        .get();
+      
+      // Add products to dropdown
+      productsSnapshot.forEach(doc => {
+        const product = doc.data();
+        const option = document.createElement('option');
+        option.value = doc.id;
+        option.textContent = product.title;
+        productSelect.appendChild(option);
+      });
+      
+    } catch (error) {
+      console.error('Error loading products:', error);
+      // Optionally show error to user
+    }
+  }
+
+  // Handle new message form submission
+  async function handleNewMessageSubmit(e) {
+    e.preventDefault();
+    
+    const productId = document.getElementById('product-select').value;
+    const recipientEmail = document.getElementById('recipient-email').value.trim();
+    const messageText = document.getElementById('message-text').value.trim();
+    
+    if (!productId || !recipientEmail || !messageText) {
+      alert('Please fill in all fields');
+      return;
+    }
+    
+    try {
+      // Get recipient user by email
+      const userSnapshot = await window.db.collection('users')
+        .where('email', '==', recipientEmail)
+        .limit(1)
+        .get();
+      
+      if (userSnapshot.empty) {
+        alert('No user found with that email');
+        return;
+      }
+      
+      const recipientId = userSnapshot.docs[0].id;
+      const productRef = window.db.collection('products').doc(productId);
+      
+      // Create a new conversation or get existing one
+      const conversation = await findOrCreateConversation(recipientId, productId);
+      
+      // Add the message to the conversation
+      await window.db.collection('conversations')
+        .doc(conversation.id)
+        .collection('messages')
+        .add({
+          text: messageText,
+          senderId: window.currentUser.uid,
+          timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+          productId: productId
+        });
+      
+      // Close modal and reset form
+      newMessageModal.hide();
+      e.target.reset();
+      
+      // Open the new conversation
+      openChat(conversation.id);
+      
+    } catch (error) {
+      console.error('Error sending message:', error);
+      alert('Failed to send message');
+    }
+  }
+
+  // Find or create a conversation between users about a product
+  async function findOrCreateConversation(recipientId, productId) {
+    // Check if conversation already exists
+    const existingConvo = await window.db.collection('conversations')
+      .where('participants', 'array-contains', window.currentUser.uid)
+      .where('productId', '==', productId)
+      .limit(1)
+      .get();
+    
+    if (!existingConvo.empty) {
+      return { id: existingConvo.docs[0].id, ...existingConvo.docs[0].data() };
+    }
+    
+    // Create new conversation
+    const newConvo = {
+      participants: [window.currentUser.uid, recipientId],
+      productId: productId,
+      lastMessage: '',
+      lastMessageTime: firebase.firestore.FieldValue.serverTimestamp(),
+      unreadCount: { [window.currentUser.uid]: 0, [recipientId]: 1 },
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    };
+    
+    const docRef = await window.db.collection('conversations').add(newConvo);
+    return { id: docRef.id, ...newConvo };
+  }
+
+  // Update the openNewMessageModal function
+  function openNewMessageModal() {
+    // If there's a product context (e.g., from a product page), pre-select it
+    const urlParams = new URLSearchParams(window.location.search);
+    const productId = urlParams.get('productId');
+    
+    if (productId) {
+      // If we have a product ID in the URL, try to pre-select it
+      const productSelect = document.getElementById('product-select');
+      for (let i = 0; i < productSelect.options.length; i++) {
+        if (productSelect.options[i].value === productId) {
+          productSelect.selectedIndex = i;
+          break;
+        }
+      }
+    }
+    
+    newMessageModal.show();
+  }
+
+  // Update the loadSidebarConversations to include product info
+  async function loadSidebarConversations() {
+    // Existing code...
+    
+    // In the conversation list item creation, include product info if available
+    conversationsList.innerHTML = conversations.docs.map(doc => {
+      const data = doc.data();
+      const otherUser = data.participants.find(id => id !== currentUser.uid);
+      const isUnread = (data.unreadCount?.[currentUser.uid] || 0) > 0;
+      
+      // Include product info in the conversation item
+      const productInfo = data.productId ? 
+        `<small class="text-muted d-block">${data.productTitle || 'Product'}</small>` : '';
+      
+      return `
+        <div class="list-group-item list-group-item-action conversation-item ${isUnread ? 'unread' : ''}" 
+             data-conversation-id="${doc.id}" 
+             data-other-user="${otherUser}">
+          <div class="d-flex w-100 justify-content-between">
+            <h6 class="mb-1">${data.otherUserName || 'User'}</h6>
+            <small>${formatTimeAgo(data.lastMessageTime?.toDate())}</small>
+          </div>
+          <p class="mb-1 text-truncate">${data.lastMessage || 'No messages yet'}</p>
+          ${productInfo}
+        </div>
+      `;
+    }).join('');
+    
+    // Rest of the function...
   }
 
   // --- Init ---
