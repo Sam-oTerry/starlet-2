@@ -1,4 +1,7 @@
-// Firebase configuration and initialization for Starlet Properties
+// Firebase Configuration for Starlet Properties
+// This file initializes Firebase services for the application
+
+// Firebase configuration
 const firebaseConfig = {
   apiKey: "AIzaSyDH1sMk2NwceMAEfvH07azxaoPXpOI1Sek",
   authDomain: "starlet-properties-41509.firebaseapp.com",
@@ -9,42 +12,50 @@ const firebaseConfig = {
   measurementId: "G-F02K9SP07C"
 };
 
-// Wait for Firebase SDK to load and initialize
-function initializeFirebase() {
-  if (typeof firebase === 'undefined') {
-    console.warn('Firebase SDK not loaded yet, retrying...');
-    setTimeout(initializeFirebase, 100);
-    return;
-  }
-  
-  // Only initialize if not already initialized
-  if (!window.firebaseAppInitialized) {
+// Initialize Firebase
+if (typeof firebase !== 'undefined' && !firebase.apps.length) {
+  firebase.initializeApp(firebaseConfig);
+}
+
+// Wait for Firebase to be available
+function initializeFirebaseServices() {
+  if (typeof firebase !== 'undefined') {
     try {
-      if (!firebase.apps.length) {
-        firebase.initializeApp(firebaseConfig);
+      const db = firebase.firestore();
+      const auth = firebase.auth();
+      
+      // Check if storage is available
+      let storage;
+      if (typeof firebase.storage === 'function') {
+        storage = firebase.storage();
+      } else {
+        console.warn('Firebase Storage not available, file uploads will be disabled');
+        storage = null;
       }
-      window.firebaseAuth = firebase.auth();
-      window.firebaseDB = firebase.firestore();
-      window.firebaseAppInitialized = true;
+
+      // Make services globally available
+      window.firebaseDB = db;
+      window.firebaseAuth = auth;
+      window.firebaseStorage = storage;
+
+      // Enable offline persistence for Firestore
+      db.enablePersistence()
+        .catch((err) => {
+          if (err.code == 'failed-precondition') {
+            console.log('Multiple tabs open, persistence can only be enabled in one tab at a time.');
+          } else if (err.code == 'unimplemented') {
+            console.log('The current browser does not support persistence.');
+          }
+        });
+
       console.log('Firebase initialized successfully');
     } catch (error) {
-      console.error('Error initializing Firebase:', error);
+      console.error('Error initializing Firebase services:', error);
     }
-  }
-  
-  // Initialize additional Firebase services if available
-  if (firebase.storage && !window.firebaseStorage) {
-    window.firebaseStorage = firebase.storage();
-  }
-  
-  if (firebase.messaging && !window.firebaseMessaging) {
-    try {
-      window.firebaseMessaging = firebase.messaging();
-    } catch (e) {
-      console.warn('Firebase Messaging not available:', e);
-    }
+  } else {
+    setTimeout(initializeFirebaseServices, 100);
   }
 }
 
 // Start initialization
-initializeFirebase(); 
+initializeFirebaseServices(); 

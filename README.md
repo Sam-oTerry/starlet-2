@@ -12,6 +12,7 @@ A comprehensive web application for buying, selling, and renting properties and 
 - **Advanced Search**: Filter by location, price, type, and more
 - **Mobile Responsive**: Optimized for all devices
 - **SEO Optimized**: Professional URL structure and meta tags
+- **Smart Listing Display**: Intelligent mixed listings with priority-based fallback system
 
 ## 📁 Professional Folder Structure
 
@@ -106,6 +107,150 @@ starlet-2/
 - **Icons**: Bootstrap Icons
 - **Fonts**: Google Fonts (Inter)
 
+## 🎯 Enhanced Mixed Listings System
+
+### Overview
+The homepage features an intelligent mixed listings system that dynamically combines different types of listings based on priority and availability. This ensures users always see relevant content while maintaining quality standards.
+
+### Priority Order
+1. **Official Store Listings** (Priority 1) - Up to 6 listings
+   - Highest priority for verified official stores
+   - Blue badge with checkmark icon
+   - Ensures premium store visibility
+
+2. **Featured Listings** (Priority 2) - Up to 4 listings
+   - Handpicked premium listings
+   - Yellow badge with star icon
+   - Curated high-quality content
+
+3. **Trending Listings** (Priority 3) - Up to 4 listings
+   - Popular and trending content
+   - Green badge with fire icon
+   - Dynamic content based on user engagement
+
+4. **Recent Approved Listings** (Priority 4) - Fill gaps if needed
+   - Newly approved listings
+   - Ensures fresh content availability
+   - Automatic gap filling
+
+5. **Any Approved Listings** (Priority 5) - Fallback
+   - All approved listings
+   - Ensures content availability
+
+6. **Any Listings** (Priority 6) - Last resort
+   - All listings in database
+   - Guarantees content display
+
+### Key Features
+
+#### Smart Deduplication
+- Prevents duplicate listings across categories
+- A listing that's both featured and trending appears only once
+- Maintains list integrity and user experience
+
+#### Persuasive Section Headers
+- Uses "Recommended for You" as the primary heading
+- Creates personalized appeal and user engagement
+- Removes technical jargon like "listings" for better user experience
+- Focuses on user benefit rather than content categorization
+- Maintains professional and appealing presentation
+
+#### Visual Indicators
+- **Official Store**: Blue badge with checkmark (highest priority)
+- **Featured**: Yellow badge with star (second priority)
+- **Trending**: Green badge with fire icon (third priority)
+- **Price**: Always displayed prominently
+- **Type**: Property/vehicle type clearly labeled
+
+#### Robust Fallback System
+- Graceful degradation when preferred content is unavailable
+- Multiple fallback levels ensure content availability
+- Comprehensive error handling and logging
+
+#### Performance Optimized
+- Efficient Firestore queries with proper limits
+- Smart caching and deduplication
+- Minimal database calls for optimal performance
+
+#### Enhanced Display Features
+- **Fallback Icons**: Category-specific icons when images are unavailable
+- **Responsive Grid**: 3 columns on large screens, 2 on medium, 1 on small
+- **Limited Display**: Maximum 6 listings (2 rows) for better focus
+- **Visual Hierarchy**: Clear priority indicators and badges
+- **Gradient Backgrounds**: Enhanced visual appeal for icon-only displays
+- **Persuasive Headings**: "Recommended for You" creates personalized appeal
+
+### Technical Implementation
+
+#### Query Strategy
+```javascript
+// Priority-based query system
+1. Official Store listings (officialStore: true)
+2. Featured listings (featured: true)
+3. Trending listings (trending: true)
+4. Recent approved listings (status: 'approved', ordered by createdAt)
+5. Any approved listings (status: 'approved')
+6. Any listings (no filters)
+```
+
+#### Data Structure
+Each listing includes priority and source metadata:
+```javascript
+{
+  ...listingData,
+  id: 'listing_id',
+  priority: 1-6, // Priority level
+  source: 'official|featured|trending|recent|approved|any'
+}
+```
+
+#### Icon System
+The system automatically selects appropriate icons based on listing type:
+```javascript
+// Property Icons
+- Houses: bi-house-door-fill
+- Land: bi-tree-fill
+- Commercial: bi-building-fill
+- Vacation: bi-umbrella-beach-fill
+
+// Vehicle Icons
+- Cars: bi-car-front-fill
+- Motorcycles: bi-bicycle
+- Trucks: bi-truck-flatbed
+- Buses: bi-bus-front-fill
+- Heavy Machinery: bi-gear-fill
+- Boats: bi-water
+- Bicycles: bi-bicycle
+```
+
+#### Sorting and Display
+- Listings sorted by priority (lowest number first)
+- Maximum 6 listings displayed (2 rows of 3)
+- Automatic duplicate removal
+- Responsive grid layout (3 columns on large screens, 2 on medium, 1 on small)
+- Fallback icons for missing images based on listing type
+
+### Benefits
+
+1. **Better User Experience**: Users see diverse, high-quality content
+2. **Higher Conversion**: Official store listings get prime visibility
+3. **Content Diversity**: Mix of different listing types keeps page interesting
+4. **Scalability**: Easy to adjust limits or add new listing categories
+5. **Reliability**: Always shows content, even with limited data
+6. **Performance**: Efficient queries with proper limits and error handling
+
+### Configuration
+
+The system can be easily configured by modifying the limits in `js/main.js`:
+```javascript
+// Adjust these values to change listing distribution
+const OFFICIAL_STORE_LIMIT = 6;
+const FEATURED_LIMIT = 4;
+const TRENDING_LIMIT = 4;
+const RECENT_LIMIT = 8;
+const TOTAL_MAX_LIMIT = 6; // 2 rows of 3 listings
+```
+
 ## 📱 Mobile Responsiveness
 
 - **Bootstrap Grid**: Responsive grid system
@@ -193,6 +338,25 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **Email**: info@starlet.co.ug
 - **Phone**: +256 123 456 789
 - **Website**: https://starlet-properties-41509.web.app
+
+## 🔄 Recent Updates
+
+### Enhanced Mixed Listings System (Latest)
+- **Priority-based listing display**: Official store listings now have highest priority
+- **Smart content mixing**: Combines official store, featured, and trending listings
+- **Intelligent fallback system**: Ensures content availability with multiple fallback levels
+- **Visual badge system**: Clear indicators for different listing types
+- **Dynamic section headers**: Automatically updates based on content type
+- **Performance optimization**: Efficient queries with smart deduplication
+- **Comprehensive logging**: Detailed console logs for debugging and monitoring
+
+### Previous Updates
+- **Firebase integration**: Complete backend integration with Firestore
+- **Real-time messaging**: Built-in chat system for buyers and sellers
+- **Agent management**: Multi-tier agent system with verification
+- **Store management**: Official store listings and management
+- **Advanced search**: Comprehensive filtering and search capabilities
+- **Mobile optimization**: Fully responsive design for all devices
 
 ## 🚀 Deployment
 
