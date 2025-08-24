@@ -104,7 +104,7 @@ async function loadConversations() {
         return;
     }
 
-    console.log('Loading conversations for user:', currentUser.uid);
+    console.log('Loading conversations for user:', window.currentUser.uid);
 
     try {
         // Show loading state
@@ -119,7 +119,7 @@ async function loadConversations() {
 
         // Listen for conversations in real-time
         conversationsUnsub = db.collection('chats')
-            .where('participants', 'array-contains', currentUser.uid)
+            .where('participants', 'array-contains', window.currentUser.uid)
             .orderBy('lastMessageAt', 'desc')
             .onSnapshot(snapshot => {
                 console.log('Conversations snapshot received:', snapshot.size, 'conversations');
@@ -181,15 +181,15 @@ function renderConversations(conversations) {
     }
 
     conversationsList.innerHTML = conversations.map(conversation => {
-        const otherUser = (conversation.participantDetails || []).find(u => u.uid !== currentUser.uid) || {};
+        const otherUser = (conversation.participantDetails || []).find(u => u.uid !== window.currentUser.uid) || {};
         const isActive = conversation.id === currentChatId;
-        const unreadCount = conversation.unread && conversation.unread[currentUser.uid] ? conversation.unread[currentUser.uid] : 0;
+        const unreadCount = conversation.unread && conversation.unread[window.currentUser.uid] ? conversation.unread[window.currentUser.uid] : 0;
         
         return `
             <div class="conversation-item ${isActive ? 'active' : ''}" 
                  data-chat-id="${conversation.id}" 
                  onclick="openChat('${conversation.id}')">
-                <img src="${otherUser.avatar || '../../img/avatar-placeholder.svg'}" 
+                                 <img src="${otherUser.avatar || '/img/avatar-placeholder.svg'}" 
                      alt="${otherUser.name || 'User'}" 
                      class="conversation-avatar">
                 <div class="conversation-info">
@@ -230,7 +230,7 @@ async function openChat(chatId) {
         }
 
         const chatData = chatDoc.data();
-        const otherUser = (chatData.participantDetails || []).find(u => u.uid !== currentUser.uid) || {};
+        const otherUser = (chatData.participantDetails || []).find(u => u.uid !== window.currentUser.uid) || {};
       
       // Update chat header
         updateChatHeader(otherUser, chatData);
@@ -263,7 +263,7 @@ function updateChatHeader(otherUser, chatData) {
     const chatAvatar = document.getElementById('chatAvatar');
 
     chatUserName.textContent = otherUser.name || 'Unknown User';
-    chatAvatar.src = otherUser.avatar || '../../img/avatar-placeholder.svg';
+    chatAvatar.src = otherUser.avatar || '/img/avatar-placeholder.svg';
     
     // Update status (you can implement online/offline logic here)
     const statusIndicator = chatUserStatus.querySelector('.status-indicator');
@@ -314,7 +314,7 @@ function loadMessages(chatId) {
 
 // Function to render a single message
 function renderMessage(message) {
-  const isCurrentUser = message.senderId === currentUser.uid;
+  const isCurrentUser = message.senderId === window.currentUser.uid;
   const messageClass = isCurrentUser ? 'sent' : 'received';
   
   // Create message element
@@ -450,9 +450,9 @@ async function sendMessage() {
         const message = {
             content: content,
             type: 'text',
-            senderId: currentUser.uid,
-            senderName: currentUser.displayName || currentUser.email,
-            senderAvatar: currentUser.photoURL,
+            senderId: window.currentUser.uid,
+            senderName: window.currentUser.displayName || window.currentUser.email,
+            senderAvatar: window.currentUser.photoURL,
             timestamp: firebase.firestore.FieldValue.serverTimestamp()
         };
 
@@ -674,9 +674,9 @@ async function uploadAndSendFiles() {
                 fileName: file.name,
                 fileSize: file.size,
                 fileType: file.type,
-                senderId: currentUser.uid,
-                senderName: currentUser.displayName || currentUser.email,
-                senderAvatar: currentUser.photoURL,
+                senderId: window.currentUser.uid,
+                senderName: window.currentUser.displayName || window.currentUser.email,
+                senderAvatar: window.currentUser.photoURL,
                 timestamp: firebase.firestore.FieldValue.serverTimestamp()
             };
 
@@ -712,7 +712,7 @@ async function markMessagesAsRead(chatId) {
     
     try {
         await db.collection('chats').doc(chatId).update({
-            [`unread.${currentUser.uid}`]: 0
+            [`unread.${window.currentUser.uid}`]: 0
         });
     } catch (error) {
         console.error('Error marking messages as read:', error);
@@ -839,12 +839,12 @@ window.addEventListener('beforeunload', function() {
 
 // Populate sample data for testing
 async function populateSampleData() {
-    if (!currentUser) {
+    if (!window.currentUser) {
         console.error('No user authenticated');
         return;
     }
 
-    console.log('Populating sample data for user:', currentUser.uid);
+    console.log('Populating sample data for user:', window.currentUser.uid);
 
     try {
         // Get Firebase services from global scope
@@ -852,13 +852,13 @@ async function populateSampleData() {
         // Create sample conversations
         const sampleConversations = [
             {
-                participants: [currentUser.uid, 'agent1'],
+                participants: [window.currentUser.uid, 'agent1'],
                 participantDetails: [
                     {
-                        uid: currentUser.uid,
-                        name: currentUser.displayName || currentUser.email,
-                        email: currentUser.email,
-                        avatar: currentUser.photoURL || '../../img/avatar-placeholder.svg'
+                        uid: window.currentUser.uid,
+                        name: window.currentUser.displayName || window.currentUser.email,
+                        email: window.currentUser.email,
+                        avatar: window.currentUser.photoURL || '/img/avatar-placeholder.svg'
                     },
                     {
                         uid: 'agent1',
@@ -871,17 +871,17 @@ async function populateSampleData() {
                 lastMessage: 'Thank you for your interest! When would you like to schedule a viewing?',
                 lastMessageAt: firebase.firestore.FieldValue.serverTimestamp(),
                 unread: {
-                    [currentUser.uid]: 2
+                    [window.currentUser.uid]: 2
                 }
             },
             {
-                participants: [currentUser.uid, 'agent2'],
+                participants: [window.currentUser.uid, 'agent2'],
                 participantDetails: [
                     {
-                        uid: currentUser.uid,
-                        name: currentUser.displayName || currentUser.email,
-                        email: currentUser.email,
-                        avatar: currentUser.photoURL || '../../img/avatar-placeholder.svg'
+                        uid: window.currentUser.uid,
+                        name: window.currentUser.displayName || window.currentUser.email,
+                        email: window.currentUser.email,
+                        avatar: window.currentUser.photoURL || '/img/avatar-placeholder.svg'
                     },
                     {
                         uid: 'agent2',
@@ -907,17 +907,17 @@ async function populateSampleData() {
                 {
                     content: 'Hi! I\'m interested in this property. Is it still available?',
                     type: 'text',
-                    senderId: currentUser.uid,
-                    senderName: currentUser.displayName || currentUser.email,
-                    senderAvatar: currentUser.photoURL || '../../img/avatar-placeholder.svg',
+                    senderId: window.currentUser.uid,
+                    senderName: window.currentUser.displayName || window.currentUser.email,
+                    senderAvatar: window.currentUser.photoURL || '/img/avatar-placeholder.svg',
                     timestamp: firebase.firestore.FieldValue.serverTimestamp()
                 },
                 {
                     content: 'Hello! Yes, it\'s still available. Would you like to schedule a viewing?',
                     type: 'text',
-                    senderId: conversation.participants.find(p => p !== currentUser.uid),
-                    senderName: conversation.participantDetails.find(p => p.uid !== currentUser.uid).name,
-                    senderAvatar: conversation.participantDetails.find(p => p.uid !== currentUser.uid).avatar,
+                    senderId: conversation.participants.find(p => p !== window.currentUser.uid),
+                    senderName: conversation.participantDetails.find(p => p.uid !== window.currentUser.uid).name,
+                    senderAvatar: conversation.participantDetails.find(p => p.uid !== window.currentUser.uid).avatar,
                     timestamp: firebase.firestore.FieldValue.serverTimestamp()
                 }
             ];
@@ -949,7 +949,7 @@ async function testFirebaseConnection() {
         console.log('- Firestore:', db ? 'Available' : 'Not available');
         console.log('- Auth:', auth ? 'Available' : 'Not available');
         console.log('- Storage:', storage ? 'Available' : 'Not available');
-        console.log('- Current user:', currentUser ? currentUser.email : 'Not authenticated');
+        console.log('- Current user:', window.currentUser ? window.currentUser.email : 'Not authenticated');
         
         // Test Firestore connection
         if (db) {
