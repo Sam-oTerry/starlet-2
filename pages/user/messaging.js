@@ -32,6 +32,12 @@ if (document.readyState === 'loading') {
 function initializeMessaging() {
     console.log('Initializing messaging system...');
     
+    // Prevent multiple initializations
+    if (window.messagingInitialized) {
+        console.log('Messaging already initialized, skipping...');
+        return;
+    }
+    
     // Wait for Firebase to be available
     if (typeof firebase === 'undefined') {
         console.log('Firebase not available, retrying...');
@@ -78,6 +84,9 @@ function initializeMessaging() {
         setupEventListeners();
         setupEmojiPicker();
         setupFileUpload();
+        
+        // Mark messaging as initialized
+        window.messagingInitialized = true;
         
         // Add a test button to create sample data
         const header = document.querySelector('.messaging-header');
@@ -873,6 +882,9 @@ window.addEventListener('beforeunload', function() {
     if (chatUnsub) chatUnsub();
     if (typingUnsub) typingUnsub();
     if (conversationsUnsub) conversationsUnsub();
+    
+    // Clear initialization flag
+    window.messagingInitialized = false;
 });
 
 // Populate sample data for testing

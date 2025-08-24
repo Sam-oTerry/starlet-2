@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Messaging - Starlet Properties</title>
+  <link rel="icon" type="image/svg+xml" href="../../img/favicon.svg">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="../../css/style.css">
+  <style>
+    body { background: linear-gradient(135deg, #e3f0ff 0%, #f8f9fa 100%); font-family: 'Inter', sans-serif; }
+    .chat-container { display: flex; background: #fff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 16px rgba(0,0,0,0.1); height: 70vh; }
+    .chat-sidebar { width: 320px; border-right: 1px solid #eee; overflow-y: auto; background: #fafafa; }
+    .chat-listing { padding: 15px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid #f1f1f1; cursor: pointer; transition: all 0.2s; }
+    .chat-listing:hover { background: #e3f0ff; }
+    .chat-listing img { width: 45px; height: 45px; border-radius: 50%; border: 2px solid #ffd700; }
+    .chat-main { flex: 1; display: flex; flex-direction: column; background: #ece5dd url('https://www.transparenttextures.com/patterns/cubes.png'); }
+    .chat-header { padding: 15px; display: flex; align-items: center; border-bottom: 1px solid #eee; background: #f8f9fa; }
+    .chat-header img { width: 45px; height: 45px; border-radius: 50%; border: 2px solid #ffd700; margin-right: 10px; }
+    .chat-messages { flex: 1; padding: 20px; overflow-y: auto; }
+    .chat-message { margin-bottom: 12px; display: flex; gap: 10px; align-items: flex-end; }
+    .chat-message.sent { flex-direction: row-reverse; }
+    .chat-bubble { padding: 10px 15px; border-radius: 18px; max-width: 75%; font-size: 0.95rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); position: relative; }
+    .chat-message.sent .chat-bubble { background: #dcf8c6; color: #000; border-radius: 18px 18px 4px 18px; }
+    .chat-message.received .chat-bubble { background: #fff; color: #000; border-radius: 18px 18px 18px 4px; }
+    .chat-time { font-size: 0.75rem; color: #6c757d; margin-top: 4px; display: block; text-align: right; }
+    .chat-input-area { padding: 10px 15px; border-top: 1px solid #eee; background: #fff; display: flex; align-items: center; gap: 10px; }
+    .chat-input-area textarea { flex: 1; border-radius: 20px; padding: 10px 14px; resize: none; border: 1px solid #ddd; background: #f8f9fa; font-size: 0.95rem; }
+    .chat-input-area textarea:focus { border-color: #0d6efd; background: #fff; outline: none; }
+    .chat-input-area button { border-radius: 50%; width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; }
+    @media(max-width:768px){ .chat-container { flex-direction: column; height: auto; } .chat-sidebar { width: 100%; height: 200px; overflow-x: auto; display: flex; } .chat-listing { min-width: 200px; border-bottom: none; border-right: 1px solid #eee; } }
+  </style>
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-custom modern-navbar shadow-sm py-3 sticky-top w-100"> ... </nav>
+
+  <!-- Carousel Banner -->
+  <div id="promoCarousel" class="carousel slide" data-bs-ride="carousel"> ... </div>
+
+  <!-- Messaging Area -->
+  <div class="messaging-container container my-4">
+    <div class="chat-container">
+      <!-- Sidebar -->
+      <div class="chat-sidebar">
+        <div class="chat-listing">
+          <img src="https://via.placeholder.com/45" alt="User">
+          <div>
+            <h6>Jane Doe</h6>
+            <p>Hey, how are you?</p>
+          </div>
+        </div>
+        <div class="chat-listing">
+          <img src="https://via.placeholder.com/45" alt="User">
+          <div>
+            <h6>John Smith</h6>
+            <p>Got the documents?</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chat Main -->
+      <div class="chat-main">
+        <div class="chat-header">
+          <img src="https://via.placeholder.com/45" alt="User">
+          <div>
+            <h6 class="mb-0">Jane Doe</h6>
+            <small class="text-muted">Online</small>
+          </div>
+        </div>
+
+        <div class="chat-messages">
+          <div class="chat-message received">
+            <div class="chat-bubble">Hello! How are you?<span class="chat-time">09:41</span></div>
+          </div>
+          <div class="chat-message sent">
+            <div class="chat-bubble">I'm good, thanks! How about you?<span class="chat-time">09:42</span></div>
+          </div>
+          <div class="chat-message received">
+            <div class="chat-bubble">Doing great! Want to meet later?<span class="chat-time">09:43</span></div>
+          </div>
+        </div>
+
+        <div class="chat-input-area">
+          <button class="btn btn-light"><i class="bi bi-emoji-smile"></i></button>
+          <textarea rows="1" placeholder="Type a message..."></textarea>
+          <button class="btn btn-primary"><i class="bi bi-send"></i></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer bg-dark text-light py-4 mt-4">
+    <div class="container text-center">
+      <p>&copy; 2024 Starlet Properties. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

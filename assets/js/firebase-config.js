@@ -38,15 +38,26 @@ function initializeFirebaseServices() {
       window.firebaseAuth = auth;
       window.firebaseStorage = storage;
 
-      // Enable offline persistence for Firestore
-      db.enablePersistence()
-        .catch((err) => {
-          if (err.code == 'failed-precondition') {
-            console.log('Multiple tabs open, persistence can only be enabled in one tab at a time.');
-          } else if (err.code == 'unimplemented') {
-            console.log('The current browser does not support persistence.');
-          }
-        });
+      // Enable offline persistence for Firestore with proper error handling
+      try {
+        db.enablePersistence({
+          synchronizeTabs: true
+        })
+          .then(() => {
+            console.log('Firestore persistence enabled successfully with multi-tab support.');
+          })
+          .catch((err) => {
+            if (err.code == 'failed-precondition') {
+              console.log('Multiple tabs detected, disabling persistence to avoid conflicts.');
+            } else if (err.code == 'unimplemented') {
+              console.log('The current browser does not support persistence.');
+            } else {
+              console.log('Persistence error:', err.message);
+            }
+          });
+      } catch (error) {
+        console.log('Could not enable persistence:', error.message);
+      }
 
       console.log('Firebase initialized successfully');
     } catch (error) {
