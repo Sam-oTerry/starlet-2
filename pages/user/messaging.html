@@ -283,6 +283,51 @@
       opacity: 0.8;
     }
     
+    /* Typing Indicator */
+    .typing-indicator {
+      display: none;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 16px;
+      background: #fff;
+      border-radius: 18px 18px 18px 4px;
+      margin-right: auto;
+      max-width: 70px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    }
+    .typing-indicator.show {
+      display: flex;
+    }
+    .typing-dots {
+      display: flex;
+      gap: 4px;
+    }
+    .typing-dot {
+      width: 8px;
+      height: 8px;
+      background: #6c757d;
+      border-radius: 50%;
+      animation: typing-bounce 1.4s infinite ease-in-out;
+    }
+    .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+    .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+    .typing-dot:nth-child(3) { animation-delay: 0s; }
+    @keyframes typing-bounce {
+      0%, 80%, 100% {
+        transform: scale(0.8);
+        opacity: 0.5;
+      }
+      40% {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+    .typing-text {
+      font-size: 0.8rem;
+      color: #6c757d;
+      font-style: italic;
+    }
+    
     .chat-input-area { 
       padding: 15px 20px; 
       border-top: 1px solid #eee; 
@@ -1935,9 +1980,18 @@ footer.footer {
           </div>
         </div>
 
-        <div id="chatMessages" class="chat-messages">
-          <!-- Messages will be dynamically loaded here -->
-        </div>
+                      <div id="chatMessages" class="chat-messages">
+                <!-- Messages will be dynamically loaded here -->
+                <!-- Typing Indicator -->
+                <div id="typingIndicator" class="typing-indicator">
+                  <div class="typing-dots">
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                  </div>
+                  <span class="typing-text">typing...</span>
+                </div>
+              </div>
 
         <div class="chat-input-area">
           <button type="button" id="emojiBtn" class="btn btn-light" title="Add emoji">
@@ -2206,19 +2260,67 @@ footer.footer {
         });
       }
       
-      // Auto-scroll to bottom when new messages arrive
-      const chatMessages = document.getElementById('chatMessages');
-      if (chatMessages) {
-        const observer = new MutationObserver(function() {
-          chatMessages.scrollTop = chatMessages.scrollHeight;
+                // Auto-scroll to bottom when new messages arrive
+          const chatMessages = document.getElementById('chatMessages');
+          if (chatMessages) {
+            const observer = new MutationObserver(function() {
+              chatMessages.scrollTop = chatMessages.scrollHeight;
+            });
+            
+            observer.observe(chatMessages, {
+              childList: true,
+              subtree: true
+            });
+          }
+          
+          // Typing indicator functionality
+          const typingIndicator = document.getElementById('typingIndicator');
+          let typingTimeout;
+          
+          // Function to show typing indicator
+          function showTypingIndicator() {
+            if (typingIndicator) {
+              typingIndicator.classList.add('show');
+              // Auto-scroll to show typing indicator
+              setTimeout(() => {
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+              }, 100);
+            }
+          }
+          
+          // Function to hide typing indicator
+          function hideTypingIndicator() {
+            if (typingIndicator) {
+              typingIndicator.classList.remove('show');
+            }
+          }
+          
+          // Simulate typing indicator when user starts typing (for demo purposes)
+          // In a real app, this would be triggered by Firebase real-time updates
+          if (messageInput) {
+            let lastTypingTime = 0;
+            const typingDelay = 2000; // 2 seconds
+            
+            messageInput.addEventListener('input', function() {
+              const currentTime = new Date().getTime();
+              if (currentTime - lastTypingTime > typingDelay) {
+                // Simulate other user typing when current user types
+                showTypingIndicator();
+                
+                // Hide typing indicator after 2 seconds
+                clearTimeout(typingTimeout);
+                typingTimeout = setTimeout(() => {
+                  hideTypingIndicator();
+                }, 2000);
+              }
+              lastTypingTime = currentTime;
+            });
+          }
+          
+          // Make typing indicator functions globally available
+          window.showTypingIndicator = showTypingIndicator;
+          window.hideTypingIndicator = hideTypingIndicator;
         });
-        
-        observer.observe(chatMessages, {
-          childList: true,
-          subtree: true
-        });
-      }
-    });
   </script>
 
 </body>

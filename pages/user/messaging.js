@@ -520,6 +520,11 @@ async function sendMessage() {
         sendBtn.classList.remove('btn-primary');
         sendBtn.classList.add('btn-secondary');
 
+        // Hide typing indicator when message is sent
+        if (window.hideTypingIndicator) {
+          window.hideTypingIndicator();
+        }
+        
         // Auto-scroll to bottom
         const chatMessages = document.getElementById('chatMessages');
         if (chatMessages) {
