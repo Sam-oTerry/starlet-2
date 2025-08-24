@@ -212,6 +212,32 @@
       font-size: 1rem;
       z-index: 1;
     }
+    
+    /* Support Chat Button */
+    #supportChatBtn {
+      background: linear-gradient(135deg, #00a884 0%, #00c896 100%);
+      border: none;
+      color: #fff;
+      font-size: 0.85rem;
+      padding: 6px 12px;
+      border-radius: 8px;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 2px 8px rgba(0, 168, 132, 0.2);
+    }
+    
+    #supportChatBtn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 168, 132, 0.3);
+      background: linear-gradient(135deg, #00c896 0%, #00e6a8 100%);
+    }
+    
+    #supportChatBtn:active {
+      transform: translateY(0);
+    }
+    
+    #supportChatBtn i {
+      font-size: 0.9rem;
+    }
 
     .conversations-list {
       padding: 0;
@@ -2481,7 +2507,13 @@ footer.footer {
       <!-- Sidebar -->
       <div class="chat-sidebar" id="chatSidebar">
         <div class="conversations-header">
-          <h3>Conversations</h3>
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3>Conversations</h3>
+            <button id="supportChatBtn" class="btn btn-outline-primary btn-sm" title="Contact Support">
+              <i class="bi bi-headset"></i>
+              <span class="d-none d-md-inline ms-1">Support</span>
+            </button>
+          </div>
           <div class="search-box">
             <i class="bi bi-search search-icon"></i>
             <input type="text" placeholder="Search conversations..." id="conversation-search">

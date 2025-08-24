@@ -81,11 +81,21 @@ function initializeMessaging() {
         window.currentUser = user;
         console.log('User authenticated:', user.email, 'UID:', user.uid);
         
+        // Check for support chat parameter
+        const urlParams = new URLSearchParams(window.location.search);
+        const isSupportChat = urlParams.get('support') === '1';
+        
         // Initialize messaging features
         loadConversations();
         setupEventListeners();
         setupEmojiPicker();
         setupFileUpload();
+        
+        // If support chat is requested, create or load support conversation
+        if (isSupportChat) {
+            console.log('Support chat requested, setting up support conversation...');
+            setupSupportChat();
+        }
         
         // Set up online status
         updateOnlineStatus(true);
@@ -269,7 +279,12 @@ function renderConversations(conversations) {
         console.log(`Conversation ${index} listingTitle:`, conversation.listingTitle);
         
         const listingInfo = conversation.listingQuote || {};
-        const listingTitle = listingInfo.title || conversation.listingTitle || 'Property Inquiry';
+        let listingTitle = listingInfo.title || conversation.listingTitle || 'Property Inquiry';
+        
+        // Handle support chat special case
+        if (conversation.isSupportChat) {
+            listingTitle = 'Support Chat';
+        }
         
         console.log(`Conversation ${index} final listing title:`, listingTitle);
         
@@ -460,8 +475,13 @@ function updateChatHeader(otherUser, chatData) {
 
     // Get listing information if available
     const listingInfo = chatData.listingQuote || {};
-    const listingTitle = listingInfo.title || chatData.listingTitle || 'Property Inquiry';
+    let listingTitle = listingInfo.title || chatData.listingTitle || 'Property Inquiry';
     const listingPrice = listingInfo.price ? `$${listingInfo.price.toLocaleString()}` : '';
+
+    // Handle support chat special case
+    if (chatData.isSupportChat) {
+        listingTitle = 'Support Chat';
+    }
 
     chatUserName.textContent = listingTitle;
     chatAvatar.src = otherUser.avatar || '../../img/avatar-placeholder.svg';
@@ -789,6 +809,15 @@ function setupEventListeners() {
                 clearTimeout(typingTimeout);
                 updateTypingStatus(currentChatId, false);
             }
+        });
+    }
+    
+    // Support chat button
+    const supportChatBtn = document.getElementById('supportChatBtn');
+    if (supportChatBtn) {
+        supportChatBtn.addEventListener('click', function() {
+            console.log('Support chat button clicked');
+            setupSupportChat();
         });
     }
 }
@@ -1153,6 +1182,91 @@ function listenForOnlineStatus(userId) {
         }, error => {
             console.error('Error listening for online status:', error);
         });
+}
+
+// Setup support chat
+async function setupSupportChat() {
+    console.log('Setting up support chat...');
+    
+    if (!db || !window.currentUser) {
+        console.error('Cannot setup support chat - missing required data');
+        return;
+    }
+    
+    try {
+        // Create a unique support conversation ID for this user
+        const supportChatId = `support_${window.currentUser.uid}`;
+        
+        // Check if support conversation already exists
+        const supportDoc = await db.collection('conversations').doc(supportChatId).get();
+        
+        if (!supportDoc.exists) {
+            console.log('Creating new support conversation...');
+            
+            // Create support conversation
+            const supportConversation = {
+                id: supportChatId,
+                participants: [window.currentUser.uid, 'support_team'],
+                participantDetails: [
+                    {
+                        uid: window.currentUser.uid,
+                        name: window.currentUser.displayName || 'User',
+                        email: window.currentUser.email,
+                        avatar: window.currentUser.photoURL
+                    },
+                    {
+                        uid: 'support_team',
+                        name: 'Starlet Support',
+                        email: 'support@starlet.co.ug',
+                        avatar: '../../img/support-avatar.png'
+                    }
+                ],
+                listingTitle: 'Support Chat',
+                listingQuote: {
+                    title: 'Support Chat',
+                    price: null
+                },
+                lastMessage: 'Welcome to Starlet Support! How can we help you today?',
+                lastMessageSenderId: 'support_team',
+                lastMessageAt: firebase.firestore.FieldValue.serverTimestamp(),
+                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                isSupportChat: true
+            };
+            
+            await db.collection('conversations').doc(supportChatId).set(supportConversation);
+            
+            // Add welcome message
+            const welcomeMessage = {
+                content: 'Welcome to Starlet Support! How can we help you today?',
+                type: 'text',
+                senderId: 'support_team',
+                senderName: 'Starlet Support',
+                senderAvatar: '../../img/support-avatar.png',
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            };
+            
+            await db.collection('conversations').doc(supportChatId)
+                .collection('messages').add(welcomeMessage);
+                
+            console.log('Support conversation created successfully');
+        } else {
+            console.log('Support conversation already exists');
+        }
+        
+        // Open the support chat
+        await openChat(supportChatId);
+        
+        // Update the URL to show support chat
+        const newUrl = new URL(window.location);
+        newUrl.searchParams.set('support', '1');
+        newUrl.searchParams.set('chat', supportChatId);
+        window.history.replaceState({}, '', newUrl);
+        
+    } catch (error) {
+        console.error('Error setting up support chat:', error);
+        showNotification('Failed to setup support chat. Please try again.', 'error');
+    }
 }
 
 // Update user's online status
