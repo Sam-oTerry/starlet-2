@@ -127,7 +127,7 @@ async function loadConversations() {
         `;
 
         // Listen for conversations in real-time
-        conversationsUnsub = db.collection('chats')
+        conversationsUnsub = db.collection('conversations')
             .where('participants', 'array-contains', window.currentUser.uid)
             .orderBy('lastMessageAt', 'desc')
             .onSnapshot(snapshot => {
@@ -181,7 +181,7 @@ function renderConversations(conversations) {
                 <i class="bi bi-chat-dots"></i>
                 <h4>No conversations yet</h4>
                 <p>Start a conversation by messaging a seller or agent</p>
-                <button class="btn btn-primary btn-sm" onclick="populateSampleData()">Load Sample Data</button>
+
             </div>
         `;
         return;
@@ -192,6 +192,10 @@ function renderConversations(conversations) {
         const isActive = conversation.id === currentChatId;
         const unreadCount = conversation.unread && conversation.unread[window.currentUser.uid] ? conversation.unread[window.currentUser.uid] : 0;
         const hasUnread = unreadCount > 0;
+        
+        // Get listing information if available
+        const listingInfo = conversation.listingQuote || {};
+        const listingTitle = listingInfo.title || conversation.listingTitle || 'Property Inquiry';
         
         // Determine if the last message was sent by current user
         const isLastMessageFromCurrentUser = conversation.lastMessageSenderId === window.currentUser.uid;
@@ -224,7 +228,7 @@ function renderConversations(conversations) {
                      alt="${otherUser.name || 'User'}" 
                      class="conversation-avatar">
                 <div class="conversation-info">
-                    <div class="conversation-name">${otherUser.name || 'Unknown User'}</div>
+                    <div class="conversation-name">${listingTitle}</div>
                     <div class="conversation-preview">
                         ${isLastMessageFromCurrentUser && conversation.lastMessage ? 'You: ' : ''}${messagePreview}${messageStatus}
                     </div>
@@ -255,7 +259,7 @@ async function openChat(chatId) {
         // Use global db variable
         
         // Get chat details
-        const chatDoc = await db.collection('chats').doc(chatId).get();
+        const chatDoc = await db.collection('conversations').doc(chatId).get();
         if (!chatDoc.exists) {
             showEmptyState('Chat not found');
             return;
@@ -294,13 +298,18 @@ function updateChatHeader(otherUser, chatData) {
     const chatUserStatus = document.getElementById('chatUserStatus');
     const chatAvatar = document.getElementById('chatAvatar');
 
-    chatUserName.textContent = otherUser.name || 'Unknown User';
+    // Get listing information if available
+    const listingInfo = chatData.listingQuote || {};
+    const listingTitle = listingInfo.title || chatData.listingTitle || 'Property Inquiry';
+    const listingPrice = listingInfo.price ? `$${listingInfo.price.toLocaleString()}` : '';
+
+    chatUserName.textContent = listingTitle;
     chatAvatar.src = otherUser.avatar || '../../img/avatar-placeholder.svg';
     
-    // Update status (you can implement online/offline logic here)
+    // Update status with price information
     const statusIndicator = chatUserStatus.querySelector('.status-indicator');
     statusIndicator.className = 'status-indicator offline';
-    chatUserStatus.querySelector('span').textContent = 'Offline';
+    chatUserStatus.querySelector('span').textContent = listingPrice || 'Property Inquiry';
 }
 
 // Load messages
@@ -319,7 +328,7 @@ function loadMessages(chatId) {
     // Use global db variable
     
     // Listen for messages in real-time
-    chatUnsub = db.collection('chats').doc(chatId)
+    chatUnsub = db.collection('conversations').doc(chatId)
         .collection('messages')
         .orderBy('timestamp', 'asc')
         .onSnapshot(snapshot => {
@@ -509,11 +518,11 @@ async function sendMessage() {
         };
 
         // Add message to Firestore
-        await db.collection('chats').doc(currentChatId)
+        await db.collection('conversations').doc(currentChatId)
             .collection('messages').add(message);
 
         // Update chat's last message
-        await db.collection('chats').doc(currentChatId).update({
+        await db.collection('conversations').doc(currentChatId).update({
             lastMessage: content,
             lastMessageAt: firebase.firestore.FieldValue.serverTimestamp(),
             lastMessageSenderId: window.currentUser.uid,
@@ -757,12 +766,12 @@ async function uploadAndSendFiles() {
             };
 
             // Add message to Firestore
-            await db.collection('chats').doc(currentChatId)
+            await db.collection('conversations').doc(currentChatId)
                 .collection('messages').add(message);
         }
 
         // Update chat's last message
-        await db.collection('chats').doc(currentChatId).update({
+        await db.collection('conversations').doc(currentChatId).update({
             lastMessage: `Sent ${selectedFiles.length} file${selectedFiles.length > 1 ? 's' : ''}`,
             lastMessageAt: firebase.firestore.FieldValue.serverTimestamp()
         });
@@ -786,7 +795,7 @@ async function markMessagesAsRead(chatId) {
     // Use global db variable
     
     try {
-        await db.collection('chats').doc(chatId).update({
+        await db.collection('conversations').doc(chatId).update({
             [`unread.${window.currentUser.uid}`]: 0
         });
     } catch (error) {
@@ -798,7 +807,7 @@ async function markMessagesAsRead(chatId) {
 function listenForTyping(chatId, otherUserId) {
     // Use global db variable
     
-    typingUnsub = db.collection('chats').doc(chatId)
+    typingUnsub = db.collection('conversations').doc(chatId)
         .collection('typing')
         .doc(otherUserId)
         .onSnapshot(doc => {
