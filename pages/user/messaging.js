@@ -91,6 +91,9 @@ function initializeMessaging() {
         setupEmojiPicker();
         setupFileUpload();
         
+        // Initialize mobile state
+        initializeMobileState();
+        
         // If support chat is requested, create or load support conversation
         if (isSupportChat) {
             console.log('Support chat requested, setting up support conversation...');
@@ -1233,7 +1236,7 @@ async function setupSupportChat() {
                         uid: 'support_team',
                         name: 'Starlet Support',
                         email: 'support@starlet.co.ug',
-                        avatar: '../../img/support-avatar.png'
+                        avatar: '../../img/avatar-placeholder.svg'
                     }
                 ],
                 listingTitle: 'Support Chat',
@@ -1257,7 +1260,7 @@ async function setupSupportChat() {
                 type: 'text',
                 senderId: 'support_team',
                 senderName: 'Starlet Support',
-                senderAvatar: '../../img/support-avatar.png',
+                senderAvatar: '../../img/avatar-placeholder.svg',
                 timestamp: firebase.firestore.FieldValue.serverTimestamp()
             };
             
@@ -1320,10 +1323,20 @@ function showChatArea() {
     const chatMain = document.querySelector('.chat-main');
     const chatSidebar = document.querySelector('.chat-sidebar');
     
+    console.log('Showing chat area, window width:', window.innerWidth);
+    
     if (window.innerWidth <= 768) {
+        console.log('Mobile view - showing chat area');
         chatMain.classList.add('show');
         chatMain.classList.remove('hide');
         chatSidebar.style.display = 'none';
+        
+        // Ensure chat area is visible
+        setTimeout(() => {
+            chatMain.style.transform = 'translateX(0)';
+        }, 10);
+    } else {
+        console.log('Desktop view - chat area already visible');
     }
 }
 
@@ -1332,10 +1345,18 @@ function showConversationsList() {
     const chatMain = document.querySelector('.chat-main');
     const chatSidebar = document.querySelector('.chat-sidebar');
     
+    console.log('Showing conversations list, window width:', window.innerWidth);
+    
     if (window.innerWidth <= 768) {
+        console.log('Mobile view - showing conversations list');
         chatMain.classList.remove('show');
         chatMain.classList.add('hide');
         chatSidebar.style.display = 'flex';
+        
+        // Ensure chat area is hidden
+        setTimeout(() => {
+            chatMain.style.transform = 'translateX(100%)';
+        }, 10);
         
         // Clear current chat
         currentChatId = null;
@@ -1352,6 +1373,31 @@ function showConversationsList() {
         
         // Show empty state
         showEmptyState('Select a conversation');
+    } else {
+        console.log('Desktop view - conversations list already visible');
+    }
+}
+
+// Initialize mobile state
+function initializeMobileState() {
+    const chatMain = document.querySelector('.chat-main');
+    const chatSidebar = document.querySelector('.chat-sidebar');
+    
+    console.log('Initializing mobile state, window width:', window.innerWidth);
+    
+    if (window.innerWidth <= 768) {
+        console.log('Mobile view - initializing conversations list view');
+        // Mobile view - start with conversations list
+        chatMain.classList.remove('show');
+        chatMain.classList.add('hide');
+        chatSidebar.style.display = 'flex';
+        chatMain.style.transform = 'translateX(100%)';
+    } else {
+        console.log('Desktop view - initializing side-by-side view');
+        // Desktop view - show both
+        chatMain.classList.remove('show', 'hide');
+        chatSidebar.style.display = 'flex';
+        chatMain.style.transform = 'none';
     }
 }
 
@@ -1360,18 +1406,24 @@ function handleWindowResize() {
     const chatMain = document.querySelector('.chat-main');
     const chatSidebar = document.querySelector('.chat-sidebar');
     
+    console.log('Window resized to:', window.innerWidth);
+    
     if (window.innerWidth > 768) {
         // Desktop view - show both sidebar and chat
+        console.log('Switching to desktop view');
         chatMain.classList.remove('show', 'hide');
         chatSidebar.style.display = 'flex';
         chatSidebar.style.position = 'relative';
         chatSidebar.style.transform = 'none';
+        chatMain.style.transform = 'none';
     } else {
         // Mobile view - show conversations list by default
+        console.log('Switching to mobile view');
         if (!currentChatId) {
             chatMain.classList.remove('show');
             chatMain.classList.add('hide');
             chatSidebar.style.display = 'flex';
+            chatMain.style.transform = 'translateX(100%)';
         }
     }
 }
