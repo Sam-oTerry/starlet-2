@@ -3,6 +3,9 @@
 
 // Global variables
 // Use undefined instead of null for uninitialized variables to avoid potential issues with strict null checks or type coercion
+let db;                    // Will hold the Firebase Firestore database reference
+let auth;                  // Will hold the Firebase Auth reference
+let storage;               // Will hold the Firebase Storage reference
 let currentChatId;         // Will hold the currently selected chat/conversation ID
 let chatUnsub;             // Will hold the unsubscribe function for chat listener
 let typingUnsub;           // Will hold the unsubscribe function for typing indicator listener
@@ -39,9 +42,9 @@ function initializeMessaging() {
     console.log('Firebase available, using global services...');
     
     // Use global Firebase services directly
-    const db = window.firebaseDb || firebase.firestore();
-    const auth = window.firebaseAuth || firebase.auth();
-    const storage = window.firebaseStorage || (typeof firebase.storage === 'function' ? firebase.storage() : null);
+    db = window.firebaseDb || firebase.firestore();
+    auth = window.firebaseAuth || firebase.auth();
+    storage = window.firebaseStorage || (typeof firebase.storage === 'function' ? firebase.storage() : null);
 
     // Verify services are available
     if (!db || !auth) {
@@ -102,6 +105,17 @@ async function loadConversations() {
     
     if (!conversationsList) {
         console.error('Conversations list element not found');
+        return;
+    }
+
+    if (!db) {
+        console.error('Database not initialized, retrying...');
+        setTimeout(loadConversations, 100);
+        return;
+    }
+
+    if (!window.currentUser) {
+        console.error('No user authenticated');
         return;
     }
 
@@ -220,8 +234,7 @@ async function openChat(chatId) {
     document.querySelector(`[data-chat-id="${chatId}"]`)?.classList.add('active');
 
     try {
-        // Get Firebase services from global scope
-        const db = window.firebaseDB || firebase.firestore();
+        // Use global db variable
         
         // Get chat details
         const chatDoc = await db.collection('chats').doc(chatId).get();
@@ -285,8 +298,7 @@ function loadMessages(chatId) {
         </div>
       `;
 
-    // Get Firebase services from global scope
-    const db = window.firebaseDB || firebase.firestore();
+    // Use global db variable
     
     // Listen for messages in real-time
     chatUnsub = db.collection('chats').doc(chatId)
@@ -438,10 +450,15 @@ async function sendMessage() {
     const content = messageInput.value.trim();
     
     if (!content || !currentChatId) return;
-
+    
+    if (!db) {
+        console.error('Database not initialized');
+        alert('Database connection not available. Please refresh the page.');
+        return;
+    }
+    
     try {
-        // Get Firebase services from global scope
-        const db = window.firebaseDB || firebase.firestore();
+        // Use global db variable
         // Disable input temporarily
         messageInput.disabled = true;
         const sendBtn = document.getElementById('sendBtn');
@@ -666,9 +683,14 @@ function removeFile(fileName) {
 async function uploadAndSendFiles() {
     if (!selectedFiles.length || !currentChatId) return;
 
+    if (!db) {
+        console.error('Database not initialized');
+        alert('Database connection not available. Please refresh the page.');
+        return;
+    }
+
     try {
-        // Get Firebase services from global scope
-        const db = window.firebaseDB || firebase.firestore();
+        // Use global db and storage variables
         const storage = window.firebaseStorage || (typeof firebase.storage === 'function' ? firebase.storage() : null);
 
         // Check if storage is available
@@ -725,8 +747,7 @@ async function uploadAndSendFiles() {
 
 // Mark messages as read
 async function markMessagesAsRead(chatId) {
-    // Get Firebase services from global scope
-    const db = window.firebaseDB || firebase.firestore();
+    // Use global db variable
     
     try {
         await db.collection('chats').doc(chatId).update({
@@ -739,8 +760,7 @@ async function markMessagesAsRead(chatId) {
 
 // Listen for typing indicators
 function listenForTyping(chatId, otherUserId) {
-    // Get Firebase services from global scope
-    const db = window.firebaseDB || firebase.firestore();
+    // Use global db variable
     
     typingUnsub = db.collection('chats').doc(chatId)
         .collection('typing')
@@ -862,11 +882,16 @@ async function populateSampleData() {
         return;
     }
 
+    if (!db) {
+        console.error('Database not initialized');
+        alert('Database connection not available. Please refresh the page.');
+        return;
+    }
+
     console.log('Populating sample data for user:', window.currentUser.uid);
 
     try {
-        // Get Firebase services from global scope
-        const db = window.firebaseDB || firebase.firestore();
+        // Use global db variable
         // Create sample conversations
         const sampleConversations = [
             {
@@ -959,7 +984,7 @@ async function testFirebaseConnection() {
     console.log('Testing Firebase connection...');
     
     try {
-        const db = window.firebaseDB || firebase.firestore();
+        // Use global variables
         const auth = window.firebaseAuth || firebase.auth();
         const storage = window.firebaseStorage || (typeof firebase.storage === 'function' ? firebase.storage() : null);
         
