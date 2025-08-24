@@ -194,11 +194,11 @@ function renderConversations(conversations) {
     
     if (conversations.length === 0) {
         conversationsList.innerHTML = `
-            <div class="text-center py-4">
-                <i class="bi bi-chat-dots text-muted" style="font-size: 2rem;"></i>
-                <p class="mt-2 text-muted">No conversations yet</p>
-                <p class="small text-muted">Start a conversation by messaging a seller or agent</p>
-                <button class="btn btn-outline-primary btn-sm mt-2" onclick="populateSampleData()">Load Sample Data</button>
+            <div class="conversations-empty">
+                <i class="bi bi-chat-dots"></i>
+                <h4>No conversations yet</h4>
+                <p>Start a conversation by messaging a seller or agent</p>
+                <button class="btn btn-primary btn-sm" onclick="populateSampleData()">Load Sample Data</button>
             </div>
         `;
         return;
@@ -208,21 +208,47 @@ function renderConversations(conversations) {
         const otherUser = (conversation.participantDetails || []).find(u => u.uid !== window.currentUser.uid) || {};
         const isActive = conversation.id === currentChatId;
         const unreadCount = conversation.unread && conversation.unread[window.currentUser.uid] ? conversation.unread[window.currentUser.uid] : 0;
+        const hasUnread = unreadCount > 0;
+        
+        // Determine if the last message was sent by current user
+        const isLastMessageFromCurrentUser = conversation.lastMessageSenderId === window.currentUser.uid;
+        
+        // Get message preview with status indicators
+        let messagePreview = conversation.lastMessage || 'No messages yet';
+        let messageStatus = '';
+        
+        if (isLastMessageFromCurrentUser && conversation.lastMessage) {
+            // Add message status indicators for sent messages
+            if (conversation.lastMessageRead) {
+                messageStatus = ' ✓✓';
+            } else if (conversation.lastMessageDelivered) {
+                messageStatus = ' ✓✓';
+            } else {
+                messageStatus = ' ✓';
+            }
+        }
+        
+        // Truncate long messages
+        if (messagePreview.length > 50) {
+            messagePreview = messagePreview.substring(0, 47) + '...';
+        }
         
         return `
-            <div class="conversation-item ${isActive ? 'active' : ''}" 
+            <div class="conversation-item ${isActive ? 'active' : ''} ${hasUnread ? 'unread' : ''}" 
                  data-chat-id="${conversation.id}" 
                  onclick="openChat('${conversation.id}')">
-                                 <img src="${otherUser.avatar || '../../img/avatar-placeholder.svg'}" 
+                <img src="${otherUser.avatar || '../../img/avatar-placeholder.svg'}" 
                      alt="${otherUser.name || 'User'}" 
                      class="conversation-avatar">
                 <div class="conversation-info">
                     <div class="conversation-name">${otherUser.name || 'Unknown User'}</div>
-                    <div class="conversation-preview">${conversation.lastMessage || 'No messages yet'}</div>
+                    <div class="conversation-preview">
+                        ${isLastMessageFromCurrentUser && conversation.lastMessage ? 'You: ' : ''}${messagePreview}${messageStatus}
+                    </div>
                 </div>
                 <div class="conversation-meta">
                     <div class="conversation-time">${formatTime(conversation.lastMessageAt)}</div>
-                    ${unreadCount > 0 ? `<div class="unread-badge">${unreadCount}</div>` : ''}
+                    ${hasUnread ? `<div class="unread-badge ${unreadCount > 9 ? 'large' : ''}">${unreadCount > 99 ? '99+' : unreadCount}</div>` : ''}
                 </div>
             </div>
         `;
@@ -506,7 +532,10 @@ async function sendMessage() {
         // Update chat's last message
         await db.collection('chats').doc(currentChatId).update({
             lastMessage: content,
-            lastMessageAt: firebase.firestore.FieldValue.serverTimestamp()
+            lastMessageAt: firebase.firestore.FieldValue.serverTimestamp(),
+            lastMessageSenderId: window.currentUser.uid,
+            lastMessageDelivered: true,
+            lastMessageRead: false
         });
 
         // Clear input and reset height
