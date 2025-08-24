@@ -175,6 +175,8 @@ function renderConversations(conversations) {
     const conversationsList = document.getElementById('conversationsList');
     
     console.log('Rendering conversations:', conversations);
+    console.log('Conversations list element:', conversationsList);
+    console.log('Conversations list visibility:', conversationsList.style.display, conversationsList.style.visibility, conversationsList.style.opacity);
     
     if (conversations.length === 0) {
         conversationsList.innerHTML = `
@@ -202,6 +204,9 @@ function renderConversations(conversations) {
                 otherUser = { uid: otherUserId, name: 'User', email: otherUserId };
             }
         }
+        
+        console.log('Other user found:', otherUser);
+        
         const isActive = conversation.id === currentChatId;
         const unreadCount = conversation.unread && conversation.unread[window.currentUser.uid] ? conversation.unread[window.currentUser.uid] : 0;
         const hasUnread = unreadCount > 0;
@@ -210,8 +215,12 @@ function renderConversations(conversations) {
         const listingInfo = conversation.listingQuote || {};
         const listingTitle = listingInfo.title || conversation.listingTitle || 'Property Inquiry';
         
+        console.log('Listing info:', listingInfo, 'Listing title:', listingTitle);
+        
         // Get user name for display (fallback to email if no name)
         const userName = otherUser.name || otherUser.email || 'Unknown User';
+        
+        console.log('Final display data:', { listingTitle, userName, hasUnread, isActive });
         
         // Determine if the last message was sent by current user
         const isLastMessageFromCurrentUser = conversation.lastMessageSenderId === window.currentUser.uid;
@@ -236,7 +245,8 @@ function renderConversations(conversations) {
             messagePreview = messagePreview.substring(0, 47) + '...';
         }
         
-        return `
+        // Always render the conversation, even if some data is missing
+        const conversationHtml = `
             <div class="conversation-item ${isActive ? 'active' : ''} ${hasUnread ? 'unread' : ''}" 
                  data-chat-id="${conversation.id}" 
                  onclick="openChat('${conversation.id}')">
@@ -257,7 +267,13 @@ function renderConversations(conversations) {
                 </div>
             </div>
         `;
+        
+        console.log('Generated HTML for conversation:', conversation.id, conversationHtml);
+        return conversationHtml;
     }).join('');
+    
+    console.log('Final conversations HTML length:', conversationsList.innerHTML.length);
+    console.log('Number of conversation-item elements:', conversationsList.querySelectorAll('.conversation-item').length);
 }
 
 // Open chat and load messages
