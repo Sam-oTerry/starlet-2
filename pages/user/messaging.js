@@ -73,7 +73,7 @@ function initializeMessaging() {
         
         if (!user) {
             console.log('No user authenticated, redirecting to login');
-            window.location.href = '/pages/auth/login.html';
+            window.location.href = '../auth/login.html';
             return;
         }
         
