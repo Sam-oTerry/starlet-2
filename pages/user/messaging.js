@@ -1064,9 +1064,57 @@ async function testFirebaseConnection() {
     }
 }
 
+// Show notification
+function showNotification(message, type = 'info') {
+    const notificationContainer = document.querySelector('.notification-container');
+    if (!notificationContainer) {
+        // Create notification container if it doesn't exist
+        const container = document.createElement('div');
+        container.className = 'notification-container';
+        document.body.appendChild(container);
+    }
+    
+    const toast = document.createElement('div');
+    toast.className = `notification-toast notification-${type}`;
+    toast.innerHTML = `
+        <div class="notification-content">
+            <div class="notification-body">${message}</div>
+        </div>
+    `;
+    
+    document.querySelector('.notification-container').appendChild(toast);
+    
+    // Show the toast
+    setTimeout(() => {
+        toast.classList.add('show');
+    }, 100);
+    
+    // Auto-hide after 3 seconds
+    setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => {
+            if (toast.parentNode) {
+                toast.parentNode.removeChild(toast);
+            }
+        }, 300);
+    }, 3000);
+    
+    // Allow manual close
+    toast.addEventListener('click', () => {
+        toast.classList.remove('show');
+        setTimeout(() => {
+            if (toast.parentNode) {
+                toast.parentNode.removeChild(toast);
+            }
+        }, 300);
+    });
+}
+
 // Export functions for global access
 window.openChat = openChat;
 window.removeFile = removeFile;
 window.uploadAndSendFiles = uploadAndSendFiles;
 window.populateSampleData = populateSampleData;
 window.testFirebaseConnection = testFirebaseConnection;
+window.createNewConversation = createNewConversation;
+window.showNotification = showNotification;
