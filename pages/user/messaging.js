@@ -493,6 +493,12 @@ function setupEventListeners() {
     const emojiBtn = document.getElementById('emojiBtn');
     const attachmentBtn = document.getElementById('attachmentBtn');
 
+    // Check if elements exist before adding listeners
+    if (!messageInput || !sendBtn) {
+        console.warn('Message input or send button not found');
+        return;
+    }
+
     // Send message on Enter (Shift+Enter for new line)
     messageInput.addEventListener('keydown', function(e) {
         if (e.key === 'Enter' && !e.shiftKey) {
@@ -516,12 +522,18 @@ function setupEventListeners() {
     // Emoji button click is now handled in setupEmojiPicker function
 
     // Attachment button click
-    attachmentBtn.addEventListener('click', function() {
-        document.getElementById('fileInput').click();
-    });
+    if (attachmentBtn) {
+        attachmentBtn.addEventListener('click', function() {
+            const fileInput = document.getElementById('fileInput');
+            if (fileInput) fileInput.click();
+        });
+    }
 
     // File input change
-    document.getElementById('fileInput').addEventListener('change', handleFileSelect);
+    const fileInput = document.getElementById('fileInput');
+    if (fileInput) {
+        fileInput.addEventListener('change', handleFileSelect);
+    }
 }
 
 // Setup emoji picker with simple implementation
@@ -529,7 +541,10 @@ function setupEmojiPicker() {
     const emojiBtn = document.getElementById('emojiBtn');
     const messageInput = document.getElementById('messageInput');
     
-    if (!emojiBtn || !messageInput) return;
+    if (!emojiBtn || !messageInput) {
+        console.log('Emoji picker elements not found, skipping setup');
+        return;
+    }
     
     // Create simple emoji picker
     const emojiPicker = document.createElement('div');
@@ -594,7 +609,9 @@ function setupFileUpload() {
     const filePreview = document.getElementById('filePreview');
     const attachmentBtn = document.getElementById('attachmentBtn');
 
-    fileInput.addEventListener('change', handleFileSelect);
+    if (fileInput) {
+        fileInput.addEventListener('change', handleFileSelect);
+    }
     
     // Get Firebase services from global scope
     const storage = window.firebaseStorage || (typeof firebase.storage === 'function' ? firebase.storage() : null);

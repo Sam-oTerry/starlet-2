@@ -1812,7 +1812,7 @@ footer.footer {
     <div class="row chat-container">
       <!-- Sidebar: Conversations List -->
       <div class="col-md-4 chat-sidebar">
-        <div id="conversations-list" class="list-group">
+        <div id="conversationsList" class="list-group">
           <!-- Conversations will be dynamically loaded here -->
         </div>
         <button id="new-message-btn" class="btn btn-success mt-3 w-100" data-bs-toggle="modal" data-bs-target="#newMessageModal">New Message</button>
@@ -1822,8 +1822,14 @@ footer.footer {
       <div class="col-md-8 chat-panel d-flex flex-column">
         <div id="chat-header" class="chat-header d-flex align-items-center justify-content-between p-3 border-bottom">
           <div class="chat-avatar-name d-flex align-items-center">
-            <img id="chat-avatar" src="/img/avatar-placeholder.svg" alt="User Avatar" class="chat-avatar me-2">
-            <h5 id="chat-username" class="mb-0">Select a conversation</h5>
+            <img id="chatAvatar" src="../../img/avatar-placeholder.svg" alt="User Avatar" class="chat-avatar me-2">
+            <div>
+              <h5 id="chatUserName" class="mb-0">Select a conversation</h5>
+              <div id="chatUserStatus" class="chat-user-status">
+                <span class="status-indicator offline"></span>
+                <span>Offline</span>
+              </div>
+            </div>
           </div>
           <div>
             <button id="delete-chat-btn" class="btn btn-danger btn-sm me-2" title="Delete Conversation"><i class="bi bi-trash"></i></button>
@@ -1831,15 +1837,23 @@ footer.footer {
           </div>
         </div>
 
-        <div id="chat-messages" class="chat-messages flex-grow-1 overflow-auto p-3">
+        <div id="chatMessages" class="chat-messages flex-grow-1 overflow-auto p-3">
           <!-- Messages will be dynamically loaded here -->
         </div>
 
         <div class="chat-input-area p-3 border-top">
           <form id="chat-message-form" class="d-flex align-items-center">
-            <textarea id="chat-message-input" class="form-control me-2" rows="2" placeholder="Type your message..." aria-label="Message input"></textarea>
-            <button type="submit" class="btn btn-primary">Send</button>
+            <textarea id="messageInput" class="form-control me-2" rows="2" placeholder="Type your message..." aria-label="Message input"></textarea>
+            <button type="button" id="emojiBtn" class="btn btn-outline-secondary me-2" title="Add emoji">
+              <i class="bi bi-emoji-smile"></i>
+            </button>
+            <button type="button" id="attachmentBtn" class="btn btn-outline-secondary me-2" title="Attach file">
+              <i class="bi bi-paperclip"></i>
+            </button>
+            <button type="submit" id="sendBtn" class="btn btn-primary">Send</button>
           </form>
+          <input type="file" id="fileInput" multiple style="display: none;">
+          <div id="filePreview" style="display: none;"></div>
         </div>
       </div>
     </div>
