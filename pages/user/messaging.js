@@ -361,8 +361,22 @@ function renderMessage(message) {
     case 'image':
       messageContent = `
         <div class="image-message">
-          <img src="${message.imageUrl}" alt="Shared image" class="message-image">
-          ${message.caption ? `<div class="image-caption">${message.caption}</div>` : ''}
+          <img src="${message.imageUrl}" alt="Shared image" class="message-image" style="max-width: 100%; border-radius: 8px;">
+          ${message.caption ? `<div class="image-caption mt-2">${message.caption}</div>` : ''}
+        </div>
+      `;
+      break;
+      
+    case 'file':
+      messageContent = `
+        <div class="file-message">
+          <div class="d-flex align-items-center gap-2">
+            <i class="bi bi-file-earmark fs-4"></i>
+            <div>
+              <div class="fw-medium">${message.fileName || 'File'}</div>
+              <small class="text-muted">${message.fileSize ? formatFileSize(message.fileSize) : ''}</small>
+            </div>
+          </div>
         </div>
       `;
       break;
@@ -377,12 +391,14 @@ function renderMessage(message) {
     : (message.timestamp ? new Date(message.timestamp) : new Date());
   const formattedTime = messageTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   
-  // Set message HTML
+  // Set message HTML with WhatsApp-style structure
   messageElement.innerHTML = `
-    <div class="message-content">${messageContent}</div>
-    <div class="message-meta">
-      <span class="message-time">${formattedTime}</span>
-      ${isCurrentUser ? '<span class="message-status">✓✓</span>' : ''}
+    <div class="message-content">
+      <div class="message-text">${messageContent}</div>
+      <div class="message-meta">
+        <span class="message-time">${formattedTime}</span>
+        ${isCurrentUser ? '<span class="message-status">✓✓</span>' : ''}
+      </div>
     </div>
   `;
   
@@ -493,14 +509,24 @@ async function sendMessage() {
             lastMessageAt: firebase.firestore.FieldValue.serverTimestamp()
         });
 
-        // Clear input
+        // Clear input and reset height
         messageInput.value = '';
         messageInput.style.height = 'auto';
-
-        // Re-enable input
-        messageInput.disabled = false;
-        sendBtn.disabled = false;
         messageInput.focus();
+
+        // Re-enable input and update send button
+        messageInput.disabled = false;
+        sendBtn.disabled = true;
+        sendBtn.classList.remove('btn-primary');
+        sendBtn.classList.add('btn-secondary');
+
+        // Auto-scroll to bottom
+        const chatMessages = document.getElementById('chatMessages');
+        if (chatMessages) {
+          setTimeout(() => {
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+          }, 100);
+        }
 
     } catch (error) {
         console.error('Error sending message:', error);
@@ -525,27 +551,11 @@ function setupEventListeners() {
         return;
     }
 
-    // Send message on Enter (Shift+Enter for new line)
-    messageInput.addEventListener('keydown', function(e) {
-        if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault();
-            sendMessage();
-        }
-    });
-
-    // Auto-resize textarea
-    messageInput.addEventListener('input', function() {
-        this.style.height = 'auto';
-        this.style.height = Math.min(this.scrollHeight, 120) + 'px';
-        
-        // Enable/disable send button
-        sendBtn.disabled = !this.value.trim() || !currentChatId;
-    });
-
     // Send button click
-    sendBtn.addEventListener('click', sendMessage);
-
-    // Emoji button click is now handled in setupEmojiPicker function
+    sendBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        sendMessage();
+    });
 
     // Attachment button click
     if (attachmentBtn) {
