@@ -498,7 +498,7 @@ function updateChatHeader(otherUser, chatData) {
     // Initialize status with offline state (will be updated by online status listener)
     const statusIndicator = chatUserStatus.querySelector('.status-indicator');
     if (statusIndicator) {
-        statusIndicator.className = 'status-indicator offline';
+    statusIndicator.className = 'status-indicator offline';
         statusIndicator.innerHTML = '<i class="bi bi-circle"></i>';
     }
     
@@ -609,9 +609,9 @@ function renderMessage(message) {
   messageElement.innerHTML = `
     <div class="message-content">
       <div class="message-text">${messageContent}</div>
-      <div class="message-meta">
-        <span class="message-time">${formattedTime}</span>
-        ${isCurrentUser ? '<span class="message-status">✓✓</span>' : ''}
+    <div class="message-meta">
+      <span class="message-time">${formattedTime}</span>
+      ${isCurrentUser ? '<span class="message-status">✓✓</span>' : ''}
       </div>
     </div>
   `;
@@ -775,8 +775,8 @@ function setupEventListeners() {
 
     // Send button click
     sendBtn.addEventListener('click', function(e) {
-        e.preventDefault();
-        sendMessage();
+            e.preventDefault();
+            sendMessage();
     });
 
     // Attachment button click
@@ -795,7 +795,7 @@ function setupEventListeners() {
     
     // Typing indicator functionality
     if (messageInput) {
-        messageInput.addEventListener('input', function() {
+    messageInput.addEventListener('input', function() {
             if (currentChatId) {
                 // Clear existing timeout
                 if (typingTimeout) {
@@ -844,7 +844,7 @@ function setupEventListeners() {
 function setupEmojiPicker() {
     const emojiBtn = document.getElementById('emojiBtn');
     const messageInput = document.getElementById('messageInput');
-    
+
     if (!emojiBtn || !messageInput) {
         console.log('Emoji picker elements not found, skipping setup');
         return;
@@ -898,13 +898,13 @@ function setupEmojiPicker() {
         emojiPicker.style.top = (rect.bottom + 5) + 'px';
         emojiPicker.style.left = rect.left + 'px';
     };
-    
-    // Hide emoji picker when clicking outside
-    document.addEventListener('click', function(e) {
+
+        // Hide emoji picker when clicking outside
+        document.addEventListener('click', function(e) {
         if (!emojiPicker.contains(e.target) && !emojiBtn.contains(e.target)) {
             emojiPicker.classList.remove('show');
-        }
-    });
+            }
+        });
 }
 
 // Setup file upload
@@ -914,7 +914,7 @@ function setupFileUpload() {
     const attachmentBtn = document.getElementById('attachmentBtn');
 
     if (fileInput) {
-        fileInput.addEventListener('change', handleFileSelect);
+    fileInput.addEventListener('change', handleFileSelect);
     }
     
     // Get Firebase services from global scope
@@ -1073,10 +1073,10 @@ function listenForTyping(chatId, otherUserId) {
                     indicator.className = 'typing-indicator';
                     indicator.innerHTML = `
                         <div class="typing-bubble">
-                            <div class="typing-dots">
-                                <div class="typing-dot"></div>
-                                <div class="typing-dot"></div>
-                                <div class="typing-dot"></div>
+                        <div class="typing-dots">
+                            <div class="typing-dot"></div>
+                            <div class="typing-dot"></div>
+                            <div class="typing-dot"></div>
                             </div>
                             <span class="typing-text">typing...</span>
                         </div>
