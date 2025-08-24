@@ -16,11 +16,12 @@
       font-family: 'Inter', sans-serif; 
     }
 
-    .messaging-container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 20px;
-    }
+          .messaging-container {
+        width: 90%;
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 20px;
+      }
 
     .chat-container { 
       display: flex; 
@@ -643,6 +644,7 @@
     /* Mobile Responsive Design */
     @media (max-width: 768px) {
       .messaging-container {
+        width: 100%;
         padding: 10px;
       }
       
@@ -2115,39 +2117,7 @@ footer.footer {
     </div>
   </div>
 
-  <!-- New Message Modal -->
-  <div class="modal fade" id="newMessageModal" tabindex="-1" aria-labelledby="newMessageModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="newMessageModalLabel">New Message</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <form id="new-message-form">
-            <div class="mb-3">
-              <label for="product-select" class="form-label">Regarding Product</label>
-              <select class="form-select" id="product-select" required>
-                <option value="" selected disabled>Select a product</option>
-                <!-- Will be populated with user's products -->
-              </select>
-            </div>
-            <div class="mb-3">
-              <label for="recipient-email" class="form-label">Recipient Email</label>
-              <input type="email" class="form-control" id="recipient-email" placeholder="Enter recipient's email" required>
-            </div>
-            <div class="mb-3">
-              <label for="message-text" class="form-label">Your Message</label>
-              <textarea class="form-control" id="message-text" rows="4" placeholder="Type your message here..." required></textarea>
-            </div>
-            <div class="d-grid gap-2">
-              <button type="submit" class="btn btn-primary">Send Message</button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </div>
-  </div>
+
 
   <!-- Footer (modern, from index.html, with correct relative links) -->
   <footer class="footer mt-5">

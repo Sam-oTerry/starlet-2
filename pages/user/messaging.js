@@ -88,22 +88,7 @@ function initializeMessaging() {
         // Mark messaging as initialized
         window.messagingInitialized = true;
         
-        // Add a test button to create sample data
-        const header = document.querySelector('.messaging-header');
-        if (header) {
-            const testButton = document.createElement('button');
-            testButton.className = 'btn btn-outline-secondary btn-sm ms-2';
-            testButton.textContent = 'Create Sample Data';
-            testButton.onclick = populateSampleData;
-            header.querySelector('h1').appendChild(testButton);
-            
-            // Add a test button to check Firebase connection
-            const testConnectionButton = document.createElement('button');
-            testConnectionButton.className = 'btn btn-outline-info btn-sm ms-2';
-            testConnectionButton.textContent = 'Test Connection';
-            testConnectionButton.onclick = testFirebaseConnection;
-            header.querySelector('h1').appendChild(testConnectionButton);
-        }
+
     });
 }
 
@@ -162,12 +147,11 @@ async function loadConversations() {
             }, error => {
                 console.error('Error loading conversations:', error);
                 conversationsList.innerHTML = `
-                    <div class="text-center py-4">
-                        <i class="bi bi-exclamation-triangle text-warning" style="font-size: 2rem;"></i>
-                        <p class="mt-2 text-muted">Failed to load conversations</p>
+                    <div class="conversations-empty">
+                        <i class="bi bi-exclamation-triangle text-warning"></i>
+                        <h4>Failed to load conversations</h4>
                         <p class="small text-muted">Error: ${error.message}</p>
-                        <button class="btn btn-outline-primary btn-sm" onclick="loadConversations()">Retry</button>
-                        <button class="btn btn-outline-secondary btn-sm" onclick="populateSampleData()">Load Sample Data</button>
+                        <button class="btn btn-primary btn-sm" onclick="loadConversations()">Retry</button>
                     </div>
                 `;
             });
@@ -175,12 +159,11 @@ async function loadConversations() {
     } catch (error) {
         console.error('Error setting up conversations listener:', error);
         conversationsList.innerHTML = `
-            <div class="text-center py-4">
-                <i class="bi bi-exclamation-triangle text-warning" style="font-size: 2rem;"></i>
-                <p class="mt-2 text-muted">Failed to load conversations</p>
+            <div class="conversations-empty">
+                <i class="bi bi-exclamation-triangle text-warning"></i>
+                <h4>Failed to load conversations</h4>
                 <p class="small text-muted">Error: ${error.message}</p>
-                <button class="btn btn-outline-primary btn-sm" onclick="loadConversations()">Retry</button>
-                <button class="btn btn-outline-secondary btn-sm" onclick="populateSampleData()">Load Sample Data</button>
+                <button class="btn btn-primary btn-sm" onclick="loadConversations()">Retry</button>
             </div>
         `;
     }
@@ -931,138 +914,9 @@ window.addEventListener('beforeunload', function() {
     window.messagingInitialized = false;
 });
 
-// Populate sample data for testing
-async function populateSampleData() {
-    if (!window.currentUser) {
-        console.error('No user authenticated');
-        return;
-    }
 
-    if (!db) {
-        console.error('Database not initialized');
-        alert('Database connection not available. Please refresh the page.');
-        return;
-    }
 
-    console.log('Populating sample data for user:', window.currentUser.uid);
 
-    try {
-        // Use global db variable
-        // Create sample conversations
-        const sampleConversations = [
-            {
-                participants: [window.currentUser.uid, 'agent1'],
-                participantDetails: [
-                    {
-                        uid: window.currentUser.uid,
-                        name: window.currentUser.displayName || window.currentUser.email,
-                        email: window.currentUser.email,
-                        avatar: window.currentUser.photoURL || '../../img/avatar-placeholder.svg'
-                    },
-                    {
-                        uid: 'agent1',
-                        name: 'Sarah Johnson',
-                        email: 'sarah@starletproperties.ug',
-                        avatar: 'https://randomuser.me/api/portraits/women/1.jpg'
-                    }
-                ],
-                listingTitle: 'Beautiful 3-Bedroom House in Kampala',
-                lastMessage: 'Thank you for your interest! When would you like to schedule a viewing?',
-                lastMessageAt: firebase.firestore.FieldValue.serverTimestamp(),
-                unread: {
-                    [window.currentUser.uid]: 2
-                }
-            },
-            {
-                participants: [window.currentUser.uid, 'agent2'],
-                participantDetails: [
-                    {
-                        uid: window.currentUser.uid,
-                        name: window.currentUser.displayName || window.currentUser.email,
-                        email: window.currentUser.email,
-                        avatar: window.currentUser.photoURL || '../../img/avatar-placeholder.svg'
-                    },
-                    {
-                        uid: 'agent2',
-                        name: 'Michael Chen',
-                        email: 'michael@starletproperties.ug',
-                        avatar: 'https://randomuser.me/api/portraits/men/2.jpg'
-                    }
-                ],
-                listingTitle: 'Luxury SUV for Sale',
-                lastMessage: 'The vehicle is still available. Would you like to see it this weekend?',
-                lastMessageAt: firebase.firestore.FieldValue.serverTimestamp(),
-                unread: {}
-            }
-        ];
-
-        // Add conversations to Firestore
-        for (const conversation of sampleConversations) {
-            const chatRef = await db.collection('chats').add(conversation);
-            console.log('Created conversation:', chatRef.id);
-
-            // Add sample messages
-            const sampleMessages = [
-                {
-                    content: 'Hi! I\'m interested in this property. Is it still available?',
-                    type: 'text',
-                    senderId: window.currentUser.uid,
-                    senderName: window.currentUser.displayName || window.currentUser.email,
-                    senderAvatar: window.currentUser.photoURL || '../../img/avatar-placeholder.svg',
-                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
-                },
-                {
-                    content: 'Hello! Yes, it\'s still available. Would you like to schedule a viewing?',
-                    type: 'text',
-                    senderId: conversation.participants.find(p => p !== window.currentUser.uid),
-                    senderName: conversation.participantDetails.find(p => p.uid !== window.currentUser.uid).name,
-                    senderAvatar: conversation.participantDetails.find(p => p.uid !== window.currentUser.uid).avatar,
-                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
-                }
-            ];
-
-            for (const message of sampleMessages) {
-                await chatRef.collection('messages').add(message);
-            }
-        }
-
-        console.log('Sample data populated successfully');
-        alert('Sample conversations created! Refresh the page to see them.');
-
-    } catch (error) {
-        console.error('Error populating sample data:', error);
-        alert('Failed to create sample data: ' + error.message);
-    }
-}
-
-// Test Firebase connection
-async function testFirebaseConnection() {
-    console.log('Testing Firebase connection...');
-    
-    try {
-        // Use global variables
-        const auth = window.firebaseAuth || firebase.auth();
-        const storage = window.firebaseStorage || (typeof firebase.storage === 'function' ? firebase.storage() : null);
-        
-        console.log('Firebase services status:');
-        console.log('- Firestore:', db ? 'Available' : 'Not available');
-        console.log('- Auth:', auth ? 'Available' : 'Not available');
-        console.log('- Storage:', storage ? 'Available' : 'Not available');
-        console.log('- Current user:', window.currentUser ? window.currentUser.email : 'Not authenticated');
-        
-        // Test Firestore connection
-        if (db) {
-            const testDoc = await db.collection('test').doc('connection-test').get();
-            console.log('Firestore connection test:', testDoc.exists ? 'Success' : 'Success (doc does not exist)');
-        }
-        
-        alert('Firebase connection test completed. Check console for details.');
-        
-    } catch (error) {
-        console.error('Firebase connection test failed:', error);
-        alert('Firebase connection test failed: ' + error.message);
-    }
-}
 
 // Show notification
 function showNotification(message, type = 'info') {
@@ -1114,7 +968,4 @@ function showNotification(message, type = 'info') {
 window.openChat = openChat;
 window.removeFile = removeFile;
 window.uploadAndSendFiles = uploadAndSendFiles;
-window.populateSampleData = populateSampleData;
-window.testFirebaseConnection = testFirebaseConnection;
-window.createNewConversation = createNewConversation;
 window.showNotification = showNotification;
