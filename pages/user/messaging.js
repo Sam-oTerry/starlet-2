@@ -178,20 +178,38 @@ function renderConversations(conversations) {
     console.log('Conversations list element:', conversationsList);
     console.log('Conversations list visibility:', conversationsList.style.display, conversationsList.style.visibility, conversationsList.style.opacity);
     
-    if (conversations.length === 0) {
+    console.log('Conversations array length:', conversations.length);
+    console.log('Conversations array type:', typeof conversations);
+    console.log('Is conversations array?', Array.isArray(conversations));
+    
+    if (!conversations || conversations.length === 0) {
+        console.log('No conversations to render, showing empty state');
         conversationsList.innerHTML = `
             <div class="conversations-empty">
                 <i class="bi bi-chat-dots"></i>
                 <h4>No conversations yet</h4>
                 <p>Start a conversation by messaging a seller or agent</p>
-
             </div>
         `;
         return;
     }
 
-    conversationsList.innerHTML = conversations.map(conversation => {
-        console.log('Processing conversation:', conversation);
+    console.log('Starting to render', conversations.length, 'conversations');
+    
+    const conversationHtmls = conversations.map((conversation, index) => {
+        console.log(`Processing conversation ${index + 1}/${conversations.length}:`, conversation);
+        
+        // Skip conversations that are null or undefined
+        if (!conversation) {
+            console.warn(`Conversation ${index} is null or undefined, skipping`);
+            return '';
+        }
+        
+        // Skip conversations without an ID
+        if (!conversation.id) {
+            console.warn(`Conversation ${index} has no ID, skipping:`, conversation);
+            return '';
+        }
         
         // Handle different conversation structures
         let otherUser = {};
@@ -270,21 +288,34 @@ function renderConversations(conversations) {
         
         console.log('Generated HTML for conversation:', conversation.id, conversationHtml);
         return conversationHtml;
-    }).join('');
+    });
+    
+    // Filter out empty strings and join
+    const validHtmls = conversationHtmls.filter(html => html !== '');
+    console.log('Valid conversation HTMLs:', validHtmls.length, 'out of', conversations.length);
+    
+    conversationsList.innerHTML = validHtmls.join('');
     
     console.log('Final conversations HTML length:', conversationsList.innerHTML.length);
     console.log('Number of conversation-item elements:', conversationsList.querySelectorAll('.conversation-item').length);
     
     // Add a visual indicator if no conversations are rendered
     const renderedItems = conversationsList.querySelectorAll('.conversation-item');
+    console.log('Rendered items count:', renderedItems.length);
+    
     if (renderedItems.length === 0) {
         console.error('No conversation items were rendered!');
+        console.error('Original conversations count:', conversations.length);
+        console.error('Valid HTMLs count:', validHtmls.length);
+        console.error('Final HTML length:', conversationsList.innerHTML.length);
+        
         conversationsList.innerHTML = `
             <div class="conversations-empty">
                 <i class="bi bi-exclamation-triangle text-warning"></i>
                 <h4>Rendering Issue</h4>
                 <p>Conversations loaded but not displayed. Check console for details.</p>
                 <p class="small text-muted">Expected: ${conversations.length} conversations</p>
+                <p class="small text-muted">Valid: ${validHtmls.length} conversations</p>
                 <p class="small text-muted">Rendered: ${renderedItems.length} items</p>
             </div>
         `;
