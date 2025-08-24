@@ -312,73 +312,123 @@ function loadMessages(chatId) {
         });
 }
 
-// Render messages
-function renderMessages(messages) {
-    const chatMessages = document.getElementById('chatMessages');
-    
-    if (messages.length === 0) {
-        chatMessages.innerHTML = `
-          <div class="empty-state">
-            <div class="empty-state-icon">
-              <i class="bi bi-chat-dots"></i>
-            </div>
-            <h3>No messages yet</h3>
-            <p>Start the conversation by sending a message</p>
-          </div>
-        `;
-        return;
-      }
+// Function to render a single message
+function renderMessage(message) {
+  const isCurrentUser = message.senderId === currentUser.uid;
+  const messageClass = isCurrentUser ? 'sent' : 'received';
+  
+  // Create message element
+  const messageElement = document.createElement('div');
+  messageElement.className = `message ${messageClass}`;
+  
+  // Handle different message types
+  let messageContent = '';
+  switch (message.type) {
+    case 'text':
+      messageContent = message.content;
+      break;
       
-    chatMessages.innerHTML = messages.map(message => {
-        const isOwnMessage = message.senderId === currentUser.uid;
-        const messageClass = isOwnMessage ? 'sent' : 'received';
-        
-        return `
-            <div class="chat-message ${messageClass}" data-message-id="${message.id}">
-                <img src="${isOwnMessage ? (currentUser.photoURL || '../../img/avatar-placeholder.svg') : (message.senderAvatar || '../../img/avatar-placeholder.svg')}" 
-                     alt="Avatar" class="avatar">
-                <div class="message-content">
-                    <div class="bubble">
-                        ${message.type === 'text' ? escapeHTML(message.content) : renderMessageContent(message)}
-                        <div class="meta">
-                            ${formatTime(message.timestamp)}
-                            ${isOwnMessage ? '<i class="bi bi-check2-all"></i>' : ''}
-                        </div>
-                    </div>
-                </div>
-            </div>
-          `;
-    }).join('');
-
-    // Scroll to bottom
-    setTimeout(() => {
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-    }, 100);
+    case 'chart':
+      messageContent = `
+        <div class="chart-container">
+          <canvas class="chart-canvas" data-chart-data='${JSON.stringify(message.chartData)}'></canvas>
+        </div>
+      `;
+      break;
+      
+    case 'image':
+      messageContent = `
+        <div class="image-message">
+          <img src="${message.imageUrl}" alt="Shared image" class="message-image">
+          ${message.caption ? `<div class="image-caption">${message.caption}</div>` : ''}
+        </div>
+      `;
+      break;
+      
+    default:
+      messageContent = message.content || 'Unsupported message type';
+  }
+  
+  // Format time
+  const messageTime = message.timestamp?.toDate 
+    ? message.timestamp.toDate() 
+    : (message.timestamp ? new Date(message.timestamp) : new Date());
+  const formattedTime = messageTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  
+  // Set message HTML
+  messageElement.innerHTML = `
+    <div class="message-content">${messageContent}</div>
+    <div class="message-meta">
+      <span class="message-time">${formattedTime}</span>
+      ${isCurrentUser ? '<span class="message-status">✓✓</span>' : ''}
+    </div>
+  `;
+  
+  return messageElement;
 }
 
-// Render different message content types
-function renderMessageContent(message) {
-    switch (message.type) {
-        case 'image':
-            return `<div class="media-content">
-                        <img src="${message.content}" alt="Image" onclick="openImageModal('${message.content}')">
-                    </div>`;
-        case 'file':
-            return `<div class="media-content">
-                        <div class="file-item">
-                            <i class="bi bi-file-earmark"></i>
-                            <div class="file-info">
-                                <div class="file-name">${message.fileName}</div>
-                                <div class="file-size">${formatFileSize(message.fileSize)}</div>
-                            </div>
-                            <a href="${message.content}" download class="btn btn-sm btn-outline-primary">
-                                <i class="bi bi-download"></i>
-                            </a>
-            </div>
-                    </div>`;
-        default:
-            return escapeHTML(message.content);
+// Function to render all messages
+function renderMessages(messages) {
+  const container = document.getElementById('chatMessages');
+  if (!container) return;
+  
+  // Clear existing messages
+  container.innerHTML = '';
+  
+  if (!messages || messages.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state">
+        <i class="bi bi-chat-dots"></i>
+        <p>No messages yet. Start the conversation!</p>
+      </div>
+    `;
+    return;
+  }
+  
+  // Render each message
+  messages.forEach(message => {
+    const messageElement = renderMessage(message);
+    container.appendChild(messageElement);
+  });
+  
+  // Initialize charts if any
+  initializeCharts();
+  
+  // Scroll to bottom
+  container.scrollTop = container.scrollHeight;
+}
+
+// Function to initialize chart.js charts
+function initializeCharts() {
+  const chartContainers = document.querySelectorAll('.chart-canvas');
+  
+  chartContainers.forEach(container => {
+    try {
+      const ctx = container.getContext('2d');
+      const chartData = JSON.parse(container.dataset.chartData);
+      
+      new Chart(ctx, {
+        type: chartData.type || 'line', // Default to line chart
+        data: chartData.data,
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'top',
+            },
+            title: {
+              display: true,
+              text: chartData.title || '',
+            },
+          },
+          scales: chartData.scales || {}
+        },
+      });
+    } catch (error) {
+      console.error('Error initializing chart:', error);
     }
+  });
 }
 
 // Send message

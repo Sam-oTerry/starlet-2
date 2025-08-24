@@ -8,7 +8,23 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   <link rel="stylesheet" href="../../css/style.css">
+  <!-- Add these in the head section -->
+<link href="https://cdn.jsdelivr.net/npm/emoji-picker-element@1.12.0" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/emoji-picker-element@1.12.0"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
+    /* Chat Messages */
+.messages-container {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+  background-color: #e5ddd5;
+  background-image: 
+    radial-gradient(circle at 25% 25%, rgba(255,255,255,0.1) 0%, transparent 50%),
+    radial-gradient(circle at 75% 75%, rgba(255,255,255,0.1) 0%, transparent 50%);
+  background-size: 20px 20px;
+}
+
     /* Modern Messaging Interface */
     :root {
       --primary-blue: #03254c;
