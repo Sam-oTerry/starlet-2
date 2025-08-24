@@ -3,7 +3,6 @@
 
 // Global variables
 // Use undefined instead of null for uninitialized variables to avoid potential issues with strict null checks or type coercion
-let currentUser;           // Will hold the current user's info after authentication
 let currentChatId;         // Will hold the currently selected chat/conversation ID
 let chatUnsub;             // Will hold the unsubscribe function for chat listener
 let typingUnsub;           // Will hold the unsubscribe function for typing indicator listener
@@ -66,7 +65,8 @@ function initializeMessaging() {
             return;
         }
         
-        currentUser = user;
+        // Use window.currentUser to avoid conflicts with other scripts
+        window.currentUser = user;
         console.log('User authenticated:', user.email, 'UID:', user.uid);
         
         // Initialize messaging features
@@ -512,11 +512,7 @@ function setupEventListeners() {
     // Send button click
     sendBtn.addEventListener('click', sendMessage);
 
-    // Emoji button click
-    emojiBtn.addEventListener('click', function() {
-        const emojiPicker = document.getElementById('emojiPicker');
-        emojiPicker.style.display = emojiPicker.style.display === 'none' ? 'block' : 'none';
-    });
+    // Emoji button click is now handled in setupEmojiPicker function
 
     // Attachment button click
     attachmentBtn.addEventListener('click', function() {
@@ -527,32 +523,68 @@ function setupEventListeners() {
     document.getElementById('fileInput').addEventListener('change', handleFileSelect);
 }
 
-// Setup emoji picker
+// Setup emoji picker with simple implementation
 function setupEmojiPicker() {
-    const emojiPicker = document.getElementById('emojiPicker');
+    const emojiBtn = document.getElementById('emojiBtn');
     const messageInput = document.getElementById('messageInput');
-
-    if (emojiPicker) {
-        emojiPicker.addEventListener('emoji-click', event => {
+    
+    if (!emojiBtn || !messageInput) return;
+    
+    // Create simple emoji picker
+    const emojiPicker = document.createElement('div');
+    emojiPicker.className = 'emoji-picker';
+    emojiPicker.id = 'emojiPicker';
+    
+    // Common emojis
+    const emojis = ['😀', '😃', '😄', '😁', '😆', '😅', '😂', '🤣', '😊', '😇', '🙂', '🙃', '😉', '😌', '😍', '🥰', '😘', '😗', '😙', '😚', '😋', '😛', '😝', '😜', '🤪', '🤨', '🧐', '🤓', '😎', '🤩', '🥳', '😏', '😒', '😞', '😔', '😟', '😕', '🙁', '☹️', '😣', '😖', '😫', '😩', '🥺', '😢', '😭', '😤', '😠', '😡', '🤬', '🤯', '😳', '🥵', '🥶', '😱', '😨', '😰', '😥', '😓', '🤗', '🤔', '🤭', '🤫', '🤥', '😶', '😐', '😑', '😯', '😦', '😧', '😮', '😲', '🥱', '😴', '🤤', '😪', '😵', '🤐', '🥴', '🤢', '🤮', '🤧', '😷', '🤒', '🤕', '🤑', '🤠', '💩', '👻', '💀', '☠️', '👽', '👾', '🤖', '😺', '😸', '😹', '😻', '😼', '😽', '🙀', '😿', '😾', '🙈', '🙉', '🙊', '👶', '👧', '🧒', '👦', '👩', '🧑', '👨', '👵', '🧓', '👴', '👮‍♀️', '👮', '👮‍♂️', '🕵️‍♀️', '🕵️', '🕵️‍♂️', '💂‍♀️', '💂', '💂‍♂️', '👷‍♀️', '👷', '👷‍♂️', '🤴', '👸', '👳‍♀️', '👳', '👳‍♂️', '👲', '🧕‍♀️', '🤵‍♀️', '🤵', '🤵‍♂️', '👰‍♀️', '👰', '👰‍♂️', '🤰‍♀️', '🤰', '🤰‍♂️', '🤱‍♀️', '🤱', '🤱‍♂️', '👼', '🎅', '🤶', '🦸‍♀️', '🦸', '🦸‍♂️', '🦹‍♀️', '🦹', '🦹‍♂️', '🧙‍♀️', '🧙', '🧙‍♂️', '🧚‍♀️', '🧚', '🧚‍♂️', '🧛‍♀️', '🧛', '🧛‍♂️', '🧜‍♀️', '🧜', '🧜‍♂️', '🧝‍♀️', '🧝', '🧝‍♂️', '🧞‍♀️', '🧞', '🧞‍♂️', '🧟‍♀️', '🧟', '🧟‍♂️', '🙍‍♀️', '🙍', '🙍‍♂️', '🙎‍♀️', '🙎', '🙎‍♂️', '🙅‍♀️', '🙅', '🙅‍♂️', '🙆‍♀️', '🙆', '🙆‍♂️', '💁‍♀️', '💁', '💁‍♂️', '🙋‍♀️', '🙋', '🙋‍♂️', '🧏‍♀️', '🧏', '🧏‍♂️', '🙇‍♀️', '🙇', '🙇‍♂️', '🤦‍♀️', '🤦', '🤦‍♂️', '🤷‍♀️', '🤷', '🤷‍♂️', '👨‍⚕️', '👩‍⚕️', '👨‍🎓', '👩‍🎓', '👨‍🏫', '👩‍🏫', '👨‍⚖️', '👩‍⚖️', '👨‍🌾', '👩‍🌾', '👨‍🍳', '👩‍🍳', '👨‍🔧', '👩‍🔧', '👨‍🏭', '👩‍🏭', '👨‍💼', '👩‍💼', '👨‍🔬', '👩‍🔬', '👨‍💻', '👩‍💻', '👨‍🎤', '👩‍🎤', '👨‍🎨', '👩‍🎨', '👨‍✈️', '👩‍✈️', '👨‍🚀', '👩‍🚀', '👨‍🚒', '👩‍🚒', '👮‍♀️', '👮', '👮‍♂️', '🕵️‍♀️', '🕵️', '🕵️‍♂️', '💂‍♀️', '💂', '💂‍♂️', '👷‍♀️', '👷', '👷‍♂️', '🤴', '👸', '👳‍♀️', '👳', '👳‍♂️', '👲', '🧕‍♀️', '🤵‍♀️', '🤵', '🤵‍♂️', '👰‍♀️', '👰', '👰‍♂️', '🤰‍♀️', '🤰', '🤰‍♂️', '🤱‍♀️', '🤱', '🤱‍♂️', '👼', '🎅', '🤶', '🦸‍♀️', '🦸', '🦸‍♂️', '🦹‍♀️', '🦹', '🦹‍♂️', '🧙‍♀️', '🧙', '🧙‍♂️', '🧚‍♀️', '🧚', '🧚‍♂️', '🧛‍♀️', '🧛', '🧛‍♂️', '🧜‍♀️', '🧜', '🧜‍♂️', '🧝‍♀️', '🧝', '🧝‍♂️', '🧞‍♀️', '🧞', '🧞‍♂️', '🧟‍♀️', '🧟', '🧟‍♂️', '🙍‍♀️', '🙍', '🙍‍♂️', '🙎‍♀️', '🙎', '🙎‍♂️', '🙅‍♀️', '🙅', '🙅‍♂️', '🙆‍♀️', '🙆', '🙆‍♂️', '💁‍♀️', '💁', '💁‍♂️', '🙋‍♀️', '🙋', '🙋‍♂️', '🧏‍♀️', '🧏', '🧏‍♂️', '🙇‍♀️', '🙇', '🙇‍♂️', '🤦‍♀️', '🤦', '🤦‍♂️', '🤷‍♀️', '🤷', '🤷‍♂️', '👨‍⚕️', '👩‍⚕️', '👨‍🎓', '👩‍🎓', '👨‍🏫', '👩‍🏫', '👨‍⚖️', '👩‍⚖️', '👨‍🌾', '👩‍🌾', '👨‍🍳', '👩‍🍳', '👨‍🔧', '👩‍🔧', '👨‍🏭', '👩‍🏭', '👨‍💼', '👩‍💼', '👨‍🔬', '👩‍🔬', '👨‍💻', '👩‍💻', '👨‍🎤', '👩‍🎤', '👨‍🎨', '👩‍🎨', '👨‍✈️', '👩‍✈️', '👨‍🚀', '👩‍🚀', '👨‍🚒', '👩‍🚒'];
+    
+    // Create emoji grid
+    const emojiGrid = document.createElement('div');
+    emojiGrid.className = 'emoji-grid';
+    
+    emojis.forEach(emoji => {
+        const emojiItem = document.createElement('div');
+        emojiItem.className = 'emoji-item';
+        emojiItem.textContent = emoji;
+        emojiItem.onclick = () => {
             const cursorPos = messageInput.selectionStart;
             const textBefore = messageInput.value.substring(0, cursorPos);
             const textAfter = messageInput.value.substring(cursorPos);
             
-            messageInput.value = textBefore + event.detail.unicode + textAfter;
-            messageInput.setSelectionRange(cursorPos + event.detail.unicode.length, cursorPos + event.detail.unicode.length);
+            messageInput.value = textBefore + emoji + textAfter;
+            messageInput.setSelectionRange(cursorPos + emoji.length, cursorPos + emoji.length);
             messageInput.focus();
             
             // Trigger input event to update send button
             messageInput.dispatchEvent(new Event('input'));
-        });
-
-        // Hide emoji picker when clicking outside
-        document.addEventListener('click', function(e) {
-            if (!emojiPicker.contains(e.target) && !document.getElementById('emojiBtn').contains(e.target)) {
-                emojiPicker.style.display = 'none';
-            }
-        });
-    }
+            
+            // Hide emoji picker
+            emojiPicker.classList.remove('show');
+        };
+        emojiGrid.appendChild(emojiItem);
+    });
+    
+    emojiPicker.appendChild(emojiGrid);
+    document.body.appendChild(emojiPicker);
+    
+    // Emoji button click handler
+    emojiBtn.onclick = (e) => {
+        e.preventDefault();
+        emojiPicker.classList.toggle('show');
+        
+        // Position the picker near the button
+        const rect = emojiBtn.getBoundingClientRect();
+        emojiPicker.style.position = 'absolute';
+        emojiPicker.style.top = (rect.bottom + 5) + 'px';
+        emojiPicker.style.left = rect.left + 'px';
+    };
+    
+    // Hide emoji picker when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!emojiPicker.contains(e.target) && !emojiBtn.contains(e.target)) {
+            emojiPicker.classList.remove('show');
+        }
+    });
 }
 
 // Setup file upload

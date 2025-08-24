@@ -38,7 +38,12 @@ function initializeFirebaseServices() {
       window.firebaseAuth = auth;
       window.firebaseStorage = storage;
 
-      // Enable offline persistence for Firestore
+      // Enable offline persistence for Firestore using new cache settings
+      db.settings({
+        cacheSizeBytes: firebase.firestore.CACHE_SIZE_UNLIMITED
+      });
+      
+      // Enable persistence with proper error handling
       db.enablePersistence()
         .catch((err) => {
           if (err.code == 'failed-precondition') {
