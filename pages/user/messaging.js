@@ -274,6 +274,23 @@ function renderConversations(conversations) {
     
     console.log('Final conversations HTML length:', conversationsList.innerHTML.length);
     console.log('Number of conversation-item elements:', conversationsList.querySelectorAll('.conversation-item').length);
+    
+    // Add a visual indicator if no conversations are rendered
+    const renderedItems = conversationsList.querySelectorAll('.conversation-item');
+    if (renderedItems.length === 0) {
+        console.error('No conversation items were rendered!');
+        conversationsList.innerHTML = `
+            <div class="conversations-empty">
+                <i class="bi bi-exclamation-triangle text-warning"></i>
+                <h4>Rendering Issue</h4>
+                <p>Conversations loaded but not displayed. Check console for details.</p>
+                <p class="small text-muted">Expected: ${conversations.length} conversations</p>
+                <p class="small text-muted">Rendered: ${renderedItems.length} items</p>
+            </div>
+        `;
+    } else {
+        console.log('Successfully rendered', renderedItems.length, 'conversation items');
+    }
 }
 
 // Open chat and load messages
