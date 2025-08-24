@@ -391,7 +391,14 @@
     
     /* Typing Indicator */
     .typing-indicator {
-      display: none;
+      display: flex;
+      align-items: center;
+      margin: 8px 0;
+      padding: 0 16px;
+    }
+    
+    .typing-bubble {
+      display: flex;
       align-items: center;
       gap: 8px;
       padding: 12px 16px;
@@ -432,6 +439,35 @@
       font-size: 0.8rem;
       color: #6c757d;
       font-style: italic;
+    }
+    
+    /* Online Status */
+    .status-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.8rem;
+      color: #6c757d;
+    }
+    
+    .status-indicator.online {
+      color: #25d366;
+    }
+    
+    .status-indicator.offline {
+      color: #6c757d;
+    }
+    
+    .status-indicator i {
+      font-size: 0.6rem;
+    }
+    
+    .status-indicator.online i {
+      color: #25d366;
+    }
+    
+    .status-indicator.offline i {
+      color: #6c757d;
     }
     
     .chat-input-area { 

@@ -9,8 +9,10 @@ let storage;               // Will hold the Firebase Storage reference
 let currentChatId;         // Will hold the currently selected chat/conversation ID
 let chatUnsub;             // Will hold the unsubscribe function for chat listener
 let typingUnsub;           // Will hold the unsubscribe function for typing indicator listener
+let onlineStatusUnsub;     // Will hold the unsubscribe function for online status listener
 let conversationsUnsub;    // Will hold the unsubscribe function for conversations list listener
 let selectedFiles = [];
+let typingTimeout = null;  // Will hold the typing timeout for debouncing
 
 // Firebase services - will use global services from firebase-config.js
 
@@ -84,6 +86,28 @@ function initializeMessaging() {
         setupEventListeners();
         setupEmojiPicker();
         setupFileUpload();
+        
+        // Set up online status
+        updateOnlineStatus(true);
+        
+        // Set up page visibility change listener for online status
+        document.addEventListener('visibilitychange', () => {
+            updateOnlineStatus(!document.hidden);
+        });
+        
+        // Set up beforeunload listener to mark user as offline
+        window.addEventListener('beforeunload', () => {
+            updateOnlineStatus(false);
+        });
+        
+        // Set up page unload listener to clean up listeners
+        window.addEventListener('unload', () => {
+            if (chatUnsub) chatUnsub();
+            if (typingUnsub) typingUnsub();
+            if (onlineStatusUnsub) onlineStatusUnsub();
+            if (conversationsUnsub) conversationsUnsub();
+            if (typingTimeout) clearTimeout(typingTimeout);
+        });
         
         // Mark messaging as initialized
         window.messagingInitialized = true;
@@ -359,8 +383,15 @@ function renderConversations(conversations) {
 
 // Open chat and load messages
 async function openChat(chatId) {
+    // Clean up previous listeners
     if (chatUnsub) chatUnsub();
     if (typingUnsub) typingUnsub();
+    if (onlineStatusUnsub) onlineStatusUnsub();
+    
+    // Clear typing timeout
+    if (typingTimeout) {
+        clearTimeout(typingTimeout);
+    }
 
     currentChatId = chatId;
 
@@ -411,6 +442,9 @@ async function openChat(chatId) {
 
         // Listen for typing
         listenForTyping(chatId, otherUser.uid);
+        
+        // Listen for online status
+        listenForOnlineStatus(otherUser.uid);
 
     } catch (error) {
         console.error('Error opening chat:', error);
@@ -432,10 +466,17 @@ function updateChatHeader(otherUser, chatData) {
     chatUserName.textContent = listingTitle;
     chatAvatar.src = otherUser.avatar || '../../img/avatar-placeholder.svg';
     
-    // Update status with price information
+    // Initialize status with offline state (will be updated by online status listener)
     const statusIndicator = chatUserStatus.querySelector('.status-indicator');
-    statusIndicator.className = 'status-indicator offline';
-    chatUserStatus.querySelector('span').textContent = listingPrice || 'Property Inquiry';
+    if (statusIndicator) {
+        statusIndicator.className = 'status-indicator offline';
+        statusIndicator.innerHTML = '<i class="bi bi-circle"></i>';
+    }
+    
+    const statusText = chatUserStatus.querySelector('span');
+    if (statusText) {
+        statusText.textContent = 'offline';
+    }
 }
 
 // Load messages
@@ -722,6 +763,34 @@ function setupEventListeners() {
     if (fileInput) {
         fileInput.addEventListener('change', handleFileSelect);
     }
+    
+    // Typing indicator functionality
+    if (messageInput) {
+        messageInput.addEventListener('input', function() {
+            if (currentChatId) {
+                // Clear existing timeout
+                if (typingTimeout) {
+                    clearTimeout(typingTimeout);
+                }
+                
+                // Set typing status to true
+                updateTypingStatus(currentChatId, true);
+                
+                // Set timeout to stop typing indicator after 2 seconds of no input
+                typingTimeout = setTimeout(() => {
+                    updateTypingStatus(currentChatId, false);
+                }, 2000);
+            }
+        });
+        
+        // Stop typing when input loses focus
+        messageInput.addEventListener('blur', function() {
+            if (currentChatId && typingTimeout) {
+                clearTimeout(typingTimeout);
+                updateTypingStatus(currentChatId, false);
+            }
+        });
+    }
 }
 
 // Setup emoji picker with simple implementation
@@ -931,33 +1000,79 @@ async function markMessagesAsRead(chatId) {
 
 // Listen for typing indicators
 function listenForTyping(chatId, otherUserId) {
-    // Use global db variable
+    console.log('Setting up typing listener for chat:', chatId, 'other user:', otherUserId);
+    
+    if (!db) {
+        console.error('Database not available for typing listener');
+        return;
+    }
+    
+    // Clean up previous listener
+    if (typingUnsub) {
+        typingUnsub();
+    }
     
     typingUnsub = db.collection('conversations').doc(chatId)
         .collection('typing')
         .doc(otherUserId)
         .onSnapshot(doc => {
+            console.log('Typing status update:', doc.exists ? doc.data() : 'not typing');
+            
             const typingIndicator = document.querySelector('.typing-indicator');
             if (doc.exists && doc.data().isTyping) {
                 if (!typingIndicator) {
+                    console.log('Showing typing indicator');
                     const indicator = document.createElement('div');
                     indicator.className = 'typing-indicator';
                     indicator.innerHTML = `
-                        <span>Typing</span>
-                        <div class="typing-dots">
-                            <div class="typing-dot"></div>
-                            <div class="typing-dot"></div>
-                            <div class="typing-dot"></div>
+                        <div class="typing-bubble">
+                            <div class="typing-dots">
+                                <div class="typing-dot"></div>
+                                <div class="typing-dot"></div>
+                                <div class="typing-dot"></div>
+                            </div>
+                            <span class="typing-text">typing...</span>
                         </div>
                     `;
-                    document.getElementById('chatMessages').appendChild(indicator);
+                    const chatMessages = document.getElementById('chatMessages');
+                    if (chatMessages) {
+                        chatMessages.appendChild(indicator);
+                        // Auto-scroll to show typing indicator
+                        chatMessages.scrollTop = chatMessages.scrollHeight;
+                    }
                 }
             } else {
                 if (typingIndicator) {
+                    console.log('Hiding typing indicator');
                     typingIndicator.remove();
                 }
             }
+        }, error => {
+            console.error('Error listening for typing:', error);
         });
+}
+
+// Update typing status
+function updateTypingStatus(chatId, isTyping) {
+    if (!db || !chatId || !window.currentUser) {
+        console.error('Cannot update typing status - missing required data');
+        return;
+    }
+    
+    console.log('Updating typing status:', isTyping, 'for chat:', chatId);
+    
+    const typingRef = db.collection('conversations').doc(chatId)
+        .collection('typing')
+        .doc(window.currentUser.uid);
+    
+    if (isTyping) {
+        typingRef.set({
+            isTyping: true,
+            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        });
+    } else {
+        typingRef.delete();
+    }
 }
 
 // Update conversation count
@@ -965,6 +1080,82 @@ function updateConversationCount(count) {
     const countElement = document.querySelector('.conversation-count');
     if (countElement) {
         countElement.textContent = count;
+    }
+}
+
+// Listen for online status
+function listenForOnlineStatus(userId) {
+    console.log('Setting up online status listener for user:', userId);
+    
+    if (!db) {
+        console.error('Database not available for online status listener');
+        return;
+    }
+    
+    // Clean up previous listener
+    if (onlineStatusUnsub) {
+        onlineStatusUnsub();
+    }
+    
+    onlineStatusUnsub = db.collection('presence').doc(userId)
+        .onSnapshot(doc => {
+            console.log('Online status update for user:', userId, doc.exists ? doc.data() : 'offline');
+            
+            const chatUserStatus = document.getElementById('chatUserStatus');
+            if (chatUserStatus) {
+                const statusIndicator = chatUserStatus.querySelector('.status-indicator');
+                const statusText = chatUserStatus.querySelector('span');
+                
+                if (doc.exists && doc.data().online) {
+                    // User is online
+                    if (statusIndicator) {
+                        statusIndicator.className = 'status-indicator online';
+                        statusIndicator.innerHTML = '<i class="bi bi-circle-fill"></i>';
+                    }
+                    if (statusText) {
+                        statusText.textContent = 'online';
+                    }
+                } else {
+                    // User is offline
+                    if (statusIndicator) {
+                        statusIndicator.className = 'status-indicator offline';
+                        statusIndicator.innerHTML = '<i class="bi bi-circle"></i>';
+                    }
+                    if (statusText) {
+                        statusText.textContent = 'offline';
+                    }
+                }
+            }
+        }, error => {
+            console.error('Error listening for online status:', error);
+        });
+}
+
+// Update user's online status
+function updateOnlineStatus(isOnline) {
+    if (!db || !window.currentUser) {
+        console.error('Cannot update online status - missing required data');
+        return;
+    }
+    
+    console.log('Updating online status:', isOnline);
+    
+    const presenceRef = db.collection('presence').doc(window.currentUser.uid);
+    
+    if (isOnline) {
+        presenceRef.set({
+            online: true,
+            lastSeen: firebase.firestore.FieldValue.serverTimestamp(),
+            userId: window.currentUser.uid,
+            displayName: window.currentUser.displayName || window.currentUser.email
+        });
+    } else {
+        presenceRef.set({
+            online: false,
+            lastSeen: firebase.firestore.FieldValue.serverTimestamp(),
+            userId: window.currentUser.uid,
+            displayName: window.currentUser.displayName || window.currentUser.email
+        });
     }
 }
 
