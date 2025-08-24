@@ -212,15 +212,26 @@ function renderConversations(conversations) {
         }
         
         // Handle different conversation structures
+        console.log(`Conversation ${index} participants:`, conversation.participants);
+        console.log(`Conversation ${index} participantDetails:`, conversation.participantDetails);
+        console.log(`Current user UID:`, window.currentUser.uid);
+        
         let otherUser = {};
         if (conversation.participantDetails && conversation.participantDetails.length > 0) {
+            console.log(`Conversation ${index} has participantDetails, searching for other user...`);
             otherUser = conversation.participantDetails.find(u => u.uid !== window.currentUser.uid) || {};
+            console.log(`Conversation ${index} otherUser from participantDetails:`, otherUser);
         } else if (conversation.participants && conversation.participants.length > 0) {
+            console.log(`Conversation ${index} has participants array, searching for other user...`);
             // Fallback: if no participantDetails, try to get from participants array
             const otherUserId = conversation.participants.find(uid => uid !== window.currentUser.uid);
+            console.log(`Conversation ${index} otherUserId from participants:`, otherUserId);
             if (otherUserId) {
                 otherUser = { uid: otherUserId, name: 'User', email: otherUserId };
+                console.log(`Conversation ${index} created otherUser from participants:`, otherUser);
             }
+        } else {
+            console.warn(`Conversation ${index} has no participants or participantDetails`);
         }
         
         console.log('Other user found:', otherUser);
@@ -230,15 +241,34 @@ function renderConversations(conversations) {
         const hasUnread = unreadCount > 0;
         
         // Get listing information if available
+        console.log(`Conversation ${index} listingQuote:`, conversation.listingQuote);
+        console.log(`Conversation ${index} listingTitle:`, conversation.listingTitle);
+        
         const listingInfo = conversation.listingQuote || {};
         const listingTitle = listingInfo.title || conversation.listingTitle || 'Property Inquiry';
         
-        console.log('Listing info:', listingInfo, 'Listing title:', listingTitle);
+        console.log(`Conversation ${index} final listing title:`, listingTitle);
         
         // Get user name for display (fallback to email if no name)
         const userName = otherUser.name || otherUser.email || 'Unknown User';
         
-        console.log('Final display data:', { listingTitle, userName, hasUnread, isActive });
+        console.log(`Conversation ${index} final display data:`, { 
+            listingTitle, 
+            userName, 
+            hasUnread, 
+            isActive,
+            otherUserExists: Object.keys(otherUser).length > 0,
+            hasListingInfo: !!listingInfo.title || !!conversation.listingTitle
+        });
+        
+        // Ensure we have at least basic data to render
+        if (!userName || userName === 'Unknown User') {
+            console.warn(`Conversation ${index} has no valid user name, using fallback`);
+        }
+        
+        if (!listingTitle || listingTitle === 'Property Inquiry') {
+            console.warn(`Conversation ${index} has no valid listing title, using fallback`);
+        }
         
         // Determine if the last message was sent by current user
         const isLastMessageFromCurrentUser = conversation.lastMessageSenderId === window.currentUser.uid;
@@ -285,6 +315,9 @@ function renderConversations(conversations) {
                 </div>
             </div>
         `;
+        
+        console.log(`Conversation ${index} generated HTML length:`, conversationHtml.length);
+        console.log(`Conversation ${index} HTML preview:`, conversationHtml.substring(0, 100) + '...');
         
         console.log('Generated HTML for conversation:', conversation.id, conversationHtml);
         return conversationHtml;
