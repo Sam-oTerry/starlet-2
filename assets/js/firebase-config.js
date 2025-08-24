@@ -41,7 +41,7 @@ function initializeFirebaseServices() {
       // Enable offline persistence for Firestore using new cache settings
       db.settings({
         cacheSizeBytes: firebase.firestore.CACHE_SIZE_UNLIMITED
-      });
+      }, { merge: true });
       
       // Enable persistence with proper error handling
       db.enablePersistence()

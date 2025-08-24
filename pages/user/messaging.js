@@ -39,6 +39,7 @@ function initializeMessaging() {
     console.log('Firebase available, using global services...');
     
     // Use global Firebase services directly
+    const db = window.firebaseDb || firebase.firestore();
     const auth = window.firebaseAuth || firebase.auth();
     const storage = window.firebaseStorage || (typeof firebase.storage === 'function' ? firebase.storage() : null);
 
@@ -189,7 +190,7 @@ function renderConversations(conversations) {
             <div class="conversation-item ${isActive ? 'active' : ''}" 
                  data-chat-id="${conversation.id}" 
                  onclick="openChat('${conversation.id}')">
-                                 <img src="${otherUser.avatar || '/img/avatar-placeholder.svg'}" 
+                                 <img src="${otherUser.avatar || '../../img/avatar-placeholder.svg'}" 
                      alt="${otherUser.name || 'User'}" 
                      class="conversation-avatar">
                 <div class="conversation-info">
@@ -263,7 +264,7 @@ function updateChatHeader(otherUser, chatData) {
     const chatAvatar = document.getElementById('chatAvatar');
 
     chatUserName.textContent = otherUser.name || 'Unknown User';
-    chatAvatar.src = otherUser.avatar || '/img/avatar-placeholder.svg';
+    chatAvatar.src = otherUser.avatar || '../../img/avatar-placeholder.svg';
     
     // Update status (you can implement online/offline logic here)
     const statusIndicator = chatUserStatus.querySelector('.status-indicator');
@@ -858,7 +859,7 @@ async function populateSampleData() {
                         uid: window.currentUser.uid,
                         name: window.currentUser.displayName || window.currentUser.email,
                         email: window.currentUser.email,
-                        avatar: window.currentUser.photoURL || '/img/avatar-placeholder.svg'
+                        avatar: window.currentUser.photoURL || '../../img/avatar-placeholder.svg'
                     },
                     {
                         uid: 'agent1',
@@ -881,7 +882,7 @@ async function populateSampleData() {
                         uid: window.currentUser.uid,
                         name: window.currentUser.displayName || window.currentUser.email,
                         email: window.currentUser.email,
-                        avatar: window.currentUser.photoURL || '/img/avatar-placeholder.svg'
+                        avatar: window.currentUser.photoURL || '../../img/avatar-placeholder.svg'
                     },
                     {
                         uid: 'agent2',
@@ -909,7 +910,7 @@ async function populateSampleData() {
                     type: 'text',
                     senderId: window.currentUser.uid,
                     senderName: window.currentUser.displayName || window.currentUser.email,
-                    senderAvatar: window.currentUser.photoURL || '/img/avatar-placeholder.svg',
+                    senderAvatar: window.currentUser.photoURL || '../../img/avatar-placeholder.svg',
                     timestamp: firebase.firestore.FieldValue.serverTimestamp()
                 },
                 {
