@@ -473,7 +473,7 @@ function updateChatHeader(otherUser, chatData) {
         statusIndicator.innerHTML = '<i class="bi bi-circle"></i>';
     }
     
-    const statusText = chatUserStatus.querySelector('span');
+    const statusText = chatUserStatus.querySelector('.status-text');
     if (statusText) {
         statusText.textContent = 'offline';
     }
@@ -1104,7 +1104,7 @@ function listenForOnlineStatus(userId) {
             const chatUserStatus = document.getElementById('chatUserStatus');
             if (chatUserStatus) {
                 const statusIndicator = chatUserStatus.querySelector('.status-indicator');
-                const statusText = chatUserStatus.querySelector('span');
+                const statusText = chatUserStatus.querySelector('.status-text');
                 
                 if (doc.exists && doc.data().online) {
                     // User is online
@@ -1116,13 +1116,37 @@ function listenForOnlineStatus(userId) {
                         statusText.textContent = 'online';
                     }
                 } else {
-                    // User is offline
+                    // User is offline - show last seen
                     if (statusIndicator) {
                         statusIndicator.className = 'status-indicator offline';
                         statusIndicator.innerHTML = '<i class="bi bi-circle"></i>';
                     }
                     if (statusText) {
-                        statusText.textContent = 'offline';
+                        if (doc.exists && doc.data().lastSeen) {
+                            const lastSeen = doc.data().lastSeen.toDate ? doc.data().lastSeen.toDate() : new Date(doc.data().lastSeen);
+                            const now = new Date();
+                            const diff = now - lastSeen;
+                            
+                            let lastSeenText = 'last seen ';
+                            if (diff < 60000) { // Less than 1 minute
+                                lastSeenText += 'just now';
+                            } else if (diff < 3600000) { // Less than 1 hour
+                                const minutes = Math.floor(diff / 60000);
+                                lastSeenText += `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
+                            } else if (diff < 86400000) { // Less than 1 day
+                                const hours = Math.floor(diff / 3600000);
+                                lastSeenText += `${hours} hour${hours > 1 ? 's' : ''} ago`;
+                            } else if (diff < 604800000) { // Less than 1 week
+                                const days = Math.floor(diff / 86400000);
+                                lastSeenText += `${days} day${days > 1 ? 's' : ''} ago`;
+                            } else {
+                                lastSeenText += lastSeen.toLocaleDateString();
+                            }
+                            
+                            statusText.textContent = lastSeenText;
+                        } else {
+                            statusText.textContent = 'offline';
+                        }
                     }
                 }
             }

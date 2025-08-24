@@ -442,12 +442,17 @@
     }
     
     /* Online Status */
+    .chat-user-status {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.8rem;
+      color: #6c757d;
+    }
+    
     .status-indicator {
       display: inline-flex;
       align-items: center;
-      gap: 4px;
-      font-size: 0.8rem;
-      color: #6c757d;
     }
     
     .status-indicator.online {
@@ -467,6 +472,11 @@
     }
     
     .status-indicator.offline i {
+      color: #6c757d;
+    }
+    
+    .status-text {
+      font-size: 0.8rem;
       color: #6c757d;
     }
     
@@ -2137,8 +2147,10 @@ footer.footer {
           <div class="chat-user-info">
             <div id="chatUserName" class="chat-user-name">Select a conversation</div>
             <div id="chatUserStatus" class="chat-user-status">
-              <span class="status-indicator offline"></span>
-              <span>Offline</span>
+              <span class="status-indicator offline">
+                <i class="bi bi-circle"></i>
+              </span>
+              <span class="status-text">offline</span>
           </div>
           </div>
         </div>
