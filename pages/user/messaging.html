@@ -126,16 +126,28 @@
     @media (max-width: 768px) {
       .chat-sidebar {
         width: 100%;
+        position: relative;
+        transform: none;
+        z-index: 1;
+      }
+      
+      .chat-main {
         position: absolute;
         left: 0;
         top: 0;
         bottom: 0;
+        width: 100%;
         z-index: 1000;
-        transform: translateX(-100%);
+        transform: translateX(100%);
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       }
       
-      .chat-sidebar.show {
+      .chat-main.show {
         transform: translateX(0);
+      }
+      
+      .chat-main.hide {
+        transform: translateX(100%);
       }
     }
     
@@ -484,6 +496,13 @@
     @media (max-width: 768px) {
       .chat-main {
         background: #fff;
+        display: flex;
+        flex-direction: column;
+      }
+      
+      .chat-sidebar {
+        display: flex;
+        flex-direction: column;
       }
     }
 
@@ -502,6 +521,37 @@
     @media (max-width: 768px) {
       .chat-header {
         padding: 16px 20px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      
+      .back-btn {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #fff;
+        border: 1px solid rgba(0,0,0,0.1);
+        color: #6b7280;
+        transition: all 0.2s ease;
+        flex-shrink: 0;
+      }
+      
+      .back-btn:hover {
+        background: #f8f9fa;
+        color: #374151;
+        transform: scale(1.05);
+      }
+      
+      .back-btn:active {
+        transform: scale(0.95);
+      }
+      
+      .chat-avatar {
+        margin-right: 0;
       }
     }
 
@@ -2525,8 +2575,11 @@ footer.footer {
       </div>
 
       <!-- Chat Main -->
-      <div class="chat-main">
+      <div class="chat-main hide">
         <div class="chat-header">
+          <button id="backToConversations" class="btn btn-light back-btn d-md-none" title="Back to conversations">
+            <i class="bi bi-arrow-left"></i>
+          </button>
           <img id="chatAvatar" src="../../img/avatar-placeholder.svg" alt="User Avatar" class="chat-avatar">
           <div class="chat-user-info">
             <div id="chatUserName" class="chat-user-name">Select a conversation</div>

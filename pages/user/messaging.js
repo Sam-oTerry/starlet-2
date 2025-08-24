@@ -119,6 +119,9 @@ function initializeMessaging() {
             if (typingTimeout) clearTimeout(typingTimeout);
         });
         
+        // Handle window resize for mobile navigation
+        window.addEventListener('resize', handleWindowResize);
+        
         // Mark messaging as initialized
         window.messagingInitialized = true;
         
@@ -409,6 +412,9 @@ async function openChat(chatId) {
     }
 
     currentChatId = chatId;
+    
+    // Show chat area on mobile
+    showChatArea();
 
     // Update active conversation
     document.querySelectorAll('.conversation-item').forEach(item => {
@@ -818,6 +824,15 @@ function setupEventListeners() {
         supportChatBtn.addEventListener('click', function() {
             console.log('Support chat button clicked');
             setupSupportChat();
+        });
+    }
+    
+    // Mobile navigation - back button
+    const backToConversationsBtn = document.getElementById('backToConversations');
+    if (backToConversationsBtn) {
+        backToConversationsBtn.addEventListener('click', function() {
+            console.log('Back to conversations clicked');
+            showConversationsList();
         });
     }
 }
@@ -1263,6 +1278,9 @@ async function setupSupportChat() {
         newUrl.searchParams.set('chat', supportChatId);
         window.history.replaceState({}, '', newUrl);
         
+        // Show chat area on mobile
+        showChatArea();
+        
     } catch (error) {
         console.error('Error setting up support chat:', error);
         showNotification('Failed to setup support chat. Please try again.', 'error');
@@ -1294,6 +1312,67 @@ function updateOnlineStatus(isOnline) {
             userId: window.currentUser.uid,
             displayName: window.currentUser.displayName || window.currentUser.email
         });
+    }
+}
+
+// Show chat area on mobile
+function showChatArea() {
+    const chatMain = document.querySelector('.chat-main');
+    const chatSidebar = document.querySelector('.chat-sidebar');
+    
+    if (window.innerWidth <= 768) {
+        chatMain.classList.add('show');
+        chatMain.classList.remove('hide');
+        chatSidebar.style.display = 'none';
+    }
+}
+
+// Show conversations list on mobile
+function showConversationsList() {
+    const chatMain = document.querySelector('.chat-main');
+    const chatSidebar = document.querySelector('.chat-sidebar');
+    
+    if (window.innerWidth <= 768) {
+        chatMain.classList.remove('show');
+        chatMain.classList.add('hide');
+        chatSidebar.style.display = 'flex';
+        
+        // Clear current chat
+        currentChatId = null;
+        
+        // Clean up listeners
+        if (chatUnsub) chatUnsub();
+        if (typingUnsub) typingUnsub();
+        if (onlineStatusUnsub) onlineStatusUnsub();
+        
+        // Clear typing timeout
+        if (typingTimeout) {
+            clearTimeout(typingTimeout);
+        }
+        
+        // Show empty state
+        showEmptyState('Select a conversation');
+    }
+}
+
+// Handle window resize for mobile navigation
+function handleWindowResize() {
+    const chatMain = document.querySelector('.chat-main');
+    const chatSidebar = document.querySelector('.chat-sidebar');
+    
+    if (window.innerWidth > 768) {
+        // Desktop view - show both sidebar and chat
+        chatMain.classList.remove('show', 'hide');
+        chatSidebar.style.display = 'flex';
+        chatSidebar.style.position = 'relative';
+        chatSidebar.style.transform = 'none';
+    } else {
+        // Mobile view - show conversations list by default
+        if (!currentChatId) {
+            chatMain.classList.remove('show');
+            chatMain.classList.add('hide');
+            chatSidebar.style.display = 'flex';
+        }
     }
 }
 
