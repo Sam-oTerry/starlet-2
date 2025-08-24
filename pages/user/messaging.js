@@ -135,6 +135,7 @@ async function loadConversations() {
                 const conversations = [];
                 snapshot.forEach(doc => {
                     const data = doc.data();
+                    console.log('Raw conversation data:', doc.id, data);
                     conversations.push({
                         id: doc.id,
                         ...data
@@ -188,7 +189,19 @@ function renderConversations(conversations) {
     }
 
     conversationsList.innerHTML = conversations.map(conversation => {
-        const otherUser = (conversation.participantDetails || []).find(u => u.uid !== window.currentUser.uid) || {};
+        console.log('Processing conversation:', conversation);
+        
+        // Handle different conversation structures
+        let otherUser = {};
+        if (conversation.participantDetails && conversation.participantDetails.length > 0) {
+            otherUser = conversation.participantDetails.find(u => u.uid !== window.currentUser.uid) || {};
+        } else if (conversation.participants && conversation.participants.length > 0) {
+            // Fallback: if no participantDetails, try to get from participants array
+            const otherUserId = conversation.participants.find(uid => uid !== window.currentUser.uid);
+            if (otherUserId) {
+                otherUser = { uid: otherUserId, name: 'User', email: otherUserId };
+            }
+        }
         const isActive = conversation.id === currentChatId;
         const unreadCount = conversation.unread && conversation.unread[window.currentUser.uid] ? conversation.unread[window.currentUser.uid] : 0;
         const hasUnread = unreadCount > 0;
@@ -196,6 +209,9 @@ function renderConversations(conversations) {
         // Get listing information if available
         const listingInfo = conversation.listingQuote || {};
         const listingTitle = listingInfo.title || conversation.listingTitle || 'Property Inquiry';
+        
+        // Get user name for display (fallback to email if no name)
+        const userName = otherUser.name || otherUser.email || 'Unknown User';
         
         // Determine if the last message was sent by current user
         const isLastMessageFromCurrentUser = conversation.lastMessageSenderId === window.currentUser.uid;
@@ -225,10 +241,12 @@ function renderConversations(conversations) {
                  data-chat-id="${conversation.id}" 
                  onclick="openChat('${conversation.id}')">
                 <img src="${otherUser.avatar || '../../img/avatar-placeholder.svg'}" 
-                     alt="${otherUser.name || 'User'}" 
-                     class="conversation-avatar">
+                     alt="${userName}" 
+                     class="conversation-avatar"
+                     onerror="this.src='../../img/avatar-placeholder.svg'">
                 <div class="conversation-info">
                     <div class="conversation-name">${listingTitle}</div>
+                    <div class="conversation-subtitle">${userName}</div>
                     <div class="conversation-preview">
                         ${isLastMessageFromCurrentUser && conversation.lastMessage ? 'You: ' : ''}${messagePreview}${messageStatus}
                     </div>
@@ -266,7 +284,18 @@ async function openChat(chatId) {
         }
 
         const chatData = chatDoc.data();
-        const otherUser = (chatData.participantDetails || []).find(u => u.uid !== window.currentUser.uid) || {};
+        console.log('Chat data:', chatData);
+        
+        let otherUser = {};
+        if (chatData.participantDetails && chatData.participantDetails.length > 0) {
+            otherUser = chatData.participantDetails.find(u => u.uid !== window.currentUser.uid) || {};
+        } else if (chatData.participants && chatData.participants.length > 0) {
+            // Fallback: if no participantDetails, try to get from participants array
+            const otherUserId = chatData.participants.find(uid => uid !== window.currentUser.uid);
+            if (otherUserId) {
+                otherUser = { uid: otherUserId, name: 'User', email: otherUserId };
+            }
+        }
       
       // Update chat header
         updateChatHeader(otherUser, chatData);
