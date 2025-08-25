@@ -419,6 +419,9 @@
               <button class="btn btn-primary btn-lg me-2" id="contactAgentBtn">
                 <i class="bi bi-telephone"></i> Contact Agent
               </button>
+              <button class="btn btn-success btn-lg me-2" id="chatWithSellerBtn">
+                <i class="bi bi-chat-dots"></i> Message Seller
+              </button>
               <button class="btn btn-outline-primary btn-lg">
                 <i class="bi bi-heart"></i> Save
               </button>
@@ -821,6 +824,29 @@
       messageModal.hide();
       alert('Your message has been sent! (Demo only)');
     });
+
+    // Chat button logic
+    const chatBtn = document.getElementById('chatWithSellerBtn');
+    if (chatBtn) {
+      chatBtn.addEventListener('click', function() {
+        // Get the current listing ID from URL
+        const url = new URL(window.location.href);
+        const listingId = url.searchParams.get('id');
+        const listerId = currentListingData ? currentListingData.userId : null;
+        
+        if (listingId && listerId) {
+          // Redirect to messaging page with listingId and listerId as query params
+          var path = window.location.pathname;
+          var base = path.includes('/starlet-2/') ? '/starlet-2' : '';
+          var messagingUrl = base + '/pages/user/messaging.html?listingId=' + encodeURIComponent(listingId) + '&listerId=' + encodeURIComponent(listerId);
+          window.location.href = messagingUrl;
+        } else if (!listerId) {
+          alert('Seller ID not found for this listing.');
+        } else {
+          alert('Listing ID not found.');
+        }
+      });
+    }
   </script>
 </body>
 </html> 

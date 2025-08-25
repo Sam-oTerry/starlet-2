@@ -81,9 +81,12 @@ function initializeMessaging() {
         window.currentUser = user;
         console.log('User authenticated:', user.email, 'UID:', user.uid);
         
-        // Check for support chat parameter
+        // Check for URL parameters
         const urlParams = new URLSearchParams(window.location.search);
         const isSupportChat = urlParams.get('support') === '1';
+        const listingId = urlParams.get('listingId');
+        const listerId = urlParams.get('listerId');
+        const makeOffer = urlParams.get('makeOffer') === '1';
         
         // Initialize messaging features
         loadConversations();
@@ -94,10 +97,13 @@ function initializeMessaging() {
         // Initialize mobile state
         initializeMobileState();
         
-        // If support chat is requested, create or load support conversation
+        // Handle different scenarios based on URL parameters
         if (isSupportChat) {
             console.log('Support chat requested, setting up support conversation...');
             setupSupportChat();
+        } else if (listingId) {
+            console.log('Listing ID provided, setting up listing conversation...');
+            setupListingChat(listingId, listerId, makeOffer);
         }
         
         // Set up online status
@@ -830,6 +836,15 @@ function setupEventListeners() {
         });
     }
     
+    // Floating support button
+    const floatingSupportBtn = document.getElementById('floatingSupportBtn');
+    if (floatingSupportBtn) {
+        floatingSupportBtn.addEventListener('click', function() {
+            console.log('Floating support button clicked');
+            setupSupportChat();
+        });
+    }
+    
     // Mobile navigation - back button
     const backToConversationsBtn = document.getElementById('backToConversations');
     if (backToConversationsBtn) {
@@ -1290,6 +1305,157 @@ async function setupSupportChat() {
     }
 }
 
+// Setup listing chat - create or find conversation for a specific listing
+async function setupListingChat(listingId, listerId, makeOffer = false) {
+    console.log('Setting up listing chat for listing:', listingId, 'lister:', listerId);
+    
+    if (!db || !window.currentUser) {
+        console.error('Cannot setup listing chat - missing required data');
+        return;
+    }
+    
+    try {
+        // Get listing details from Firestore
+        const listingDoc = await db.collection('listings').doc(listingId).get();
+        if (!listingDoc.exists) {
+            console.error('Listing not found:', listingId);
+            showNotification('Listing not found', 'error');
+            return;
+        }
+        
+        const listingData = listingDoc.data();
+        console.log('Listing data:', listingData);
+        
+        // Get lister details
+        const listerDoc = await db.collection('users').doc(listerId || listingData.userId).get();
+        if (!listerDoc.exists) {
+            console.error('Lister not found:', listerId || listingData.userId);
+            showNotification('Lister not found', 'error');
+            return;
+        }
+        
+        const listerData = listerDoc.data();
+        console.log('Lister data:', listerData);
+        
+        // Create a unique conversation ID for this listing and user
+        const conversationId = `listing_${listingId}_${window.currentUser.uid}_${listerId || listingData.userId}`;
+        
+        // Check if conversation already exists
+        const conversationDoc = await db.collection('conversations').doc(conversationId).get();
+        
+        if (!conversationDoc.exists) {
+            console.log('Creating new listing conversation...');
+            
+            // Check for pending offer in localStorage
+            let pendingOffer = null;
+            if (makeOffer) {
+                try {
+                    const storedOffer = localStorage.getItem('pendingOffer');
+                    if (storedOffer) {
+                        pendingOffer = JSON.parse(storedOffer);
+                        localStorage.removeItem('pendingOffer'); // Clear after reading
+                    }
+                } catch (error) {
+                    console.error('Error reading pending offer:', error);
+                }
+            }
+            
+            // Create conversation
+            const conversation = {
+                id: conversationId,
+                participants: [window.currentUser.uid, listerId || listingData.userId],
+                participantDetails: [
+                    {
+                        uid: window.currentUser.uid,
+                        name: window.currentUser.displayName || 'User',
+                        email: window.currentUser.email,
+                        avatar: window.currentUser.photoURL
+                    },
+                    {
+                        uid: listerId || listingData.userId,
+                        name: listerData.displayName || listerData.name || 'Lister',
+                        email: listerData.email,
+                        avatar: listerData.photoURL || listerData.avatar
+                    }
+                ],
+                listingId: listingId,
+                listingTitle: listingData.title || 'Property Inquiry',
+                listingQuote: {
+                    title: listingData.title || 'Property Inquiry',
+                    price: listingData.price,
+                    image: listingData.images && listingData.images.length > 0 ? listingData.images[0] : null,
+                    type: listingData.type,
+                    location: listingData.location
+                },
+                lastMessage: pendingOffer ? `Made an offer of $${pendingOffer.offerAmount}` : 'New conversation started',
+                lastMessageSenderId: window.currentUser.uid,
+                lastMessageAt: firebase.firestore.FieldValue.serverTimestamp(),
+                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                isListingChat: true
+            };
+            
+            await db.collection('conversations').doc(conversationId).set(conversation);
+            
+            // Add initial message
+            let initialMessageContent = `Hi! I'm interested in your ${listingData.title || 'property'}. Can you tell me more about it?`;
+            
+            if (pendingOffer) {
+                initialMessageContent = `Hi! I'm interested in your ${listingData.title || 'property'} and would like to make an offer of $${pendingOffer.offerAmount}. Can we discuss this?`;
+            }
+            
+            const initialMessage = {
+                content: initialMessageContent,
+                type: 'text',
+                senderId: window.currentUser.uid,
+                senderName: window.currentUser.displayName || window.currentUser.email,
+                senderAvatar: window.currentUser.photoURL,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            };
+            
+            await db.collection('conversations').doc(conversationId)
+                .collection('messages').add(initialMessage);
+                
+            console.log('Listing conversation created successfully');
+        } else {
+            console.log('Listing conversation already exists');
+            // Update conversation with latest listing info if needed
+            const existingData = conversationDoc.data();
+            if (existingData.listingQuote?.title !== listingData.title) {
+                await db.collection('conversations').doc(conversationId).update({
+                    listingTitle: listingData.title || 'Property Inquiry',
+                    listingQuote: {
+                        title: listingData.title || 'Property Inquiry',
+                        price: listingData.price,
+                        image: listingData.images && listingData.images.length > 0 ? listingData.images[0] : null,
+                        type: listingData.type,
+                        location: listingData.location
+                    },
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+            }
+        }
+        
+        // Open the conversation
+        await openChat(conversationId);
+        
+        // Update the URL to show the conversation
+        const newUrl = new URL(window.location);
+        newUrl.searchParams.set('chat', conversationId);
+        window.history.replaceState({}, '', newUrl);
+        
+        // Show chat area on mobile
+        showChatArea();
+        
+        // Show success notification
+        showNotification('Conversation opened successfully', 'success');
+        
+    } catch (error) {
+        console.error('Error setting up listing chat:', error);
+        showNotification('Failed to setup listing chat. Please try again.', 'error');
+    }
+}
+
 // Update user's online status
 function updateOnlineStatus(isOnline) {
     if (!db || !window.currentUser) {
@@ -1527,6 +1693,9 @@ function showNotification(message, type = 'info') {
     toast.className = `notification-toast notification-${type}`;
     toast.innerHTML = `
         <div class="notification-content">
+            <div class="notification-header">
+                <strong>${type === 'error' ? 'Error' : type === 'success' ? 'Success' : 'Info'}</strong>
+            </div>
             <div class="notification-body">${message}</div>
         </div>
     `;
@@ -1559,8 +1728,49 @@ function showNotification(message, type = 'info') {
     });
 }
 
+// Send offer message
+async function sendOfferMessage(offerAmount, listingTitle) {
+    if (!currentChatId || !db) {
+        console.error('Cannot send offer - no active chat or database');
+        return;
+    }
+    
+    try {
+        const offerMessage = {
+            content: `I would like to make an offer of $${offerAmount} for your ${listingTitle || 'property'}. What do you think?`,
+            type: 'text',
+            senderId: window.currentUser.uid,
+            senderName: window.currentUser.displayName || window.currentUser.email,
+            senderAvatar: window.currentUser.photoURL,
+            timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+            isOffer: true,
+            offerAmount: offerAmount
+        };
+        
+        // Add message to Firestore
+        await db.collection('conversations').doc(currentChatId)
+            .collection('messages').add(offerMessage);
+        
+        // Update chat's last message
+        await db.collection('conversations').doc(currentChatId).update({
+            lastMessage: `Made an offer of $${offerAmount}`,
+            lastMessageAt: firebase.firestore.FieldValue.serverTimestamp(),
+            lastMessageSenderId: window.currentUser.uid,
+            lastMessageDelivered: true,
+            lastMessageRead: false
+        });
+        
+        showNotification('Offer sent successfully!', 'success');
+        
+    } catch (error) {
+        console.error('Error sending offer:', error);
+        showNotification('Failed to send offer. Please try again.', 'error');
+    }
+}
+
 // Export functions for global access
 window.openChat = openChat;
 window.removeFile = removeFile;
 window.uploadAndSendFiles = uploadAndSendFiles;
 window.showNotification = showNotification;
+window.sendOfferMessage = sendOfferMessage;

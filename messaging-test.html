@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Messaging Test - Starlet Properties</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #e3f0ff 0%, #f8f9fa 100%);
+            font-family: 'Inter', sans-serif;
+            padding: 20px;
+        }
+        .test-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+        }
+        .test-card {
+            border: 1px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+        .test-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+        .test-title {
+            color: #00a884;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        .test-description {
+            color: #666;
+            margin-bottom: 15px;
+        }
+        .btn-test {
+            background: linear-gradient(135deg, #00a884 0%, #00c896 100%);
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+        }
+        .btn-test:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 168, 132, 0.3);
+            color: white;
+        }
+        .feature-list {
+            list-style: none;
+            padding: 0;
+        }
+        .feature-list li {
+            padding: 8px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .feature-list li:last-child {
+            border-bottom: none;
+        }
+        .feature-list li i {
+            color: #00a884;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1 class="text-center mb-4">
+            <i class="bi bi-chat-dots text-primary"></i>
+            Starlet Properties Messaging System Test
+        </h1>
+        
+        <div class="alert alert-info">
+            <i class="bi bi-info-circle"></i>
+            <strong>Test the messaging functionality:</strong> Click on any of the test scenarios below to open the messaging system with different parameters.
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="test-card">
+                    <h5 class="test-title">
+                        <i class="bi bi-headset"></i>
+                        Support Chat
+                    </h5>
+                    <p class="test-description">
+                        Test the support chat functionality. This will create a conversation with the support team.
+                    </p>
+                    <a href="pages/user/messaging.html?support=1" class="btn-test">
+                        <i class="bi bi-arrow-right"></i>
+                        Open Support Chat
+                    </a>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="test-card">
+                    <h5 class="test-title">
+                        <i class="bi bi-house"></i>
+                        Property Listing Chat
+                    </h5>
+                    <p class="test-description">
+                        Test messaging for a property listing. This will create a conversation with the property seller.
+                    </p>
+                    <a href="pages/user/messaging.html?listingId=tSguk1ItYwXTvJcBCwOm&listerId=seller123" class="btn-test">
+                        <i class="bi bi-arrow-right"></i>
+                        Open Property Chat
+                    </a>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="test-card">
+                    <h5 class="test-title">
+                        <i class="bi bi-car-front"></i>
+                        Vehicle Listing Chat
+                    </h5>
+                    <p class="test-description">
+                        Test messaging for a vehicle listing. This will create a conversation with the vehicle seller.
+                    </p>
+                    <a href="pages/user/messaging.html?listingId=vehicle123&listerId=dealer456" class="btn-test">
+                        <i class="bi bi-arrow-right"></i>
+                        Open Vehicle Chat
+                    </a>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="test-card">
+                    <h5 class="test-title">
+                        <i class="bi bi-currency-dollar"></i>
+                        Make Offer Chat
+                    </h5>
+                    <p class="test-description">
+                        Test making an offer through the messaging system. This will include an offer amount in the initial message.
+                    </p>
+                    <a href="pages/user/messaging.html?listingId=offer123&listerId=seller789&makeOffer=1" class="btn-test">
+                        <i class="bi bi-arrow-right"></i>
+                        Open Offer Chat
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="test-card mt-4">
+            <h5 class="test-title">
+                <i class="bi bi-list-check"></i>
+                Messaging Features
+            </h5>
+            <div class="row">
+                <div class="col-md-6">
+                    <ul class="feature-list">
+                        <li><i class="bi bi-check-circle"></i> Real-time messaging</li>
+                        <li><i class="bi bi-check-circle"></i> File uploads and sharing</li>
+                        <li><i class="bi bi-check-circle"></i> Emoji picker</li>
+                        <li><i class="bi bi-check-circle"></i> Typing indicators</li>
+                        <li><i class="bi bi-check-circle"></i> Online status</li>
+                    </ul>
+                </div>
+                <div class="col-md-6">
+                    <ul class="feature-list">
+                        <li><i class="bi bi-check-circle"></i> Message read receipts</li>
+                        <li><i class="bi bi-check-circle"></i> Conversation search</li>
+                        <li><i class="bi bi-check-circle"></i> Mobile responsive design</li>
+                        <li><i class="bi bi-check-circle"></i> Support chat integration</li>
+                        <li><i class="bi bi-check-circle"></i> Offer messaging</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="test-card mt-4">
+            <h5 class="test-title">
+                <i class="bi bi-gear"></i>
+                Technical Details
+            </h5>
+            <p class="test-description">
+                The messaging system is built with Firebase Firestore for real-time data synchronization, 
+                Firebase Authentication for user management, and Firebase Storage for file uploads. 
+                It features a WhatsApp-style interface with modern UI/UX design principles.
+            </p>
+            <div class="row">
+                <div class="col-md-4">
+                    <strong>Backend:</strong> Firebase Firestore
+                </div>
+                <div class="col-md-4">
+                    <strong>Authentication:</strong> Firebase Auth
+                </div>
+                <div class="col-md-4">
+                    <strong>Storage:</strong> Firebase Storage
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center mt-4">
+            <a href="index.html" class="btn btn-outline-primary">
+                <i class="bi bi-arrow-left"></i>
+                Back to Home
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // Add some interactivity
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add click tracking
+            const testButtons = document.querySelectorAll('.btn-test');
+            testButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    console.log('Test button clicked:', this.href);
+                    // You could add analytics tracking here
+                });
+            });
+
+            // Add some visual feedback
+            const testCards = document.querySelectorAll('.test-card');
+            testCards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.borderColor = '#00a884';
+                });
+                card.addEventListener('mouseleave', function() {
+                    this.style.borderColor = '#e0e0e0';
+                });
+            });
+        });
+    </script>
+</body>
+</html>
