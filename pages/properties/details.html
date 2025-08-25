@@ -2061,13 +2061,52 @@
             try {
                 const db = firebase.firestore();
                 // Get creator ID directly from listing data or user info
-                const creatorId = window.currentListingData?.createdBy?.uid || 
-                                 window.currentListingData?.agentId || 
-                                 creatorInfo.uid || 
-                                 creatorInfo.id;
+                console.log('Debug - currentListingData:', window.currentListingData);
+                console.log('Debug - creatorInfo:', creatorInfo);
+                
+                let creatorId = null;
+                
+                // Try to get from listing data first
+                if (window.currentListingData) {
+                    creatorId = window.currentListingData.createdBy?.uid || 
+                               window.currentListingData.agentId;
+                    console.log('Debug - creatorId from listing data:', creatorId);
+                }
+                
+                // If not found in listing data, try user info
+                if (!creatorId && creatorInfo) {
+                    creatorId = creatorInfo.uid || creatorInfo.id;
+                    console.log('Debug - creatorId from user info:', creatorId);
+                }
+                
+                // If still not found, try to get from the URL or other sources
+                if (!creatorId) {
+                    // Try to get from the URL parameters
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const listingId = urlParams.get('id');
+                    if (listingId) {
+                        console.log('Debug - trying to get creatorId from listing ID:', listingId);
+                        try {
+                            // Fetch the listing data directly
+                            const listingDoc = await db.collection('listings').doc(listingId).get();
+                            if (listingDoc.exists) {
+                                const listingData = listingDoc.data();
+                                creatorId = listingData.createdBy?.uid || listingData.agentId;
+                                console.log('Debug - creatorId fetched from Firestore:', creatorId);
+                            }
+                        } catch (error) {
+                            console.log('Debug - Error fetching listing data:', error);
+                        }
+                    }
+                }
                 
                 if (!creatorId) {
                     console.warn('No creator ID available for stats');
+                    console.log('Debug - Available data:', {
+                        currentListingData: window.currentListingData,
+                        creatorInfo: creatorInfo,
+                        urlParams: window.location.search
+                    });
                     return;
                 }
                 
