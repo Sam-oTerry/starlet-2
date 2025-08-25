@@ -53,17 +53,24 @@
         }
 
         .main-image {
-            border-radius: 8px;
+            border-radius: 16px;
             overflow: hidden;
             margin-bottom: 1rem;
-            height: 400px;
-            background-color: #f8f9fa;
+            height: 450px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+            position: relative;
         }
 
         .main-image img {
             width: 100%;
             height: 100%;
             object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .main-image:hover img {
+            transform: scale(1.02);
         }
 
         .thumbnail-container {
@@ -72,17 +79,25 @@
         }
 
         .thumbnail {
-            width: 80px;
-            height: 80px;
-            border-radius: 4px;
+            width: 90px;
+            height: 90px;
+            border-radius: 12px;
             overflow: hidden;
             cursor: pointer;
-            border: 2px solid transparent;
-            transition: all 0.2s ease;
+            border: 3px solid transparent;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
 
-        .thumbnail:hover, .thumbnail.active {
+        .thumbnail:hover {
             border-color: var(--primary-main);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+        }
+
+        .thumbnail.active {
+            border-color: var(--primary-main);
+            box-shadow: 0 4px 15px rgba(0, 123, 255, 0.4);
         }
 
         .thumbnail img {
@@ -93,45 +108,116 @@
 
         /* Product Details */
         .product-header {
-            margin-bottom: 1.5rem;
+            margin-bottom: 2rem;
+            padding: 2rem;
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border: 1px solid rgba(0, 123, 255, 0.1);
         }
 
         .product-title {
-            font-size: 1.75rem;
-            font-weight: 700;
+            font-size: 2.25rem;
+            font-weight: 800;
             color: var(--primary-dark);
-            margin-bottom: 0.5rem;
+            margin-bottom: 1rem;
+            line-height: 1.2;
         }
 
         .product-location {
+            font-size: 1.1rem;
             color: var(--neutral-medium);
-            font-size: 1rem;
-            margin-bottom: 1rem;
-        }
-
-        .product-price {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--primary-main);
             margin-bottom: 1.5rem;
-        }
-
-        .product-meta {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-        }
-
-        .meta-item {
             display: flex;
             align-items: center;
             gap: 0.5rem;
         }
 
+        .product-location i {
+            color: var(--primary-main);
+            font-size: 1.2rem;
+        }
+
+        .product-price {
+            margin-bottom: 1.5rem;
+        }
+
+        .price-display {
+            display: flex;
+            align-items: baseline;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .price-currency {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--neutral-medium);
+            text-transform: uppercase;
+        }
+
+        .price-amount {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--primary-main);
+            line-height: 1;
+        }
+
+        .price-negotiable {
+            font-size: 0.875rem;
+            color: var(--accent-gold);
+            font-weight: 600;
+            background: rgba(255, 215, 0, 0.1);
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            border: 1px solid rgba(255, 215, 0, 0.3);
+        }
+
+        .price-not-specified {
+            font-size: 1.25rem;
+            color: var(--neutral-medium);
+            font-weight: 600;
+            font-style: italic;
+        }
+
+        .product-meta {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: rgba(0, 123, 255, 0.05);
+            border-radius: 12px;
+            border: 1px solid rgba(0, 123, 255, 0.1);
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .meta-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
         .meta-icon {
             color: var(--primary-main);
-            font-size: 1.25rem;
+            font-size: 1.5rem;
+            width: 24px;
+            text-align: center;
+        }
+
+        .meta-item div:last-child {
+            font-weight: 600;
+            color: var(--neutral-dark);
+            font-size: 0.95rem;
         }
 
         .product-actions {
@@ -139,33 +225,52 @@
         }
 
         .btn-primary {
-            background-color: var(--primary-main);
-            border-color: var(--primary-main);
-            font-weight: 600;
-            padding: 0.75rem 1.5rem;
+            background: linear-gradient(135deg, var(--primary-main) 0%, #0056b3 100%);
+            border: none;
+            font-weight: 700;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 123, 255, 0.4);
         }
 
         .btn-outline-primary {
             color: var(--primary-main);
-            border-color: var(--primary-main);
-            font-weight: 600;
+            border: 2px solid var(--primary-main);
+            font-weight: 700;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            transition: all 0.3s ease;
         }
 
         .btn-outline-primary:hover {
-            background-color: var(--primary-main);
+            background: linear-gradient(135deg, var(--primary-main) 0%, #0056b3 100%);
             color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
         }
 
         .btn-gold {
-            background-color: var(--accent-gold);
+            background: linear-gradient(135deg, var(--accent-gold) 0%, #ffed4e 100%);
             color: var(--primary-dark);
-            font-weight: 700;
+            font-weight: 800;
             border: none;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+            transition: all 0.3s ease;
         }
 
         .btn-gold:hover {
-            background-color: #e6c300;
+            background: linear-gradient(135deg, #e6c300 0%, #ffed4e 100%);
             color: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 215, 0, 0.4);
         }
 
         /* Product Tabs */
@@ -213,11 +318,24 @@
 
         /* Agent Card */
         .agent-card {
-            background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-            padding: 1.5rem;
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+            border: 1px solid rgba(0, 123, 255, 0.1);
+            position: relative;
+            overflow: hidden;
             margin-bottom: 2rem;
+        }
+
+        .agent-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-main), var(--accent-cyan));
         }
 
         .agent-header {
@@ -228,10 +346,12 @@
         }
 
         .agent-avatar {
-            width: 70px;
-            height: 70px;
+            width: 80px;
+            height: 80px;
             border-radius: 50%;
             overflow: hidden;
+            border: 4px solid rgba(0, 123, 255, 0.1);
+            box-shadow: 0 4px 15px rgba(0, 123, 255, 0.2);
         }
 
         .agent-avatar img {
@@ -251,28 +371,39 @@
         }
 
         .agent-stats {
-            display: flex;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
             gap: 1rem;
             margin-bottom: 1.5rem;
         }
 
         .stat-item {
             text-align: center;
-            padding: 0.5rem 1rem;
-            background-color: var(--bg-white);
-            border-radius: 4px;
+            padding: 1rem;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(0, 123, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .stat-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
         }
 
         .stat-item h6 {
-            font-size: 1.25rem;
-            margin-bottom: 0;
+            font-size: 1.5rem;
+            margin-bottom: 0.25rem;
             color: var(--primary-main);
+            font-weight: 800;
         }
 
         .stat-item p {
-            font-size: 0.75rem;
+            font-size: 0.8rem;
             color: var(--neutral-medium);
             margin-bottom: 0;
+            font-weight: 600;
         }
 
         /* Similar Listings */
@@ -422,12 +553,90 @@
             }
             
             .product-meta {
-                gap: 1rem;
+                grid-template-columns: 1fr;
+                gap: 0.75rem;
+                padding: 1rem;
             }
             
             .main-image {
                 height: 300px;
+                border-radius: 12px;
             }
+
+            .product-title {
+                font-size: 1.75rem;
+            }
+
+            .product-header {
+                padding: 1.5rem;
+            }
+
+            .price-amount {
+                font-size: 2rem;
+            }
+
+            .agent-card {
+                padding: 1.5rem;
+            }
+
+            .agent-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .thumbnail {
+                width: 70px;
+                height: 70px;
+                border-radius: 8px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .product-title {
+                font-size: 1.5rem;
+            }
+
+            .price-amount {
+                font-size: 1.75rem;
+            }
+
+            .product-meta {
+                padding: 0.75rem;
+            }
+
+            .agent-stats {
+                grid-template-columns: 1fr;
+            }
+
+            .product-header {
+                padding: 1rem;
+            }
+        }
+
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            color: var(--neutral-medium);
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(0, 123, 255, 0.1);
+            border-radius: 50%;
+            border-top-color: var(--primary-main);
+            animation: spin 1s ease-in-out infinite;
+            margin-bottom: 1rem;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--neutral-dark);
         }
     </style>
 </head>
@@ -750,7 +959,7 @@
                 <div class="col-lg-7 col-md-12 col-12 mb-4">
                     <div class="product-gallery">
                         <div class="main-image">
-                            <img src="https://via.placeholder.com/800x600?text=Loading..." alt="Listing Main Image" id="mainImage">
+                            <img src="https://via.placeholder.com/800x600?text=Loading+Property+Image..." alt="Listing Main Image" id="mainImage">
                         </div>
                         <div class="thumbnail-container" id="thumbnailContainer"></div>
                     </div>
@@ -791,7 +1000,7 @@
                 <!-- Product Details -->
                 <div class="col-lg-5 col-md-12 col-12">
                     <div class="product-header">
-                        <h1 class="product-title" id="productTitle">Loading...</h1>
+                        <h1 class="product-title" id="productTitle">Loading Property Details...</h1>
                         <div class="product-location" id="productLocation">
                             <i class="bi bi-geo-alt-fill"></i> 
                         </div>
@@ -1040,8 +1249,24 @@
                 }
                 document.getElementById('productLocation').innerHTML = '<i class="bi bi-geo-alt-fill"></i> ' + (loc || 'Location not specified');
                 
-                // Price
-                document.getElementById('productPrice').textContent = data.askingPrice ? 'UGX ' + data.askingPrice.toLocaleString() : 'Price not specified';
+                // Price - Fixed to check multiple price fields
+                const price = data.price || data.askingPrice || data.asking_price;
+                const priceElement = document.getElementById('productPrice');
+                if (price && price > 0) {
+                    priceElement.innerHTML = `
+                        <div class="price-display">
+                            <span class="price-currency">UGX</span>
+                            <span class="price-amount">${parseInt(price).toLocaleString()}</span>
+                            ${data.negotiable ? '<span class="price-negotiable">(Negotiable)</span>' : ''}
+                        </div>
+                    `;
+                } else {
+                    priceElement.innerHTML = `
+                        <div class="price-display">
+                            <span class="price-not-specified">Price on Request</span>
+                        </div>
+                    `;
+                }
                 
                 // Meta - Enhanced to show more details
                 let metaHtml = '';
