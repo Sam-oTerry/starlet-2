@@ -496,6 +496,19 @@ function updateChatHeader(otherUser, chatData) {
     // Handle support chat special case
     if (chatData.isSupportChat) {
         listingTitle = 'Support Chat';
+        hideListingDetails();
+    } else if (chatData.listingId && chatData.listingQuote) {
+        // Show listing details for listing conversations
+        const listingData = {
+            title: chatData.listingTitle || listingInfo.title,
+            price: listingInfo.price,
+            images: listingInfo.image ? [listingInfo.image] : [],
+            image: listingInfo.image
+        };
+        showListingDetails(listingData);
+    } else {
+        // Hide listing details for regular conversations
+        hideListingDetails();
     }
 
     chatUserName.textContent = listingTitle;
@@ -842,6 +855,14 @@ function setupEventListeners() {
         floatingSupportBtn.addEventListener('click', function() {
             console.log('Floating support button clicked');
             setupSupportChat();
+        });
+    }
+
+    // Add event listener for show contact button
+    const showContactBtn = document.getElementById('showContactBtn');
+    if (showContactBtn) {
+        showContactBtn.addEventListener('click', function() {
+            showContactInfo();
         });
     }
     
@@ -1732,6 +1753,11 @@ async function setupListingChat(listingId, listerId, makeOffer = false) {
         // Show chat area on mobile
         showChatArea();
         
+        // Show listing details if this is a listing conversation
+        if (listingData) {
+            showListingDetails(listingData);
+        }
+        
         // Show success notification
         showNotification('Conversation opened successfully', 'success');
         
@@ -2053,9 +2079,78 @@ async function sendOfferMessage(offerAmount, listingTitle) {
     }
 }
 
+// Show listing details in the chat header
+function showListingDetails(listingData) {
+    const listingSection = document.getElementById('listingDetailsSection');
+    const listingImage = document.getElementById('listingImage');
+    const listingTitle = document.getElementById('listingTitle');
+    const listingPrice = document.getElementById('listingPrice');
+    
+    if (listingSection && listingData) {
+        // Set listing image
+        if (listingData.images && listingData.images.length > 0) {
+            listingImage.src = listingData.images[0];
+        } else if (listingData.image) {
+            listingImage.src = listingData.image;
+        } else if (listingData.media && listingData.media.length > 0) {
+            listingImage.src = listingData.media[0];
+        } else {
+            listingImage.src = '../../img/placeholder-property.jpg';
+        }
+        
+        // Set listing title
+        listingTitle.textContent = listingData.title || 'Property Listing';
+        
+        // Set listing price
+        const price = listingData.price || listingData.askingPrice || 0;
+        listingPrice.textContent = `USh ${price.toLocaleString()}`;
+        
+        // Show the section
+        listingSection.style.display = 'block';
+    }
+}
+
+// Show contact information
+function showContactInfo() {
+    const currentConversation = conversations.find(conv => conv.id === currentChatId);
+    if (currentConversation && currentConversation.participantDetails) {
+        const otherParticipant = currentConversation.participantDetails.find(
+            p => p.uid !== window.currentUser.uid
+        );
+        
+        if (otherParticipant) {
+            let contactInfo = `Contact Information:\n\n`;
+            contactInfo += `Name: ${otherParticipant.name}\n`;
+            if (otherParticipant.email) {
+                contactInfo += `Email: ${otherParticipant.email}\n`;
+            }
+            if (otherParticipant.phone) {
+                contactInfo += `Phone: ${otherParticipant.phone}\n`;
+            }
+            
+            // Show contact info in a modal or alert
+            alert(contactInfo);
+        } else {
+            showNotification('Contact information not available', 'error');
+        }
+    } else {
+        showNotification('Contact information not available', 'error');
+    }
+}
+
+// Hide listing details
+function hideListingDetails() {
+    const listingSection = document.getElementById('listingDetailsSection');
+    if (listingSection) {
+        listingSection.style.display = 'none';
+    }
+}
+
 // Export functions for global access
 window.openChat = openChat;
 window.removeFile = removeFile;
 window.uploadAndSendFiles = uploadAndSendFiles;
 window.showNotification = showNotification;
 window.sendOfferMessage = sendOfferMessage;
+window.showListingDetails = showListingDetails;
+window.hideListingDetails = hideListingDetails;
