@@ -1335,6 +1335,7 @@ async function setupListingChat(listingId, listerId, makeOffer = false) {
     try {
         // Get listing details from Firestore
         let listingData;
+        let listerData;
         const listingDoc = await db.collection('listings').doc(listingId).get();
         if (!listingDoc.exists) {
             // Check if this is a test listing and create demo data
@@ -1405,7 +1406,6 @@ async function setupListingChat(listingId, listerId, makeOffer = false) {
             listerData = listerDoc.data();
         }
         
-        let listerData = listerDoc.data();
         console.log('Lister data:', listerData);
         
         // If lister data is not available, create a fallback
