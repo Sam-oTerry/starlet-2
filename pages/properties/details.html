@@ -2067,50 +2067,27 @@
                     return;
                 }
                 
-                // Get user's listings count - check multiple possible creator fields
+                // Get user's listings count using createdBy.uid
                 let listingsCount = 0;
                 
-                // Try different possible creator ID fields
-                const possibleCreatorFields = [
-                    ['createdBy.uid', creatorId],
-                    ['createdBy.id', creatorId],
-                    ['agentId', creatorId],
-                    ['listerId', creatorId],
-                    ['userId', creatorId],
-                    ['ownerId', creatorId]
-                ];
-                
-                for (const [field, value] of possibleCreatorFields) {
-                    try {
-                        const query = await db.collection('listings')
-                            .where(field, '==', value)
-                            .get();
-                        
-                        if (query.size > 0) {
-                            listingsCount = query.size;
-                            console.log(`Found ${listingsCount} listings using field: ${field}`);
-                            break;
-                        }
-                    } catch (error) {
-                        console.log(`Field ${field} not available, trying next...`);
-                        continue;
-                    }
-                }
-                
-                // If still no listings found, try a broader search
-                if (listingsCount === 0) {
+                try {
+                    const listingsQuery = await db.collection('listings')
+                        .where('createdBy.uid', '==', creatorId)
+                        .get();
+                    
+                    listingsCount = listingsQuery.size;
+                    console.log(`Found ${listingsCount} listings for user: ${creatorId}`);
+                } catch (error) {
+                    console.log('Error fetching listings count:', error);
+                    // Fallback: try broader search
                     try {
                         const allListings = await db.collection('listings').get();
                         listingsCount = allListings.docs.filter(doc => {
                             const data = doc.data();
-                            return (data.createdBy && (data.createdBy.uid === creatorId || data.createdBy.id === creatorId)) ||
-                                   data.agentId === creatorId ||
-                                   data.listerId === creatorId ||
-                                   data.userId === creatorId ||
-                                   data.ownerId === creatorId;
+                            return data.createdBy && data.createdBy.uid === creatorId;
                         }).length;
-                    } catch (error) {
-                        console.log('Fallback search also failed');
+                    } catch (fallbackError) {
+                        console.log('Fallback search also failed:', fallbackError);
                     }
                 }
                 
@@ -2179,16 +2156,27 @@
                 try {
                     const activeQuery = await db.collection('listings')
                         .where('createdBy.uid', '==', creatorId)
-                        .where('status', 'in', ['approved', 'active', 'live'])
+                        .where('status', 'in', ['approved', 'active', 'live', 'published'])
                         .get();
                     activeListingsCount = activeQuery.size;
+                    console.log(`Found ${activeListingsCount} active listings for user: ${creatorId}`);
                 } catch (error) {
-                    // If status field doesn't exist, assume all are active
+                    console.log('Error fetching active listings count:', error);
+                    // If status field doesn't exist or query fails, assume all are active
                     activeListingsCount = listingsCount;
                 }
                 
                 // Update stats with real data
                 const isOfficial = isOfficialStore(creatorInfo);
+                
+                console.log('Agent Card Stats Update:', {
+                    creatorId,
+                    creatorInfo,
+                    listingsCount,
+                    activeListingsCount,
+                    memberSince,
+                    isOfficial
+                });
                 
                 agentStats.innerHTML = `
                     <div class="col-4 stat-item">
