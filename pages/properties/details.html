@@ -400,10 +400,20 @@
         }
 
         .stat-item p {
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             color: var(--neutral-medium);
             margin-bottom: 0;
             font-weight: 600;
+            text-align: center;
+            line-height: 1.2;
+        }
+
+        .stat-item h6 {
+            font-size: 1.5rem;
+            margin-bottom: 0.25rem;
+            color: var(--primary-main);
+            font-weight: 800;
+            text-align: center;
         }
 
         /* Similar Listings */
@@ -1955,36 +1965,141 @@
             // Update agent stats
             const agentStats = document.getElementById('agentStats');
             if (agentStats) {
-                let statsHtml = '';
+                // Show loading state first
+                const isOfficial = isOfficialStore(creatorInfo);
                 
-                // Properties count
-                const propertiesCount = creatorInfo.propertiesCount || creatorInfo.listingsCount || creatorInfo.totalProperties || creatorInfo.totalListings;
-                statsHtml += `<div class="col-4 stat-item">
-                    <h6>${propertiesCount || '--'}</h6>
-                    <p>Properties</p>
-                </div>`;
+                agentStats.innerHTML = `
+                    <div class="col-4 stat-item">
+                        <h6>--</h6>
+                        <p>${isOfficial ? 'Official' : 'Total'} Listings</p>
+                    </div>
+                    <div class="col-4 stat-item">
+                        <h6>--</h6>
+                        <p>${isOfficial ? 'Established' : 'Member'} Since</p>
+                    </div>
+                    <div class="col-4 stat-item">
+                        <h6>--</h6>
+                        <p>${isOfficial ? 'Years of' : ''} Experience</p>
+                    </div>
+                `;
                 
-                // Success rate
-                const successRate = creatorInfo.successRate || creatorInfo.rating || creatorInfo.satisfactionRate;
-                statsHtml += `<div class="col-4 stat-item">
-                    <h6>${successRate ? successRate + '%' : '--'}</h6>
-                    <p>Success Rate</p>
-                </div>`;
-                
-                // Experience years
-                const experienceYears = creatorInfo.experienceYears || creatorInfo.yearsOfExperience || creatorInfo.experience;
-                statsHtml += `<div class="col-4 stat-item">
-                    <h6>${experienceYears || '--'}</h6>
-                    <p>Years</p>
-                </div>`;
-                
-                agentStats.innerHTML = statsHtml;
+                // Fetch real data
+                fetchUserStats(creatorInfo);
             }
             
             // Setup agent action buttons
             setupAgentActions(creatorInfo);
         }
         
+        // Fetch user statistics from Firestore
+        async function fetchUserStats(creatorInfo) {
+            const agentStats = document.getElementById('agentStats');
+            if (!agentStats) return;
+            
+            try {
+                const db = firebase.firestore();
+                const creatorId = creatorInfo.uid || creatorInfo.id;
+                
+                if (!creatorId) {
+                    console.warn('No creator ID available for stats');
+                    return;
+                }
+                
+                // Get user's listings count
+                const listingsQuery = await db.collection('listings')
+                    .where('createdBy.uid', '==', creatorId)
+                    .get();
+                
+                const listingsCount = listingsQuery.size;
+                
+                // Get user's join date
+                const joinDate = creatorInfo.createdAt || creatorInfo.joinDate || creatorInfo.dateCreated || creatorInfo.registrationDate;
+                let memberSince = '--';
+                let experienceYears = '--';
+                
+                if (joinDate) {
+                    let joinTimestamp;
+                    
+                    // Handle different date formats
+                    if (joinDate.toDate) {
+                        // Firestore timestamp
+                        joinTimestamp = joinDate.toDate();
+                    } else if (joinDate.seconds) {
+                        // Firestore timestamp object
+                        joinTimestamp = new Date(joinDate.seconds * 1000);
+                    } else if (typeof joinDate === 'string') {
+                        // String date
+                        joinTimestamp = new Date(joinDate);
+                    } else if (joinDate instanceof Date) {
+                        // Date object
+                        joinTimestamp = joinDate;
+                    } else {
+                        joinTimestamp = new Date(joinDate);
+                    }
+                    
+                    // Check if date is valid
+                    if (!isNaN(joinTimestamp.getTime())) {
+                        const now = new Date();
+                        const diffTime = Math.abs(now - joinTimestamp);
+                        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                        const diffYears = Math.floor(diffDays / 365);
+                        const diffMonths = Math.floor((diffDays % 365) / 30);
+                        
+                        // Format member since
+                        if (diffYears > 0) {
+                            memberSince = `${diffYears} year${diffYears > 1 ? 's' : ''}`;
+                        } else if (diffMonths > 0) {
+                            memberSince = `${diffMonths} month${diffMonths > 1 ? 's' : ''}`;
+                        } else {
+                            memberSince = `${diffDays} day${diffDays > 1 ? 's' : ''}`;
+                        }
+                        
+                        // Calculate experience years
+                        experienceYears = diffYears > 0 ? diffYears : '< 1';
+                    }
+                }
+                
+                // Update stats with real data
+                const isOfficial = isOfficialStore(creatorInfo);
+                
+                agentStats.innerHTML = `
+                    <div class="col-4 stat-item">
+                        <h6>${listingsCount}</h6>
+                        <p>${isOfficial ? 'Official' : 'Total'} Listings</p>
+                    </div>
+                    <div class="col-4 stat-item">
+                        <h6>${memberSince}</h6>
+                        <p>${isOfficial ? 'Established' : 'Member'} Since</p>
+                    </div>
+                    <div class="col-4 stat-item">
+                        <h6>${experienceYears}</h6>
+                        <p>${isOfficial ? 'Years of' : ''} Experience</p>
+                    </div>
+                `;
+                
+            } catch (error) {
+                console.error('Error fetching user stats:', error);
+                
+                // Fallback to basic stats
+                const isOfficial = isOfficialStore(creatorInfo);
+                
+                agentStats.innerHTML = `
+                    <div class="col-4 stat-item">
+                        <h6>--</h6>
+                        <p>${isOfficial ? 'Official' : 'Total'} Listings</p>
+                    </div>
+                    <div class="col-4 stat-item">
+                        <h6>--</h6>
+                        <p>${isOfficial ? 'Established' : 'Member'} Since</p>
+                    </div>
+                    <div class="col-4 stat-item">
+                        <h6>--</h6>
+                        <p>${isOfficial ? 'Years of' : ''} Experience</p>
+                    </div>
+                `;
+            }
+        }
+
         // Hide agent card
         function hideAgentCard() {
             const agentCard = document.getElementById('agentCard');
