@@ -1371,11 +1371,11 @@ async function setupListingChat(listingId, listerId, makeOffer = false) {
         }
         
         // Get lister details - check for multiple possible ID types
-        // Priority order: URL listerId > createdBy.uid > userId > agentId > listerId > ownerId > propertyAgentId
+        // Priority order: URL listerId > agentId > createdBy.uid > userId > listerId > ownerId > propertyAgentId
         let actualListerId = listerId || 
+                            listingData.agentId || 
                             (listingData.createdBy && listingData.createdBy.uid) || 
                             listingData.userId || 
-                            listingData.agentId || 
                             listingData.listerId || 
                             listingData.ownerId || 
                             listingData.propertyAgentId;
@@ -1390,11 +1390,25 @@ async function setupListingChat(listingId, listerId, makeOffer = false) {
             showNotification('Connected to support for this listing.', 'info');
         } else {
             console.log('Found lister ID:', actualListerId);
+            
+            // Show which ID type was actually used
+            if (actualListerId === listerId) {
+                console.log('Using lister ID from URL parameters');
+            } else if (actualListerId === listingData.agentId) {
+                console.log('Using agentId from listing data');
+            } else if (actualListerId === (listingData.createdBy && listingData.createdBy.uid)) {
+                console.log('Using createdBy.uid from listing data');
+            } else if (actualListerId === listingData.userId) {
+                console.log('Using userId from listing data');
+            } else {
+                console.log('Using fallback ID from listing data');
+            }
+            
             console.log('ID source breakdown:');
             console.log('- URL listerId:', listerId);
+            console.log('- agentId:', listingData.agentId);
             console.log('- createdBy.uid:', listingData.createdBy && listingData.createdBy.uid);
             console.log('- userId:', listingData.userId);
-            console.log('- agentId:', listingData.agentId);
             console.log('- listerId:', listingData.listerId);
             console.log('- ownerId:', listingData.ownerId);
             console.log('- propertyAgentId:', listingData.propertyAgentId);
