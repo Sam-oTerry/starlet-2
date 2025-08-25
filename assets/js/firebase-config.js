@@ -12,12 +12,23 @@ const firebaseConfig = {
   measurementId: "G-F02K9SP07C"
 };
 
-// Initialize Firebase
-if (typeof firebase !== 'undefined' && !firebase.apps.length) {
-  firebase.initializeApp(firebaseConfig);
+// Wait for Firebase SDKs to be loaded and then initialize
+function waitForFirebase() {
+  if (typeof firebase !== 'undefined') {
+    // Initialize Firebase if not already initialized
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+    
+    // Initialize services
+    initializeFirebaseServices();
+  } else {
+    // Retry after a short delay
+    setTimeout(waitForFirebase, 100);
+  }
 }
 
-// Wait for Firebase to be available
+// Initialize Firebase services
 function initializeFirebaseServices() {
   if (typeof firebase !== 'undefined') {
     try {
@@ -68,5 +79,5 @@ function initializeFirebaseServices() {
   }
 }
 
-// Start initialization
-initializeFirebaseServices(); 
+// Start waiting for Firebase SDKs to load
+waitForFirebase(); 
