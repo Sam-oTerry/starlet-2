@@ -1370,12 +1370,15 @@ async function setupListingChat(listingId, listerId, makeOffer = false) {
             console.log('CreatedBy data:', listingData.createdBy);
         }
         
-        // Get lister details - handle cases where listerId might be undefined
-        // Check for createdBy.uid first, then fallback to other fields
+        // Get lister details - check for multiple possible ID types
+        // Priority order: URL listerId > createdBy.uid > userId > agentId > listerId > ownerId > propertyAgentId
         let actualListerId = listerId || 
                             (listingData.createdBy && listingData.createdBy.uid) || 
                             listingData.userId || 
-                            listingData.ownerId;
+                            listingData.agentId || 
+                            listingData.listerId || 
+                            listingData.ownerId || 
+                            listingData.propertyAgentId;
         
         if (!actualListerId) {
             console.error('No lister ID found in listing data or URL parameters');
@@ -1385,6 +1388,16 @@ async function setupListingChat(listingId, listerId, makeOffer = false) {
             console.log('Creating support-style conversation for listing without clear lister');
             actualListerId = 'support_team';
             showNotification('Connected to support for this listing.', 'info');
+        } else {
+            console.log('Found lister ID:', actualListerId);
+            console.log('ID source breakdown:');
+            console.log('- URL listerId:', listerId);
+            console.log('- createdBy.uid:', listingData.createdBy && listingData.createdBy.uid);
+            console.log('- userId:', listingData.userId);
+            console.log('- agentId:', listingData.agentId);
+            console.log('- listerId:', listingData.listerId);
+            console.log('- ownerId:', listingData.ownerId);
+            console.log('- propertyAgentId:', listingData.propertyAgentId);
         }
         
         // For test cases, create demo lister data
@@ -1397,25 +1410,83 @@ async function setupListingChat(listingId, listerId, makeOffer = false) {
                 photoURL: '../../img/avatar-placeholder.svg'
             };
         } else {
-            const listerDoc = await db.collection('users').doc(actualListerId).get();
-            if (!listerDoc.exists) {
-                console.error('Lister not found:', actualListerId);
+            console.log('Searching for lister data with ID:', actualListerId);
+            
+            // Try to find lister data in multiple collections
+            let listerDoc = null;
+            let collectionName = '';
+            
+            // Try users collection first
+            try {
+                listerDoc = await db.collection('users').doc(actualListerId).get();
+                if (listerDoc.exists) {
+                    collectionName = 'users';
+                    console.log('Found lister in users collection');
+                }
+            } catch (error) {
+                console.log('Error checking users collection:', error);
+            }
+            
+            // If not found in users, try agents collection
+            if (!listerDoc || !listerDoc.exists) {
+                try {
+                    listerDoc = await db.collection('agents').doc(actualListerId).get();
+                    if (listerDoc.exists) {
+                        collectionName = 'agents';
+                        console.log('Found lister in agents collection');
+                    }
+                } catch (error) {
+                    console.log('Error checking agents collection:', error);
+                }
+            }
+            
+            // If not found in agents, try propertyAgents collection
+            if (!listerDoc || !listerDoc.exists) {
+                try {
+                    listerDoc = await db.collection('propertyAgents').doc(actualListerId).get();
+                    if (listerDoc.exists) {
+                        collectionName = 'propertyAgents';
+                        console.log('Found lister in propertyAgents collection');
+                    }
+                } catch (error) {
+                    console.log('Error checking propertyAgents collection:', error);
+                }
+            }
+            
+            if (!listerDoc || !listerDoc.exists) {
+                console.error('Lister not found in any collection:', actualListerId);
+                console.log('Tried collections: users, agents, propertyAgents');
                 showNotification('Seller information not available. Please try again later.', 'error');
                 return;
             }
+            
             listerData = listerDoc.data();
+            console.log(`Lister data loaded from ${collectionName} collection:`, listerData);
         }
         
         console.log('Lister data:', listerData);
         
-        // If lister data is not available, create a fallback
-        if (!listerData) {
+        // Normalize lister data to handle different field names from different collections
+        if (listerData) {
+            // Ensure we have the required fields with fallbacks
+            listerData = {
+                displayName: listerData.displayName || listerData.name || listerData.fullName || listerData.agentName || 'Seller',
+                name: listerData.name || listerData.displayName || listerData.fullName || listerData.agentName || 'Seller',
+                email: listerData.email || listerData.agentEmail || 'seller@starlet.co.ug',
+                photoURL: listerData.photoURL || listerData.avatar || listerData.agentAvatar || listerData.profilePicture || '../../img/avatar-placeholder.svg',
+                phone: listerData.phone || listerData.phoneNumber || listerData.agentPhone || null,
+                type: listerData.type || listerData.role || listerData.agentType || 'seller'
+            };
+            console.log('Normalized lister data:', listerData);
+        } else {
             console.warn('Lister data not found, using fallback data');
             listerData = {
                 displayName: 'Seller',
                 name: 'Seller',
                 email: 'seller@starlet.co.ug',
-                photoURL: '../../img/avatar-placeholder.svg'
+                photoURL: '../../img/avatar-placeholder.svg',
+                phone: null,
+                type: 'seller'
             };
         }
         
@@ -1457,7 +1528,9 @@ async function setupListingChat(listingId, listerId, makeOffer = false) {
                         uid: actualListerId,
                         name: listerData.displayName || listerData.name || 'Lister',
                         email: listerData.email,
-                        avatar: listerData.photoURL || listerData.avatar
+                        avatar: listerData.photoURL || listerData.avatar,
+                        phone: listerData.phone,
+                        type: listerData.type || 'seller'
                     }
                 ],
                 listingId: listingId,
