@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Create Agent Store - Starlet Properties</title>
-  <link rel="stylesheet" href="/starlet-2/css/style.css">
+  <link rel="stylesheet" href="../../../css/style.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -221,7 +221,7 @@
   <!-- Navbar (from index.html) -->
   <nav class="navbar navbar-expand-lg navbar-custom">
     <div class="container">
-      <a class="navbar-brand" href="/index.html">
+      <a class="navbar-brand" href="../../../index.html">
         <span class="brand-star">Star</span> <span class="brand-let">Let</span>
       </a>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -382,7 +382,8 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-  <script src="/assets/js/firebase-config.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+  <script src="../../../assets/js/firebase-config.js"></script>
   <script src="../../../js/main.js"></script>
   <script>
   // Enforce authentication on this page
@@ -416,32 +417,82 @@
     // Handle form submit
     document.getElementById('createStoreForm').addEventListener('submit', async function(e) {
       e.preventDefault();
-      const user = firebase.auth().currentUser;
-      if (!user) {
-        alert('You must be logged in to create a store.');
-        return;
-      }
-      const db = firebase.firestore();
-      const name = document.getElementById('storeName').value.trim();
-      const description = document.getElementById('storeDescription').value.trim();
-      const contact = document.getElementById('storeContact').value.trim();
-      const email = document.getElementById('storeEmail').value.trim();
-      const location = document.getElementById('storeLocation').value.trim();
-      const agentTier = document.getElementById('agentTier').value;
-      let logoUrl = '';
-      // Optionally handle logo upload here (to Firebase Storage)
-      // For now, just use preview as base64 (not recommended for production)
-      const logoInput = document.getElementById('storeLogo');
-      if (logoInput.files[0]) {
-        const reader = new FileReader();
-        logoUrl = await new Promise(resolve => {
-          reader.onload = e => resolve(e.target.result);
-          reader.readAsDataURL(logoInput.files[0]);
-        });
-      }
+      
+      // Show loading state
+      const submitBtn = e.target.querySelector('button[type="submit"]');
+      const originalText = submitBtn.textContent;
+      submitBtn.textContent = 'Creating Store...';
+      submitBtn.disabled = true;
+      
       try {
-        // 1. Create the store
-        const storeRef = await db.collection('stores').add({
+        const user = firebase.auth().currentUser;
+        if (!user) {
+          throw new Error('You must be logged in to create a store.');
+        }
+        
+        // Validate form data
+        const name = document.getElementById('storeName').value.trim();
+        const description = document.getElementById('storeDescription').value.trim();
+        const contact = document.getElementById('storeContact').value.trim();
+        const email = document.getElementById('storeEmail').value.trim();
+        const location = document.getElementById('storeLocation').value.trim();
+        const agentTier = document.getElementById('agentTier').value;
+        
+        if (!name || !description || !contact || !email || !location || !agentTier) {
+          throw new Error('Please fill in all required fields.');
+        }
+        
+        // Validate email format
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+          throw new Error('Please enter a valid email address.');
+        }
+        
+        // Validate phone number (basic validation)
+        const phoneRegex = /^[\+]?[0-9\s\-\(\)]{10,}$/;
+        if (!phoneRegex.test(contact)) {
+          throw new Error('Please enter a valid phone number.');
+        }
+        
+        const db = firebase.firestore();
+        let logoUrl = '';
+        
+        // Handle logo upload to Firebase Storage
+        const logoInput = document.getElementById('storeLogo');
+        if (logoInput.files[0]) {
+          const file = logoInput.files[0];
+          
+          // Validate file size (max 5MB)
+          if (file.size > 5 * 1024 * 1024) {
+            throw new Error('Logo file size must be less than 5MB.');
+          }
+          
+          // Validate file type
+          if (!file.type.startsWith('image/')) {
+            throw new Error('Please select a valid image file for the logo.');
+          }
+          
+          try {
+            // Upload to Firebase Storage
+            const storage = firebase.storage();
+            const storageRef = storage.ref();
+            const logoRef = storageRef.child(`store-logos/${user.uid}/${Date.now()}_${file.name}`);
+            const uploadTask = await logoRef.put(file);
+            logoUrl = await uploadTask.ref.getDownloadURL();
+          } catch (uploadError) {
+            console.warn('Logo upload failed, proceeding without logo:', uploadError);
+            // Continue without logo if upload fails
+          }
+        }
+        
+        // Check if user already has a store
+        const existingStore = await db.collection('stores').where('ownerId', '==', user.uid).limit(1).get();
+        if (!existingStore.empty) {
+          throw new Error('You already have a store. You can only create one store per account.');
+        }
+        
+        // Create the store
+        const storeData = {
           name,
           description,
           contact,
@@ -450,35 +501,107 @@
           agentTier,
           logo: logoUrl,
           ownerId: user.uid,
+          status: 'active',
           createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-        });
-        // 2. Update user role to 'agent'
-        await db.collection('users').doc(user.uid).set({ role: 'agent' }, { merge: true });
-        alert('Store created successfully!');
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+          // Add additional metadata
+          tierFeatures: getTierFeatures(agentTier),
+          subscriptionStatus: 'active',
+          listingCount: 0,
+          viewCount: 0,
+          contactCount: 0
+        };
+        
+        const storeRef = await db.collection('stores').add(storeData);
+        
+        // Update user role to 'agent' and add store reference
+        await db.collection('users').doc(user.uid).set({
+          role: 'agent',
+          storeId: storeRef.id,
+          agentTier: agentTier,
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        }, { merge: true });
+        
+        // Show success message
+        alert('Store created successfully! Redirecting to your dashboard...');
         window.location.href = 'dashboard.html';
+        
       } catch (err) {
+        console.error('Error creating store:', err);
         alert('Error creating store: ' + err.message);
+        
+        // Reset button state
+        submitBtn.textContent = originalText;
+        submitBtn.disabled = false;
       }
     });
+    
+    // Helper function to get tier features
+    function getTierFeatures(tier) {
+      const features = {
+        silver: [
+          'Essential listing tools',
+          'Standard marketplace exposure',
+          'Email support',
+          'Basic analytics'
+        ],
+        gold: [
+          'All Silver features',
+          'Priority listing placement',
+          'Featured property highlights',
+          'Advanced analytics dashboard',
+          'Priority customer support'
+        ],
+        diamond: [
+          'All Gold features',
+          'Unlimited premium listings',
+          'Maximum marketplace visibility',
+          '24/7 VIP support',
+          'Custom store branding & URL',
+          'Advanced reporting & insights'
+        ]
+      };
+      return features[tier] || [];
+    }
     // Tier card selection logic
     const tierCards = document.querySelectorAll('.tier-card');
     const tierSelect = document.getElementById('agentTier');
+    
     function selectTier(tier) {
+      // Remove selection from all cards
       tierCards.forEach(card => {
-        if (card.classList.contains(tier)) {
+        card.classList.remove('selected');
+      });
+      
+      // Add selection to the chosen tier
+      tierCards.forEach(card => {
+        const cardTier = getCardTier(card);
+        if (cardTier === tier) {
           card.classList.add('selected');
-        } else {
-          card.classList.remove('selected');
         }
       });
+      
       tierSelect.value = tier;
+      
+      // Add visual feedback
+      const selectedCard = document.querySelector(`.tier-card.selected`);
+      if (selectedCard) {
+        selectedCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
+    
+    function getCardTier(card) {
+      if (card.querySelector('.tier-header.silver')) return 'silver';
+      if (card.querySelector('.tier-header.gold')) return 'gold';
+      if (card.querySelector('.tier-header.diamond')) return 'diamond';
+      return null;
     }
     tierCards.forEach(card => {
       card.addEventListener('click', function() {
-        const tier = this.querySelector('.tier-header').classList.contains('silver') ? 'silver'
-          : this.querySelector('.tier-header').classList.contains('gold') ? 'gold'
-          : 'diamond';
-        selectTier(tier);
+        const tier = getCardTier(this);
+        if (tier) {
+          selectTier(tier);
+        }
       });
     });
     tierSelect.addEventListener('change', function() {
