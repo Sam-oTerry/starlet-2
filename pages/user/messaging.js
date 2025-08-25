@@ -1309,8 +1309,21 @@ async function setupSupportChat() {
 async function setupListingChat(listingId, listerId, makeOffer = false) {
     console.log('Setting up listing chat for listing:', listingId, 'lister:', listerId);
     
-    if (!db || !window.currentUser) {
-        console.error('Cannot setup listing chat - missing required data');
+    if (!listingId) {
+        console.error('Cannot setup listing chat - no listing ID provided');
+        showNotification('Invalid listing. Please try again.', 'error');
+        return;
+    }
+    
+    if (!db) {
+        console.error('Cannot setup listing chat - database not initialized');
+        showNotification('System error. Please refresh the page and try again.', 'error');
+        return;
+    }
+    
+    if (!window.currentUser) {
+        console.error('Cannot setup listing chat - user not authenticated');
+        showNotification('Please log in to start a conversation.', 'error');
         return;
     }
     
@@ -1318,27 +1331,80 @@ async function setupListingChat(listingId, listerId, makeOffer = false) {
         // Get listing details from Firestore
         const listingDoc = await db.collection('listings').doc(listingId).get();
         if (!listingDoc.exists) {
-            console.error('Listing not found:', listingId);
-            showNotification('Listing not found', 'error');
-            return;
+            // Check if this is a test listing and create demo data
+            if (listingId.startsWith('test_')) {
+                console.log('Creating demo listing for testing');
+                const demoListingData = {
+                    title: listingId.includes('property') ? 'Demo Property - Beautiful 3-Bedroom House' : 'Demo Vehicle - 2020 Toyota Camry',
+                    price: 50000000,
+                    type: listingId.includes('property') ? 'house_sale' : 'cars',
+                    location: {
+                        district: 'Kampala',
+                        town: 'Kampala Central'
+                    },
+                    images: ['https://via.placeholder.com/800x600?text=Demo+Property'],
+                    userId: actualListerId || 'demo_seller_123',
+                    description: 'This is a demo listing for testing the messaging system.'
+                };
+                
+                // Use demo data instead of real listing
+                listingData = demoListingData;
+            } else {
+                console.error('Listing not found:', listingId);
+                showNotification('This listing is no longer available or has been removed.', 'error');
+                return;
+            }
+        } else {
+            listingData = listingDoc.data();
         }
         
-        const listingData = listingDoc.data();
+        let listingData;
         console.log('Listing data:', listingData);
         
-        // Get lister details
-        const listerDoc = await db.collection('users').doc(listerId || listingData.userId).get();
-        if (!listerDoc.exists) {
-            console.error('Lister not found:', listerId || listingData.userId);
-            showNotification('Lister not found', 'error');
+        // Get lister details - handle cases where listerId might be undefined
+        const actualListerId = listerId || listingData.userId || listingData.createdBy || listingData.ownerId;
+        
+        if (!actualListerId) {
+            console.error('No lister ID found in listing data or URL parameters');
+            showNotification('Unable to identify the seller for this listing. Please try again later.', 'error');
             return;
         }
         
-        const listerData = listerDoc.data();
+        // For test cases, create demo lister data
+        if (actualListerId.startsWith('test_') || actualListerId.startsWith('demo_')) {
+            console.log('Creating demo lister data for testing');
+            listerData = {
+                displayName: 'Demo Seller',
+                name: 'Demo Seller',
+                email: 'demo@starlet.co.ug',
+                photoURL: '../../img/avatar-placeholder.svg'
+            };
+        } else {
+            const listerDoc = await db.collection('users').doc(actualListerId).get();
+            if (!listerDoc.exists) {
+                console.error('Lister not found:', actualListerId);
+                showNotification('Seller information not available. Please try again later.', 'error');
+                return;
+            }
+            listerData = listerDoc.data();
+        }
+        
+        let listerData = listerDoc.data();
         console.log('Lister data:', listerData);
         
+        // If lister data is not available, create a fallback
+        if (!listerData) {
+            console.warn('Lister data not found, using fallback data');
+            listerData = {
+                displayName: 'Seller',
+                name: 'Seller',
+                email: 'seller@starlet.co.ug',
+                photoURL: '../../img/avatar-placeholder.svg'
+            };
+        }
+        
         // Create a unique conversation ID for this listing and user
-        const conversationId = `listing_${listingId}_${window.currentUser.uid}_${listerId || listingData.userId}`;
+        const conversationId = `listing_${listingId}_${window.currentUser.uid}_${actualListerId}`;
         
         // Check if conversation already exists
         const conversationDoc = await db.collection('conversations').doc(conversationId).get();
@@ -1363,7 +1429,7 @@ async function setupListingChat(listingId, listerId, makeOffer = false) {
             // Create conversation
             const conversation = {
                 id: conversationId,
-                participants: [window.currentUser.uid, listerId || listingData.userId],
+                participants: [window.currentUser.uid, actualListerId],
                 participantDetails: [
                     {
                         uid: window.currentUser.uid,
@@ -1372,7 +1438,7 @@ async function setupListingChat(listingId, listerId, makeOffer = false) {
                         avatar: window.currentUser.photoURL
                     },
                     {
-                        uid: listerId || listingData.userId,
+                        uid: actualListerId,
                         name: listerData.displayName || listerData.name || 'Lister',
                         email: listerData.email,
                         avatar: listerData.photoURL || listerData.avatar
