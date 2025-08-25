@@ -623,11 +623,11 @@ async function renderFeaturedListings() {
       const hasImage = listing.image || listing.imageUrls?.[0] || listing.images?.[0];
       
       // Determine the correct details page URL
-      let detailsUrl = 'details.html?id=' + listing.id;
+      let detailsUrl = '/starlet-2/pages/properties/details.html?id=' + listing.id;
       if (listing.listingType === 'vehicle' || listing.type === 'vehicle') {
-        detailsUrl = '../vehicles/details.html?id=' + listing.id;
+        detailsUrl = '/starlet-2/pages/vehicles/details.html?id=' + listing.id;
       } else if (listing.type === 'property' || listing.listingType === 'property') {
-        detailsUrl = '../properties/details.html?id=' + listing.id;
+        detailsUrl = '/starlet-2/pages/properties/details.html?id=' + listing.id;
       }
       
       card.innerHTML = `
