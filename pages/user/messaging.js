@@ -1379,6 +1379,13 @@ async function setupListingChat(listingId, listerId, makeOffer = false) {
                             listingData.listerId || 
                             listingData.ownerId || 
                             listingData.propertyAgentId;
+
+        // Check if current user is trying to chat with themselves
+        if (actualListerId === window.currentUser.uid) {
+            console.error('User cannot chat with themselves');
+            showNotification('You cannot start a conversation with yourself.', 'error');
+            return;
+        }
         
         if (!actualListerId) {
             console.error('No lister ID found in listing data or URL parameters');
@@ -1421,61 +1428,81 @@ async function setupListingChat(listingId, listerId, makeOffer = false) {
                 displayName: 'Demo Seller',
                 name: 'Demo Seller',
                 email: 'demo@starlet.co.ug',
-                photoURL: '../../img/avatar-placeholder.svg'
+                photoURL: '../../img/avatar-placeholder.svg',
+                phone: null,
+                type: 'demo'
             };
         } else {
-            console.log('Searching for lister data with ID:', actualListerId);
+            // Check if this is an official store or admin user
+            const isOfficialStore = listingData.isOfficialStore || listingData.officialStore || listingData.storeType === 'official';
+            const isAdminUser = listingData.isAdmin || listingData.adminUser || listingData.userRole === 'admin';
             
-            // Try to find lister data in multiple collections
-            let listerDoc = null;
-            let collectionName = '';
+            console.log('Store/Admin check:', { isOfficialStore, isAdminUser });
             
-            // Try users collection first
-            try {
-                listerDoc = await db.collection('users').doc(actualListerId).get();
-                if (listerDoc.exists) {
-                    collectionName = 'users';
-                    console.log('Found lister in users collection');
-                }
-            } catch (error) {
-                console.log('Error checking users collection:', error);
-            }
-            
-            // If not found in users, try agents collection
-            if (!listerDoc || !listerDoc.exists) {
+            if (isOfficialStore || isAdminUser) {
+                console.log('Detected official store or admin user, using Official Store name');
+                listerData = {
+                    displayName: 'Official Store',
+                    name: 'Official Store',
+                    email: 'official@starlet.co.ug',
+                    photoURL: '../../img/starlet-logo.png',
+                    phone: null,
+                    type: 'official'
+                };
+            } else {
+                console.log('Searching for lister data with ID:', actualListerId);
+                
+                // Try to find lister data in multiple collections
+                let listerDoc = null;
+                let collectionName = '';
+                
+                // Try users collection first
                 try {
-                    listerDoc = await db.collection('agents').doc(actualListerId).get();
+                    listerDoc = await db.collection('users').doc(actualListerId).get();
                     if (listerDoc.exists) {
-                        collectionName = 'agents';
-                        console.log('Found lister in agents collection');
+                        collectionName = 'users';
+                        console.log('Found lister in users collection');
                     }
                 } catch (error) {
-                    console.log('Error checking agents collection:', error);
+                    console.log('Error checking users collection:', error);
                 }
-            }
-            
-            // If not found in agents, try propertyAgents collection
-            if (!listerDoc || !listerDoc.exists) {
-                try {
-                    listerDoc = await db.collection('propertyAgents').doc(actualListerId).get();
-                    if (listerDoc.exists) {
-                        collectionName = 'propertyAgents';
-                        console.log('Found lister in propertyAgents collection');
+                
+                // If not found in users, try agents collection
+                if (!listerDoc || !listerDoc.exists) {
+                    try {
+                        listerDoc = await db.collection('agents').doc(actualListerId).get();
+                        if (listerDoc.exists) {
+                            collectionName = 'agents';
+                            console.log('Found lister in agents collection');
+                        }
+                    } catch (error) {
+                        console.log('Error checking agents collection:', error);
                     }
-                } catch (error) {
-                    console.log('Error checking propertyAgents collection:', error);
                 }
+                
+                // If not found in agents, try propertyAgents collection
+                if (!listerDoc || !listerDoc.exists) {
+                    try {
+                        listerDoc = await db.collection('propertyAgents').doc(actualListerId).get();
+                        if (listerDoc.exists) {
+                            collectionName = 'propertyAgents';
+                            console.log('Found lister in propertyAgents collection');
+                        }
+                    } catch (error) {
+                        console.log('Error checking propertyAgents collection:', error);
+                    }
+                }
+                
+                if (!listerDoc || !listerDoc.exists) {
+                    console.error('Lister not found in any collection:', actualListerId);
+                    console.log('Tried collections: users, agents, propertyAgents');
+                    showNotification('Seller information not available. Please try again later.', 'error');
+                    return;
+                }
+                
+                listerData = listerDoc.data();
+                console.log(`Lister data loaded from ${collectionName} collection:`, listerData);
             }
-            
-            if (!listerDoc || !listerDoc.exists) {
-                console.error('Lister not found in any collection:', actualListerId);
-                console.log('Tried collections: users, agents, propertyAgents');
-                showNotification('Seller information not available. Please try again later.', 'error');
-                return;
-            }
-            
-            listerData = listerDoc.data();
-            console.log(`Lister data loaded from ${collectionName} collection:`, listerData);
         }
         
         console.log('Lister data:', listerData);
