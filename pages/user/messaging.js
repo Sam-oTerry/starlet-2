@@ -1315,6 +1315,11 @@ async function setupListingChat(listingId, listerId, makeOffer = false) {
         return;
     }
     
+    // If no listerId provided, we'll try to get it from the listing data
+    if (!listerId) {
+        console.log('No listerId provided in URL, will attempt to extract from listing data');
+    }
+    
     if (!db) {
         console.error('Cannot setup listing chat - database not initialized');
         showNotification('System error. Please refresh the page and try again.', 'error');
@@ -1329,12 +1334,13 @@ async function setupListingChat(listingId, listerId, makeOffer = false) {
     
     try {
         // Get listing details from Firestore
+        let listingData;
         const listingDoc = await db.collection('listings').doc(listingId).get();
         if (!listingDoc.exists) {
             // Check if this is a test listing and create demo data
             if (listingId.startsWith('test_')) {
                 console.log('Creating demo listing for testing');
-                const demoListingData = {
+                listingData = {
                     title: listingId.includes('property') ? 'Demo Property - Beautiful 3-Bedroom House' : 'Demo Vehicle - 2020 Toyota Camry',
                     price: 50000000,
                     type: listingId.includes('property') ? 'house_sale' : 'cars',
@@ -1349,9 +1355,6 @@ async function setupListingChat(listingId, listerId, makeOffer = false) {
                     },
                     description: 'This is a demo listing for testing the messaging system.'
                 };
-                
-                // Use demo data instead of real listing
-                listingData = demoListingData;
             } else {
                 console.error('Listing not found:', listingId);
                 showNotification('This listing is no longer available or has been removed.', 'error');
@@ -1360,21 +1363,27 @@ async function setupListingChat(listingId, listerId, makeOffer = false) {
         } else {
             listingData = listingDoc.data();
         }
-        
-        let listingData;
         console.log('Listing data:', listingData);
+        console.log('Listing data keys:', Object.keys(listingData || {}));
+        if (listingData && listingData.createdBy) {
+            console.log('CreatedBy data:', listingData.createdBy);
+        }
         
         // Get lister details - handle cases where listerId might be undefined
         // Check for createdBy.uid first, then fallback to other fields
-        const actualListerId = listerId || 
-                              (listingData.createdBy && listingData.createdBy.uid) || 
-                              listingData.userId || 
-                              listingData.ownerId;
+        let actualListerId = listerId || 
+                            (listingData.createdBy && listingData.createdBy.uid) || 
+                            listingData.userId || 
+                            listingData.ownerId;
         
         if (!actualListerId) {
             console.error('No lister ID found in listing data or URL parameters');
-            showNotification('Unable to identify the seller for this listing. Please try again later.', 'error');
-            return;
+            console.log('Listing data keys:', Object.keys(listingData || {}));
+            
+            // For existing listings without a clear lister, create a support-style conversation
+            console.log('Creating support-style conversation for listing without clear lister');
+            actualListerId = 'support_team';
+            showNotification('Connected to support for this listing.', 'info');
         }
         
         // For test cases, create demo lister data
