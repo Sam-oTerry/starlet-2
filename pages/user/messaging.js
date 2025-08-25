@@ -1527,6 +1527,21 @@ async function setupListingChat(listingId, listerId, makeOffer = false) {
                 }
             }
             
+            // Helper function to remove undefined values
+            const removeUndefinedValues = (obj) => {
+                const cleaned = {};
+                for (const [key, value] of Object.entries(obj)) {
+                    if (value !== undefined) {
+                        if (value && typeof value === 'object' && !Array.isArray(value)) {
+                            cleaned[key] = removeUndefinedValues(value);
+                        } else {
+                            cleaned[key] = value;
+                        }
+                    }
+                }
+                return cleaned;
+            };
+
             // Create conversation
             const conversation = {
                 id: conversationId,
@@ -1551,10 +1566,16 @@ async function setupListingChat(listingId, listerId, makeOffer = false) {
                 listingTitle: listingData.title || 'Property Inquiry',
                 listingQuote: {
                     title: listingData.title || 'Property Inquiry',
-                    price: listingData.price,
-                    image: listingData.images && listingData.images.length > 0 ? listingData.images[0] : null,
-                    type: listingData.type,
-                    location: listingData.location
+                    price: listingData.price || listingData.askingPrice || null,
+                    image: listingData.images && listingData.images.length > 0 ? listingData.images[0] : 
+                           listingData.image || listingData.media && listingData.media.length > 0 ? listingData.media[0] : null,
+                    type: listingData.type || listingData.propertyType || listingData.listingType || 'property',
+                    location: listingData.location ? {
+                        district: listingData.location.district || null,
+                        town: listingData.location.town || null,
+                        neighborhood: listingData.location.neighborhood || null,
+                        village: listingData.location.village || null
+                    } : null
                 },
                 lastMessage: pendingOffer ? `Made an offer of $${pendingOffer.offerAmount}` : 'New conversation started',
                 lastMessageSenderId: window.currentUser.uid,
@@ -1563,8 +1584,12 @@ async function setupListingChat(listingId, listerId, makeOffer = false) {
                 updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
                 isListingChat: true
             };
+
+            // Clean the conversation object to remove any undefined values
+            const cleanedConversation = removeUndefinedValues(conversation);
+            console.log('Cleaned conversation data:', cleanedConversation);
             
-            await db.collection('conversations').doc(conversationId).set(conversation);
+            await db.collection('conversations').doc(conversationId).set(cleanedConversation);
             
             // Add initial message
             let initialMessageContent = `Hi! I'm interested in your ${listingData.title || 'property'}. Can you tell me more about it?`;
