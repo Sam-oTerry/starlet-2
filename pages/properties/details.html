@@ -372,9 +372,16 @@
 
         .agent-stats {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            grid-template-columns: repeat(3, 1fr);
             gap: 1rem;
             margin-bottom: 1.5rem;
+        }
+
+        @media (max-width: 576px) {
+            .agent-stats {
+                grid-template-columns: 1fr;
+                gap: 0.75rem;
+            }
         }
 
         .stat-item {
@@ -1942,12 +1949,67 @@
             // Show the agent card
             agentCard.style.display = 'block';
             
-            // Update agent avatar
+            // Update agent avatar with fallback icon
             const agentAvatar = document.getElementById('agentAvatar');
             if (agentAvatar) {
-                const profilePic = creatorInfo.profilePicture || creatorInfo.photoURL || creatorInfo.avatar || '../../img/avatar-placeholder.svg';
-                agentAvatar.src = profilePic;
-                agentAvatar.alt = getDisplayName(creatorInfo);
+                const profilePic = creatorInfo.profilePicture || creatorInfo.photoURL || creatorInfo.avatar;
+                
+                if (profilePic && profilePic !== '') {
+                    // Use actual profile picture
+                    agentAvatar.src = profilePic;
+                    agentAvatar.alt = getDisplayName(creatorInfo);
+                    agentAvatar.style.display = 'block';
+                    
+                    // Hide any fallback icon
+                    const fallbackIcon = agentAvatar.parentElement.querySelector('.avatar-fallback');
+                    if (fallbackIcon) {
+                        fallbackIcon.style.display = 'none';
+                    }
+                } else {
+                    // Show fallback icon based on user type
+                    agentAvatar.style.display = 'none';
+                    
+                    let fallbackIcon = agentAvatar.parentElement.querySelector('.avatar-fallback');
+                    if (!fallbackIcon) {
+                        fallbackIcon = document.createElement('div');
+                        fallbackIcon.className = 'avatar-fallback';
+                        fallbackIcon.style.cssText = `
+                            width: 80px;
+                            height: 80px;
+                            border-radius: 50%;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            background: linear-gradient(135deg, var(--primary-main) 0%, #0056b3 100%);
+                            color: white;
+                            font-size: 2rem;
+                            border: 4px solid rgba(0, 123, 255, 0.1);
+                            box-shadow: 0 4px 15px rgba(0, 123, 255, 0.2);
+                        `;
+                        agentAvatar.parentElement.appendChild(fallbackIcon);
+                    }
+                    
+                    // Set appropriate icon based on user type
+                    if (isOfficialStore(creatorInfo)) {
+                        fallbackIcon.innerHTML = '<i class="bi bi-shield-check"></i>';
+                        fallbackIcon.style.background = 'linear-gradient(135deg, var(--accent-gold) 0%, #ffed4e 100%)';
+                        fallbackIcon.style.color = 'var(--primary-dark)';
+                        fallbackIcon.style.border = '4px solid rgba(255, 215, 0, 0.3)';
+                        fallbackIcon.style.boxShadow = '0 4px 15px rgba(255, 215, 0, 0.3)';
+                    } else {
+                        // Determine icon based on user role/type
+                        const userType = creatorInfo.role || creatorInfo.userType || creatorInfo.type || '';
+                        if (userType.toLowerCase().includes('agent') || userType.toLowerCase().includes('realtor')) {
+                            fallbackIcon.innerHTML = '<i class="bi bi-person-badge"></i>';
+                        } else if (userType.toLowerCase().includes('seller') || userType.toLowerCase().includes('owner')) {
+                            fallbackIcon.innerHTML = '<i class="bi bi-person"></i>';
+                        } else {
+                            fallbackIcon.innerHTML = '<i class="bi bi-person-circle"></i>';
+                        }
+                    }
+                    
+                    fallbackIcon.style.display = 'flex';
+                }
             }
             
             // Update agent name and type
@@ -1975,11 +2037,11 @@
                     </div>
                     <div class="col-4 stat-item">
                         <h6>--</h6>
-                        <p>${isOfficial ? 'Established' : 'Member'} Since</p>
+                        <p>Active Listings</p>
                     </div>
                     <div class="col-4 stat-item">
                         <h6>--</h6>
-                        <p>${isOfficial ? 'Years of' : ''} Experience</p>
+                        <p>${isOfficial ? 'Established' : 'Member'} Since</p>
                     </div>
                 `;
                 
@@ -2005,12 +2067,52 @@
                     return;
                 }
                 
-                // Get user's listings count
-                const listingsQuery = await db.collection('listings')
-                    .where('createdBy.uid', '==', creatorId)
-                    .get();
+                // Get user's listings count - check multiple possible creator fields
+                let listingsCount = 0;
                 
-                const listingsCount = listingsQuery.size;
+                // Try different possible creator ID fields
+                const possibleCreatorFields = [
+                    ['createdBy.uid', creatorId],
+                    ['createdBy.id', creatorId],
+                    ['agentId', creatorId],
+                    ['listerId', creatorId],
+                    ['userId', creatorId],
+                    ['ownerId', creatorId]
+                ];
+                
+                for (const [field, value] of possibleCreatorFields) {
+                    try {
+                        const query = await db.collection('listings')
+                            .where(field, '==', value)
+                            .get();
+                        
+                        if (query.size > 0) {
+                            listingsCount = query.size;
+                            console.log(`Found ${listingsCount} listings using field: ${field}`);
+                            break;
+                        }
+                    } catch (error) {
+                        console.log(`Field ${field} not available, trying next...`);
+                        continue;
+                    }
+                }
+                
+                // If still no listings found, try a broader search
+                if (listingsCount === 0) {
+                    try {
+                        const allListings = await db.collection('listings').get();
+                        listingsCount = allListings.docs.filter(doc => {
+                            const data = doc.data();
+                            return (data.createdBy && (data.createdBy.uid === creatorId || data.createdBy.id === creatorId)) ||
+                                   data.agentId === creatorId ||
+                                   data.listerId === creatorId ||
+                                   data.userId === creatorId ||
+                                   data.ownerId === creatorId;
+                        }).length;
+                    } catch (error) {
+                        console.log('Fallback search also failed');
+                    }
+                }
                 
                 // Get user's join date
                 const joinDate = creatorInfo.createdAt || creatorInfo.joinDate || creatorInfo.dateCreated || creatorInfo.registrationDate;
@@ -2045,18 +2147,44 @@
                         const diffYears = Math.floor(diffDays / 365);
                         const diffMonths = Math.floor((diffDays % 365) / 30);
                         
-                        // Format member since
+                        // Format member since with more precision
                         if (diffYears > 0) {
-                            memberSince = `${diffYears} year${diffYears > 1 ? 's' : ''}`;
+                            if (diffMonths > 0) {
+                                memberSince = `${diffYears} year${diffYears > 1 ? 's' : ''} ${diffMonths} month${diffMonths > 1 ? 's' : ''}`;
+                            } else {
+                                memberSince = `${diffYears} year${diffYears > 1 ? 's' : ''}`;
+                            }
                         } else if (diffMonths > 0) {
-                            memberSince = `${diffMonths} month${diffMonths > 1 ? 's' : ''}`;
+                            if (diffDays > 0) {
+                                memberSince = `${diffMonths} month${diffMonths > 1 ? 's' : ''} ${diffDays} day${diffDays > 1 ? 's' : ''}`;
+                            } else {
+                                memberSince = `${diffMonths} month${diffMonths > 1 ? 's' : ''}`;
+                            }
                         } else {
                             memberSince = `${diffDays} day${diffDays > 1 ? 's' : ''}`;
                         }
                         
-                        // Calculate experience years
-                        experienceYears = diffYears > 0 ? diffYears : '< 1';
+                        // Calculate experience years with decimal precision
+                        if (diffYears > 0) {
+                            const decimalYears = (diffDays / 365).toFixed(1);
+                            experienceYears = parseFloat(decimalYears) >= 1 ? Math.floor(parseFloat(decimalYears)) : '< 1';
+                        } else {
+                            experienceYears = '< 1';
+                        }
                     }
+                }
+                
+                // Get active listings count
+                let activeListingsCount = 0;
+                try {
+                    const activeQuery = await db.collection('listings')
+                        .where('createdBy.uid', '==', creatorId)
+                        .where('status', 'in', ['approved', 'active', 'live'])
+                        .get();
+                    activeListingsCount = activeQuery.size;
+                } catch (error) {
+                    // If status field doesn't exist, assume all are active
+                    activeListingsCount = listingsCount;
                 }
                 
                 // Update stats with real data
@@ -2068,12 +2196,12 @@
                         <p>${isOfficial ? 'Official' : 'Total'} Listings</p>
                     </div>
                     <div class="col-4 stat-item">
-                        <h6>${memberSince}</h6>
-                        <p>${isOfficial ? 'Established' : 'Member'} Since</p>
+                        <h6>${activeListingsCount}</h6>
+                        <p>Active Listings</p>
                     </div>
                     <div class="col-4 stat-item">
-                        <h6>${experienceYears}</h6>
-                        <p>${isOfficial ? 'Years of' : ''} Experience</p>
+                        <h6>${memberSince}</h6>
+                        <p>${isOfficial ? 'Established' : 'Member'} Since</p>
                     </div>
                 `;
                 
@@ -2090,11 +2218,11 @@
                     </div>
                     <div class="col-4 stat-item">
                         <h6>--</h6>
-                        <p>${isOfficial ? 'Established' : 'Member'} Since</p>
+                        <p>Active Listings</p>
                     </div>
                     <div class="col-4 stat-item">
                         <h6>--</h6>
-                        <p>${isOfficial ? 'Years of' : ''} Experience</p>
+                        <p>${isOfficial ? 'Established' : 'Member'} Since</p>
                     </div>
                 `;
             }
