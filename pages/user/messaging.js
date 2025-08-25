@@ -865,6 +865,20 @@ function setupEventListeners() {
             showContactInfo();
         });
     }
+
+    // Add window resize listener for responsive updates
+    window.addEventListener('resize', function() {
+        // Update price formatting if listing details are visible
+        const listingSection = document.getElementById('listingDetailsSection');
+        if (listingSection && listingSection.style.display !== 'none') {
+            const listingPrice = document.getElementById('listingPrice');
+            if (listingPrice && currentListingData) {
+                const price = currentListingData.price || currentListingData.askingPrice || 0;
+                const formattedPrice = formatPriceForScreen(price);
+                listingPrice.textContent = formattedPrice;
+            }
+        }
+    });
     
     // Mobile navigation - back button
     const backToConversationsBtn = document.getElementById('backToConversations');
@@ -2087,7 +2101,7 @@ function showListingDetails(listingData) {
     const listingPrice = document.getElementById('listingPrice');
     
     if (listingSection && listingData) {
-        // Set listing image
+        // Set listing image with error handling
         if (listingData.images && listingData.images.length > 0) {
             listingImage.src = listingData.images[0];
         } else if (listingData.image) {
@@ -2098,15 +2112,100 @@ function showListingDetails(listingData) {
             listingImage.src = '../../img/placeholder-property.jpg';
         }
         
-        // Set listing title
-        listingTitle.textContent = listingData.title || 'Property Listing';
+        // Handle image load errors
+        listingImage.onerror = function() {
+            this.src = '../../img/placeholder-property.jpg';
+        };
         
-        // Set listing price
+        // Set listing title with responsive truncation
+        const title = listingData.title || 'Property Listing';
+        listingTitle.textContent = title;
+        listingTitle.title = title; // Show full title on hover
+        
+        // Set listing price with responsive formatting
         const price = listingData.price || listingData.askingPrice || 0;
-        listingPrice.textContent = `USh ${price.toLocaleString()}`;
+        const formattedPrice = formatPriceForScreen(price);
+        listingPrice.textContent = formattedPrice;
         
-        // Show the section
+        // Show the section with smooth animation
         listingSection.style.display = 'block';
+        listingSection.style.opacity = '0';
+        listingSection.style.transform = 'translateY(-10px)';
+        
+        // Animate in
+        setTimeout(() => {
+            listingSection.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+            listingSection.style.opacity = '1';
+            listingSection.style.transform = 'translateY(0)';
+        }, 10);
+        
+        // Add responsive touch interactions
+        addResponsiveInteractions();
+    }
+}
+
+// Format price based on screen size
+function formatPriceForScreen(price) {
+    const screenWidth = window.innerWidth;
+    
+    if (screenWidth <= 320) {
+        // Very small screens - show abbreviated format
+        if (price >= 1000000) {
+            return `USh ${(price / 1000000).toFixed(1)}M`;
+        } else if (price >= 1000) {
+            return `USh ${(price / 1000).toFixed(0)}K`;
+        } else {
+            return `USh ${price}`;
+        }
+    } else if (screenWidth <= 480) {
+        // Small screens - show compact format
+        return `USh ${price.toLocaleString()}`;
+    } else {
+        // Larger screens - show full format
+        return `USh ${price.toLocaleString()}`;
+    }
+}
+
+// Add responsive touch interactions
+function addResponsiveInteractions() {
+    const listingCard = document.querySelector('.listing-card');
+    const showContactBtn = document.getElementById('showContactBtn');
+    
+    if (listingCard && showContactBtn) {
+        // Add touch feedback for mobile
+        if ('ontouchstart' in window) {
+            listingCard.addEventListener('touchstart', function() {
+                this.style.transform = 'scale(0.98)';
+                this.style.transition = 'transform 0.1s ease';
+            });
+            
+            listingCard.addEventListener('touchend', function() {
+                this.style.transform = 'scale(1)';
+            });
+            
+            showContactBtn.addEventListener('touchstart', function() {
+                this.style.transform = 'scale(0.95)';
+                this.style.transition = 'transform 0.1s ease';
+            });
+            
+            showContactBtn.addEventListener('touchend', function() {
+                this.style.transform = 'scale(1)';
+            });
+        }
+        
+        // Add hover effects for desktop
+        if (!('ontouchstart' in window)) {
+            listingCard.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-2px)';
+                this.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+                this.style.transition = 'transform 0.2s ease, box-shadow 0.2s ease';
+            });
+            
+            listingCard.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+                this.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
+            });
+        }
     }
 }
 

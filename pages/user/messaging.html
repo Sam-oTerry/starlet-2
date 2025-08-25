@@ -3871,26 +3871,83 @@
       display: flex;
       align-items: center;
       gap: 4px;
+      min-height: 32px; /* Ensure minimum touch target size */
+      cursor: pointer;
+      transition: all 0.2s ease;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
     }
 
-    /* Mobile responsive adjustments */
+    .listing-actions .btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 2px 8px rgba(0, 168, 132, 0.3);
+    }
+
+    .listing-actions .btn:active {
+      transform: translateY(0);
+    }
+
+    /* Ensure proper touch targets on mobile */
+    @media (max-width: 768px) {
+      .listing-actions .btn {
+        min-height: 36px;
+        min-width: 44px;
+      }
+    }
+
+    /* Responsive Design - Comprehensive Breakpoints */
+    
+    /* Large tablets and small desktops */
+    @media (max-width: 1024px) {
+      .listing-details-section {
+        padding: 14px 16px;
+      }
+
+      .listing-card {
+        padding: 11px;
+        gap: 11px;
+      }
+
+      .listing-image img {
+        width: 55px;
+        height: 55px;
+      }
+
+      .listing-title {
+        font-size: 0.92rem;
+      }
+
+      .listing-price {
+        font-size: 0.87rem;
+      }
+
+      .listing-actions .btn {
+        font-size: 0.78rem;
+        padding: 6px 11px;
+      }
+    }
+
+    /* Tablets and medium screens */
     @media (max-width: 768px) {
       .listing-details-section {
-        padding: 12px 16px;
+        padding: 12px 14px;
       }
 
       .listing-card {
         padding: 10px;
         gap: 10px;
+        border-radius: 10px;
       }
 
       .listing-image img {
         width: 50px;
         height: 50px;
+        border-radius: 6px;
       }
 
       .listing-title {
         font-size: 0.9rem;
+        line-height: 1.2;
       }
 
       .listing-price {
@@ -3900,6 +3957,203 @@
       .listing-actions .btn {
         font-size: 0.75rem;
         padding: 5px 10px;
+        border-radius: 6px;
+      }
+    }
+
+    /* Large phones */
+    @media (max-width: 480px) {
+      .listing-details-section {
+        padding: 10px 12px;
+      }
+
+      .listing-card {
+        padding: 8px;
+        gap: 8px;
+        border-radius: 8px;
+      }
+
+      .listing-image img {
+        width: 45px;
+        height: 45px;
+        border-radius: 5px;
+      }
+
+      .listing-title {
+        font-size: 0.85rem;
+        line-height: 1.1;
+        margin-bottom: 3px;
+      }
+
+      .listing-price {
+        font-size: 0.8rem;
+      }
+
+      .listing-actions .btn {
+        font-size: 0.7rem;
+        padding: 4px 8px;
+        border-radius: 5px;
+        gap: 3px;
+      }
+
+      .listing-actions .btn i {
+        font-size: 0.65rem;
+      }
+    }
+
+    /* Small phones (iPhone SE, etc.) */
+    @media (max-width: 375px) {
+      .listing-details-section {
+        padding: 8px 10px;
+      }
+
+      .listing-card {
+        padding: 6px;
+        gap: 6px;
+        border-radius: 6px;
+      }
+
+      .listing-image img {
+        width: 40px;
+        height: 40px;
+        border-radius: 4px;
+      }
+
+      .listing-title {
+        font-size: 0.8rem;
+        line-height: 1.1;
+        margin-bottom: 2px;
+      }
+
+      .listing-price {
+        font-size: 0.75rem;
+      }
+
+      .listing-actions .btn {
+        font-size: 0.65rem;
+        padding: 3px 6px;
+        border-radius: 4px;
+        gap: 2px;
+        min-width: auto;
+      }
+
+      .listing-actions .btn i {
+        font-size: 0.6rem;
+      }
+
+      .listing-actions .btn span {
+        display: none; /* Hide "Show contact" text on very small screens */
+      }
+    }
+
+    /* Extra small phones */
+    @media (max-width: 320px) {
+      .listing-details-section {
+        padding: 6px 8px;
+      }
+
+      .listing-card {
+        padding: 5px;
+        gap: 5px;
+        border-radius: 5px;
+      }
+
+      .listing-image img {
+        width: 35px;
+        height: 35px;
+        border-radius: 3px;
+      }
+
+      .listing-title {
+        font-size: 0.75rem;
+        line-height: 1.0;
+        margin-bottom: 2px;
+      }
+
+      .listing-price {
+        font-size: 0.7rem;
+      }
+
+      .listing-actions .btn {
+        font-size: 0.6rem;
+        padding: 2px 4px;
+        border-radius: 3px;
+        width: 32px;
+        height: 28px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .listing-actions .btn i {
+        font-size: 0.55rem;
+      }
+
+      .listing-actions .btn span {
+        display: none;
+      }
+    }
+
+    /* Landscape orientation adjustments */
+    @media (max-height: 500px) and (orientation: landscape) {
+      .listing-details-section {
+        padding: 6px 12px;
+      }
+
+      .listing-card {
+        padding: 6px 10px;
+        gap: 8px;
+      }
+
+      .listing-image img {
+        width: 40px;
+        height: 40px;
+      }
+
+      .listing-title {
+        font-size: 0.85rem;
+        margin-bottom: 2px;
+      }
+
+      .listing-price {
+        font-size: 0.8rem;
+      }
+
+      .listing-actions .btn {
+        font-size: 0.7rem;
+        padding: 4px 8px;
+      }
+    }
+
+    /* High DPI displays */
+    @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+      .listing-image img {
+        border-width: 0.5px;
+      }
+
+      .listing-card {
+        border-width: 0.5px;
+      }
+    }
+
+    /* Dark mode support (if system prefers dark mode) */
+    @media (prefers-color-scheme: dark) {
+      .listing-details-section {
+        background: #1a1a1a;
+        border-bottom-color: rgba(255,255,255,0.1);
+      }
+
+      .listing-card {
+        background: #2d2d2d;
+        border-color: rgba(255,255,255,0.1);
+      }
+
+      .listing-title {
+        color: #ffffff;
+      }
+
+      .listing-price {
+        color: #00a884;
       }
     }
 
