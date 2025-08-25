@@ -896,7 +896,7 @@
         pending: listings.filter(l => l.status === 'pending').length,
         approved: listings.filter(l => l.status === 'approved').length,
         rejected: listings.filter(l => l.status === 'rejected').length,
-        properties: listings.filter(l => l.listingType && l.listingType.includes('house') || l.listingType.includes('land')).length,
+        properties: listings.filter(l => l.listingType && (l.listingType.includes('house') || l.listingType.includes('land'))).length,
         vehicles: listings.filter(l => l.listingType && l.listingType.includes('vehicle')).length
       };
       
