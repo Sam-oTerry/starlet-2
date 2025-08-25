@@ -787,54 +787,55 @@
           // Use the global Firebase services from firebase-config.js
           db = window.firebaseDB;
           auth = window.firebaseAuth;
-        
-        // Check admin authentication
-        auth.onAuthStateChanged(async user => {
-          if (!user) {
-            window.location.href = '../auth/login.html';
-            return;
-          }
           
-          window.currentUser = user;
-          
-          // Check if user is admin
-          try {
-            const userDoc = await db.collection('users').doc(user.uid).get();
-            const userData = userDoc.data();
-            
-            // Allow access if user is admin OR if admin email (for lenient access)
-            if (userData && userData.role === 'admin') {
-              // User has admin role in Firestore
-              console.log('Admin access granted via Firestore role');
-            } else if (user.email === 'admin@starlet.co.ug') {
-              // Fallback for admin email
-              console.log('Admin access granted via email');
-            } else {
-              alert('Admin access required');
+          // Check admin authentication
+          auth.onAuthStateChanged(async user => {
+            if (!user) {
               window.location.href = '../auth/login.html';
               return;
             }
             
-            // Load listings after authentication
-            fetchAndRenderListings();
+            window.currentUser = user;
             
-            // Update admin name in navbar
-            document.querySelector('#profileDropdown span').textContent = 
-              userData?.firstName ? userData.firstName + ' ' + (userData.lastName || '') : user.email;
-            
-          } catch (error) {
-            console.error('Error checking admin status:', error);
-            alert('Error checking admin status');
-            window.location.href = '../auth/login.html';
-          }
-        });
-      } else {
-        // Retry after a short delay
-        setTimeout(checkFirebase, 100);
-      }
-    };
-    
-    checkFirebase();
+            // Check if user is admin
+            try {
+              const userDoc = await db.collection('users').doc(user.uid).get();
+              const userData = userDoc.data();
+              
+              // Allow access if user is admin OR if admin email (for lenient access)
+              if (userData && userData.role === 'admin') {
+                // User has admin role in Firestore
+                console.log('Admin access granted via Firestore role');
+              } else if (user.email === 'admin@starlet.co.ug') {
+                // Fallback for admin email
+                console.log('Admin access granted via email');
+              } else {
+                alert('Admin access required');
+                window.location.href = '../auth/login.html';
+                return;
+              }
+              
+              // Load listings after authentication
+              fetchAndRenderListings();
+              
+              // Update admin name in navbar
+              document.querySelector('#profileDropdown span').textContent = 
+                userData?.firstName ? userData.firstName + ' ' + (userData.lastName || '') : user.email;
+              
+            } catch (error) {
+              console.error('Error checking admin status:', error);
+              alert('Error checking admin status');
+              window.location.href = '../auth/login.html';
+            }
+          });
+        } else {
+          // Retry after a short delay
+          setTimeout(checkFirebase, 100);
+        }
+      };
+      
+      checkFirebase();
+    });
 
     const listingTypeOptions = [
       'house_sale', 'house_rent', 'land_sale', 'land_rent', 'vacation_short_stay',
