@@ -1507,17 +1507,62 @@ async function setupListingChat(listingId, listerId, makeOffer = false) {
         
         console.log('Lister data:', listerData);
         
+        // Check if lister should be displayed as Official Store
+        const shouldShowAsOfficialStore = () => {
+            // Check listing-level flags
+            if (listingData.isOfficialStore || listingData.officialStore || listingData.storeType === 'official') {
+                return true;
+            }
+            
+            // Check if lister data exists and has admin/staff indicators
+            if (listerData) {
+                const email = listerData.email || listerData.agentEmail || '';
+                const name = listerData.displayName || listerData.name || listerData.fullName || listerData.agentName || '';
+                const role = listerData.role || listerData.userRole || listerData.type || '';
+                
+                // Check for @starletproperties email
+                if (email.includes('@starletproperties')) {
+                    return true;
+                }
+                
+                // Check for admin/staff role
+                if (role.toLowerCase() === 'admin' || role.toLowerCase() === 'staff') {
+                    return true;
+                }
+                
+                // Check for admin in name
+                if (name.toLowerCase().includes('admin')) {
+                    return true;
+                }
+            }
+            
+            return false;
+        };
+        
         // Normalize lister data to handle different field names from different collections
         if (listerData) {
-            // Ensure we have the required fields with fallbacks
-            listerData = {
-                displayName: listerData.displayName || listerData.name || listerData.fullName || listerData.agentName || 'Seller',
-                name: listerData.name || listerData.displayName || listerData.fullName || listerData.agentName || 'Seller',
-                email: listerData.email || listerData.agentEmail || 'seller@starlet.co.ug',
-                photoURL: listerData.photoURL || listerData.avatar || listerData.agentAvatar || listerData.profilePicture || '../../img/avatar-placeholder.svg',
-                phone: listerData.phone || listerData.phoneNumber || listerData.agentPhone || null,
-                type: listerData.type || listerData.role || listerData.agentType || 'seller'
-            };
+            // Check if this should be displayed as Official Store
+            if (shouldShowAsOfficialStore()) {
+                console.log('Detected official store/admin user, using Official Store display');
+                listerData = {
+                    displayName: 'Official Store',
+                    name: 'Official Store',
+                    email: listerData.email || listerData.agentEmail || 'official@starlet.co.ug',
+                    photoURL: '../../img/starlet-logo.png',
+                    phone: listerData.phone || listerData.phoneNumber || listerData.agentPhone || null,
+                    type: 'official'
+                };
+            } else {
+                // Ensure we have the required fields with fallbacks
+                listerData = {
+                    displayName: listerData.displayName || listerData.name || listerData.fullName || listerData.agentName || 'Seller',
+                    name: listerData.name || listerData.displayName || listerData.fullName || listerData.agentName || 'Seller',
+                    email: listerData.email || listerData.agentEmail || 'seller@starlet.co.ug',
+                    photoURL: listerData.photoURL || listerData.avatar || listerData.agentAvatar || listerData.profilePicture || '../../img/avatar-placeholder.svg',
+                    phone: listerData.phone || listerData.phoneNumber || listerData.agentPhone || null,
+                    type: listerData.type || listerData.role || listerData.agentType || 'seller'
+                };
+            }
             console.log('Normalized lister data:', listerData);
         } else {
             console.warn('Lister data not found, using fallback data');
