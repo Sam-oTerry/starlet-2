@@ -761,9 +761,12 @@
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <!-- Firebase Config -->
+    <script src="../../assets/js/firebase-config.js"></script>
     <script src="../../js/admin.js"></script>
     <script src="../../js/main.js"></script>
     <script>
@@ -775,15 +778,15 @@
     });
     // --- Admin Listings Management (Enhanced Firestore Integration) ---
     let allListings = [];
-    let currentUser = null;
 
     // Initialize Firebase
     document.addEventListener('DOMContentLoaded', function() {
-      // Initialize Firebase
-      if (typeof firebase !== 'undefined') {
-        // Use the db and auth variables that are already declared in admin.js
-        db = firebase.firestore();
-        auth = firebase.auth();
+      // Wait for Firebase to be available
+      const checkFirebase = () => {
+        if (typeof firebase !== 'undefined' && window.firebaseDB) {
+          // Use the global Firebase services from firebase-config.js
+          db = window.firebaseDB;
+          auth = window.firebaseAuth;
         
         // Check admin authentication
         auth.onAuthStateChanged(async user => {
@@ -792,7 +795,7 @@
             return;
           }
           
-          currentUser = user;
+          window.currentUser = user;
           
           // Check if user is admin
           try {
@@ -826,10 +829,12 @@
           }
         });
       } else {
-        console.error('Firebase not loaded');
-        alert('Firebase not loaded');
+        // Retry after a short delay
+        setTimeout(checkFirebase, 100);
       }
-    });
+    };
+    
+    checkFirebase();
 
     const listingTypeOptions = [
       'house_sale', 'house_rent', 'land_sale', 'land_rent', 'vacation_short_stay',
@@ -1027,11 +1032,11 @@
         await db.collection('listings').doc(id).update({
           status: 'approved',
           finalPrice: finalPrice,
-          approvedBy: currentUser.uid,
+          approvedBy: window.currentUser.uid,
           approvedAt: new Date(),
           adminVerification: {
             status: 'approved',
-            verifiedBy: currentUser.uid,
+            verifiedBy: window.currentUser.uid,
             verifiedAt: new Date(),
             finalPrice: finalPrice
           }
@@ -1055,12 +1060,12 @@
         
         await db.collection('listings').doc(id).update({
           status: 'rejected',
-          rejectedBy: currentUser.uid,
+          rejectedBy: window.currentUser.uid,
           rejectedAt: new Date(),
           rejectionReason: reason || '',
           adminVerification: {
             status: 'rejected',
-            verifiedBy: currentUser.uid,
+            verifiedBy: window.currentUser.uid,
             verifiedAt: new Date(),
             reason: reason || ''
           }
