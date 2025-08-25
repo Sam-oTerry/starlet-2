@@ -866,12 +866,44 @@
           createdAt: doc.data().createdAt?.toDate ? doc.data().createdAt.toDate() : doc.data().createdAt
         }));
         
+        // Fetch user data for each listing
+        const userIds = [...new Set(listings.map(l => l.userId).filter(Boolean))];
+        const agentIds = [...new Set(listings.map(l => l.agentId).filter(Boolean))];
+        const allUserIds = [...userIds, ...agentIds];
+        
+        const userData = {};
+        if (allUserIds.length > 0) {
+          const userPromises = allUserIds.map(async (uid) => {
+            try {
+              const userDoc = await db.collection('users').doc(uid).get();
+              if (userDoc.exists) {
+                userData[uid] = userDoc.data();
+              }
+            } catch (error) {
+              console.warn(`Error fetching user data for ${uid}:`, error);
+            }
+          });
+          await Promise.all(userPromises);
+        }
+        
+        // Add user data to listings
+        listings = listings.map(listing => ({
+          ...listing,
+          ownerName: listing.userId && userData[listing.userId] ? 
+            (userData[listing.userId].fullName || userData[listing.userId].name || userData[listing.userId].email || 'Unknown User') : 
+            'Unknown User',
+          agentName: listing.agentId && userData[listing.agentId] ? 
+            (userData[listing.agentId].fullName || userData[listing.agentId].name || userData[listing.agentId].email || 'Unknown Agent') : 
+            (listing.agentName || listing.storeName || 'Unknown Agent')
+        }));
+        
         // Client-side filter for keyword
         if (filters.keyword) {
           const kw = filters.keyword.toLowerCase();
           listings = listings.filter(l =>
             (l.title && l.title.toLowerCase().includes(kw)) ||
             (l.description && l.description.toLowerCase().includes(kw)) ||
+            (l.ownerName && l.ownerName.toLowerCase().includes(kw)) ||
             (l.agentName && l.agentName.toLowerCase().includes(kw)) ||
             (l.storeName && l.storeName.toLowerCase().includes(kw))
           );
@@ -1018,17 +1050,23 @@
           return;
         }
         
-        let finalPrice = listing.finalPrice || listing.askingPrice || 0;
-        const priceInput = prompt('Enter final approved price (USh):', finalPrice);
+        // Use the original listing price
+        let finalPrice = listing.askingPrice || listing.price || listing.finalPrice || 0;
+        
+        // Ask admin if they want to modify the price or use the original
+        const priceInput = prompt(`Original listing price: ${finalPrice.toLocaleString()} USh\n\nEnter final approved price (USh) or press OK to use original price:`, finalPrice);
         
         if (priceInput === null) return; // User cancelled
         
-        if (!priceInput || isNaN(priceInput) || Number(priceInput) <= 0) {
+        // If user just pressed OK without changing the price, use the original
+        if (priceInput === finalPrice.toString()) {
+          finalPrice = finalPrice;
+        } else if (!priceInput || isNaN(priceInput) || Number(priceInput) <= 0) {
           showToast('Invalid price entered', 'error');
           return;
+        } else {
+          finalPrice = Number(priceInput);
         }
-        
-        finalPrice = Number(priceInput);
         
         await db.collection('listings').doc(id).update({
           status: 'approved',

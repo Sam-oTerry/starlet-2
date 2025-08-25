@@ -11,12 +11,19 @@ service cloud.firestore {
       return isAuthenticated() && request.auth.uid == userId;
     }
     
+    function isAdmin() {
+      return isAuthenticated() && (
+        request.auth.token.email == 'admin@starletproperties.ug' ||
+        request.auth.token.email == 'admin@starlet.co.ug'
+      );
+    }
+    
     // Users collection - More permissive for app functionality
     match /users/{userId} {
-      allow read: if isAuthenticated() && isOwner(userId);
+      allow read: if isAuthenticated() && (isOwner(userId) || isAdmin());
       allow create: if isAuthenticated() && isOwner(userId);
-      allow update: if isAuthenticated() && isOwner(userId);
-      allow delete: if false; // Only allow deletion through admin panel
+      allow update: if isAuthenticated() && (isOwner(userId) || isAdmin());
+      allow delete: if isAdmin(); // Only allow deletion through admin panel
       
       // User subcollections - Allow users to access their saved listings
       match /savedListings/{listingId} {
@@ -34,10 +41,12 @@ service cloud.firestore {
       allow create: if isAuthenticated();
       allow update: if isAuthenticated() && 
         (request.auth.uid == resource.data.userId || 
-         request.auth.uid == resource.data.agentId);
+         request.auth.uid == resource.data.agentId ||
+         isAdmin());
       allow delete: if isAuthenticated() && 
         (request.auth.uid == resource.data.userId || 
-         request.auth.uid == resource.data.agentId);
+         request.auth.uid == resource.data.agentId ||
+         isAdmin());
     }
     
     // Conversations/Chats collection
@@ -93,8 +102,9 @@ service cloud.firestore {
       allow read: if true; // Public read access for stores
       allow create: if isAuthenticated();
       allow update: if isAuthenticated() && 
-        request.auth.uid == resource.data.agentId;
-      allow delete: if false;
+        (request.auth.uid == resource.data.agentId ||
+         isAdmin());
+      allow delete: if isAdmin();
     }
     
     // Agent Stores collection
