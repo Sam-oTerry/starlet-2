@@ -657,7 +657,8 @@
                             <tr>
                                 <th><i class="bi bi-card-text me-2"></i>Title</th>
                                 <th><i class="bi bi-tag me-2"></i>Type</th>
-                                <th><i class="bi bi-person me-2"></i>Agent/Store</th>
+                                <th><i class="bi bi-person me-2"></i>Owner</th>
+                                <th><i class="bi bi-shop me-2"></i>Agent/Store</th>
                                 <th><i class="bi bi-flag me-2"></i>Status</th>
                                 <th><i class="bi bi-calendar me-2"></i>Created</th>
                                 <th><i class="bi bi-gear me-2"></i>Actions</th>
@@ -944,7 +945,7 @@
       if (!listings.length) {
         tbody.innerHTML = `
           <tr>
-            <td colspan="6" class="text-center text-muted py-4">
+            <td colspan="7" class="text-center text-muted py-4">
               <i class="bi bi-inbox fs-1 d-block mb-2"></i>
               No listings found
             </td>
@@ -966,6 +967,10 @@
             </td>
             <td>
               <span class="badge bg-secondary">${typeLabel}</span>
+            </td>
+            <td>
+              <div class="fw-semibold">${l.ownerName || 'Unknown'}</div>
+              <small class="text-muted">${l.userId || 'No ID'}</small>
             </td>
             <td>${agentInfo}</td>
             <td>${statusBadge}</td>
@@ -1159,6 +1164,8 @@
                   <li><strong>Status:</strong> ${getStatusBadge(listing.status)}</li>
                   <li><strong>Price:</strong> ${formatPrice(listing.askingPrice)}</li>
                   ${listing.finalPrice ? `<li><strong>Final Price:</strong> ${formatPrice(listing.finalPrice)}</li>` : ''}
+                  <li><strong>Owner:</strong> ${listing.ownerName || 'Unknown'} (${listing.userId || 'No ID'})</li>
+                  <li><strong>Agent/Store:</strong> ${listing.agentName || 'Unknown'}</li>
                   <li><strong>Location:</strong> ${listing.location?.district || ''} ${listing.location?.town ? ', ' + listing.location.town : ''}</li>
                   <li><strong>Created:</strong> ${formatDate(listing.createdAt)}</li>
                 </ul>
@@ -1285,7 +1292,7 @@
     function showLoading(element, message = 'Loading...') {
       element.innerHTML = `
         <tr>
-          <td colspan="6" class="text-center py-4">
+          <td colspan="7" class="text-center py-4">
             <div class="spinner-border text-primary" role="status">
               <span class="visually-hidden">Loading...</span>
             </div>
@@ -1298,7 +1305,7 @@
     function showError(element, message) {
       element.innerHTML = `
         <tr>
-          <td colspan="6" class="text-center text-danger py-4">
+          <td colspan="7" class="text-center text-danger py-4">
             <i class="bi bi-exclamation-triangle fs-1 d-block mb-2"></i>
             ${message}
           </td>
