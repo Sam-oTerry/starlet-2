@@ -1521,9 +1521,22 @@ async function setupListingChat(listingId, listerId, makeOffer = false) {
                     if (storedOffer) {
                         pendingOffer = JSON.parse(storedOffer);
                         localStorage.removeItem('pendingOffer'); // Clear after reading
+                        console.log('Found pending offer in localStorage:', pendingOffer);
+                    } else {
+                        // If makeOffer=1 but no stored offer, create a default offer message
+                        console.log('makeOffer=1 but no pending offer found, creating default offer message');
+                        pendingOffer = {
+                            offerAmount: 'negotiable',
+                            type: 'default'
+                        };
                     }
                 } catch (error) {
                     console.error('Error reading pending offer:', error);
+                    // Create default offer message on error
+                    pendingOffer = {
+                        offerAmount: 'negotiable',
+                        type: 'default'
+                    };
                 }
             }
             
@@ -1595,16 +1608,22 @@ async function setupListingChat(listingId, listerId, makeOffer = false) {
             let initialMessageContent = `Hi! I'm interested in your ${listingData.title || 'property'}. Can you tell me more about it?`;
             
             if (pendingOffer) {
-                initialMessageContent = `Hi! I'm interested in your ${listingData.title || 'property'} and would like to make an offer of $${pendingOffer.offerAmount}. Can we discuss this?`;
+                if (pendingOffer.offerAmount === 'negotiable') {
+                    initialMessageContent = `Hi! I'm interested in your ${listingData.title || 'property'} and would like to discuss making an offer. Can we negotiate the price?`;
+                } else {
+                    initialMessageContent = `Hi! I'm interested in your ${listingData.title || 'property'} and would like to make an offer of $${pendingOffer.offerAmount}. Can we discuss this?`;
+                }
             }
             
             const initialMessage = {
                 content: initialMessageContent,
-                type: 'text',
+                type: pendingOffer ? 'offer' : 'text',
                 senderId: window.currentUser.uid,
                 senderName: window.currentUser.displayName || window.currentUser.email,
                 senderAvatar: window.currentUser.photoURL,
-                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                isOffer: pendingOffer ? true : false,
+                offerAmount: pendingOffer ? pendingOffer.offerAmount : null
             };
             
             await db.collection('conversations').doc(conversationId)
