@@ -834,17 +834,24 @@
         const listingId = url.searchParams.get('id');
         const listerId = currentListingData ? currentListingData.userId : null;
         
-        if (listingId && listerId) {
-          // Redirect to messaging page with listingId and listerId as query params
-          var path = window.location.pathname;
-          var base = path.includes('/starlet-2/') ? '/starlet-2' : '';
-          var messagingUrl = base + '/pages/user/messaging.html?listingId=' + encodeURIComponent(listingId) + '&listerId=' + encodeURIComponent(listerId);
-          window.location.href = messagingUrl;
-        } else if (!listerId) {
-          alert('Seller ID not found for this listing.');
-        } else {
-          alert('Listing ID not found.');
-        }
+                 if (listingId) {
+           // Get the lister ID from the listing data, prioritizing createdBy.uid
+           const listerId = currentListingData ? 
+             (currentListingData.createdBy && currentListingData.createdBy.uid) || 
+             currentListingData.userId : null;
+           
+           if (listerId) {
+             // Redirect to messaging page with listingId and listerId as query params
+             var path = window.location.pathname;
+             var base = path.includes('/starlet-2/') ? '/starlet-2' : '';
+             var messagingUrl = base + '/pages/user/messaging.html?listingId=' + encodeURIComponent(listingId) + '&listerId=' + encodeURIComponent(listerId);
+             window.location.href = messagingUrl;
+           } else {
+             alert('Seller information not available for this listing.');
+           }
+         } else {
+           alert('Listing ID not found.');
+         }
       });
     }
   </script>

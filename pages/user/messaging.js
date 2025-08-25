@@ -1343,7 +1343,10 @@ async function setupListingChat(listingId, listerId, makeOffer = false) {
                         town: 'Kampala Central'
                     },
                     images: ['https://via.placeholder.com/800x600?text=Demo+Property'],
-                    userId: actualListerId || 'demo_seller_123',
+                    createdBy: {
+                        uid: actualListerId || 'demo_seller_123',
+                        email: 'admin@starletproperties.ug'
+                    },
                     description: 'This is a demo listing for testing the messaging system.'
                 };
                 
@@ -1362,7 +1365,11 @@ async function setupListingChat(listingId, listerId, makeOffer = false) {
         console.log('Listing data:', listingData);
         
         // Get lister details - handle cases where listerId might be undefined
-        const actualListerId = listerId || listingData.userId || listingData.createdBy || listingData.ownerId;
+        // Check for createdBy.uid first, then fallback to other fields
+        const actualListerId = listerId || 
+                              (listingData.createdBy && listingData.createdBy.uid) || 
+                              listingData.userId || 
+                              listingData.ownerId;
         
         if (!actualListerId) {
             console.error('No lister ID found in listing data or URL parameters');
