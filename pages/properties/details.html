@@ -638,6 +638,25 @@
             font-weight: 600;
             color: var(--neutral-dark);
         }
+
+        /* Official Store Styling */
+        .official-store-badge {
+            background: linear-gradient(135deg, var(--accent-gold) 0%, #ffed4e 100%);
+            color: var(--primary-dark);
+            font-weight: 800;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            display: inline-block;
+            box-shadow: 0 2px 10px rgba(255, 215, 0, 0.3);
+            border: 2px solid rgba(255, 215, 0, 0.5);
+        }
+
+        .official-store-name {
+            color: var(--accent-gold);
+            font-weight: 800;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
     </style>
 </head>
 <body>
@@ -1236,8 +1255,16 @@
 
             // Now populate the page with all the listing data
             try {
-                // Title
-                document.getElementById('productTitle').textContent = data.title || 'No Title';
+                // Title with official store indicator
+                const titleElement = document.getElementById('productTitle');
+                let titleHtml = data.title || 'No Title';
+                
+                // Add official store indicator if the listing is from an admin user
+                if (creatorInfo && isOfficialStore(creatorInfo)) {
+                    titleHtml += ' <span class="official-store-badge" style="font-size: 0.6em; margin-left: 0.5rem;">Official Store</span>';
+                }
+                
+                titleElement.innerHTML = titleHtml;
                 
                 // Update page title
                 document.title = `${data.title || 'Listing'} | StarLet Marketplace`;
@@ -1321,6 +1348,14 @@
                 // Views count
                 if (data.views || data.viewCount) {
                     metaHtml += `<div class="meta-item"><div class="meta-icon"><i class="bi bi-eye"></i></div><div>${data.views || data.viewCount} Views</div></div>`;
+                }
+                
+                // Official Store indicator
+                if (creatorInfo && isOfficialStore(creatorInfo)) {
+                    metaHtml += `<div class="meta-item" style="grid-column: 1 / -1; justify-content: center;">
+                        <div class="meta-icon"><i class="bi bi-shield-check" style="color: var(--accent-gold);"></i></div>
+                        <div style="color: var(--accent-gold); font-weight: 700;">Official Store Listing</div>
+                    </div>`;
                 }
                 
                 document.getElementById('productMeta').innerHTML = metaHtml;
@@ -1429,12 +1464,10 @@
                     }
                     
                     // Name and type
-                    const creatorName = creatorInfo.fullName || creatorInfo.name || 
-                                       (creatorInfo.firstName && creatorInfo.lastName ? creatorInfo.firstName + ' ' + creatorInfo.lastName : null) || 
-                                       creatorInfo.email || 'Unknown';
-                    const creatorType = creatorInfo.role || creatorInfo.userType || creatorInfo.type || 'User';
+                    const creatorName = getDisplayName(creatorInfo);
+                    const creatorType = getDisplayType(creatorInfo);
                     contactHtml += `<h5 class="text-center mb-3">${creatorName}</h5>`;
-                    contactHtml += `<p class="text-center text-muted mb-4">${creatorType}</p>`;
+                    contactHtml += `<p class="text-center mb-4">${creatorType}</p>`;
                     
                     // Contact information
                     contactHtml += `<div class="contact-details">`;
@@ -1502,8 +1535,9 @@
                     }
                     
                     if (creatorInfo.bio || creatorInfo.description) {
+                        const aboutName = isOfficialStore(creatorInfo) ? 'Official Store' : (creatorName.replace(/<[^>]*>/g, '').split(' ')[0]);
                         contactHtml += `<div class="mt-4">
-                            <h6>About ${creatorName.split(' ')[0]}:</h6>
+                            <h6>About ${aboutName}:</h6>
                             <p class="text-muted">${creatorInfo.bio || creatorInfo.description || 'No bio available.'}</p>
                         </div>`;
                     }
@@ -1839,6 +1873,57 @@
 
         // Helper Functions for Dynamic Content
         
+        // Check if user is admin/official store
+        function isOfficialStore(creatorInfo) {
+            if (!creatorInfo) return false;
+            
+            // Check for admin role
+            const role = creatorInfo.role || creatorInfo.userType || creatorInfo.type || '';
+            if (role.toLowerCase().includes('admin') || role.toLowerCase().includes('staff')) {
+                return true;
+            }
+            
+            // Check for admin user name
+            const name = creatorInfo.fullName || creatorInfo.name || 
+                        (creatorInfo.firstName && creatorInfo.lastName ? creatorInfo.firstName + ' ' + creatorInfo.lastName : '') || '';
+            if (name.toLowerCase().includes('admin user')) {
+                return true;
+            }
+            
+            // Check for starletproperties email domain
+            const email = creatorInfo.email || '';
+            if (email.toLowerCase().includes('@starletproperties')) {
+                return true;
+            }
+            
+            // Check for official store flag
+            if (creatorInfo.officialStore === true || creatorInfo.isOfficialStore === true) {
+                return true;
+            }
+            
+            return false;
+        }
+
+        // Get display name for creator
+        function getDisplayName(creatorInfo) {
+            if (isOfficialStore(creatorInfo)) {
+                return '<span class="official-store-name">Official Store</span>';
+            }
+            
+            return creatorInfo.fullName || creatorInfo.name || 
+                   (creatorInfo.firstName && creatorInfo.lastName ? creatorInfo.firstName + ' ' + creatorInfo.lastName : null) || 
+                   creatorInfo.email || 'Unknown';
+        }
+
+        // Get display type for creator
+        function getDisplayType(creatorInfo) {
+            if (isOfficialStore(creatorInfo)) {
+                return '<span class="official-store-badge">Official Store</span>';
+            }
+            
+            return creatorInfo.role || creatorInfo.userType || creatorInfo.type || 'User';
+        }
+
         // Populate agent card with creator information
         function populateAgentCard(creatorInfo) {
             const agentCard = document.getElementById('agentCard');
@@ -1852,21 +1937,19 @@
             if (agentAvatar) {
                 const profilePic = creatorInfo.profilePicture || creatorInfo.photoURL || creatorInfo.avatar || '../../img/avatar-placeholder.svg';
                 agentAvatar.src = profilePic;
-                agentAvatar.alt = creatorInfo.fullName || creatorInfo.name || 'Agent';
+                agentAvatar.alt = getDisplayName(creatorInfo);
             }
             
             // Update agent name and type
             const agentName = document.getElementById('agentName');
             const agentType = document.getElementById('agentType');
             if (agentName) {
-                const creatorName = creatorInfo.fullName || creatorInfo.name || 
-                                   (creatorInfo.firstName && creatorInfo.lastName ? creatorInfo.firstName + ' ' + creatorInfo.lastName : null) || 
-                                   creatorInfo.email || 'Unknown';
-                agentName.textContent = creatorName;
+                const displayName = getDisplayName(creatorInfo);
+                agentName.innerHTML = displayName;
             }
             if (agentType) {
-                const creatorType = creatorInfo.role || creatorInfo.userType || creatorInfo.type || 'User';
-                agentType.textContent = creatorType;
+                const displayType = getDisplayType(creatorInfo);
+                agentType.innerHTML = displayType;
             }
             
             // Update agent stats
