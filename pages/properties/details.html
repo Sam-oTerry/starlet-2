@@ -798,64 +798,48 @@
                         <div class="product-price" id="productPrice"></div>
                         <div class="product-meta" id="productMeta"></div>
                         
-                        <div class="product-actions">
-                            <button class="btn btn-primary btn-lg me-2 mb-2">
-                                <i class="bi bi-telephone"></i> Contact Agent
-                            </button>
-                            <button class="btn btn-outline-primary btn-lg mb-2">
-                                <i class="bi bi-heart"></i> Save
-                            </button>
+                        <div class="product-actions" id="productActions">
+                            <!-- Dynamic action buttons will be loaded here -->
                         </div>
                         
-                        <button class="btn btn-gold btn-lg w-100 mb-4" id="makeOfferBtn">
+                        <button class="btn btn-gold btn-lg w-100 mb-4" id="makeOfferBtn" style="display: none;">
                             <i class="bi bi-credit-card"></i> Make Offer
                         </button>
                     </div>
                     
                     <!-- Agent Card -->
-                    <div class="agent-card">
+                    <div class="agent-card" id="agentCard" style="display: none;">
                         <div class="agent-header">
                             <div class="agent-avatar">
-                                <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="Sarah Johnson">
+                                <img id="agentAvatar" src="../../img/avatar-placeholder.svg" alt="Agent">
                             </div>
                             <div class="agent-info">
-                                <h5><a href="agent.html?id=agent123" class="text-decoration-none">Sarah Johnson</a></h5>
-                                <p>Premium Property Agent</p>
+                                <h5 id="agentName">Loading...</h5>
+                                <p id="agentType">Loading...</p>
                             </div>
                         </div>
                         
-                        <div class="agent-stats row">
-                            <div class="col-4 stat-item">
-                                <h6>142</h6>
-                                <p>Properties</p>
-                            </div>
-                            <div class="col-4 stat-item">
-                                <h6>98%</h6>
-                                <p>Success Rate</p>
-                            </div>
-                            <div class="col-4 stat-item">
-                                <h6>5</h6>
-                                <p>Years</p>
-                            </div>
+                        <div class="agent-stats row" id="agentStats">
+                            <!-- Dynamic agent stats will be loaded here -->
                         </div>
                         
-                        <form>
+                        <div class="agent-actions">
                             <div class="mb-3 d-grid">
                                 <button type="button" class="btn btn-primary btn-lg w-100" id="chatWithSellerBtn">
-                                    <i class="bi bi-chat-dots"></i> Message or Chat with Seller
+                                    <i class="bi bi-chat-dots"></i> Message Seller
                                 </button>
                             </div>
-                            <a href="agent.html?id=agent123" class="btn btn-outline-secondary w-100">
-                                <i class="bi bi-person"></i> View Agent Profile
-                            </a>
-                        </form>
+                            <button type="button" class="btn btn-outline-secondary w-100" id="viewAgentProfileBtn">
+                                <i class="bi bi-person"></i> View Profile
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
             
             <!-- Similar Listings -->
-            <div class="similar-listings mt-5">
-                <h3 class="section-title">Similar Properties</h3>
+            <div class="similar-listings mt-5" id="similarListingsSection" style="display: none;">
+                <h3 class="section-title" id="similarListingsTitle">Similar Properties</h3>
                 <div class="row" id="similarListingsContainer">
                     <!-- Similar listings will be loaded here dynamically -->
                 </div>
@@ -872,69 +856,8 @@
     </section>
 
     <!-- Footer -->
-    <footer class="bg text-white pt-5 pb-3">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-4 col-md-12 col-12 mb-4">
-                    <h5>About StarLet</h5>
-                    <p style="opacity: 0.8;">
-                        Uganda's premier marketplace for premium properties and vehicles, connecting buyers and sellers with trust and excellence.
-                    </p>
-                    <div class="d-flex gap-3 mt-4">
-                        <a href="#" class="text-white" style="font-size: 1.5rem;"><i class="bi bi-facebook"></i></a>
-                        <a href="#" class="text-white" style="font-size: 1.5rem;"><i class="bi bi-twitter"></i></a>
-                        <a href="#" class="text-white" style="font-size: 1.5rem;"><i class="bi bi-instagram"></i></a>
-                        <a href="#" class="text-white" style="font-size: 1.5rem;"><i class="bi bi-linkedin"></i></a>
-                    </div>
-                </div>
-                <div class="col-lg-2 col-md-6 col-12 mb-4">
-                    <h5>Quick Links</h5>
-                    <ul class="list-unstyled">
-                        <li><a href="#"><i class="bi bi-chevron-right"></i> Home</a></li>
-                        <li><a href="#"><i class="bi bi-chevron-right"></i> Properties</a></li>
-                        <li><a href="#"><i class="bi bi-chevron-right"></i> Vehicles</a></li>
-                        <li><a href="#"><i class="bi bi-chevron-right"></i> Agents</a></li>
-                        <li><a href="#"><i class="bi bi-chevron-right"></i> Dealers</a></li>
-                    </ul>
-                </div>
-                <div class="col-lg-2 col-md-6 col-12 mb-4">
-                    <h5>Company</h5>
-                    <ul class="list-unstyled">
-                        <li><a href="#"><i class="bi bi-chevron-right"></i> About Us</a></li>
-                        <li><a href="#"><i class="bi bi-chevron-right"></i> Careers</a></li>
-                        <li><a href="#"><i class="bi bi-chevron-right"></i> Blog</a></li>
-                        <li><a href="#"><i class="bi bi-chevron-right"></i> Press</a></li>
-                        <li><a href="#"><i class="bi bi-chevron-right"></i> Partners</a></li>
-                    </ul>
-                </div>
-                <div class="col-lg-4 col-md-12 col-12 mb-4">
-                    <h5>Contact Us</h5>
-                    <ul class="list-unstyled">
-                        <li><a href="#"><i class="bi bi-geo-alt"></i> laroo Division, gulu</a></li>
-                        <li><a href="tel:+254700123456"><i class="bi bi-telephone"></i> +254 700 123456</a></li>
-                        <li><a href="mailto:info@starlet.co.ke"><i class="bi bi-envelope"></i> info@starlet.co.ug</a></li>
-                    </ul>
-                    <div class="mt-4">
-                        <h6>Newsletter</h6>
-                        <div class="input-group mb-3">
-                            <input type="email" class="form-control" placeholder="Your email" style="background: rgba(255,255,255,0.1); border: none; color: white;">
-                            <button class="btn btn-primary" type="button">Subscribe</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <hr class="my-4" style="border-color: rgba(255,255,255,0.1);">
-            <div class="row">
-                <div class="col-md-6 text-center text-md-start">
-                    <p class="mb-0">&copy; 2023 StarLet Marketplace. All rights reserved.</p>
-                </div>
-                <div class="col-md-6 text-center text-md-end">
-                    <a href="#" class="text-white me-3" style="opacity: 0.7;">Terms</a>
-                    <a href="#" class="text-white me-3" style="opacity: 0.7;">Privacy</a>
-                    <a href="#" class="text-white" style="opacity: 0.7;">Cookies</a>
-                </div>
-            </div>
-        </div>
+    <footer class="bg text-white pt-5 pb-3" id="dynamicFooter">
+        <!-- Footer content will be loaded dynamically -->
     </footer>
 
     <!-- Offer Modal -->
@@ -1405,122 +1328,29 @@
                 // Update Agent Card with creator information
                 if (creatorInfo) {
                     console.log('🎯 Populating agent card with creator info:', creatorInfo);
-                    const agentCard = document.querySelector('.agent-card');
-                    if (agentCard) {
-                        // Update agent avatar
-                        const agentAvatar = agentCard.querySelector('.agent-avatar img');
-                        if (agentAvatar) {
-                            const profilePic = creatorInfo.profilePicture || creatorInfo.photoURL || creatorInfo.avatar || 'https://randomuser.me/api/portraits/men/1.jpg';
-                            agentAvatar.src = profilePic;
-                            agentAvatar.alt = creatorInfo.fullName || creatorInfo.name || creatorInfo.firstName + ' ' + creatorInfo.lastName || 'Agent';
-                            console.log('📸 Updated agent avatar:', profilePic);
-                        }
-                        
-                        // Update agent info
-                        const agentInfo = agentCard.querySelector('.agent-info');
-                        if (agentInfo) {
-                            const creatorName = creatorInfo.fullName || creatorInfo.name || 
-                                               (creatorInfo.firstName && creatorInfo.lastName ? creatorInfo.firstName + ' ' + creatorInfo.lastName : null) || 
-                                               creatorInfo.email || 'Unknown';
-                            const creatorType = creatorInfo.role || creatorInfo.userType || creatorInfo.type || 'User';
-                            agentInfo.innerHTML = `
-                                <h5>${creatorName}</h5>
-                                <p>${creatorType}</p>
-                            `;
-                            console.log('👤 Updated agent info:', { name: creatorName, type: creatorType });
-                        }
-                        
-                        // Update agent stats (if available)
-                        const agentStats = agentCard.querySelector('.agent-stats');
-                        if (agentStats) {
-                            let statsHtml = '';
-                            
-                            // Properties count - check multiple possible field names
-                            const propertiesCount = creatorInfo.propertiesCount || creatorInfo.listingsCount || creatorInfo.totalProperties || creatorInfo.totalListings;
-                            if (propertiesCount) {
-                                statsHtml += `<div class="stat-item">
-                                    <h6>${propertiesCount}</h6>
-                                    <p>Properties</p>
-                                </div>`;
-                                console.log('📊 Properties count:', propertiesCount);
-                            } else {
-                                statsHtml += `<div class="stat-item">
-                                    <h6>--</h6>
-                                    <p>Properties</p>
-                                </div>`;
-                            }
-                            
-                            // Success rate - check multiple possible field names
-                            const successRate = creatorInfo.successRate || creatorInfo.rating || creatorInfo.satisfactionRate;
-                            if (successRate) {
-                                statsHtml += `<div class="stat-item">
-                                    <h6>${successRate}%</h6>
-                                    <p>Success Rate</p>
-                                </div>`;
-                                console.log('⭐ Success rate:', successRate);
-                            } else {
-                                statsHtml += `<div class="stat-item">
-                                    <h6>--</h6>
-                                    <p>Success Rate</p>
-                                </div>`;
-                            }
-                            
-                            // Experience years - check multiple possible field names
-                            const experienceYears = creatorInfo.experienceYears || creatorInfo.yearsOfExperience || creatorInfo.experience;
-                            if (experienceYears) {
-                                statsHtml += `<div class="stat-item">
-                                    <h6>${experienceYears}</h6>
-                                    <p>Years</p>
-                                </div>`;
-                                console.log('⏰ Experience years:', experienceYears);
-                            } else {
-                                statsHtml += `<div class="stat-item">
-                                    <h6>--</h6>
-                                    <p>Years</p>
-                                </div>`;
-                            }
-                            
-                            agentStats.innerHTML = statsHtml;
-                        }
-                        
-                        // Update contact button to use creator's phone
-                        const contactBtn = document.querySelector('.product-actions .btn-primary');
-                        if (contactBtn) {
-                            const phone = creatorInfo.phone || creatorInfo.phoneNumber || creatorInfo.mobile;
-                            if (phone) {
-                                contactBtn.innerHTML = '<i class="bi bi-telephone"></i> Contact Agent';
-                                contactBtn.onclick = () => window.open(`tel:${phone}`, '_self');
-                                console.log('📞 Updated contact button with phone:', phone);
-                            } else {
-                                console.log('📞 No phone number found for creator');
-                            }
-                        }
-                        
-                        // Update inquiry form to include creator info
-                        const inquiryForm = agentCard.querySelector('form');
-                        if (inquiryForm) {
-                            inquiryForm.onsubmit = (e) => {
-                                e.preventDefault();
-                                const message = document.getElementById('message').value;
-                                if (message.trim()) {
-                                    const creatorName = creatorInfo.fullName || creatorInfo.name || creatorInfo.email || 'the agent';
-                                    alert(`Inquiry sent to ${creatorName}!`);
-                                    document.getElementById('message').value = '';
-                                    console.log('💬 Inquiry sent to:', creatorName);
-                                }
-                            };
-                        }
-                        
-                        console.log('✅ Agent card successfully updated with database data');
-                    } else {
-                        console.error('❌ Agent card element not found in DOM');
-                    }
+                    populateAgentCard(creatorInfo);
                 } else {
                     console.log('❌ No creator info available, hiding agent card');
-                    // Hide agent card if no creator info available
-                    const agentCard = document.querySelector('.agent-card');
-                    if (agentCard) {
-                        agentCard.style.display = 'none';
+                    hideAgentCard();
+                }
+                
+                // Populate dynamic action buttons
+                populateActionButtons(data, creatorInfo);
+                
+                // Show/hide make offer button based on listing type
+                const makeOfferBtn = document.getElementById('makeOfferBtn');
+                if (makeOfferBtn) {
+                    const showOfferButton = data.listingType && (
+                        data.listingType.includes('sale') || 
+                        data.listingType.includes('rent') ||
+                        data.type === 'property' ||
+                        data.category === 'property'
+                    );
+                    
+                    if (showOfferButton) {
+                        makeOfferBtn.style.display = 'block';
+                    } else {
+                        makeOfferBtn.style.display = 'none';
                     }
                 }
             } catch (err) {
@@ -1536,8 +1366,26 @@
                     loadSimilarListings(true);
                 }, 1000); // Small delay to ensure main listing is fully loaded
             }
+            
+            // Show similar listings section
+            const similarSection = document.getElementById('similarListingsSection');
+            if (similarSection) {
+                similarSection.style.display = 'block';
+            }
+            
+            // Update similar listings title based on listing type
+            const similarTitle = document.getElementById('similarListingsTitle');
+            if (similarTitle) {
+                const listingType = data.listingType || data.type || data.category || 'Property';
+                const typeText = listingType.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                similarTitle.textContent = `Similar ${typeText}s`;
+            }
         }
         document.addEventListener('DOMContentLoaded', function() {
+            // Load dynamic footer
+            loadDynamicFooter();
+            
+            // Initialize the listing
             waitForFirebaseInit(loadListing);
         });
 
@@ -1764,6 +1612,267 @@
             }
         });
 
+        // Helper Functions for Dynamic Content
+        
+        // Populate agent card with creator information
+        function populateAgentCard(creatorInfo) {
+            const agentCard = document.getElementById('agentCard');
+            if (!agentCard) return;
+            
+            // Show the agent card
+            agentCard.style.display = 'block';
+            
+            // Update agent avatar
+            const agentAvatar = document.getElementById('agentAvatar');
+            if (agentAvatar) {
+                const profilePic = creatorInfo.profilePicture || creatorInfo.photoURL || creatorInfo.avatar || '../../img/avatar-placeholder.svg';
+                agentAvatar.src = profilePic;
+                agentAvatar.alt = creatorInfo.fullName || creatorInfo.name || 'Agent';
+            }
+            
+            // Update agent name and type
+            const agentName = document.getElementById('agentName');
+            const agentType = document.getElementById('agentType');
+            if (agentName) {
+                const creatorName = creatorInfo.fullName || creatorInfo.name || 
+                                   (creatorInfo.firstName && creatorInfo.lastName ? creatorInfo.firstName + ' ' + creatorInfo.lastName : null) || 
+                                   creatorInfo.email || 'Unknown';
+                agentName.textContent = creatorName;
+            }
+            if (agentType) {
+                const creatorType = creatorInfo.role || creatorInfo.userType || creatorInfo.type || 'User';
+                agentType.textContent = creatorType;
+            }
+            
+            // Update agent stats
+            const agentStats = document.getElementById('agentStats');
+            if (agentStats) {
+                let statsHtml = '';
+                
+                // Properties count
+                const propertiesCount = creatorInfo.propertiesCount || creatorInfo.listingsCount || creatorInfo.totalProperties || creatorInfo.totalListings;
+                statsHtml += `<div class="col-4 stat-item">
+                    <h6>${propertiesCount || '--'}</h6>
+                    <p>Properties</p>
+                </div>`;
+                
+                // Success rate
+                const successRate = creatorInfo.successRate || creatorInfo.rating || creatorInfo.satisfactionRate;
+                statsHtml += `<div class="col-4 stat-item">
+                    <h6>${successRate ? successRate + '%' : '--'}</h6>
+                    <p>Success Rate</p>
+                </div>`;
+                
+                // Experience years
+                const experienceYears = creatorInfo.experienceYears || creatorInfo.yearsOfExperience || creatorInfo.experience;
+                statsHtml += `<div class="col-4 stat-item">
+                    <h6>${experienceYears || '--'}</h6>
+                    <p>Years</p>
+                </div>`;
+                
+                agentStats.innerHTML = statsHtml;
+            }
+            
+            // Setup agent action buttons
+            setupAgentActions(creatorInfo);
+        }
+        
+        // Hide agent card
+        function hideAgentCard() {
+            const agentCard = document.getElementById('agentCard');
+            if (agentCard) {
+                agentCard.style.display = 'none';
+            }
+        }
+        
+        // Setup agent action buttons
+        function setupAgentActions(creatorInfo) {
+            // Chat button
+            const chatBtn = document.getElementById('chatWithSellerBtn');
+            if (chatBtn) {
+                chatBtn.addEventListener('click', function() {
+                    const url = new URL(window.location.href);
+                    const listingId = url.searchParams.get('id');
+                    const listerId = window.currentListingListerId;
+                    if (listingId && listerId) {
+                        const path = window.location.pathname;
+                        const base = path.includes('/starlet-2/') ? '/starlet-2' : '';
+                        const messagingUrl = base + '/pages/user/messaging.html?listingId=' + encodeURIComponent(listingId) + '&listerId=' + encodeURIComponent(listerId);
+                        window.location.href = messagingUrl;
+                    } else {
+                        alert('Unable to start chat. Please try again.');
+                    }
+                });
+            }
+            
+            // View profile button
+            const viewProfileBtn = document.getElementById('viewAgentProfileBtn');
+            if (viewProfileBtn) {
+                viewProfileBtn.addEventListener('click', function() {
+                    const creatorId = creatorInfo.uid || creatorInfo.id;
+                    if (creatorId) {
+                        // Navigate to agent profile page
+                        window.location.href = `../agents/profile.html?id=${encodeURIComponent(creatorId)}`;
+                    } else {
+                        alert('Agent profile not available.');
+                    }
+                });
+            }
+        }
+        
+        // Populate dynamic action buttons
+        function populateActionButtons(listingData, creatorInfo) {
+            const actionsContainer = document.getElementById('productActions');
+            if (!actionsContainer) return;
+            
+            let actionsHtml = '';
+            
+            // Contact button - only show if creator has phone
+            if (creatorInfo && (creatorInfo.phone || creatorInfo.phoneNumber || creatorInfo.mobile)) {
+                const phone = creatorInfo.phone || creatorInfo.phoneNumber || creatorInfo.mobile;
+                actionsHtml += `<button class="btn btn-primary btn-lg me-2 mb-2" onclick="window.open('tel:${phone}', '_self')">
+                    <i class="bi bi-telephone"></i> Contact Agent
+                </button>`;
+            }
+            
+            // WhatsApp button - only show if creator has WhatsApp
+            if (creatorInfo && creatorInfo.whatsapp) {
+                actionsHtml += `<button class="btn btn-success btn-lg me-2 mb-2" onclick="window.open('https://wa.me/${creatorInfo.whatsapp}', '_blank')">
+                    <i class="bi bi-whatsapp"></i> WhatsApp
+                </button>`;
+            }
+            
+            // Email button - only show if creator has email
+            if (creatorInfo && creatorInfo.email) {
+                actionsHtml += `<button class="btn btn-outline-primary btn-lg mb-2" onclick="window.open('mailto:${creatorInfo.email}', '_self')">
+                    <i class="bi bi-envelope"></i> Email
+                </button>`;
+            }
+            
+            // Save button - always show
+            actionsHtml += `<button class="btn btn-outline-secondary btn-lg mb-2" onclick="saveListing()">
+                <i class="bi bi-heart"></i> Save
+            </button>`;
+            
+            // Share button - always show
+            actionsHtml += `<button class="btn btn-outline-info btn-lg mb-2" onclick="shareListing()">
+                <i class="bi bi-share"></i> Share
+            </button>`;
+            
+            actionsContainer.innerHTML = actionsHtml;
+        }
+        
+        // Save listing function
+        function saveListing() {
+            if (!window.currentUser) {
+                alert('Please login to save listings.');
+                return;
+            }
+            
+            const listingId = new URL(window.location.href).searchParams.get('id');
+            if (listingId) {
+                // Add to saved listings in localStorage or database
+                const savedListings = JSON.parse(localStorage.getItem('savedListings') || '[]');
+                if (!savedListings.includes(listingId)) {
+                    savedListings.push(listingId);
+                    localStorage.setItem('savedListings', JSON.stringify(savedListings));
+                    alert('Listing saved successfully!');
+                } else {
+                    alert('Listing already saved!');
+                }
+            }
+        }
+        
+        // Share listing function
+        function shareListing() {
+            const url = window.location.href;
+            const title = document.getElementById('productTitle').textContent;
+            
+            if (navigator.share) {
+                navigator.share({
+                    title: title,
+                    url: url
+                });
+            } else {
+                // Fallback: copy to clipboard
+                navigator.clipboard.writeText(url).then(() => {
+                    alert('Link copied to clipboard!');
+                });
+            }
+        }
+        
+        // Load dynamic footer
+        function loadDynamicFooter() {
+            const footer = document.getElementById('dynamicFooter');
+            if (!footer) return;
+            
+            const currentYear = new Date().getFullYear();
+            footer.innerHTML = `
+                <div class="container">
+                    <div class="row">
+                        <div class="col-lg-4 col-md-12 col-12 mb-4">
+                            <h5>About StarLet</h5>
+                            <p style="opacity: 0.8;">
+                                Uganda's premier marketplace for premium properties and vehicles, connecting buyers and sellers with trust and excellence.
+                            </p>
+                            <div class="d-flex gap-3 mt-4">
+                                <a href="#" class="text-white" style="font-size: 1.5rem;"><i class="bi bi-facebook"></i></a>
+                                <a href="#" class="text-white" style="font-size: 1.5rem;"><i class="bi bi-twitter"></i></a>
+                                <a href="#" class="text-white" style="font-size: 1.5rem;"><i class="bi bi-instagram"></i></a>
+                                <a href="#" class="text-white" style="font-size: 1.5rem;"><i class="bi bi-linkedin"></i></a>
+                            </div>
+                        </div>
+                        <div class="col-lg-2 col-md-6 col-12 mb-4">
+                            <h5>Quick Links</h5>
+                            <ul class="list-unstyled">
+                                <li><a href="../../index.html"><i class="bi bi-chevron-right"></i> Home</a></li>
+                                <li><a href="../properties/index.html"><i class="bi bi-chevron-right"></i> Properties</a></li>
+                                <li><a href="../vehicles/index.html"><i class="bi bi-chevron-right"></i> Vehicles</a></li>
+                                <li><a href="../agents/index.html"><i class="bi bi-chevron-right"></i> Agents</a></li>
+                                <li><a href="../dealers/index.html"><i class="bi bi-chevron-right"></i> Dealers</a></li>
+                            </ul>
+                        </div>
+                        <div class="col-lg-2 col-md-6 col-12 mb-4">
+                            <h5>Company</h5>
+                            <ul class="list-unstyled">
+                                <li><a href="../about/index.html"><i class="bi bi-chevron-right"></i> About Us</a></li>
+                                <li><a href="../careers/index.html"><i class="bi bi-chevron-right"></i> Careers</a></li>
+                                <li><a href="../blog/index.html"><i class="bi bi-chevron-right"></i> Blog</a></li>
+                                <li><a href="../press/index.html"><i class="bi bi-chevron-right"></i> Press</a></li>
+                                <li><a href="../partners/index.html"><i class="bi bi-chevron-right"></i> Partners</a></li>
+                            </ul>
+                        </div>
+                        <div class="col-lg-4 col-md-12 col-12 mb-4">
+                            <h5>Contact Us</h5>
+                            <ul class="list-unstyled">
+                                <li><a href="#"><i class="bi bi-geo-alt"></i> Laroo Division, Gulu</a></li>
+                                <li><a href="tel:+256700123456"><i class="bi bi-telephone"></i> +256 700 123456</a></li>
+                                <li><a href="mailto:info@starlet.co.ug"><i class="bi bi-envelope"></i> info@starlet.co.ug</a></li>
+                            </ul>
+                            <div class="mt-4">
+                                <h6>Newsletter</h6>
+                                <div class="input-group mb-3">
+                                    <input type="email" class="form-control" placeholder="Your email" style="background: rgba(255,255,255,0.1); border: none; color: white;">
+                                    <button class="btn btn-primary" type="button">Subscribe</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <hr class="my-4" style="border-color: rgba(255,255,255,0.1);">
+                    <div class="row">
+                        <div class="col-md-6 text-center text-md-start">
+                            <p class="mb-0">&copy; ${currentYear} StarLet Marketplace. All rights reserved.</p>
+                        </div>
+                        <div class="col-md-6 text-center text-md-end">
+                            <a href="../legal/terms.html" class="text-white me-3" style="opacity: 0.7;">Terms</a>
+                            <a href="../legal/privacy.html" class="text-white me-3" style="opacity: 0.7;">Privacy</a>
+                            <a href="../legal/cookies.html" class="text-white" style="opacity: 0.7;">Cookies</a>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
         // Add chat button logic
         document.addEventListener('DOMContentLoaded', function() {
             const chatBtn = document.getElementById('chatWithSellerBtn');
