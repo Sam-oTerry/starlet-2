@@ -46,7 +46,7 @@
               </a>
             </li>
                     <li class="nav-item">
-          <a class="nav-link icon-circle" id="myListingsLink" href="../user/my-listings.html" title="My Listings" aria-label="My Listings">
+                      <a class="nav-link icon-circle" id="myListingsLink" href="/starlet-2/pages/user/my-listings.html" title="My Listings" aria-label="My Listings">
             <i class="bi bi-card-list"></i>
           </a>
         </li>
@@ -437,7 +437,7 @@ const db = firebase.firestore();
     enforceAuth('/pages/auth/login.html');
     // Setup My Listings link logic
     document.addEventListener('DOMContentLoaded', function() {
-        setupMyListingsLink('#myListingsLink', '/pages/auth/login.html', '../../user/my-listings.html', '../../user/my-listings.html');
+        setupMyListingsLink('#myListingsLink', '/starlet-2/pages/auth/login.html', '/starlet-2/pages/user/my-listings.html', '/starlet-2/pages/user/my-listings.html');
     });
 // Utility: get query param
 function getQueryParam(name) {
