@@ -511,7 +511,7 @@
           </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link icon-circle" id="myListingsLink" href="./pages/stores/index.html" title="My Listings" aria-label="My Listings">
+          <a class="nav-link icon-circle" id="myListingsLink" href="./pages/user/my-listings.html" title="My Listings" aria-label="My Listings">
             <i class="bi bi-card-list"></i>
           </a>
         </li>
@@ -1002,45 +1002,21 @@
     });
     </script>
     <script>
-    // Enhanced My Listings logic (updated for agent-stores dashboard)
+    // Enhanced My Listings logic (updated for my-listings page)
     document.addEventListener('DOMContentLoaded', function() {
       var myListingsLink = document.getElementById('myListingsLink');
       if (!myListingsLink) return;
       myListingsLink.addEventListener('click', function(e) {
-        if (!(window.firebase && firebase.auth && firebase.firestore)) return;
+        if (!(window.firebase && firebase.auth)) return;
         var user = firebase.auth().currentUser;
         if (!user || user.isAnonymous) {
           // Not logged in, go to login
+          e.preventDefault();
           window.location.href = './pages/auth/login.html';
           return;
         }
-        e.preventDefault();
-        // Check if user has a store or is an agent
-        var db = firebase.firestore();
-        db.collection('stores').where('ownerId', '==', user.uid).limit(1).get()
-          .then(function(querySnapshot) {
-            if (!querySnapshot.empty) {
-              // User has a store, go to the agent-stores dashboard
-              window.location.href = './pages/stores/agent-stores/dashboard.html';
-            } else {
-              // Check if user is an agent (in users collection, role: 'agent')
-              db.collection('users').doc(user.uid).get().then(function(userDoc) {
-                var userData = userDoc.exists ? userDoc.data() : {};
-                if (userData.role === 'agent') {
-                  // Agent but no store, go to the agent-stores dashboard
-                  window.location.href = './pages/stores/agent-stores/dashboard.html';
-                } else {
-                  // Not an agent, prompt to become agent and create store
-                  if (confirm('To list your properties, you need to create a store and select an agent tier. Would you like to get started?')) {
-                    window.location.href = './pages/stores/agent-stores/dashboard.html';
-                  }
-                }
-              });
-            }
-          })
-          .catch(function(err) {
-            alert('Error checking your store status: ' + err.message);
-          });
+        // User is logged in, allow navigation to my-listings page
+        // The page will handle authentication and data loading
       });
     });
     </script>

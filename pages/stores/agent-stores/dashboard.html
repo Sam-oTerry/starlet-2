@@ -10,7 +10,7 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   <!-- Custom Theme CSS -->
-  <link rel="stylesheet" href="../../../css/style.css">
+  <link rel="stylesheet" href="/starlet-2/css/style.css">
   <style>
     :root {
       --primary-color: #0d6efd;
@@ -403,7 +403,7 @@
   <nav class="navbar navbar-expand-lg navbar-custom modern-navbar shadow-sm py-3 sticky-top w-100">
     <div class="d-flex flex-row align-items-center justify-content-between w-100 px-3 px-md-4">
       <!-- Brand Left -->
-      <a class="navbar-brand d-flex align-items-center gap-2 me-4 py-0" href="../../../index.html">
+      <a class="navbar-brand d-flex align-items-center gap-2 me-4 py-0" href="../../index.html">
         <span class="brand-star">Star</span> <span class="brand-let">Let</span>
       </a>
       <!-- Toggler for mobile -->
@@ -493,126 +493,6 @@
       background: var(--dark-color) !important;
     }
   </style>
-  
-  <!-- Additional Dashboard Styles -->
-  <style>
-    /* Statistics styling */
-    .statistics-section {
-      background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-      border-radius: 1rem;
-      padding: 1.5rem;
-      margin-bottom: 2rem;
-    }
-    
-    .stat-item {
-      background: white;
-      border-radius: 1rem;
-      padding: 1.5rem;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
-      transition: transform 0.2s, box-shadow 0.2s;
-    }
-    
-    .stat-item:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 24px rgba(0,0,0,0.12);
-    }
-    
-    .stat-number {
-      font-size: 2rem;
-      font-weight: 700;
-      color: var(--primary-color);
-      margin-bottom: 0.5rem;
-    }
-    
-    .stat-label {
-      font-size: 0.9rem;
-      color: var(--secondary-color);
-      font-weight: 500;
-    }
-    
-    /* Chart container */
-    #viewsChartContainer {
-      background: white;
-      border-radius: 1rem;
-      padding: 1.5rem;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
-      margin-bottom: 2rem;
-    }
-    
-    /* Card styling */
-    .card-modern {
-      border: none;
-      border-radius: 1rem;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
-      overflow: hidden;
-    }
-    
-    .card-header {
-      background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-cyan) 100%);
-      color: white;
-      border: none;
-      padding: 1.25rem 1.5rem;
-    }
-    
-    /* Table styling */
-    .table th {
-      background: #f8f9fa;
-      border: none;
-      font-weight: 600;
-      color: var(--dark-color);
-    }
-    
-    .table td {
-      border: none;
-      padding: 1rem 0.75rem;
-      vertical-align: middle;
-    }
-    
-    .table tbody tr:hover {
-      background: rgba(13, 110, 253, 0.05);
-    }
-    
-    /* Premium services styling */
-    .tier-card {
-      background: white;
-      border-radius: 1rem;
-      padding: 1.5rem;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
-      transition: transform 0.2s, box-shadow 0.2s;
-      height: 100%;
-    }
-    
-    .tier-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 8px 24px rgba(0,0,0,0.12);
-    }
-    
-    .premium-featured {
-      border: 2px solid var(--accent-gold);
-      box-shadow: 0 0 32px rgba(255, 215, 0, 0.2);
-    }
-    
-    /* Responsive improvements */
-    @media (max-width: 768px) {
-      .statistics-section {
-        padding: 1rem;
-      }
-      
-      .stat-item {
-        padding: 1rem;
-        margin-bottom: 1rem;
-      }
-      
-      .stat-number {
-        font-size: 1.5rem;
-      }
-      
-      #viewsChartContainer {
-        padding: 1rem;
-      }
-    }
-  </style>
-  
   <script>
     // Sidebar toggle for mobile
     document.addEventListener('DOMContentLoaded', function() {
@@ -750,13 +630,6 @@
       </div>
     </div>
   </main>
-  <!-- Firebase -->
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-  <script src="../../../assets/js/firebase-config.js"></script>
-  <script src="../../../js/main.js"></script>
-  
   <!-- Bootstrap, Chart.js, and Interactivity -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.3.0/dist/chart.umd.min.js"></script>
@@ -818,340 +691,101 @@
       new bootstrap.Tooltip(tooltipTriggerEl);
     });
 
-    // Global variables
-    let currentUser = null;
-    let currentStore = null;
-    let userListings = [];
-    let viewsChart = null;
-    let currentPage = 1;
-    const rowsPerPage = 10;
-
-    // Initialize dashboard
-    async function initializeDashboard() {
-      try {
-        // Check authentication
-        currentUser = firebase.auth().currentUser;
-        if (!currentUser) {
-          window.location.href = '../../../auth/login.html';
-          return;
-        }
-
-        // Load store data
-        await loadStoreData();
-        
-        // Load user listings
-        await loadUserListings();
-        
-        // Initialize charts
-        initializeCharts();
-        
-        // Update statistics
-        updateStatistics();
-        
-        // Setup event listeners
-        setupEventListeners();
-        
-        // Setup logout functionality
-        setupLogout();
-        
-      } catch (error) {
-        console.error('Error initializing dashboard:', error);
-        showNotification('Error loading dashboard data', 'error');
-      }
-    }
-
-    // Load store data
-    async function loadStoreData() {
-      try {
-        const db = firebase.firestore();
-        const storeQuery = await db.collection('stores').where('ownerId', '==', currentUser.uid).limit(1).get();
-        
-        if (!storeQuery.empty) {
-          currentStore = storeQuery.docs[0].data();
-          currentStore.id = storeQuery.docs[0].id;
-          console.log('Store loaded:', currentStore);
-        } else {
-          // No store found, redirect to create store
-          window.location.href = 'create.html';
-          return;
-        }
-      } catch (error) {
-        console.error('Error loading store:', error);
-        throw error;
-      }
-    }
-
-    // Load user listings
-    async function loadUserListings() {
-      try {
-        const db = firebase.firestore();
-        const listingsQuery = await db.collection('listings')
-          .where('createdBy.uid', '==', currentUser.uid)
-          .orderBy('createdAt', 'desc')
-          .get();
-        
-        userListings = listingsQuery.docs.map(doc => {
-          const data = doc.data();
-          return {
-            id: doc.id,
-            title: data.title || 'Untitled Listing',
-            status: data.status || 'pending',
-            views: data.views || 0,
-            createdAt: data.createdAt?.toDate() || new Date(),
-            type: data.listingType || data.type || 'property',
-            price: data.price || data.askingPrice || 0
-          };
-        });
-        
-        console.log('Listings loaded:', userListings.length);
-        renderListingsTable();
-      } catch (error) {
-        console.error('Error loading listings:', error);
-        throw error;
-      }
-    }
-
-    // Initialize charts
-    function initializeCharts() {
-      const ctx = document.getElementById('viewsChart').getContext('2d');
-      
-      // Generate sample data for the last 7 days
-      const labels = [];
-      const data = [];
-      const today = new Date();
-      
-      for (let i = 6; i >= 0; i--) {
-        const date = new Date(today);
-        date.setDate(date.getDate() - i);
-        labels.push(date.toLocaleDateString('en-US', { weekday: 'short' }));
-        data.push(Math.floor(Math.random() * 200) + 50); // Random data for demo
-      }
-      
-      viewsChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-          labels: labels,
-          datasets: [{
-            label: 'Views',
-            data: data,
-            borderColor: '#ffd700',
-            backgroundColor: 'rgba(255,215,0,0.12)',
-            tension: 0.4,
-            pointBackgroundColor: '#fff',
-            pointBorderColor: '#ffd700',
-            pointRadius: 5,
-            fill: true
-          }]
+    // Chart.js example
+    const ctx = document.getElementById('viewsChart').getContext('2d');
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+        datasets: [{
+          label: 'Views',
+          data: [120, 190, 300, 250, 220, 310, 400],
+          borderColor: '#ffd700',
+          backgroundColor: 'rgba(255,215,0,0.12)',
+          tension: 0.4,
+          pointBackgroundColor: '#fff',
+          pointBorderColor: '#ffd700',
+          pointRadius: 5,
+          fill: true
+        }]
+      },
+      options: {
+        plugins: {
+          legend: { display: false }
         },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: { display: false }
-          },
-          scales: {
-            x: { 
-              grid: { display: false },
-              ticks: { color: '#6c757d' }
-            },
-            y: { 
-              beginAtZero: true, 
-              grid: { color: '#ffd70022' },
-              ticks: { color: '#6c757d' }
-            }
-          }
+        scales: {
+          x: { grid: { display: false } },
+          y: { beginAtZero: true, grid: { color: '#ffd70022' } }
         }
-      });
-    }
-
-    // Update statistics
-    function updateStatistics() {
-      const activeListings = userListings.filter(l => l.status === 'approved').length;
-      const totalViews = userListings.reduce((sum, l) => sum + l.views, 0);
-      const premiumAds = userListings.filter(l => l.premium).length;
-      
-      // Update statistics display
-      document.querySelector('.stat-item:nth-child(1) .stat-number').innerHTML = `<i class="bi bi-house-door"></i> ${activeListings}`;
-      document.querySelector('.stat-item:nth-child(2) .stat-number').innerHTML = `<i class="bi bi-bar-chart"></i> ${totalViews.toLocaleString()}`;
-      document.querySelector('.stat-item:nth-child(3) .stat-number').innerHTML = `<i class="bi bi-gem"></i> ${premiumAds}`;
-    }
-
-    // Render listings table
-    function renderListingsTable() {
-      const tableBody = document.getElementById('listingsTableBody');
-      const searchInput = document.getElementById('listingSearch');
-      const searchTerm = searchInput.value.toLowerCase();
-      
-      // Filter listings
-      const filteredListings = userListings.filter(listing => 
-        listing.title.toLowerCase().includes(searchTerm)
-      );
-      
-      // Pagination
-      const startIndex = (currentPage - 1) * rowsPerPage;
-      const endIndex = startIndex + rowsPerPage;
-      const pageListings = filteredListings.slice(startIndex, endIndex);
-      
-      // Render table
-      tableBody.innerHTML = pageListings.map(listing => `
-        <tr>
-          <td>
-            <div class="d-flex align-items-center">
-              <div>
-                <span class="fw-semibold">${listing.title}</span>
-                <br>
-                <small class="text-muted">${listing.type} • ${listing.price ? 'UGX ' + listing.price.toLocaleString() : 'Price on request'}</small>
-              </div>
-            </div>
-          </td>
-          <td>
-            <span class="badge ${getStatusBadgeClass(listing.status)}">
-              ${listing.status.charAt(0).toUpperCase() + listing.status.slice(1)}
-            </span>
-          </td>
-          <td>${listing.views.toLocaleString()}</td>
-          <td>
-            <div class="btn-group btn-group-sm" role="group">
-              <button class="btn btn-outline-primary" onclick="editListing('${listing.id}')" title="Edit">
-                <i class="bi bi-pencil"></i>
-              </button>
-              <button class="btn btn-outline-danger" onclick="deleteListing('${listing.id}')" title="Delete">
-                <i class="bi bi-trash"></i>
-              </button>
-              <button class="btn btn-outline-warning" onclick="promoteListing('${listing.id}')" title="Promote">
-                <i class="bi bi-star"></i> Promote
-              </button>
-            </div>
-          </td>
-        </tr>
-      `).join('') || '<tr><td colspan="4" class="text-center text-muted py-4">No listings found.</td></tr>';
-      
-      // Render pagination
-      renderPagination(filteredListings.length);
-    }
-
-    // Get status badge class
-    function getStatusBadgeClass(status) {
-      switch (status) {
-        case 'approved': return 'bg-success';
-        case 'pending': return 'bg-warning';
-        case 'rejected': return 'bg-danger';
-        case 'expired': return 'bg-secondary';
-        default: return 'bg-secondary';
       }
-    }
+    });
 
-    // Render pagination
+    // Listings Table: Pagination, Search, Loading State (Demo)
+    const tableBody = document.getElementById('listingsTableBody');
+    const pagination = document.getElementById('tablePagination');
+    const loading = document.getElementById('tableLoading');
+    const searchInput = document.getElementById('listingSearch');
+    const clearBtn = document.getElementById('clearSearch');
+    let listings = [
+      { title: 'Property Title 1', status: 'Active', views: 320 },
+      { title: 'Property Title 2', status: 'Pending', views: 120 },
+      { title: 'Property Title 3', status: 'Expired', views: 80 },
+      // ... more demo data
+    ];
+    let currentPage = 1, rowsPerPage = 5;
+
+    function renderTable() {
+      loading.style.display = 'block';
+      setTimeout(() => {
+        loading.style.display = 'none';
+        let filtered = listings.filter(l =>
+          l.title.toLowerCase().includes(searchInput.value.toLowerCase())
+        );
+        let start = (currentPage - 1) * rowsPerPage;
+        let end = start + rowsPerPage;
+        let pageListings = filtered.slice(start, end);
+        tableBody.innerHTML = pageListings.map(l => `
+          <tr>
+            <td><span class="fw-semibold">${l.title}</span></td>
+            <td>
+              <span class="badge ${l.status === 'Active' ? 'bg-success' : l.status === 'Pending' ? 'bg-warning' : 'bg-danger'}">
+                ${l.status}
+              </span>
+            </td>
+            <td>${l.views}</td>
+            <td>
+              <button class="btn btn-outline-primary btn-sm" data-bs-toggle="tooltip" title="Edit"><i class="bi bi-pencil"></i></button>
+              <button class="btn btn-outline-danger btn-sm" data-bs-toggle="tooltip" title="Delete"><i class="bi bi-trash"></i></button>
+              <button class="btn btn-outline-warning btn-sm" data-bs-toggle="tooltip" title="Promote"><i class="bi bi-star"></i> Promote</button>
+            </td>
+          </tr>
+        `).join('') || '<tr><td colspan=\"4\" class=\"text-center text-muted\">No listings found.</td></tr>';
+        renderPagination(filtered.length);
+      }, 400);
+    }
     function renderPagination(total) {
-      const pagination = document.getElementById('tablePagination');
-      const totalPages = Math.ceil(total / rowsPerPage);
-      
-      let paginationHTML = '';
-      
-      // Previous button
-      paginationHTML += `
-        <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
-          <a class="page-link" href="#" onclick="changePage(${currentPage - 1})">Previous</a>
-        </li>
-      `;
-      
-      // Page numbers
-      for (let i = 1; i <= totalPages; i++) {
-        if (i === 1 || i === totalPages || (i >= currentPage - 2 && i <= currentPage + 2)) {
-          paginationHTML += `
-            <li class="page-item ${i === currentPage ? 'active' : ''}">
-              <a class="page-link" href="#" onclick="changePage(${i})">${i}</a>
-            </li>
-          `;
-        } else if (i === currentPage - 3 || i === currentPage + 3) {
-          paginationHTML += '<li class="page-item disabled"><span class="page-link">...</span></li>';
-        }
-      }
-      
-      // Next button
-      paginationHTML += `
-        <li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
-          <a class="page-link" href="#" onclick="changePage(${currentPage + 1})">Next</a>
-        </li>
-      `;
-      
-      pagination.innerHTML = paginationHTML;
-    }
-
-    // Change page
-    function changePage(page) {
-      const totalPages = Math.ceil(userListings.length / rowsPerPage);
-      if (page >= 1 && page <= totalPages) {
-        currentPage = page;
-        renderListingsTable();
+      let pages = Math.ceil(total / rowsPerPage);
+      pagination.innerHTML = '';
+      for (let i = 1; i <= pages; i++) {
+        let li = document.createElement('li');
+        li.className = 'page-item' + (i === currentPage ? ' active' : '');
+        li.innerHTML = `<a class=\"page-link\" href=\"#\">${i}</a>`;
+        li.onclick = (e) => { e.preventDefault(); currentPage = i; renderTable(); };
+        pagination.appendChild(li);
       }
     }
+    searchInput.addEventListener('input', () => { currentPage = 1; renderTable(); });
+    clearBtn.addEventListener('click', () => { searchInput.value = ''; currentPage = 1; renderTable(); });
+    renderTable();
 
-    // Setup event listeners
-    function setupEventListeners() {
-      // Search functionality
-      const searchInput = document.getElementById('listingSearch');
-      const clearBtn = document.getElementById('clearSearch');
-      
-      searchInput.addEventListener('input', () => {
-        currentPage = 1;
-        renderListingsTable();
-      });
-      
-      clearBtn.addEventListener('click', () => {
-        searchInput.value = '';
-        currentPage = 1;
-        renderListingsTable();
-      });
-    }
+    // Notification Bell (Demo)
+    const notificationBadge = document.getElementById('notificationBadge');
+    // Simulate new notification
+    setTimeout(() => { notificationBadge.style.display = 'inline-block'; }, 2000);
 
-    // Setup logout
-    function setupLogout() {
-      const logoutLink = document.querySelector('.logout-link');
-      if (logoutLink) {
-        logoutLink.addEventListener('click', async (e) => {
-          e.preventDefault();
-          try {
-            await firebase.auth().signOut();
-            window.location.href = '../../../index.html';
-          } catch (error) {
-            console.error('Error signing out:', error);
-          }
-        });
-      }
-    }
-
-    // Action functions
-    function editListing(listingId) {
-      window.location.href = `edit-listing.html?id=${listingId}`;
-    }
-
-    function deleteListing(listingId) {
-      if (confirm('Are you sure you want to delete this listing?')) {
-        // Implement delete functionality
-        console.log('Delete listing:', listingId);
-      }
-    }
-
-    function promoteListing(listingId) {
-      window.location.href = `premium.html?listing=${listingId}`;
-    }
-
-    // Show notification
-    function showNotification(message, type = 'info') {
-      // Implement notification system
-      console.log(`${type}: ${message}`);
-    }
-
-    // Initialize dashboard when DOM is loaded
-    document.addEventListener('DOMContentLoaded', function() {
-      // Wait for Firebase to be ready
-      const checkFirebase = setInterval(() => {
-        if (window.firebase && firebase.auth) {
-          clearInterval(checkFirebase);
-          initializeDashboard();
-        }
-      }, 100);
+    // Accessibility: Keyboard navigation for sidebar
+    document.querySelectorAll('.admin-sidebar .nav-link, .admin-sidebar .logout-link').forEach(link => {
+      link.setAttribute('tabindex', '0');
     });
   </script>
 </body>

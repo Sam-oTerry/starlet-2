@@ -167,9 +167,9 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     match /conversations/{conversationId} {
-      allow read, write: if request.auth != null && 
-        request.auth.uid in resource.data.participants;
-    }
+  allow read, write: if request.auth != null && 
+    request.auth.uid in resource.data.participants;
+}
   }
 }
 ```
