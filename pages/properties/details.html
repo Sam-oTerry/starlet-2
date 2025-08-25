@@ -2060,19 +2060,11 @@
             
             try {
                 const db = firebase.firestore();
-                // Get creator ID for stats - try multiple sources
-                let creatorId = creatorInfo.uid || creatorInfo.id || creatorInfo.userId;
-                
-                // If no creator ID from user info, try to get it from the listing data
-                if (!creatorId) {
-                    // Check if we have access to the listing data
-                    if (window.currentListingData) {
-                        creatorId = window.currentListingData.createdBy?.uid || 
-                                   window.currentListingData.agentId || 
-                                   window.currentListingData.listerId ||
-                                   window.currentListingData.userId;
-                    }
-                }
+                // Get creator ID directly from listing data or user info
+                const creatorId = window.currentListingData?.createdBy?.uid || 
+                                 window.currentListingData?.agentId || 
+                                 creatorInfo.uid || 
+                                 creatorInfo.id;
                 
                 if (!creatorId) {
                     console.warn('No creator ID available for stats');
@@ -2081,87 +2073,61 @@
                 
                 console.log('Using creator ID for stats:', creatorId);
                 
-                // Get user's listings count - try multiple fields
+                // Get total listings for this agent/user
                 let listingsCount = 0;
                 
-                // Try different possible fields where the user might be referenced
-                const possibleFields = [
-                    'createdBy.uid',
-                    'agentId',
-                    'listerId',
-                    'userId',
-                    'ownerId'
-                ];
-                
-                for (const field of possibleFields) {
+                try {
+                    // Get all listings by this agent/user using agentId
+                    const allListingsQuery = await db.collection('listings')
+                        .where('agentId', '==', creatorId)
+                        .get();
+                    
+                    listingsCount = allListingsQuery.size;
+                    console.log(`Found ${listingsCount} total listings for agent: ${creatorId}`);
+                } catch (error) {
+                    // If agentId fails, try createdBy.uid
                     try {
-                        const listingsQuery = await db.collection('listings')
-                            .where(field, '==', creatorId)
+                        const uidListingsQuery = await db.collection('listings')
+                            .where('createdBy.uid', '==', creatorId)
                             .get();
                         
-                        if (listingsQuery.size > 0) {
-                            listingsCount = listingsQuery.size;
-                            console.log(`Found ${listingsCount} listings for user: ${creatorId} using field: ${field}`);
-                            break;
-                        }
-                    } catch (error) {
-                        console.log(`Field ${field} not available or no results, trying next...`);
-                        continue;
+                        listingsCount = uidListingsQuery.size;
+                        console.log(`Found ${listingsCount} total listings for user: ${creatorId}`);
+                    } catch (uidError) {
+                        console.log('Both agentId and createdBy.uid queries failed');
+                        listingsCount = 0;
                     }
                 }
                 
-                // If still no results, try broader search
-                if (listingsCount === 0) {
-                    try {
-                        const allListings = await db.collection('listings').get();
-                        listingsCount = allListings.docs.filter(doc => {
-                            const data = doc.data();
-                            return (data.createdBy && data.createdBy.uid === creatorId) ||
-                                   data.agentId === creatorId ||
-                                   data.listerId === creatorId ||
-                                   data.userId === creatorId ||
-                                   data.ownerId === creatorId;
-                        }).length;
-                        console.log(`Found ${listingsCount} listings using broader search for user: ${creatorId}`);
-                    } catch (fallbackError) {
-                        console.log('Fallback search also failed:', fallbackError);
-                    }
-                }
-                
-                // Get user's join date
-                const joinDate = creatorInfo.createdAt || creatorInfo.joinDate || creatorInfo.dateCreated || creatorInfo.registrationDate;
+                // Get time on platform from user creation date
+                const userCreatedAt = creatorInfo.createdAt;
                 let memberSince = '--';
-                let experienceYears = '--';
                 
-                if (joinDate) {
-                    let joinTimestamp;
+                if (userCreatedAt) {
+                    let creationTimestamp;
                     
-                    // Handle different date formats
-                    if (joinDate.toDate) {
-                        // Firestore timestamp
-                        joinTimestamp = joinDate.toDate();
-                    } else if (joinDate.seconds) {
-                        // Firestore timestamp object
-                        joinTimestamp = new Date(joinDate.seconds * 1000);
-                    } else if (typeof joinDate === 'string') {
-                        // String date
-                        joinTimestamp = new Date(joinDate);
-                    } else if (joinDate instanceof Date) {
-                        // Date object
-                        joinTimestamp = joinDate;
+                    // Handle Firestore timestamp
+                    if (userCreatedAt.toDate) {
+                        creationTimestamp = userCreatedAt.toDate();
+                    } else if (userCreatedAt.seconds) {
+                        creationTimestamp = new Date(userCreatedAt.seconds * 1000);
+                    } else if (typeof userCreatedAt === 'string') {
+                        creationTimestamp = new Date(userCreatedAt);
+                    } else if (userCreatedAt instanceof Date) {
+                        creationTimestamp = userCreatedAt;
                     } else {
-                        joinTimestamp = new Date(joinDate);
+                        creationTimestamp = new Date(userCreatedAt);
                     }
                     
-                    // Check if date is valid
-                    if (!isNaN(joinTimestamp.getTime())) {
+                    // Calculate time on platform
+                    if (!isNaN(creationTimestamp.getTime())) {
                         const now = new Date();
-                        const diffTime = Math.abs(now - joinTimestamp);
+                        const diffTime = Math.abs(now - creationTimestamp);
                         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
                         const diffYears = Math.floor(diffDays / 365);
                         const diffMonths = Math.floor((diffDays % 365) / 30);
                         
-                        // Format member since with more precision
+                        // Format time on platform
                         if (diffYears > 0) {
                             if (diffMonths > 0) {
                                 memberSince = `${diffYears} year${diffYears > 1 ? 's' : ''} ${diffMonths} month${diffMonths > 1 ? 's' : ''}`;
@@ -2178,62 +2144,36 @@
                             memberSince = `${diffDays} day${diffDays > 1 ? 's' : ''}`;
                         }
                         
-                        // Calculate experience years with decimal precision
-                        if (diffYears > 0) {
-                            const decimalYears = (diffDays / 365).toFixed(1);
-                            experienceYears = parseFloat(decimalYears) >= 1 ? Math.floor(parseFloat(decimalYears)) : '< 1';
-                        } else {
-                            experienceYears = '< 1';
-                        }
+                        console.log(`User created: ${creationTimestamp.toDateString()}, Time on platform: ${memberSince}`);
                     }
                 }
                 
-                // Get active listings count - try multiple fields
+                // Get active listings for this agent/user
                 let activeListingsCount = 0;
-                let fieldUsed = null;
                 
-                // Use the same field that worked for total listings
-                for (const field of possibleFields) {
+                try {
+                    // Get active listings by this agent/user using agentId
+                    const activeListingsQuery = await db.collection('listings')
+                        .where('agentId', '==', creatorId)
+                        .where('status', 'in', ['approved', 'active', 'live', 'published'])
+                        .get();
+                    
+                    activeListingsCount = activeListingsQuery.size;
+                    console.log(`Found ${activeListingsCount} active listings for agent: ${creatorId}`);
+                } catch (error) {
+                    // If agentId fails, try createdBy.uid
                     try {
-                        const activeQuery = await db.collection('listings')
-                            .where(field, '==', creatorId)
+                        const uidActiveQuery = await db.collection('listings')
+                            .where('createdBy.uid', '==', creatorId)
                             .where('status', 'in', ['approved', 'active', 'live', 'published'])
                             .get();
                         
-                        if (activeQuery.size > 0) {
-                            activeListingsCount = activeQuery.size;
-                            fieldUsed = field;
-                            console.log(`Found ${activeListingsCount} active listings for user: ${creatorId} using field: ${field}`);
-                            break;
-                        }
-                    } catch (error) {
-                        console.log(`Active listings query failed for field ${field}, trying next...`);
-                        continue;
-                    }
-                }
-                
-                // If no active listings found with status filter, try without status filter
-                if (activeListingsCount === 0) {
-                    try {
-                        const allListings = await db.collection('listings').get();
-                        activeListingsCount = allListings.docs.filter(doc => {
-                            const data = doc.data();
-                            const isUserListing = (data.createdBy && data.createdBy.uid === creatorId) ||
-                                                 data.agentId === creatorId ||
-                                                 data.listerId === creatorId ||
-                                                 data.userId === creatorId ||
-                                                 data.ownerId === creatorId;
-                            
-                            const isActive = !data.status || 
-                                           ['approved', 'active', 'live', 'published'].includes(data.status);
-                            
-                            return isUserListing && isActive;
-                        }).length;
-                        console.log(`Found ${activeListingsCount} active listings using broader search for user: ${creatorId}`);
-                    } catch (error) {
-                        console.log('Error in broader active listings search:', error);
-                        // Assume all listings are active if we can't determine
+                        activeListingsCount = uidActiveQuery.size;
+                        console.log(`Found ${activeListingsCount} active listings for user: ${creatorId}`);
+                    } catch (uidError) {
+                        // If status queries fail, assume all listings are active
                         activeListingsCount = listingsCount;
+                        console.log('Status queries failed, assuming all listings are active');
                     }
                 }
                 
