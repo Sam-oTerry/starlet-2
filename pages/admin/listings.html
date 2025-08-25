@@ -481,30 +481,379 @@
             font-weight: 500;
         }
 
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            .hero-title {
-                font-size: 2rem;
-            }
-            
+        /* Admin Layout Styles */
+        .admin-panel {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .admin-sidebar {
+            width: 280px;
+            background: linear-gradient(180deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            z-index: 1040;
+        }
+
+        .admin-sidebar .nav-link {
+            color: rgba(255, 255, 255, 0.8);
+            border-radius: 10px;
+            margin: 2px 0;
+            transition: all 0.3s ease;
+            padding: 12px 16px;
+        }
+
+        .admin-sidebar .nav-link:hover,
+        .admin-sidebar .nav-link.active {
+            background: linear-gradient(135deg, var(--primary-color), #0056b3);
+            color: white;
+            transform: translateX(5px);
+        }
+
+        .admin-sidebar .nav-link i {
+            width: 20px;
+            margin-right: 10px;
+        }
+
+        .sidebar-brand {
+            font-size: 1.5rem;
+            font-weight: 700;
+            padding: 1rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 1rem;
+        }
+
+        .brand-star {
+            color: var(--accent-gold);
+        }
+
+        .brand-let {
+            color: var(--accent-cyan);
+        }
+
+        .admin-navbar {
+            position: fixed;
+            top: 0;
+            right: 0;
+            left: 280px;
+            height: 70px;
+            background: white;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            padding: 0 2rem;
+            z-index: 1030;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .admin-navbar .navbar-brand {
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+
+        .profile-dropdown .profile-avatar img {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        main {
+            margin-left: 280px;
+            margin-top: 70px;
+            padding: 2rem;
+            background: #f8f9fa;
+            min-height: calc(100vh - 70px);
+        }
+
+        /* Modal Z-Index Fixes */
+        .modal {
+            z-index: 1055 !important;
+        }
+
+        .modal-backdrop {
+            z-index: 1050 !important;
+        }
+
+        .offcanvas {
+            z-index: 1045 !important;
+        }
+
+        .dropdown-menu {
+            z-index: 1060 !important;
+        }
+
+        /* Enhanced Responsive Design */
+        @media (max-width: 1200px) {
             .table-responsive {
-                border-radius: 15px;
-            }
-            
-            .btn-group {
-                flex-direction: column;
+                font-size: 0.9rem;
             }
             
             .btn-group .btn {
-                margin: 2px 0;
+                padding: 0.375rem 0.5rem;
+                font-size: 0.8rem;
             }
-            
+        }
+
+        @media (max-width: 992px) {
+            .admin-sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+
+            .admin-sidebar.show {
+                transform: translateX(0);
+            }
+
+            .admin-navbar {
+                left: 0;
+            }
+
+            main {
+                margin-left: 0;
+                padding: 1rem;
+            }
+
+            .hero-title {
+                font-size: 2rem;
+            }
+
+            .table-container {
+                border-radius: 10px;
+                margin-bottom: 1rem;
+            }
+
+            .table thead th {
+                padding: 0.75rem 0.5rem;
+                font-size: 0.8rem;
+            }
+
+            .table tbody td {
+                padding: 0.75rem 0.5rem;
+                font-size: 0.85rem;
+            }
+
+            .btn-group {
+                flex-direction: column;
+                gap: 2px;
+            }
+
+            .btn-group .btn {
+                margin: 0;
+                border-radius: 6px;
+            }
+
+            .badge {
+                font-size: 0.7rem;
+                padding: 0.4rem 0.6rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .admin-navbar {
+                padding: 0 1rem;
+                height: 60px;
+            }
+
+            main {
+                margin-top: 60px;
+                padding: 0.75rem;
+            }
+
+            .hero-section {
+                padding: 2rem 0;
+            }
+
+            .hero-title {
+                font-size: 1.75rem;
+            }
+
+            .hero-subtitle {
+                font-size: 1rem;
+            }
+
+            .table-responsive {
+                border-radius: 10px;
+                overflow: hidden;
+            }
+
+            .table thead th {
+                padding: 0.5rem 0.25rem;
+                font-size: 0.75rem;
+                white-space: nowrap;
+            }
+
+            .table tbody td {
+                padding: 0.5rem 0.25rem;
+                font-size: 0.8rem;
+            }
+
+            .table tbody td small {
+                font-size: 0.7rem;
+            }
+
+            .modal-dialog {
+                margin: 0.5rem;
+            }
+
             .modal-body {
                 padding: 1rem;
             }
-            
-            .media-gallery {
-                grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+
+            .filter-form {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .filter-form .form-group {
+                width: 100%;
+            }
+
+            .btn-group .btn {
+                padding: 0.25rem 0.5rem;
+                font-size: 0.75rem;
+            }
+
+            .btn-group .btn i {
+                font-size: 0.8rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .admin-navbar {
+                padding: 0 0.5rem;
+            }
+
+            .admin-navbar .navbar-brand {
+                font-size: 1.1rem;
+            }
+
+            main {
+                padding: 0.5rem;
+            }
+
+            .hero-section {
+                padding: 1.5rem 0;
+            }
+
+            .hero-title {
+                font-size: 1.5rem;
+            }
+
+            .table-container {
+                margin-bottom: 0.5rem;
+            }
+
+            .table thead th {
+                padding: 0.25rem 0.1rem;
+                font-size: 0.7rem;
+            }
+
+            .table tbody td {
+                padding: 0.25rem 0.1rem;
+                font-size: 0.75rem;
+            }
+
+            .btn-group {
+                gap: 1px;
+            }
+
+            .btn-group .btn {
+                padding: 0.2rem 0.4rem;
+                font-size: 0.7rem;
+            }
+
+            .btn-group .btn i {
+                font-size: 0.7rem;
+            }
+
+            .modal-dialog {
+                margin: 0.25rem;
+            }
+
+            .modal-header {
+                padding: 0.75rem;
+            }
+
+            .modal-body {
+                padding: 0.75rem;
+            }
+
+            .filter-form {
+                gap: 0.5rem;
+            }
+
+            .form-control {
+                font-size: 0.9rem;
+            }
+        }
+
+        /* Enhanced Mobile Table */
+        @media (max-width: 768px) {
+            .table-responsive {
+                border: none;
+            }
+
+            .table {
+                border: none;
+            }
+
+            .table thead {
+                display: none;
+            }
+
+            .table tbody tr {
+                display: block;
+                margin-bottom: 1rem;
+                border: 1px solid #dee2e6;
+                border-radius: 10px;
+                background: white;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            }
+
+            .table tbody td {
+                display: block;
+                text-align: left;
+                padding: 0.75rem;
+                border: none;
+                border-bottom: 1px solid #f8f9fa;
+            }
+
+            .table tbody td:last-child {
+                border-bottom: none;
+            }
+
+            .table tbody td::before {
+                content: attr(data-label) ": ";
+                font-weight: 600;
+                color: var(--primary-color);
+                margin-right: 0.5rem;
+            }
+
+            .table tbody td:first-child::before {
+                content: "Title: ";
+            }
+
+            .table tbody td:nth-child(2)::before {
+                content: "Type: ";
+            }
+
+            .table tbody td:nth-child(3)::before {
+                content: "Owner: ";
+            }
+
+            .table tbody td:nth-child(4)::before {
+                content: "Agent: ";
+            }
+
+            .table tbody td:nth-child(5)::before {
+                content: "Status: ";
+            }
+
+            .table tbody td:nth-child(6)::before {
+                content: "Created: ";
+            }
+
+            .table tbody td:last-child::before {
+                content: "Actions: ";
             }
         }
 
@@ -548,6 +897,137 @@
 
         .empty-state p {
             font-size: 1.1rem;
+        }
+
+        /* Filter Card Styling */
+        .filter-card {
+            margin-bottom: 2rem;
+        }
+
+        .filter-card .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+        }
+
+        .filter-card .card-body {
+            padding: 1.5rem;
+        }
+
+        .filter-card .form-label {
+            font-weight: 600;
+            color: var(--dark-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .filter-card .input-group-text {
+            background: linear-gradient(135deg, var(--primary-color), #0056b3);
+            color: white;
+            border: none;
+            font-weight: 500;
+        }
+
+        .filter-card .form-control,
+        .filter-card .form-select {
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .filter-card .form-control:focus,
+        .filter-card .form-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+        }
+
+        /* Enhanced Button Styling */
+        .btn {
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color), #0056b3);
+            border: none;
+        }
+
+        .btn-outline-secondary {
+            border: 2px solid #6c757d;
+            color: #6c757d;
+        }
+
+        .btn-outline-secondary:hover {
+            background: linear-gradient(135deg, #6c757d, #5c636a);
+            border-color: #6c757d;
+            color: white;
+        }
+
+        /* Enhanced Card Styling */
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Loading and Error States */
+        .loading-container,
+        .error-container {
+            min-height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Enhanced Toast Styling */
+        .alert {
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .alert-success {
+            background: linear-gradient(135deg, #d1e7dd, #badbcc);
+            color: #0f5132;
+        }
+
+        .alert-danger {
+            background: linear-gradient(135deg, #f8d7da, #f5c2c7);
+            color: #842029;
+        }
+
+        .alert-info {
+            background: linear-gradient(135deg, #cff4fc, #b6effb);
+            color: #055160;
         }
     </style>
 </head>
@@ -609,45 +1089,61 @@
         <!-- Listings Content -->
         <div class="container my-5">
             <div class="filter-card">
-                <form class="row g-3" id="filter-form">
-                    <div class="col-md-3">
-                        <div class="input-group">
-                            <span class="input-group-text"><i class="bi bi-search"></i></span>
-                            <input type="text" class="form-control" id="search" placeholder="Search listings...">
-                        </div>
+                <div class="card">
+                    <div class="card-body">
+                        <form class="row g-3" id="filter-form">
+                            <div class="col-lg-3 col-md-6">
+                                <label for="search" class="form-label">Search</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-search"></i></span>
+                                    <input type="text" class="form-control" id="search" placeholder="Search listings...">
+                                </div>
+                            </div>
+                            <div class="col-lg-2 col-md-6">
+                                <label for="listingType" class="form-label">Type</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-tags"></i></span>
+                                    <select class="form-select" id="listingType">
+                                        <option value="">All Types</option>
+                                        <option value="house_sale">House Sale</option>
+                                        <option value="house_rent">House Rent</option>
+                                        <option value="land_sale">Land Sale</option>
+                                        <option value="land_rent">Land Rent</option>
+                                        <option value="vehicle_sale">Vehicle Sale</option>
+                                        <option value="motorcycle_sale">Motorcycle Sale</option>
+                                        <option value="heavy_machinery_sale">Heavy Machinery</option>
+                                        <option value="bicycle_ebike_sale">Bicycle/E-bike</option>
+                                        <option value="boat_watercraft_sale">Boat/Watercraft</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-lg-2 col-md-6">
+                                <label for="status" class="form-label">Status</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-flag"></i></span>
+                                    <select class="form-select" id="status">
+                                        <option value="">All Statuses</option>
+                                        <option value="pending">Pending</option>
+                                        <option value="approved">Approved</option>
+                                        <option value="rejected">Rejected</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-lg-2 col-md-6">
+                                <label class="form-label">&nbsp;</label>
+                                <button type="submit" class="btn btn-primary w-100">
+                                    <i class="bi bi-funnel"></i> Filter
+                                </button>
+                            </div>
+                            <div class="col-lg-3 col-md-6">
+                                <label class="form-label">&nbsp;</label>
+                                <button type="button" class="btn btn-outline-secondary w-100" onclick="fetchAndRenderListings()">
+                                    <i class="bi bi-arrow-clockwise"></i> Refresh
+                                </button>
+                            </div>
+                        </form>
                     </div>
-                    <div class="col-md-2">
-                        <div class="input-group">
-                            <span class="input-group-text"><i class="bi bi-tags"></i></span>
-                            <select class="form-select" id="listingType">
-                                <option value="">All Types</option>
-                                <option value="property">Property</option>
-                                <option value="vehicle">Vehicle</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="col-md-2">
-                        <div class="input-group">
-                            <span class="input-group-text"><i class="bi bi-flag"></i></span>
-                            <select class="form-select" id="status">
-                                <option value="">All Statuses</option>
-                                <option value="pending">Pending</option>
-                                <option value="approved">Approved</option>
-                                <option value="rejected">Rejected</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="col-md-2">
-                        <button type="submit" class="btn btn-primary w-100">
-                            <i class="bi bi-funnel"></i> Filter
-                        </button>
-                    </div>
-                    <div class="col-md-3">
-                        <button type="button" class="btn btn-outline-secondary w-100" onclick="fetchAndRenderListings()">
-                            <i class="bi bi-arrow-clockwise"></i> Refresh
-                        </button>
-                    </div>
-                </form>
+                </div>
             </div>
             
             <div class="table-container">
@@ -961,24 +1457,24 @@
         
         tbody.innerHTML += `
           <tr>
-            <td>
+            <td data-label="Title">
               <div class="fw-semibold">${l.title || 'Untitled'}</div>
               <small class="text-muted">${l.description ? l.description.substring(0, 50) + '...' : ''}</small>
             </td>
-            <td>
+            <td data-label="Type">
               <span class="badge bg-secondary">${typeLabel}</span>
             </td>
-            <td>
+            <td data-label="Owner">
               <div class="fw-semibold">${l.ownerName || 'Unknown'}</div>
               <small class="text-muted">${l.userId || 'No ID'}</small>
             </td>
-            <td>${agentInfo}</td>
-            <td>${statusBadge}</td>
-            <td>
+            <td data-label="Agent">${agentInfo}</td>
+            <td data-label="Status">${statusBadge}</td>
+            <td data-label="Created">
               <div>${formatDate(l.createdAt)}</div>
               <small class="text-muted">${l.location?.district || ''} ${l.location?.town ? ', ' + l.location.town : ''}</small>
             </td>
-            <td>
+            <td data-label="Actions">
               <div class="btn-group btn-group-sm" role="group">
                 <button class="btn btn-outline-primary" onclick="showListingDetails('${l.id}')" title="View Details">
                   <i class="bi bi-eye"></i>
