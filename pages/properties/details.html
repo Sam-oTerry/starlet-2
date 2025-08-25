@@ -2060,32 +2060,69 @@
             
             try {
                 const db = firebase.firestore();
-                const creatorId = creatorInfo.uid || creatorInfo.id;
+                // Get creator ID for stats - try multiple sources
+                let creatorId = creatorInfo.uid || creatorInfo.id || creatorInfo.userId;
+                
+                // If no creator ID from user info, try to get it from the listing data
+                if (!creatorId) {
+                    // Check if we have access to the listing data
+                    if (window.currentListingData) {
+                        creatorId = window.currentListingData.createdBy?.uid || 
+                                   window.currentListingData.agentId || 
+                                   window.currentListingData.listerId ||
+                                   window.currentListingData.userId;
+                    }
+                }
                 
                 if (!creatorId) {
                     console.warn('No creator ID available for stats');
                     return;
                 }
                 
-                // Get user's listings count using createdBy.uid
+                console.log('Using creator ID for stats:', creatorId);
+                
+                // Get user's listings count - try multiple fields
                 let listingsCount = 0;
                 
-                try {
-                    const listingsQuery = await db.collection('listings')
-                        .where('createdBy.uid', '==', creatorId)
-                        .get();
-                    
-                    listingsCount = listingsQuery.size;
-                    console.log(`Found ${listingsCount} listings for user: ${creatorId}`);
-                } catch (error) {
-                    console.log('Error fetching listings count:', error);
-                    // Fallback: try broader search
+                // Try different possible fields where the user might be referenced
+                const possibleFields = [
+                    'createdBy.uid',
+                    'agentId',
+                    'listerId',
+                    'userId',
+                    'ownerId'
+                ];
+                
+                for (const field of possibleFields) {
+                    try {
+                        const listingsQuery = await db.collection('listings')
+                            .where(field, '==', creatorId)
+                            .get();
+                        
+                        if (listingsQuery.size > 0) {
+                            listingsCount = listingsQuery.size;
+                            console.log(`Found ${listingsCount} listings for user: ${creatorId} using field: ${field}`);
+                            break;
+                        }
+                    } catch (error) {
+                        console.log(`Field ${field} not available or no results, trying next...`);
+                        continue;
+                    }
+                }
+                
+                // If still no results, try broader search
+                if (listingsCount === 0) {
                     try {
                         const allListings = await db.collection('listings').get();
                         listingsCount = allListings.docs.filter(doc => {
                             const data = doc.data();
-                            return data.createdBy && data.createdBy.uid === creatorId;
+                            return (data.createdBy && data.createdBy.uid === creatorId) ||
+                                   data.agentId === creatorId ||
+                                   data.listerId === creatorId ||
+                                   data.userId === creatorId ||
+                                   data.ownerId === creatorId;
                         }).length;
+                        console.log(`Found ${listingsCount} listings using broader search for user: ${creatorId}`);
                     } catch (fallbackError) {
                         console.log('Fallback search also failed:', fallbackError);
                     }
@@ -2151,19 +2188,53 @@
                     }
                 }
                 
-                // Get active listings count
+                // Get active listings count - try multiple fields
                 let activeListingsCount = 0;
-                try {
-                    const activeQuery = await db.collection('listings')
-                        .where('createdBy.uid', '==', creatorId)
-                        .where('status', 'in', ['approved', 'active', 'live', 'published'])
-                        .get();
-                    activeListingsCount = activeQuery.size;
-                    console.log(`Found ${activeListingsCount} active listings for user: ${creatorId}`);
-                } catch (error) {
-                    console.log('Error fetching active listings count:', error);
-                    // If status field doesn't exist or query fails, assume all are active
-                    activeListingsCount = listingsCount;
+                let fieldUsed = null;
+                
+                // Use the same field that worked for total listings
+                for (const field of possibleFields) {
+                    try {
+                        const activeQuery = await db.collection('listings')
+                            .where(field, '==', creatorId)
+                            .where('status', 'in', ['approved', 'active', 'live', 'published'])
+                            .get();
+                        
+                        if (activeQuery.size > 0) {
+                            activeListingsCount = activeQuery.size;
+                            fieldUsed = field;
+                            console.log(`Found ${activeListingsCount} active listings for user: ${creatorId} using field: ${field}`);
+                            break;
+                        }
+                    } catch (error) {
+                        console.log(`Active listings query failed for field ${field}, trying next...`);
+                        continue;
+                    }
+                }
+                
+                // If no active listings found with status filter, try without status filter
+                if (activeListingsCount === 0) {
+                    try {
+                        const allListings = await db.collection('listings').get();
+                        activeListingsCount = allListings.docs.filter(doc => {
+                            const data = doc.data();
+                            const isUserListing = (data.createdBy && data.createdBy.uid === creatorId) ||
+                                                 data.agentId === creatorId ||
+                                                 data.listerId === creatorId ||
+                                                 data.userId === creatorId ||
+                                                 data.ownerId === creatorId;
+                            
+                            const isActive = !data.status || 
+                                           ['approved', 'active', 'live', 'published'].includes(data.status);
+                            
+                            return isUserListing && isActive;
+                        }).length;
+                        console.log(`Found ${activeListingsCount} active listings using broader search for user: ${creatorId}`);
+                    } catch (error) {
+                        console.log('Error in broader active listings search:', error);
+                        // Assume all listings are active if we can't determine
+                        activeListingsCount = listingsCount;
+                    }
                 }
                 
                 // Update stats with real data
