@@ -184,7 +184,7 @@
           </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link icon-circle" id="myListingsLink" href="../stores/index.html" title="My Listings" aria-label="My Listings">
+          <a class="nav-link icon-circle" id="myListingsLink" href="../user/my-listings.html" title="My Listings" aria-label="My Listings">
             <i class="bi bi-card-list"></i>
           </a>
         </li>
@@ -212,7 +212,7 @@
     enforceAuth('../../auth/login.html');
     // Setup My Listings link logic
     document.addEventListener('DOMContentLoaded', function() {
-        setupMyListingsLink('#myListingsLink', '../../auth/login.html', '../../stores/agent-stores/dashboard.html', '../../stores/agent-stores/create.html');
+        setupMyListingsLink('#myListingsLink', '../../auth/login.html', '../../user/my-listings.html', '../../user/my-listings.html');
     });
     // Auth button logic
     document.addEventListener('DOMContentLoaded', function() {

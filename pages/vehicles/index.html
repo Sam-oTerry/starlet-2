@@ -45,11 +45,11 @@
                 <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none" id="notification-badge">0</span>
               </a>
             </li>
-            <li class="nav-item">
-              <a class="nav-link icon-circle" id="myListingsLink" href="../stores/index.html" title="My Listings" aria-label="My Listings">
-                <i class="bi bi-card-list"></i>
-              </a>
-            </li>
+                    <li class="nav-item">
+          <a class="nav-link icon-circle" id="myListingsLink" href="../user/my-listings.html" title="My Listings" aria-label="My Listings">
+            <i class="bi bi-card-list"></i>
+          </a>
+        </li>
             <li class="nav-item">
               <a class="nav-link icon-circle" id="profileLink" href="#" title="Profile" aria-label="Profile">
                 <i class="bi bi-person"></i>
@@ -609,7 +609,7 @@ function renderFeaturedVehicles() {
     enforceAuth('/pages/auth/login.html');
     // Setup My Listings link logic
     document.addEventListener('DOMContentLoaded', function() {
-        setupMyListingsLink('#myListingsLink', '../../auth/login.html', '../../stores/agent-stores/dashboard.html', '../../stores/agent-stores/create.html');
+        setupMyListingsLink('#myListingsLink', '../../auth/login.html', '../../user/my-listings.html', '../../user/my-listings.html');
         // Initialize unread messages counter (if needed)
         if (typeof initializeUnreadMessagesCounter === 'function') {
             initializeUnreadMessagesCounter();

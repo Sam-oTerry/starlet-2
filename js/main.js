@@ -748,7 +748,7 @@ function enforceAuth(loginPath = '/pages/auth/login.html') {
     window.location.href = loginPath + '?returnUrl=' + returnUrl;
 }
 
-function setupMyListingsLink(myListingsSelector = '#myListingsLink', loginPath = '/pages/auth/login.html', agentDashboardPath = '/pages/stores/agent-stores/dashboard.html', createStorePath = '/pages/stores/agent-stores/create.html') {
+function setupMyListingsLink(myListingsSelector = '#myListingsLink', loginPath = '/pages/auth/login.html', agentDashboardPath = '/pages/user/my-listings.html', createStorePath = '/pages/user/my-listings.html') {
     const link = document.querySelector(myListingsSelector);
     if (!link) return;
     link.addEventListener('click', async function(e) {
@@ -759,26 +759,8 @@ function setupMyListingsLink(myListingsSelector = '#myListingsLink', loginPath =
             window.location.href = loginPath + '?returnUrl=' + encodeURIComponent(window.location.pathname);
             return;
         }
-        // If we already know the role
-        if (user.role === 'agent') {
-            window.location.href = agentDashboardPath;
-            return;
-        }
-        // Otherwise, check Firestore for up-to-date role
-        if (window.firebaseDB) {
-            try {
-                const userDoc = await window.firebaseDB.collection('users').doc(user.uid).get();
-                if (userDoc.exists && userDoc.data().role === 'agent') {
-                    // Update localStorage for next time
-                    user.role = 'agent';
-                    localStorage.setItem('starletUser', JSON.stringify(user));
-                    window.location.href = agentDashboardPath;
-                    return;
-                }
-            } catch (err) {}
-        }
-        // Not an agent, go to create store
-        window.location.href = createStorePath;
+        // User is logged in, go to my-listings page
+        window.location.href = agentDashboardPath;
     });
 }
 
