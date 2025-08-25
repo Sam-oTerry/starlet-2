@@ -760,7 +760,7 @@ function setupMyListingsLink(myListingsSelector = '#myListingsLink', loginPath =
             return;
         }
         // User is logged in, go to my-listings page
-        window.location.href = agentDashboardPath;
+                    window.location.href = agentDashboardPath;
     });
 }
 
