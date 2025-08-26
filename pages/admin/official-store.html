@@ -268,15 +268,14 @@
   
   // Global variables
   let officialListings = [];
-  let db, auth;
   
   // Wait for admin.js to load and then use the proper admin authentication
   document.addEventListener('DOMContentLoaded', function() {
     if (window.enforceAuth) {
       window.enforceAuth().then(user => {
-        // Initialize Firebase services
-        db = window.firebaseDB;
-        auth = window.firebaseAuth;
+        // Use existing Firebase services from admin.js
+        const db = window.firebaseDB;
+        const auth = window.firebaseAuth;
         
         // Load official store details and listings
         loadOfficialStoreDetails();
@@ -332,6 +331,7 @@
   // Fetch and render official store listings
   async function fetchAndRenderOfficialListings() {
     try {
+      const db = window.firebaseDB;
       showLoading(document.querySelector('#official-listings-table tbody'), 'Loading official store listings...');
       
       // Fetch all listings that are marked as official
@@ -552,6 +552,7 @@
   // Approve listing
   async function approveOfficialListing(listingId) {
     try {
+      const db = window.firebaseDB;
       await db.collection('listings').doc(listingId).update({
         status: 'active',
         updatedAt: new Date()
@@ -567,6 +568,7 @@
   // Reject listing
   async function rejectOfficialListing(listingId) {
     try {
+      const db = window.firebaseDB;
       await db.collection('listings').doc(listingId).update({
         status: 'rejected',
         updatedAt: new Date()
@@ -586,6 +588,7 @@
     }
     
     try {
+      const db = window.firebaseDB;
       await db.collection('listings').doc(listingId).delete();
       showToast('Listing deleted successfully');
       fetchAndRenderOfficialListings();
@@ -642,6 +645,7 @@
   
   // Batch Firestore writes
   async function batchUpdateListings(ids, updateObj) {
+    const db = window.firebaseDB;
     const batch = db.batch();
     ids.forEach(id => {
       const ref = db.collection('listings').doc(id);
@@ -651,6 +655,7 @@
   }
   
   async function batchDeleteListings(ids) {
+    const db = window.firebaseDB;
     const batch = db.batch();
     ids.forEach(id => {
       const ref = db.collection('listings').doc(id);
