@@ -227,30 +227,13 @@
   </footer>
   <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <!-- Firebase Config -->
+  <script src="../../assets/js/firebase-config.js"></script>
   <script src="../../js/admin.js"></script>
-  <!-- Firebase Initialization (ensure this is before any custom JS) -->
-  <script>
-    // Only initialize Firebase if not already initialized by admin.js
-    if (typeof firebase !== 'undefined' && typeof db === 'undefined') {
-      const firebaseConfig = {
-        apiKey: "AIzaSyDH1sMk2NwceMAEfvH07azxaoPXpOI1Sek",
-        authDomain: "starlet-properties-41509.firebaseapp.com",
-        projectId: "starlet-properties-41509",
-        storageBucket: "starlet-properties-41509.appspot.com",
-        messagingSenderId: "393372988481",
-        appId: "1:393372988481:web:c92584d7408296457b02c0",
-        measurementId: "G-F02K9SP07C"
-      };
-      if (!firebase.apps.length) {
-        firebase.initializeApp(firebaseConfig);
-      }
-      window.db = firebase.firestore();
-      window.auth = firebase.auth();
-    }
-  </script>
   <script>
     // Format fee inputs with thousands separator on blur and load
     function formatFeeInput(input) {

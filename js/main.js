@@ -399,15 +399,25 @@ window.StarletProperties = {
 
 // Firebase Auth state observer and global user
 let currentUser = null;
-if (window.firebase && firebase.auth) {
-  firebase.auth().onAuthStateChanged(function(user) {
-    currentUser = user;
-    window.currentUser = user;
-    // Optionally, update UI for logged-in state here
-    // e.g., show/hide login/signup buttons
-    renderFeaturedListings(); // re-render listings to show save/message buttons
-  });
+
+// Wait for Firebase to be initialized before setting up auth observer
+function initializeAuthObserver() {
+  if (window.firebase && firebase.apps && firebase.apps.length > 0 && firebase.auth) {
+    firebase.auth().onAuthStateChanged(function(user) {
+      currentUser = user;
+      window.currentUser = user;
+      // Optionally, update UI for logged-in state here
+      // e.g., show/hide login/signup buttons
+      renderFeaturedListings(); // re-render listings to show save/message buttons
+    });
+  } else {
+    // Retry after a short delay if Firebase isn't ready yet
+    setTimeout(initializeAuthObserver, 100);
+  }
 }
+
+// Start the auth observer initialization
+initializeAuthObserver();
 
 // Enhanced renderFeaturedListings with mixed priority listings
 async function renderFeaturedListings() {

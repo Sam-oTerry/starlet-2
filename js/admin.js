@@ -15,12 +15,12 @@ function initializeFirebase() {
     db = window.firebaseDB;
     auth = window.firebaseAuth;
     return true;
-  } else if (firebase.apps.length) {
+  } else if (firebase.apps && firebase.apps.length > 0) {
     db = firebase.firestore();
     auth = firebase.auth();
     return true;
   } else {
-    console.error('Firebase not initialized. Make sure firebase-config.js is loaded first.');
+    // Don't log error repeatedly, just return false
     return false;
   }
 }
@@ -223,13 +223,22 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   });
   
-  // Enforce admin authentication
-  enforceAdminAuth().then(user => {
-    console.log('Admin authenticated:', user);
-    // ... existing admin page logic ...
-  }).catch(error => {
-    console.error('Admin auth failed:', error);
-  });
+  // Enforce admin authentication with retry mechanism
+  const enforceAuthWithRetry = () => {
+    if (initializeFirebase()) {
+      enforceAdminAuth().then(user => {
+        console.log('Admin authenticated:', user);
+        // ... existing admin page logic ...
+      }).catch(error => {
+        console.error('Admin auth failed:', error);
+      });
+    } else {
+      // Retry after a short delay if Firebase isn't ready
+      setTimeout(enforceAuthWithRetry, 100);
+    }
+  };
+  
+  enforceAuthWithRetry();
 
   // --- Official Store Add/Edit Listing Modal Logic (Advanced) ---
   if (window.location.pathname.includes('official-store.html')) {
