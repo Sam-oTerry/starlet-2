@@ -57,7 +57,7 @@ function requireAdminUser() {
       // Check if user has admin email (primary check)
       const isAdminEmail = user.email && (
         user.email.toLowerCase() === 'admin@starletproperties.ug' ||
-        user.email.toLowerCase().includes('admin')
+        user.email.toLowerCase() === 'admin@starlet.co.ug'
       );
       
       if (isAdminEmail) {
@@ -156,7 +156,7 @@ function enforceAdminAuth() {
       // Check if user has admin email (primary check)
       const isAdminEmail = user.email && (
         user.email.toLowerCase() === 'admin@starletproperties.ug' ||
-        user.email.toLowerCase().includes('admin')
+        user.email.toLowerCase() === 'admin@starlet.co.ug'
       );
       
       if (isAdminEmail) {

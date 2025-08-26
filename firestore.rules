@@ -14,7 +14,8 @@ service cloud.firestore {
     function isAdmin() {
       return isAuthenticated() && (
         request.auth.token.email == 'admin@starletproperties.ug' ||
-        request.auth.token.email == 'admin@starlet.co.ug'
+        request.auth.token.email == 'admin@starlet.co.ug' ||
+        request.auth.token.email == 'admin@starletproperties.ug'
       );
     }
     
@@ -52,18 +53,18 @@ service cloud.firestore {
     // Conversations/Chats collection
     match /conversations/{conversationId} {
       allow read, write: if isAuthenticated() && 
-        request.auth.uid in resource.data.participants;
+        (request.auth.uid in resource.data.participants || isAdmin());
       
       // Messages subcollection
       match /messages/{messageId} {
         allow read, write: if isAuthenticated() && 
-          request.auth.uid in get(/databases/$(database)/documents/conversations/$(conversationId)).data.participants;
+          (request.auth.uid in get(/databases/$(database)/documents/conversations/$(conversationId)).data.participants || isAdmin());
       }
       
       // Typing subcollection
       match /typing/{userId} {
         allow read, write: if isAuthenticated() && 
-          request.auth.uid in get(/databases/$(database)/documents/conversations/$(conversationId)).data.participants;
+          (request.auth.uid in get(/databases/$(database)/documents/conversations/$(conversationId)).data.participants || isAdmin());
       }
     }
     
@@ -166,8 +167,8 @@ service cloud.firestore {
       allow read: if true; // Public read access
       allow create: if isAuthenticated();
       allow update: if isAuthenticated() && 
-        request.auth.uid == resource.data.userId;
-      allow delete: if false;
+        (request.auth.uid == resource.data.userId || isAdmin());
+      allow delete: if isAdmin();
     }
     
     // Messages collection (standalone messages)
@@ -175,6 +176,18 @@ service cloud.firestore {
       allow read, write: if isAuthenticated() && 
         (request.auth.uid == resource.data.senderId || 
          request.auth.uid == resource.data.recipientId);
+    }
+    
+    // Admin dashboard access - allow admin to read all documents for statistics
+    match /{collection}/{document} {
+      allow read: if isAdmin() && (
+        collection == 'listings' ||
+        collection == 'users' ||
+        collection == 'stores' ||
+        collection == 'conversations' ||
+        collection == 'reviews' ||
+        collection == 'inquiries'
+      );
     }
     
     // Default rule - deny all other access
