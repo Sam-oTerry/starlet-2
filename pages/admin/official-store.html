@@ -260,168 +260,40 @@
   <script>
   // Enforce authentication on this page
   enforceAuth('../../auth/login.html');
+  
   // Setup My Listings link logic
   document.addEventListener('DOMContentLoaded', function() {
       setupMyListingsLink('#myListingsLink', '../../auth/login.html', '../../stores/agent-stores/dashboard.html', '../../stores/agent-stores/create.html');
   });
+  
+  // Global variables
+  let officialListings = [];
+  let db, auth;
+  
   // Wait for admin.js to load and then use the proper admin authentication
   document.addEventListener('DOMContentLoaded', function() {
     if (window.enforceAuth) {
       window.enforceAuth().then(user => {
-        // --- Add/Edit Listing Modal Logic (advanced) ---
-        function showAddEditListingModal(listing = null) {
-          // Render the advanced form (copy from add.html, use modal- prefix for IDs)
-          // 1. Inject the full property and vehicle form sections into the modal, using modal- prefixes for all IDs.
-          // 2. Setup dynamic field logic, dropdowns, and Firestore-powered options (as in add.html), but scoped to modal- IDs.
-          // 3. If editing, prefill all fields.
-          // 4. On submit, build listing object as in add.html, but always set isOfficial: true and storeId: officialStoreId.
-          // 5. On success, show toast and refresh listings.
-          // (Implementation will mirror add.html, but in the modal context)
-        }
-
+        // Initialize Firebase services
+        db = window.firebaseDB;
+        auth = window.firebaseAuth;
+        
+        // Load official store details and listings
+        loadOfficialStoreDetails();
+        fetchAndRenderOfficialListings();
+        
         // Add Listing button handler
         const addListingBtn = document.getElementById('addListingBtn');
         if (addListingBtn) {
           addListingBtn.onclick = () => showAddEditListingModal();
         }
-
-        // Bulk actions and export for official listings
-        function renderOfficialListingsTable(listings) {
-          const tbody = document.querySelector('#official-listings-table tbody');
-          tbody.innerHTML = '';
-          if (!listings.length) {
-            tbody.innerHTML = `<tr><td colspan="7" class="text-center text-muted">No listings found.</td></tr>`;
-            document.getElementById('selectedCount').textContent = '';
-            return;
-          }
-          listings.forEach((l, idx) => {
-            const statusBadge = `<span class="badge bg-${l.status==='active'?'success':l.status==='pending'?'warning':l.status==='rejected'?'danger':'secondary'}">${l.status||''}</span>`;
-            tbody.innerHTML += `
-              <tr class="fade-in" style="animation-delay:${idx*0.07}s;" data-id="${l.id}">
-                <td><input type="checkbox" class="official-listing-checkbox" data-id="${l.id}" aria-label="Select listing"></td>
-                <td>${l.title||''}</td>
-                <td>${l.listingType||''}</td>
-                <td>${statusBadge}</td>
-                <td>${l.askingPrice ? 'USh ' + Number(l.askingPrice).toLocaleString() : ''}</td>
-                <td>${formatDate(l.createdAt)}</td>
-                <td>
-                  <div class="btn-group btn-group-sm" role="group">
-                    <button class="btn btn-outline-primary" onclick="showOfficialListingDetails('${l.id}')" title="View Details"><i class="bi bi-eye"></i></button>
-                    ${(l.status!=='active' && l.status!=='rejected') ? `<button class="btn btn-outline-success" onclick="verifyOfficialListing('${l.id}')" title="Approve"><i class="bi bi-patch-check"></i></button>` : ''}
-                    ${(l.status!=='rejected' && l.status!=='active') ? `<button class="btn btn-outline-danger" onclick="rejectOfficialListing('${l.id}')" title="Reject"><i class="bi bi-x-octagon"></i></button>` : ''}
-                  </div>
-                </td>
-              </tr>
-            `;
-          });
-          updateSelectedCount();
-          document.getElementById('selectAllOfficialListings').onclick = function() {
-            document.querySelectorAll('.official-listing-checkbox').forEach(cb => cb.checked = this.checked);
-            updateSelectedCount();
-          };
-          document.querySelectorAll('.official-listing-checkbox').forEach(cb => {
-            cb.onchange = updateSelectedCount;
-          });
-          // Highlight selected rows
-          document.querySelectorAll('.official-listing-checkbox').forEach(cb => {
-            cb.addEventListener('change', function() {
-              const row = cb.closest('tr');
-              if (cb.checked) row.classList.add('table-active');
-              else row.classList.remove('table-active');
-            });
-          });
-        }
-        function getSelectedOfficialListingIds() {
-          return Array.from(document.querySelectorAll('.official-listing-checkbox:checked')).map(cb => cb.getAttribute('data-id'));
-        }
-        function updateSelectedCount() {
-          const count = getSelectedOfficialListingIds().length;
-          document.getElementById('selectedCount').textContent = count ? `${count} selected` : '';
-          document.getElementById('bulkApproveBtn').disabled = count === 0;
-          document.getElementById('bulkRejectBtn').disabled = count === 0;
-          document.getElementById('bulkDeleteBtn').disabled = count === 0;
-        }
-        // Toast function
-        function showToast(message, type = 'success') {
-          const toastContainer = document.getElementById('toastContainer');
-          const toast = document.createElement('div');
-          toast.className = `toast align-items-center text-bg-${type} border-0 show`;
-          toast.role = 'alert';
-          toast.innerHTML = `<div class="d-flex"><div class="toast-body">${message}</div>
-            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button></div>`;
-          toastContainer.appendChild(toast);
-          setTimeout(() => toast.remove(), 4000);
-        }
-        // Confirmation modal
-        function showBulkConfirmModal(action, callback) {
-          const modal = new bootstrap.Modal(document.getElementById('bulkConfirmModal'));
-          let msg = '';
-          if (action === 'approve') msg = 'Approve selected listings?';
-          else if (action === 'reject') msg = 'Reject selected listings?';
-          else if (action === 'delete') msg = 'Delete selected listings? This cannot be undone.';
-          document.getElementById('bulkConfirmModalBody').textContent = msg;
-          document.getElementById('bulkConfirmModalOk').onclick = function() {
-            modal.hide();
-            callback();
-          };
-          modal.show();
-        }
-        // Batch Firestore writes
-        async function batchUpdateListings(ids, updateObj) {
-          const batch = db.batch();
-          ids.forEach(id => {
-            const ref = db.collection('listings').doc(id);
-            batch.update(ref, updateObj);
-          });
-          await batch.commit();
-        }
-        async function batchDeleteListings(ids) {
-          const batch = db.batch();
-          ids.forEach(id => {
-            const ref = db.collection('listings').doc(id);
-            batch.delete(ref);
-          });
-          await batch.commit();
-        }
-        document.getElementById('bulkApproveBtn').onclick = function() {
-          const ids = getSelectedOfficialListingIds();
-          if (!ids.length) return showToast('No listings selected', 'danger');
-          showBulkConfirmModal('approve', async () => {
-            try {
-              await batchUpdateListings(ids, { status: 'active' });
-              showToast('Selected listings approved');
-              fetchAndRenderOfficialListings();
-            } catch (e) {
-              showToast('Error approving listings', 'danger');
-            }
-          });
-        };
-        document.getElementById('bulkRejectBtn').onclick = function() {
-          const ids = getSelectedOfficialListingIds();
-          if (!ids.length) return showToast('No listings selected', 'danger');
-          showBulkConfirmModal('reject', async () => {
-            try {
-              await batchUpdateListings(ids, { status: 'rejected' });
-              showToast('Selected listings rejected', 'warning');
-              fetchAndRenderOfficialListings();
-            } catch (e) {
-              showToast('Error rejecting listings', 'danger');
-            }
-          });
-        };
-        document.getElementById('bulkDeleteBtn').onclick = function() {
-          const ids = getSelectedOfficialListingIds();
-          if (!ids.length) return showToast('No listings selected', 'danger');
-          showBulkConfirmModal('delete', async () => {
-            try {
-              await batchDeleteListings(ids);
-              showToast('Selected listings deleted', 'danger');
-              fetchAndRenderOfficialListings();
-            } catch (e) {
-              showToast('Error deleting listings', 'danger');
-            }
-          });
-        };
+        
+        // Export CSV functionality
+        document.getElementById('exportCsvBtn').onclick = exportOfficialListingsToCSV;
+        
+        // Setup bulk action handlers
+        setupBulkActions();
+        
         // Enable Bootstrap tooltips
         var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
         tooltipTriggerList.map(function (tooltipTriggerEl) {
@@ -430,6 +302,453 @@
       });
     }
   });
+  
+  // Load official store details
+  async function loadOfficialStoreDetails() {
+    try {
+      const storeDetailsContainer = document.getElementById('official-store-details');
+      
+      // For now, show a placeholder since we don't have a specific official store document
+      storeDetailsContainer.innerHTML = `
+        <div class="row">
+          <div class="col-md-6">
+            <h5><i class="bi bi-patch-check text-primary"></i> Official Store</h5>
+            <p class="text-muted mb-0">Starlet Properties Official Store</p>
+            <small class="text-muted">Managed by Starlet Properties Team</small>
+          </div>
+          <div class="col-md-6 text-md-end">
+            <div class="d-flex flex-column">
+              <span class="badge bg-primary mb-2">Official Store</span>
+              <small class="text-muted">All listings are verified and managed by our team</small>
+            </div>
+          </div>
+        </div>
+      `;
+    } catch (error) {
+      console.error('Error loading official store details:', error);
+    }
+  }
+  
+  // Fetch and render official store listings
+  async function fetchAndRenderOfficialListings() {
+    try {
+      showLoading(document.querySelector('#official-listings-table tbody'), 'Loading official store listings...');
+      
+      // Fetch all listings that are marked as official
+      const listingsSnap = await db.collection('listings')
+        .where('isOfficial', '==', true)
+        .orderBy('createdAt', 'desc')
+        .get();
+      
+      officialListings = [];
+      listingsSnap.forEach(doc => {
+        officialListings.push({
+          id: doc.id,
+          ...doc.data()
+        });
+      });
+      
+      renderOfficialListingsTable(officialListings);
+      
+    } catch (error) {
+      console.error('Error fetching official listings:', error);
+      showError(document.querySelector('#official-listings-table tbody'), 'Error loading listings: ' + error.message);
+    }
+  }
+  
+  // Render official listings table
+  function renderOfficialListingsTable(listings) {
+    const tbody = document.querySelector('#official-listings-table tbody');
+    tbody.innerHTML = '';
+    
+    if (!listings.length) {
+      tbody.innerHTML = `<tr><td colspan="7" class="text-center text-muted py-4">
+        <i class="bi bi-inbox" style="font-size: 2rem;"></i>
+        <p class="mt-2">No official store listings found</p>
+        <small>Add your first official listing using the button above</small>
+      </td></tr>`;
+      document.getElementById('selectedCount').textContent = '';
+      return;
+    }
+    
+    listings.forEach((listing, idx) => {
+      const statusBadge = getStatusBadge(listing.status);
+      const price = listing.askingPrice ? 'USh ' + Number(listing.askingPrice).toLocaleString() : 'N/A';
+      const createdAt = formatDate(listing.createdAt);
+      
+      tbody.innerHTML += `
+        <tr class="fade-in" style="animation-delay:${idx*0.07}s;" data-id="${listing.id}">
+          <td><input type="checkbox" class="official-listing-checkbox" data-id="${listing.id}" aria-label="Select listing"></td>
+          <td>
+            <div class="d-flex align-items-center">
+              <img src="${listing.images && listing.images[0] ? listing.images[0] : '../../img/placeholder-property.svg'}" 
+                   class="rounded me-2" width="40" height="40" style="object-fit: cover;" alt="Listing">
+              <div>
+                <strong>${listing.title || 'Untitled Listing'}</strong>
+                <br><small class="text-muted">${listing.location || 'Location not specified'}</small>
+              </div>
+            </div>
+          </td>
+          <td><span class="badge bg-info">${listing.listingType || 'Unknown'}</span></td>
+          <td>${statusBadge}</td>
+          <td><strong>${price}</strong></td>
+          <td><small>${createdAt}</small></td>
+          <td>
+            <div class="btn-group btn-group-sm" role="group">
+              <button class="btn btn-outline-primary" onclick="showOfficialListingDetails('${listing.id}')" title="View Details">
+                <i class="bi bi-eye"></i>
+              </button>
+              <button class="btn btn-outline-secondary" onclick="editOfficialListing('${listing.id}')" title="Edit">
+                <i class="bi bi-pencil"></i>
+              </button>
+              ${(listing.status !== 'active' && listing.status !== 'rejected') ? 
+                `<button class="btn btn-outline-success" onclick="approveOfficialListing('${listing.id}')" title="Approve">
+                  <i class="bi bi-patch-check"></i>
+                </button>` : ''}
+              ${(listing.status !== 'rejected' && listing.status !== 'active') ? 
+                `<button class="btn btn-outline-danger" onclick="rejectOfficialListing('${listing.id}')" title="Reject">
+                  <i class="bi bi-x-octagon"></i>
+                </button>` : ''}
+              <button class="btn btn-outline-danger" onclick="deleteOfficialListing('${listing.id}')" title="Delete">
+                <i class="bi bi-trash"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+      `;
+    });
+    
+    setupTableInteractions();
+  }
+  
+  // Get status badge HTML
+  function getStatusBadge(status) {
+    const statusConfig = {
+      'active': { class: 'success', text: 'Active' },
+      'pending': { class: 'warning', text: 'Pending' },
+      'rejected': { class: 'danger', text: 'Rejected' },
+      'draft': { class: 'secondary', text: 'Draft' }
+    };
+    
+    const config = statusConfig[status] || { class: 'secondary', text: 'Unknown' };
+    return `<span class="badge bg-${config.class}">${config.text}</span>`;
+  }
+  
+  // Setup table interactions
+  function setupTableInteractions() {
+    updateSelectedCount();
+    
+    // Select all checkbox
+    document.getElementById('selectAllOfficialListings').onclick = function() {
+      const checkboxes = document.querySelectorAll('.official-listing-checkbox');
+      checkboxes.forEach(cb => cb.checked = this.checked);
+      updateSelectedCount();
+      updateRowHighlighting();
+    };
+    
+    // Individual checkboxes
+    document.querySelectorAll('.official-listing-checkbox').forEach(cb => {
+      cb.onchange = function() {
+        updateSelectedCount();
+        updateRowHighlighting();
+      };
+    });
+  }
+  
+  // Update selected count and button states
+  function updateSelectedCount() {
+    const count = getSelectedOfficialListingIds().length;
+    document.getElementById('selectedCount').textContent = count ? `${count} selected` : '';
+    document.getElementById('bulkApproveBtn').disabled = count === 0;
+    document.getElementById('bulkRejectBtn').disabled = count === 0;
+    document.getElementById('bulkDeleteBtn').disabled = count === 0;
+  }
+  
+  // Update row highlighting
+  function updateRowHighlighting() {
+    document.querySelectorAll('.official-listing-checkbox').forEach(cb => {
+      const row = cb.closest('tr');
+      if (cb.checked) {
+        row.classList.add('table-active');
+      } else {
+        row.classList.remove('table-active');
+      }
+    });
+  }
+  
+  // Get selected listing IDs
+  function getSelectedOfficialListingIds() {
+    return Array.from(document.querySelectorAll('.official-listing-checkbox:checked')).map(cb => cb.getAttribute('data-id'));
+  }
+  
+  // Show listing details modal
+  async function showOfficialListingDetails(listingId) {
+    try {
+      const listing = officialListings.find(l => l.id === listingId);
+      if (!listing) {
+        showToast('Listing not found', 'danger');
+        return;
+      }
+      
+      const modal = new bootstrap.Modal(document.getElementById('officialListingDetailsModal'));
+      const modalBody = document.querySelector('#officialListingDetailsModal .modal-body');
+      
+      modalBody.innerHTML = `
+        <div class="row">
+          <div class="col-md-6">
+            <img src="${listing.images && listing.images[0] ? listing.images[0] : '../../img/placeholder-property.svg'}" 
+                 class="img-fluid rounded" alt="Listing Image">
+          </div>
+          <div class="col-md-6">
+            <h5>${listing.title || 'Untitled Listing'}</h5>
+            <p class="text-muted">${listing.description || 'No description available'}</p>
+            <div class="row">
+              <div class="col-6">
+                <strong>Type:</strong><br>
+                <span class="badge bg-info">${listing.listingType || 'Unknown'}</span>
+              </div>
+              <div class="col-6">
+                <strong>Status:</strong><br>
+                ${getStatusBadge(listing.status)}
+              </div>
+            </div>
+            <div class="row mt-2">
+              <div class="col-6">
+                <strong>Price:</strong><br>
+                <span class="text-primary">${listing.askingPrice ? 'USh ' + Number(listing.askingPrice).toLocaleString() : 'N/A'}</span>
+              </div>
+              <div class="col-6">
+                <strong>Location:</strong><br>
+                <small>${listing.location || 'Not specified'}</small>
+              </div>
+            </div>
+            <div class="row mt-2">
+              <div class="col-6">
+                <strong>Created:</strong><br>
+                <small>${formatDate(listing.createdAt)}</small>
+              </div>
+              <div class="col-6">
+                <strong>Updated:</strong><br>
+                <small>${formatDate(listing.updatedAt)}</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+      
+      modal.show();
+    } catch (error) {
+      console.error('Error showing listing details:', error);
+      showToast('Error loading listing details', 'danger');
+    }
+  }
+  
+  // Edit listing
+  function editOfficialListing(listingId) {
+    showToast('Edit functionality coming soon', 'info');
+    // TODO: Implement edit functionality
+  }
+  
+  // Approve listing
+  async function approveOfficialListing(listingId) {
+    try {
+      await db.collection('listings').doc(listingId).update({
+        status: 'active',
+        updatedAt: new Date()
+      });
+      showToast('Listing approved successfully');
+      fetchAndRenderOfficialListings();
+    } catch (error) {
+      console.error('Error approving listing:', error);
+      showToast('Error approving listing', 'danger');
+    }
+  }
+  
+  // Reject listing
+  async function rejectOfficialListing(listingId) {
+    try {
+      await db.collection('listings').doc(listingId).update({
+        status: 'rejected',
+        updatedAt: new Date()
+      });
+      showToast('Listing rejected');
+      fetchAndRenderOfficialListings();
+    } catch (error) {
+      console.error('Error rejecting listing:', error);
+      showToast('Error rejecting listing', 'danger');
+    }
+  }
+  
+  // Delete listing
+  async function deleteOfficialListing(listingId) {
+    if (!confirm('Are you sure you want to delete this listing? This action cannot be undone.')) {
+      return;
+    }
+    
+    try {
+      await db.collection('listings').doc(listingId).delete();
+      showToast('Listing deleted successfully');
+      fetchAndRenderOfficialListings();
+    } catch (error) {
+      console.error('Error deleting listing:', error);
+      showToast('Error deleting listing', 'danger');
+    }
+  }
+  
+  // Setup bulk actions
+  function setupBulkActions() {
+    document.getElementById('bulkApproveBtn').onclick = function() {
+      const ids = getSelectedOfficialListingIds();
+      if (!ids.length) return showToast('No listings selected', 'danger');
+      showBulkConfirmModal('approve', async () => {
+        try {
+          await batchUpdateListings(ids, { status: 'active', updatedAt: new Date() });
+          showToast('Selected listings approved');
+          fetchAndRenderOfficialListings();
+        } catch (e) {
+          showToast('Error approving listings', 'danger');
+        }
+      });
+    };
+    
+    document.getElementById('bulkRejectBtn').onclick = function() {
+      const ids = getSelectedOfficialListingIds();
+      if (!ids.length) return showToast('No listings selected', 'danger');
+      showBulkConfirmModal('reject', async () => {
+        try {
+          await batchUpdateListings(ids, { status: 'rejected', updatedAt: new Date() });
+          showToast('Selected listings rejected', 'warning');
+          fetchAndRenderOfficialListings();
+        } catch (e) {
+          showToast('Error rejecting listings', 'danger');
+        }
+      });
+    };
+    
+    document.getElementById('bulkDeleteBtn').onclick = function() {
+      const ids = getSelectedOfficialListingIds();
+      if (!ids.length) return showToast('No listings selected', 'danger');
+      showBulkConfirmModal('delete', async () => {
+        try {
+          await batchDeleteListings(ids);
+          showToast('Selected listings deleted', 'danger');
+          fetchAndRenderOfficialListings();
+        } catch (e) {
+          showToast('Error deleting listings', 'danger');
+        }
+      });
+    };
+  }
+  
+  // Batch Firestore writes
+  async function batchUpdateListings(ids, updateObj) {
+    const batch = db.batch();
+    ids.forEach(id => {
+      const ref = db.collection('listings').doc(id);
+      batch.update(ref, updateObj);
+    });
+    await batch.commit();
+  }
+  
+  async function batchDeleteListings(ids) {
+    const batch = db.batch();
+    ids.forEach(id => {
+      const ref = db.collection('listings').doc(id);
+      batch.delete(ref);
+    });
+    await batch.commit();
+  }
+  
+  // Export to CSV
+  function exportOfficialListingsToCSV() {
+    if (!officialListings.length) {
+      showToast('No listings to export', 'warning');
+      return;
+    }
+    
+    const headers = ['Title', 'Type', 'Status', 'Price', 'Location', 'Created', 'Description'];
+    const csvContent = [
+      headers.join(','),
+      ...officialListings.map(listing => [
+        `"${listing.title || ''}"`,
+        listing.listingType || '',
+        listing.status || '',
+        listing.askingPrice || '',
+        `"${listing.location || ''}"`,
+        formatDate(listing.createdAt),
+        `"${(listing.description || '').replace(/"/g, '""')}"`
+      ].join(','))
+    ].join('\n');
+    
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `official-store-listings-${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+    window.URL.revokeObjectURL(url);
+    
+    showToast('CSV exported successfully');
+  }
+  
+  // Show add/edit listing modal
+  function showAddEditListingModal(listing = null) {
+    showToast('Add/Edit functionality coming soon', 'info');
+    // TODO: Implement add/edit modal functionality
+  }
+  
+  // Toast function
+  function showToast(message, type = 'success') {
+    const toastContainer = document.getElementById('toastContainer');
+    const toast = document.createElement('div');
+    toast.className = `toast align-items-center text-bg-${type} border-0 show`;
+    toast.role = 'alert';
+    toast.innerHTML = `<div class="d-flex"><div class="toast-body">${message}</div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button></div>`;
+    toastContainer.appendChild(toast);
+    setTimeout(() => toast.remove(), 4000);
+  }
+  
+  // Confirmation modal
+  function showBulkConfirmModal(action, callback) {
+    const modal = new bootstrap.Modal(document.getElementById('bulkConfirmModal'));
+    let msg = '';
+    if (action === 'approve') msg = 'Approve selected listings?';
+    else if (action === 'reject') msg = 'Reject selected listings?';
+    else if (action === 'delete') msg = 'Delete selected listings? This cannot be undone.';
+    document.getElementById('bulkConfirmModalBody').textContent = msg;
+    document.getElementById('bulkConfirmModalOk').onclick = function() {
+      modal.hide();
+      callback();
+    };
+    modal.show();
+  }
+  
+  // Loading and error utilities
+  function showLoading(container, message = "Loading...") {
+    if (container) {
+      container.innerHTML = `<tr><td colspan="7" class="text-center text-muted py-4">
+        <div class="spinner-border text-primary"></div>
+        <div class="mt-2">${message}</div>
+      </td></tr>`;
+    }
+  }
+  
+  function showError(container, error) {
+    if (container) {
+      container.innerHTML = `<tr><td colspan="7" class="text-center text-danger py-4">
+        <i class="bi bi-exclamation-triangle" style="font-size: 2rem;"></i>
+        <div class="mt-2">${error}</div>
+      </td></tr>`;
+    }
+  }
+  
+  // Make functions globally available
+  window.showOfficialListingDetails = showOfficialListingDetails;
+  window.editOfficialListing = editOfficialListing;
+  window.approveOfficialListing = approveOfficialListing;
+  window.rejectOfficialListing = rejectOfficialListing;
+  window.deleteOfficialListing = deleteOfficialListing;
   </script>
 </body>
 </html> 
