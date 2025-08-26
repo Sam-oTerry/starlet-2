@@ -7,8 +7,8 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   <link href="../../css/style.css" rel="stylesheet">
-  <style>
-         /* Sidebar Toggle Functionality */
+     <style>
+     /* Sidebar Toggle Functionality */
      .admin-sidebar {
        position: fixed;
        top: 0;
@@ -50,66 +50,66 @@
        margin: 0;
        font-size: 1.2rem;
      }
-    
-    .admin-sidebar .sidebar-header {
-      border-bottom: 1px solid rgba(255,255,255,0.1);
-      background: rgba(0,0,0,0.1);
-    }
-    
-    .admin-sidebar .sidebar-brand {
-      font-size: 1.25rem;
-      font-weight: 600;
-    }
-    
-    .admin-sidebar .nav-link {
-      color: rgba(255,255,255,0.8);
-      padding: 0.75rem 1rem;
-      border-radius: 8px;
-      margin-bottom: 0.25rem;
-      transition: all 0.3s ease;
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-    }
-    
-    .admin-sidebar .nav-link:hover {
-      color: white;
-      background: rgba(255,255,255,0.1);
-      transform: translateX(5px);
-    }
-    
-    .admin-sidebar .nav-link.active {
-      background: #0d6efd;
-      color: white;
-      box-shadow: 0 2px 8px rgba(13, 110, 253, 0.3);
-    }
-    
-    .admin-sidebar .nav-link i {
-      width: 20px;
-      text-align: center;
-    }
-    
-    /* Sidebar Toggle Button */
-    .sidebar-toggle {
-      transition: all 0.3s ease;
-      border-radius: 8px;
-      padding: 0.5rem 0.75rem;
-    }
-    
-    .sidebar-toggle:hover {
-      transform: scale(1.05);
-      box-shadow: 0 2px 8px rgba(13, 110, 253, 0.2);
-    }
-    
-    .sidebar-toggle .bi-list {
-      transition: transform 0.3s ease;
-    }
-    
-    .sidebar-toggle.active .bi-list {
-      transform: rotate(90deg);
-    }
-    
-         /* Main Content Adjustment */
+     
+     .admin-sidebar .sidebar-header {
+       border-bottom: 1px solid rgba(255,255,255,0.1);
+       background: rgba(0,0,0,0.1);
+     }
+     
+     .admin-sidebar .sidebar-brand {
+       font-size: 1.25rem;
+       font-weight: 600;
+     }
+     
+     .admin-sidebar .nav-link {
+       color: rgba(255,255,255,0.8);
+       padding: 0.75rem 1rem;
+       border-radius: 8px;
+       margin-bottom: 0.25rem;
+       transition: all 0.3s ease;
+       display: flex;
+       align-items: center;
+       gap: 0.75rem;
+     }
+     
+     .admin-sidebar .nav-link:hover {
+       color: white;
+       background: rgba(255,255,255,0.1);
+       transform: translateX(5px);
+     }
+     
+     .admin-sidebar .nav-link.active {
+       background: #0d6efd;
+       color: white;
+       box-shadow: 0 2px 8px rgba(13, 110, 253, 0.3);
+     }
+     
+     .admin-sidebar .nav-link i {
+       width: 20px;
+       text-align: center;
+     }
+     
+     /* Sidebar Toggle Button */
+     .sidebar-toggle {
+       transition: all 0.3s ease;
+       border-radius: 8px;
+       padding: 0.5rem 0.75rem;
+     }
+     
+     .sidebar-toggle:hover {
+       transform: scale(1.05);
+       box-shadow: 0 2px 8px rgba(13, 110, 253, 0.2);
+     }
+     
+     .sidebar-toggle .bi-list {
+       transition: transform 0.3s ease;
+     }
+     
+     .sidebar-toggle.active .bi-list {
+       transform: rotate(90deg);
+     }
+     
+     /* Main Content Adjustment */
      .admin-panel {
        padding-left: 280px;
        transition: padding-left 0.3s ease;
@@ -118,30 +118,30 @@
      .admin-panel.sidebar-collapsed {
        padding-left: 70px;
      }
-    
-    /* Admin Navbar */
-    .admin-navbar {
-      background: white;
-      border-bottom: 1px solid #dee2e6;
-      padding: 1rem 2rem;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-      position: sticky;
-      top: 0;
-      z-index: 1030;
-    }
-    
-    /* Notification Badge */
-    #notificationBadge {
-      animation: pulse 2s infinite;
-    }
-    
-    @keyframes pulse {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.1); }
-      100% { transform: scale(1); }
-    }
-    
-         /* Responsive adjustments */
+     
+     /* Admin Navbar */
+     .admin-navbar {
+       background: white;
+       border-bottom: 1px solid #dee2e6;
+       padding: 1rem 2rem;
+       box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+       position: sticky;
+       top: 0;
+       z-index: 1030;
+     }
+     
+     /* Notification Badge */
+     #notificationBadge {
+       animation: pulse 2s infinite;
+     }
+     
+     @keyframes pulse {
+       0% { transform: scale(1); }
+       50% { transform: scale(1.1); }
+       100% { transform: scale(1); }
+     }
+     
+     /* Responsive adjustments */
      @media (max-width: 768px) {
        /* Mobile sidebar behavior */
        .admin-sidebar {
@@ -170,17 +170,17 @@
          padding: 1rem;
        }
      }
-    
-    @media (max-width: 576px) {
-      .admin-navbar .navbar-brand {
-        font-size: 1rem;
-      }
-      
-      .sidebar-toggle {
-        padding: 0.4rem 0.6rem;
-      }
-    }
-  </style>
+     
+     @media (max-width: 576px) {
+       .admin-navbar .navbar-brand {
+         font-size: 1rem;
+       }
+       
+       .sidebar-toggle {
+         padding: 0.4rem 0.6rem;
+       }
+     }
+   </style>
 </head>
 <body class="admin-panel">
   <!-- Admin Sidebar -->
@@ -672,30 +672,30 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="../../assets/js/firebase-config.js"></script>
   <script src="../../js/add-official-listing.js"></script>
-  <script>
-    // Setup sidebar toggle functionality
-    document.addEventListener('DOMContentLoaded', function() {
-      setupSidebarToggle();
-    });
-    
-    function setupSidebarToggle() {
-      const sidebarToggle = document.getElementById('sidebarToggle');
-      const sidebarCloseBtn = document.getElementById('sidebarCloseBtn');
-      const sidebar = document.getElementById('adminSidebar');
-      const adminPanel = document.querySelector('.admin-panel');
-      const toggleIcon = document.getElementById('sidebarToggleIcon');
-      
-      // Get saved sidebar state
-      const sidebarCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
-      
-             // Initialize sidebar state (only on desktop)
+     <script>
+     // Setup sidebar toggle functionality
+     document.addEventListener('DOMContentLoaded', function() {
+       setupSidebarToggle();
+     });
+     
+     function setupSidebarToggle() {
+       const sidebarToggle = document.getElementById('sidebarToggle');
+       const sidebarCloseBtn = document.getElementById('sidebarCloseBtn');
+       const sidebar = document.getElementById('adminSidebar');
+       const adminPanel = document.querySelector('.admin-panel');
+       const toggleIcon = document.getElementById('sidebarToggleIcon');
+       
+       // Get saved sidebar state
+       const sidebarCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+       
+       // Initialize sidebar state (only on desktop)
        if (window.innerWidth > 768 && sidebarCollapsed) {
          sidebar.classList.add('collapsed');
          adminPanel.classList.add('sidebar-collapsed');
          sidebarToggle.classList.add('active');
        }
-      
-             // Toggle sidebar
+       
+       // Toggle sidebar
        sidebarToggle.addEventListener('click', () => {
          // Only toggle on desktop
          if (window.innerWidth > 768) {
@@ -724,13 +724,13 @@
            }
          }
        });
-      
-      // Close sidebar on mobile
-      sidebarCloseBtn.addEventListener('click', () => {
-        sidebar.classList.remove('show');
-      });
-      
-             // Handle mobile sidebar behavior
+       
+       // Close sidebar on mobile
+       sidebarCloseBtn.addEventListener('click', () => {
+         sidebar.classList.remove('show');
+       });
+       
+       // Handle mobile sidebar behavior
        function handleMobileSidebar() {
          if (window.innerWidth <= 768) {
            // On mobile, always use overlay behavior
@@ -752,22 +752,22 @@
            }
          }
        }
-      
-      // Handle window resize
-      window.addEventListener('resize', handleMobileSidebar);
-      
-      // Initial mobile check
-      handleMobileSidebar();
-      
-      // Close sidebar when clicking outside on mobile
-      document.addEventListener('click', (e) => {
-        if (window.innerWidth <= 768) {
-          if (!sidebar.contains(e.target) && !sidebarToggle.contains(e.target)) {
-            sidebar.classList.remove('show');
-          }
-        }
-      });
-    }
-  </script>
+       
+       // Handle window resize
+       window.addEventListener('resize', handleMobileSidebar);
+       
+       // Initial mobile check
+       handleMobileSidebar();
+       
+       // Close sidebar when clicking outside on mobile
+       document.addEventListener('click', (e) => {
+         if (window.innerWidth <= 768) {
+           if (!sidebar.contains(e.target) && !sidebarToggle.contains(e.target)) {
+             sidebar.classList.remove('show');
+           }
+         }
+       });
+     }
+   </script>
 </body>
 </html> 
