@@ -14,6 +14,62 @@
   <link rel="stylesheet" href="../../css/style.css">
   <link rel="icon" type="image/x-icon" href="../../favicon.ico">
   <meta http-equiv="Content-Security-Policy" content="img-src 'self' data: https:;">
+  <style>
+    /* Card animations and styling */
+    .fade-in {
+      animation: fadeIn 0.5s ease-in-out;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .listing-card {
+      transition: all 0.3s ease;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    
+    .listing-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    }
+    
+    .listing-card.border-primary {
+      border-width: 2px !important;
+    }
+    
+    .listing-card .card-header {
+      background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+      border-bottom: 1px solid #dee2e6;
+    }
+    
+    .listing-card .btn-group .btn {
+      border-radius: 6px;
+      margin: 0 1px;
+    }
+    
+    .listing-card .card-img-top {
+      transition: transform 0.3s ease;
+    }
+    
+    .listing-card:hover .card-img-top {
+      transform: scale(1.05);
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      .listing-card .btn-group {
+        flex-wrap: wrap;
+      }
+      
+      .listing-card .btn-group .btn {
+        flex: 1;
+        min-width: 40px;
+      }
+    }
+  </style>
 </head>
 <body class="admin-panel">
   <!-- Admin Sidebar as Bootstrap Offcanvas -->
@@ -103,28 +159,24 @@
           </div>
         </div>
       </div>
-      <div class="card card-modern">
-        <div class="card-body">
-          <div class="table-responsive">
-            <table class="table table-hover align-middle" id="official-listings-table">
-              <thead>
-                <tr>
-                  <th><input type="checkbox" id="selectAllOfficialListings"></th>
-                  <th>Title</th>
-                  <th>Type</th>
-                  <th>Status</th>
-                  <th>Price</th>
-                  <th>Created</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                <!-- Listings will be injected here by JS -->
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
+             <div class="card card-modern">
+         <div class="card-body">
+           <!-- Select All Checkbox -->
+           <div class="d-flex align-items-center mb-3">
+             <div class="form-check">
+               <input class="form-check-input" type="checkbox" id="selectAllOfficialListings">
+               <label class="form-check-label" for="selectAllOfficialListings">
+                 Select All Listings
+               </label>
+             </div>
+           </div>
+           
+           <!-- Listings Grid -->
+           <div class="row" id="official-listings-grid">
+             <!-- Listings will be injected here by JS -->
+           </div>
+         </div>
+       </div>
       <!-- Listing Details Modal -->
       <div class="modal fade" id="officialListingDetailsModal" tabindex="-1" aria-labelledby="officialListingDetailsModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg">
@@ -332,7 +384,7 @@
   async function fetchAndRenderOfficialListings() {
     try {
       const db = window.firebaseDB;
-      showLoading(document.querySelector('#official-listings-table tbody'), 'Loading official store listings...');
+      showLoading(document.querySelector('#official-listings-grid'), 'Loading official store listings...');
       
       // Fetch all listings that are marked as official
       const listingsSnap = await db.collection('listings')
@@ -348,25 +400,27 @@
         });
       });
       
-      renderOfficialListingsTable(officialListings);
+      renderOfficialListingsCards(officialListings);
       
     } catch (error) {
       console.error('Error fetching official listings:', error);
-      showError(document.querySelector('#official-listings-table tbody'), 'Error loading listings: ' + error.message);
+      showError(document.querySelector('#official-listings-grid'), 'Error loading listings: ' + error.message);
     }
   }
   
-  // Render official listings table
-  function renderOfficialListingsTable(listings) {
-    const tbody = document.querySelector('#official-listings-table tbody');
-    tbody.innerHTML = '';
+  // Render official listings cards
+  function renderOfficialListingsCards(listings) {
+    const grid = document.querySelector('#official-listings-grid');
+    grid.innerHTML = '';
     
     if (!listings.length) {
-      tbody.innerHTML = `<tr><td colspan="7" class="text-center text-muted py-4">
-        <i class="bi bi-inbox" style="font-size: 2rem;"></i>
-        <p class="mt-2">No official store listings found</p>
-        <small>Add your first official listing using the button above</small>
-      </td></tr>`;
+      grid.innerHTML = `
+        <div class="col-12 text-center text-muted py-5">
+          <i class="bi bi-inbox" style="font-size: 3rem;"></i>
+          <h5 class="mt-3">No official store listings found</h5>
+          <p class="text-muted">Add your first official listing using the button above</p>
+        </div>
+      `;
       document.getElementById('selectedCount').textContent = '';
       return;
     }
@@ -375,50 +429,79 @@
       const statusBadge = getStatusBadge(listing.status);
       const price = listing.askingPrice ? 'USh ' + Number(listing.askingPrice).toLocaleString() : 'N/A';
       const createdAt = formatDate(listing.createdAt);
+      const location = listing.location || 'Location not specified';
+      const title = listing.title || 'Untitled Listing';
+      const listingType = listing.listingType || 'Unknown';
       
-      tbody.innerHTML += `
-        <tr class="fade-in" style="animation-delay:${idx*0.07}s;" data-id="${listing.id}">
-          <td><input type="checkbox" class="official-listing-checkbox" data-id="${listing.id}" aria-label="Select listing"></td>
-          <td>
-            <div class="d-flex align-items-center">
-              <img src="${listing.images && listing.images[0] ? listing.images[0] : '../../img/placeholder-property.svg'}" 
-                   class="rounded me-2" width="40" height="40" style="object-fit: cover;" alt="Listing">
-              <div>
-                <strong>${listing.title || 'Untitled Listing'}</strong>
-                <br><small class="text-muted">${listing.location || 'Location not specified'}</small>
+      const card = document.createElement('div');
+      card.className = 'col-lg-4 col-md-6 col-sm-12 mb-4 fade-in';
+      card.style.animationDelay = `${idx * 0.1}s`;
+      card.setAttribute('data-id', listing.id);
+      
+      card.innerHTML = `
+        <div class="card h-100 listing-card ${listing.status === 'active' ? 'border-success' : listing.status === 'rejected' ? 'border-danger' : 'border-warning'}">
+          <div class="card-header d-flex justify-content-between align-items-start p-3">
+            <div class="form-check">
+              <input class="form-check-input official-listing-checkbox" type="checkbox" data-id="${listing.id}" aria-label="Select listing">
+            </div>
+            <div class="d-flex gap-1">
+              ${statusBadge}
+              <span class="badge bg-info">${listingType}</span>
+            </div>
+          </div>
+          
+          <div class="card-img-top position-relative" style="height: 200px; overflow: hidden;">
+            <img src="${listing.images && listing.images[0] ? listing.images[0] : '../../img/placeholder-property.svg'}" 
+                 class="w-100 h-100" style="object-fit: cover;" alt="${title}">
+            <div class="position-absolute top-0 end-0 m-2">
+              <span class="badge bg-dark bg-opacity-75">${price}</span>
+            </div>
+          </div>
+          
+          <div class="card-body d-flex flex-column">
+            <h6 class="card-title mb-2">${title}</h6>
+            <p class="card-text text-muted small mb-3">
+              <i class="bi bi-geo-alt"></i> ${location}
+            </p>
+            
+            <div class="mt-auto">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <small class="text-muted">
+                  <i class="bi bi-calendar"></i> ${createdAt}
+                </small>
+                <small class="text-muted">
+                  <i class="bi bi-eye"></i> ${listing.views || 0} views
+                </small>
+              </div>
+              
+              <div class="btn-group w-100" role="group">
+                <button class="btn btn-outline-primary btn-sm" onclick="showOfficialListingDetails('${listing.id}')" title="View Details">
+                  <i class="bi bi-eye"></i>
+                </button>
+                <button class="btn btn-outline-secondary btn-sm" onclick="editOfficialListing('${listing.id}')" title="Edit">
+                  <i class="bi bi-pencil"></i>
+                </button>
+                ${(listing.status !== 'active' && listing.status !== 'rejected') ? 
+                  `<button class="btn btn-outline-success btn-sm" onclick="approveOfficialListing('${listing.id}')" title="Approve">
+                    <i class="bi bi-patch-check"></i>
+                  </button>` : ''}
+                ${(listing.status !== 'rejected' && listing.status !== 'active') ? 
+                  `<button class="btn btn-outline-danger btn-sm" onclick="rejectOfficialListing('${listing.id}')" title="Reject">
+                    <i class="bi bi-x-octagon"></i>
+                  </button>` : ''}
+                <button class="btn btn-outline-danger btn-sm" onclick="deleteOfficialListing('${listing.id}')" title="Delete">
+                  <i class="bi bi-trash"></i>
+                </button>
               </div>
             </div>
-          </td>
-          <td><span class="badge bg-info">${listing.listingType || 'Unknown'}</span></td>
-          <td>${statusBadge}</td>
-          <td><strong>${price}</strong></td>
-          <td><small>${createdAt}</small></td>
-          <td>
-            <div class="btn-group btn-group-sm" role="group">
-              <button class="btn btn-outline-primary" onclick="showOfficialListingDetails('${listing.id}')" title="View Details">
-                <i class="bi bi-eye"></i>
-              </button>
-              <button class="btn btn-outline-secondary" onclick="editOfficialListing('${listing.id}')" title="Edit">
-                <i class="bi bi-pencil"></i>
-              </button>
-              ${(listing.status !== 'active' && listing.status !== 'rejected') ? 
-                `<button class="btn btn-outline-success" onclick="approveOfficialListing('${listing.id}')" title="Approve">
-                  <i class="bi bi-patch-check"></i>
-                </button>` : ''}
-              ${(listing.status !== 'rejected' && listing.status !== 'active') ? 
-                `<button class="btn btn-outline-danger" onclick="rejectOfficialListing('${listing.id}')" title="Reject">
-                  <i class="bi bi-x-octagon"></i>
-                </button>` : ''}
-              <button class="btn btn-outline-danger" onclick="deleteOfficialListing('${listing.id}')" title="Delete">
-                <i class="bi bi-trash"></i>
-              </button>
-            </div>
-          </td>
-        </tr>
+          </div>
+        </div>
       `;
+      
+      grid.appendChild(card);
     });
     
-    setupTableInteractions();
+    setupCardInteractions();
   }
   
   // Get status badge HTML
@@ -434,8 +517,8 @@
     return `<span class="badge bg-${config.class}">${config.text}</span>`;
   }
   
-  // Setup table interactions
-  function setupTableInteractions() {
+  // Setup card interactions
+  function setupCardInteractions() {
     updateSelectedCount();
     
     // Select all checkbox
@@ -443,14 +526,14 @@
       const checkboxes = document.querySelectorAll('.official-listing-checkbox');
       checkboxes.forEach(cb => cb.checked = this.checked);
       updateSelectedCount();
-      updateRowHighlighting();
+      updateCardHighlighting();
     };
     
     // Individual checkboxes
     document.querySelectorAll('.official-listing-checkbox').forEach(cb => {
       cb.onchange = function() {
         updateSelectedCount();
-        updateRowHighlighting();
+        updateCardHighlighting();
       };
     });
   }
@@ -464,14 +547,14 @@
     document.getElementById('bulkDeleteBtn').disabled = count === 0;
   }
   
-  // Update row highlighting
-  function updateRowHighlighting() {
+  // Update card highlighting
+  function updateCardHighlighting() {
     document.querySelectorAll('.official-listing-checkbox').forEach(cb => {
-      const row = cb.closest('tr');
+      const card = cb.closest('.listing-card');
       if (cb.checked) {
-        row.classList.add('table-active');
+        card.classList.add('border-primary', 'shadow');
       } else {
-        row.classList.remove('table-active');
+        card.classList.remove('border-primary', 'shadow');
       }
     });
   }
@@ -732,19 +815,23 @@
   // Loading and error utilities
   function showLoading(container, message = "Loading...") {
     if (container) {
-      container.innerHTML = `<tr><td colspan="7" class="text-center text-muted py-4">
-        <div class="spinner-border text-primary"></div>
-        <div class="mt-2">${message}</div>
-      </td></tr>`;
+      container.innerHTML = `
+        <div class="col-12 text-center text-muted py-5">
+          <div class="spinner-border text-primary"></div>
+          <div class="mt-3">${message}</div>
+        </div>
+      `;
     }
   }
   
   function showError(container, error) {
     if (container) {
-      container.innerHTML = `<tr><td colspan="7" class="text-center text-danger py-4">
-        <i class="bi bi-exclamation-triangle" style="font-size: 2rem;"></i>
-        <div class="mt-2">${error}</div>
-      </td></tr>`;
+      container.innerHTML = `
+        <div class="col-12 text-center text-danger py-5">
+          <i class="bi bi-exclamation-triangle" style="font-size: 3rem;"></i>
+          <div class="mt-3">${error}</div>
+        </div>
+      `;
     }
   }
   
