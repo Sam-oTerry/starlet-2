@@ -224,7 +224,7 @@
     <div class="sidebar-header d-flex align-items-center justify-content-between p-3">
       <div class="sidebar-brand">
         <span class="brand-star">Star</span><span class="brand-let">Let</span> Admin
-      </div>
+    </div>
       <button type="button" class="btn-close btn-close-white d-lg-none" id="sidebarCloseBtn" aria-label="Close sidebar"></button>
     </div>
     <div class="sidebar-content p-3">
@@ -312,19 +312,19 @@
         </button>
       </div>
       <!-- Profile Dropdown -->
-      <div class="profile-dropdown dropdown">
-        <a class="d-flex align-items-center text-decoration-none dropdown-toggle" href="#" id="profileDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-          <span class="profile-avatar me-2">
-            <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiByeD0iNCIgZmlsbD0iIzBkNmVmZCIvPgo8dGV4dCB4PSIxNiIgeT0iMjAiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNCIgZm9udC13ZWlnaHQ9ImJvbGQiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5BPC90ZXh0Pgo8L3N2Zz4K" alt="Admin">
-          </span>
-          <span id="adminName">Admin</span>
-        </a>
-        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
+    <div class="profile-dropdown dropdown">
+      <a class="d-flex align-items-center text-decoration-none dropdown-toggle" href="#" id="profileDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+        <span class="profile-avatar me-2">
+          <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiByeD0iNCIgZmlsbD0iIzBkNmVmZCIvPgo8dGV4dCB4PSIxNiIgeT0iMjAiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNCIgZm9udC13ZWlnaHQ9ImJvbGQiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5BPC90ZXh0Pgo8L3N2Zz4K" alt="Admin">
+        </span>
+        <span id="adminName">Admin</span>
+      </a>
+      <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
           <li><a class="dropdown-item" href="#"><i class="bi bi-person me-2"></i>Profile</a></li>
           <li><a class="dropdown-item" href="#"><i class="bi bi-gear me-2"></i>Settings</a></li>
-          <li><hr class="dropdown-divider"></li>
+        <li><hr class="dropdown-divider"></li>
           <li><a class="dropdown-item logout-link" href="#"><i class="bi bi-box-arrow-right me-2"></i> Logout</a></li>
-        </ul>
+      </ul>
       </div>
     </div>
   </nav>
@@ -678,7 +678,89 @@
             document.getElementById('adminName').textContent = user.displayName || (user.firstName ? user.firstName + ' ' + (user.lastName || '') : user.email);
           }
         } catch (e) {}
+        
+        // Setup sidebar toggle functionality
+        setupSidebarToggle();
       });
+      
+      // Setup sidebar toggle functionality
+      function setupSidebarToggle() {
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        const sidebarCloseBtn = document.getElementById('sidebarCloseBtn');
+        const sidebar = document.getElementById('adminSidebar');
+        const adminPanel = document.querySelector('.admin-panel');
+        const toggleIcon = document.getElementById('sidebarToggleIcon');
+        
+        // Get saved sidebar state
+        const sidebarCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+        
+        // Initialize sidebar state
+        if (sidebarCollapsed) {
+          sidebar.classList.add('collapsed');
+          adminPanel.classList.add('sidebar-collapsed');
+          sidebarToggle.classList.add('active');
+        }
+        
+        // Toggle sidebar
+        sidebarToggle.addEventListener('click', () => {
+          const isCollapsed = sidebar.classList.contains('collapsed');
+          
+          if (isCollapsed) {
+            // Show sidebar
+            sidebar.classList.remove('collapsed');
+            adminPanel.classList.remove('sidebar-collapsed');
+            sidebarToggle.classList.remove('active');
+            localStorage.setItem('sidebarCollapsed', 'false');
+          } else {
+            // Hide sidebar
+            sidebar.classList.add('collapsed');
+            adminPanel.classList.add('sidebar-collapsed');
+            sidebarToggle.classList.add('active');
+            localStorage.setItem('sidebarCollapsed', 'true');
+          }
+        });
+        
+        // Close sidebar on mobile
+        sidebarCloseBtn.addEventListener('click', () => {
+          sidebar.classList.remove('show');
+        });
+        
+        // Handle mobile sidebar behavior
+        function handleMobileSidebar() {
+          if (window.innerWidth <= 768) {
+            sidebar.classList.remove('collapsed');
+            sidebar.classList.add('show');
+          } else {
+            sidebar.classList.remove('show');
+            // Restore desktop state
+            const sidebarCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+            if (sidebarCollapsed) {
+              sidebar.classList.add('collapsed');
+              adminPanel.classList.add('sidebar-collapsed');
+              sidebarToggle.classList.add('active');
+            } else {
+              sidebar.classList.remove('collapsed');
+              adminPanel.classList.remove('sidebar-collapsed');
+              sidebarToggle.classList.remove('active');
+            }
+          }
+        }
+        
+        // Handle window resize
+        window.addEventListener('resize', handleMobileSidebar);
+        
+        // Initial mobile check
+        handleMobileSidebar();
+        
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('click', (e) => {
+          if (window.innerWidth <= 768) {
+            if (!sidebar.contains(e.target) && !sidebarToggle.contains(e.target)) {
+              sidebar.classList.remove('show');
+            }
+          }
+        });
+      }
 
       // Load dashboard statistics
       async function loadDashboardStats() {
