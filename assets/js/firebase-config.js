@@ -51,8 +51,12 @@ function initializeFirebaseServices() {
 
       // Enable offline persistence for Firestore with proper error handling
       try {
+        // Use the newer cache configuration approach
         db.enablePersistence({
-          synchronizeTabs: true
+          synchronizeTabs: true,
+          cache: {
+            sizeBytes: firebase.firestore.CACHE_SIZE_UNLIMITED
+          }
         })
           .then(() => {
             console.log('Firestore persistence enabled successfully with multi-tab support.');

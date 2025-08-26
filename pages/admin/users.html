@@ -614,7 +614,6 @@
     });
     // --- Admin Users Management (Enhanced Firestore Integration) ---
     let allUsers = [];
-    let currentUser = null;
 
     // Use db and auth from admin.js
     document.addEventListener('DOMContentLoaded', function() {
@@ -626,6 +625,7 @@
             window.location.href = '../auth/login.html';
             return;
           }
+          // currentUser is already declared in main.js, just assign to it
           currentUser = user;
           // Check admin
           try {
