@@ -1534,6 +1534,10 @@ async function setupListingChat(listingId, listerId, makeOffer = false) {
                         }
                     } catch (error) {
                         console.log('Error checking propertyAgents collection:', error);
+                        // If it's a permission error, we'll use fallback data
+                        if (error.code === 'permission-denied') {
+                            console.log('Permission denied for propertyAgents collection, will use fallback data');
+                        }
                     }
                 }
                 
@@ -1553,6 +1557,9 @@ async function setupListingChat(listingId, listerId, makeOffer = false) {
                         uid: actualListerId
                     };
                     console.log('Using fallback lister data:', listerData);
+                    
+                    // Show a gentle notification about using fallback data
+                    showNotification('Connected to seller. Some seller details may be limited.', 'info');
                 } else {
                     listerData = listerDoc.data();
                     console.log(`Lister data loaded from ${collectionName} collection:`, listerData);
