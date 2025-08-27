@@ -561,7 +561,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
-    <script src="../firebase-config.js"></script>
+         <script src="../../assets/js/firebase-config.js"></script>
 
     <script>
         let currentStep = 1;
@@ -571,17 +571,39 @@
 
                  // Initialize the page
          document.addEventListener('DOMContentLoaded', function() {
+             // Wait for Firebase to be initialized
+             if (typeof firebase !== 'undefined' && firebase.apps.length > 0) {
+                 initializePage();
+             } else {
+                 // Wait a bit for Firebase to initialize
+                 setTimeout(() => {
+                     if (typeof firebase !== 'undefined' && firebase.apps.length > 0) {
+                         initializePage();
+                     } else {
+                         console.error('Firebase not initialized');
+                         showError('Failed to initialize application. Please refresh the page.');
+                     }
+                 }, 1000);
+             }
+         });
+
+         function initializePage() {
              checkAuthStatus();
              setupEventListeners();
              loadUserData();
-         });
+         }
 
-        function checkAuthStatus() {
-            if (!firebase.auth().currentUser) {
-                window.location.href = '../auth/login.html';
-                return;
-            }
-        }
+                 function checkAuthStatus() {
+             if (typeof firebase === 'undefined' || !firebase.auth) {
+                 console.error('Firebase Auth not available');
+                 return;
+             }
+             
+             if (!firebase.auth().currentUser) {
+                 window.location.href = '../auth/login.html';
+                 return;
+             }
+         }
 
         function setupEventListeners() {
             // Navigation buttons
@@ -600,6 +622,11 @@
         }
 
                  async function loadUserData() {
+             if (typeof firebase === 'undefined' || !firebase.auth) {
+                 console.error('Firebase not available');
+                 return;
+             }
+             
              const user = firebase.auth().currentUser;
              if (!user) return;
              
@@ -868,11 +895,15 @@
             submitBtn.disabled = true;
             spinner.classList.add('show');
 
-            try {
-                const user = firebase.auth().currentUser;
-                if (!user) {
-                    throw new Error('User not authenticated');
-                }
+                         try {
+                 if (typeof firebase === 'undefined' || !firebase.auth) {
+                     throw new Error('Firebase not available');
+                 }
+                 
+                 const user = firebase.auth().currentUser;
+                 if (!user) {
+                     throw new Error('User not authenticated');
+                 }
 
                 // Collect form data
                 const profileData = {
