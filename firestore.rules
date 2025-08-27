@@ -21,7 +21,7 @@ service cloud.firestore {
     
     // Users collection - More permissive for app functionality
     match /users/{userId} {
-      allow read: if isAuthenticated() && (isOwner(userId) || isAdmin());
+      allow read: if isAuthenticated(); // Allow reading user profiles for messaging
       allow create: if isAuthenticated() && isOwner(userId);
       allow update: if isAuthenticated() && (isOwner(userId) || isAdmin());
       allow delete: if isAdmin(); // Only allow deletion through admin panel
@@ -34,6 +34,24 @@ service cloud.firestore {
       match /notifications/{notificationId} {
         allow read, write: if isOwner(userId);
       }
+    }
+    
+    // Agents collection - Allow authenticated users to read agent profiles for messaging
+    // Updated: Allow all authenticated users to read agent profiles for messaging functionality
+    match /agents/{agentId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && isOwner(agentId);
+      allow update: if isAuthenticated() && (isOwner(agentId) || isAdmin());
+      allow delete: if isAdmin();
+    }
+    
+    // Property Agents collection - Allow authenticated users to read property agent profiles for messaging
+    // Updated: Allow all authenticated users to read property agent profiles for messaging functionality
+    match /propertyAgents/{agentId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && isOwner(agentId);
+      allow update: if isAuthenticated() && (isOwner(agentId) || isAdmin());
+      allow delete: if isAdmin();
     }
     
     // Listings collection

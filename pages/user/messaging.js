@@ -1402,28 +1402,14 @@ async function setupListingChat(listingId, listerId, makeOffer = false) {
         }
         console.log('Listing data:', listingData);
         console.log('Listing data keys:', Object.keys(listingData || {}));
-        
-        // Log specific fields that might contain lister information
-        if (listingData) {
-            console.log('Lister-related fields:');
-            console.log('- agentId:', listingData.agentId);
-            console.log('- uid:', listingData.uid);
-            console.log('- agentName:', listingData.agentName);
-            console.log('- sellerName:', listingData.sellerName);
-            console.log('- agentEmail:', listingData.agentEmail);
-            console.log('- sellerEmail:', listingData.sellerEmail);
-            console.log('- agentPhone:', listingData.agentPhone);
-            console.log('- sellerPhone:', listingData.sellerPhone);
-            if (listingData.createdBy) {
-                console.log('CreatedBy data:', listingData.createdBy);
-            }
+        if (listingData && listingData.createdBy) {
+            console.log('CreatedBy data:', listingData.createdBy);
         }
         
-        // Get lister details - prioritize uid and agentId fields
-        // Priority order: URL listerId > agentId > uid > createdBy.uid > userId > listerId > ownerId > propertyAgentId
+        // Get lister details - check for multiple possible ID types
+        // Priority order: URL listerId > agentId > createdBy.uid > userId > listerId > ownerId > propertyAgentId
         let actualListerId = listerId || 
                             listingData.agentId || 
-                            listingData.uid ||
                             (listingData.createdBy && listingData.createdBy.uid) || 
                             listingData.userId || 
                             listingData.listerId || 
@@ -1453,8 +1439,6 @@ async function setupListingChat(listingId, listerId, makeOffer = false) {
                 console.log('Using lister ID from URL parameters');
             } else if (actualListerId === listingData.agentId) {
                 console.log('Using agentId from listing data');
-            } else if (actualListerId === listingData.uid) {
-                console.log('Using uid from listing data');
             } else if (actualListerId === (listingData.createdBy && listingData.createdBy.uid)) {
                 console.log('Using createdBy.uid from listing data');
             } else if (actualListerId === listingData.userId) {
@@ -1466,7 +1450,6 @@ async function setupListingChat(listingId, listerId, makeOffer = false) {
             console.log('ID source breakdown:');
             console.log('- URL listerId:', listerId);
             console.log('- agentId:', listingData.agentId);
-            console.log('- uid:', listingData.uid);
             console.log('- createdBy.uid:', listingData.createdBy && listingData.createdBy.uid);
             console.log('- userId:', listingData.userId);
             console.log('- listerId:', listingData.listerId);
@@ -1503,24 +1486,84 @@ async function setupListingChat(listingId, listerId, makeOffer = false) {
                     type: 'official'
                 };
             } else {
-                console.log('Using lister ID directly:', actualListerId);
+                console.log('Searching for lister data with ID:', actualListerId);
                 
-                // Create lister data using the UID directly
-                // This approach works better since we're dealing with Firebase Auth UIDs
-                listerData = {
-                    uid: actualListerId,
-                    displayName: listingData.agentName || listingData.sellerName || listingData.listerName || 'Property Seller',
-                    name: listingData.agentName || listingData.sellerName || listingData.listerName || 'Property Seller',
-                    email: listingData.agentEmail || listingData.sellerEmail || listingData.listerEmail || 'seller@starlet.co.ug',
-                    photoURL: listingData.agentAvatar || listingData.sellerAvatar || listingData.listerAvatar || '../../img/avatar-placeholder.svg',
-                    phone: listingData.agentPhone || listingData.sellerPhone || listingData.listerPhone || null,
-                    type: listingData.agentType || listingData.sellerType || 'seller'
-                };
+                // Try to find lister data in multiple collections
+                let listerDoc = null;
+                let collectionName = '';
                 
-                console.log('Created lister data from listing fields:', listerData);
+                // Try users collection first
+                try {
+                    listerDoc = await db.collection('users').doc(actualListerId).get();
+                    if (listerDoc.exists) {
+                        collectionName = 'users';
+                        console.log('Found lister in users collection');
+                    }
+                } catch (error) {
+                    console.log('Error checking users collection:', error);
+                    // If it's a permission error, we'll use fallback data
+                    if (error.code === 'permission-denied') {
+                        console.log('Permission denied for users collection, will use fallback data');
+                    }
+                }
                 
-                // Show notification about using listing data
-                showNotification('Connected to seller using listing information.', 'info');
+                // If not found in users, try agents collection
+                if (!listerDoc || !listerDoc.exists) {
+                    try {
+                        listerDoc = await db.collection('agents').doc(actualListerId).get();
+                        if (listerDoc.exists) {
+                            collectionName = 'agents';
+                            console.log('Found lister in agents collection');
+                        }
+                    } catch (error) {
+                        console.log('Error checking agents collection:', error);
+                        // If it's a permission error, we'll use fallback data
+                        if (error.code === 'permission-denied') {
+                            console.log('Permission denied for agents collection, will use fallback data');
+                        }
+                    }
+                }
+                
+                // If not found in agents, try propertyAgents collection
+                if (!listerDoc || !listerDoc.exists) {
+                    try {
+                        listerDoc = await db.collection('propertyAgents').doc(actualListerId).get();
+                        if (listerDoc.exists) {
+                            collectionName = 'propertyAgents';
+                            console.log('Found lister in propertyAgents collection');
+                        }
+                    } catch (error) {
+                        console.log('Error checking propertyAgents collection:', error);
+                        // If it's a permission error, we'll use fallback data
+                        if (error.code === 'permission-denied') {
+                            console.log('Permission denied for propertyAgents collection, will use fallback data');
+                        }
+                    }
+                }
+                
+                if (!listerDoc || !listerDoc.exists) {
+                    console.error('Lister not found in any collection:', actualListerId);
+                    console.log('Tried collections: users, agents, propertyAgents');
+                    
+                    // Create fallback lister data instead of failing
+                    console.log('Creating fallback lister data for ID:', actualListerId);
+                    listerData = {
+                        displayName: 'Property Seller',
+                        name: 'Property Seller',
+                        email: 'seller@starlet.co.ug',
+                        photoURL: '../../img/avatar-placeholder.svg',
+                        phone: null,
+                        type: 'seller',
+                        uid: actualListerId
+                    };
+                    console.log('Using fallback lister data:', listerData);
+                    
+                    // Show a gentle notification about using fallback data
+                    showNotification('Connected to seller. Some seller details may be limited.', 'info');
+                } else {
+                    listerData = listerDoc.data();
+                    console.log(`Lister data loaded from ${collectionName} collection:`, listerData);
+                }
             }
         }
         
