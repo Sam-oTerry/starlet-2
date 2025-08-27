@@ -11,6 +11,7 @@ let chatUnsub;             // Will hold the unsubscribe function for chat listen
 let typingUnsub;           // Will hold the unsubscribe function for typing indicator listener
 let onlineStatusUnsub;     // Will hold the unsubscribe function for online status listener
 let conversationsUnsub;    // Will hold the unsubscribe function for conversations list listener
+let conversations = [];    // Global conversations array
 let selectedFiles = [];
 let typingTimeout = null;  // Will hold the typing timeout for debouncing
 
@@ -178,7 +179,7 @@ async function loadConversations() {
             .orderBy('lastMessageAt', 'desc')
             .onSnapshot(snapshot => {
                 console.log('Conversations snapshot received:', snapshot.size, 'conversations');
-                const conversations = [];
+                conversations = []; // Use global conversations array
                 snapshot.forEach(doc => {
                     const data = doc.data();
                     console.log('Raw conversation data:', doc.id, data);
@@ -2249,6 +2250,18 @@ function addResponsiveInteractions() {
 
 // Show contact information
 function showContactInfo() {
+    if (!conversations || !Array.isArray(conversations)) {
+        console.error('Conversations array not available');
+        showNotification('Contact information not available', 'error');
+        return;
+    }
+    
+    if (!currentChatId) {
+        console.error('No current chat selected');
+        showNotification('Please select a conversation first', 'error');
+        return;
+    }
+    
     const currentConversation = conversations.find(conv => conv.id === currentChatId);
     if (currentConversation && currentConversation.participantDetails) {
         const otherParticipant = currentConversation.participantDetails.find(
@@ -2257,7 +2270,7 @@ function showContactInfo() {
         
         if (otherParticipant) {
             let contactInfo = `Contact Information:\n\n`;
-            contactInfo += `Name: ${otherParticipant.name}\n`;
+            contactInfo += `Name: ${otherParticipant.name || 'Not provided'}\n`;
             if (otherParticipant.email) {
                 contactInfo += `Email: ${otherParticipant.email}\n`;
             }
@@ -2291,3 +2304,4 @@ window.showNotification = showNotification;
 window.sendOfferMessage = sendOfferMessage;
 window.showListingDetails = showListingDetails;
 window.hideListingDetails = hideListingDetails;
+window.showContactInfo = showContactInfo;
