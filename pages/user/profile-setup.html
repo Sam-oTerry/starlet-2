@@ -271,11 +271,11 @@
 <body>
     <div class="container-fluid">
         <div class="profile-setup-container">
-            <!-- Header -->
-            <div class="setup-header">
-                <h1><i class="bi bi-person-plus me-3"></i>Complete Your Profile</h1>
-                <p>Let's get to know you better to enhance your experience</p>
-            </div>
+                         <!-- Header -->
+             <div class="setup-header">
+                 <h1><i class="bi bi-person-plus me-3"></i>Complete Your Profile</h1>
+                 <p>Welcome! Let's complete your profile to unlock all features</p>
+             </div>
 
             <!-- Progress Indicator -->
             <div class="progress-container">
@@ -536,11 +536,11 @@
                 </div>
                 <div class="modal-body text-center p-4">
                     <i class="bi bi-emoji-smile text-success" style="font-size: 4rem;"></i>
-                    <h4 class="mt-3 mb-3">Welcome to Starlet Properties!</h4>
-                    <p class="text-muted mb-4">
-                        Your profile has been successfully completed. You can now start exploring properties, 
-                        creating listings, and connecting with other users.
-                    </p>
+                                         <h4 class="mt-3 mb-3">Profile Completed Successfully!</h4>
+                     <p class="text-muted mb-4">
+                         Your profile is now complete. You can now access all features including creating listings, 
+                         saving properties, and receiving personalized recommendations.
+                     </p>
                     <div class="d-grid gap-2">
                         <a href="../../index.html" class="btn btn-primary">
                             <i class="bi bi-house me-2"></i>Go to Homepage
@@ -603,6 +603,11 @@
              const user = firebase.auth().currentUser;
              if (!user) return;
              
+             // Always populate email from auth first
+             if (user.email) {
+                 document.getElementById('email').value = user.email;
+             }
+             
              // Show loading state
              const formContainer = document.querySelector('.form-container');
              const loadingDiv = document.createElement('div');
@@ -617,6 +622,18 @@
                  
                  if (userDoc.exists) {
                      const userData = userDoc.data();
+                     
+                     // Check if profile is already completed
+                     if (userData.profileCompleted) {
+                         // Profile is complete - redirect to homepage or show message
+                         loadingDiv.className = 'alert alert-success text-center';
+                         loadingDiv.innerHTML = '<i class="bi bi-check-circle me-2"></i>Your profile is already complete! Redirecting...';
+                         
+                         setTimeout(() => {
+                             window.location.href = '../../index.html';
+                         }, 2000);
+                         return;
+                     }
                      
                      // Pre-populate form fields with existing data
                      if (userData.firstName) {
@@ -686,17 +703,9 @@
                      }
                  }
                  
-                 // Always populate email from auth
-                 if (user.email) {
-                     document.getElementById('email').value = user.email;
-                 }
-                 
              } catch (error) {
                  console.error('Error loading user data:', error);
-                 // Fallback to just populating email
-                 if (user.email) {
-                     document.getElementById('email').value = user.email;
-                 }
+                 // Continue with empty form if there's an error
              } finally {
                  // Remove loading indicator
                  if (loadingDiv.parentNode) {
