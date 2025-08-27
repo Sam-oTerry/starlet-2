@@ -1615,7 +1615,17 @@ async function setupListingChat(listingId, listerId, makeOffer = false) {
         const conversationId = `listing_${listingId}_${window.currentUser.uid}_${actualListerId}`;
         
         // Check if conversation already exists
-        const conversationDoc = await db.collection('conversations').doc(conversationId).get();
+        let conversationDoc;
+        try {
+            conversationDoc = await db.collection('conversations').doc(conversationId).get();
+        } catch (error) {
+            console.error('Error checking existing conversation:', error);
+            if (error.code === 'permission-denied') {
+                showNotification('System permissions issue. Please contact support.', 'error');
+                return;
+            }
+            throw error; // Re-throw other errors
+        }
         
         if (!conversationDoc.exists) {
             console.log('Creating new listing conversation...');
@@ -1709,7 +1719,16 @@ async function setupListingChat(listingId, listerId, makeOffer = false) {
             const cleanedConversation = removeUndefinedValues(conversation);
             console.log('Cleaned conversation data:', cleanedConversation);
             
-            await db.collection('conversations').doc(conversationId).set(cleanedConversation);
+            try {
+                await db.collection('conversations').doc(conversationId).set(cleanedConversation);
+            } catch (error) {
+                console.error('Error creating conversation:', error);
+                if (error.code === 'permission-denied') {
+                    showNotification('Unable to create conversation due to system permissions. Please contact support.', 'error');
+                    return;
+                }
+                throw error; // Re-throw other errors
+            }
             
             // Add initial message
             let initialMessageContent = `Hi! I'm interested in your ${listingData.title || 'property'}. Can you tell me more about it?`;
@@ -1733,8 +1752,17 @@ async function setupListingChat(listingId, listerId, makeOffer = false) {
                 offerAmount: pendingOffer ? pendingOffer.offerAmount : null
             };
             
-            await db.collection('conversations').doc(conversationId)
-                .collection('messages').add(initialMessage);
+            try {
+                await db.collection('conversations').doc(conversationId)
+                    .collection('messages').add(initialMessage);
+            } catch (error) {
+                console.error('Error adding initial message:', error);
+                if (error.code === 'permission-denied') {
+                    showNotification('Conversation created but unable to send initial message. Please try again.', 'error');
+                    return;
+                }
+                throw error; // Re-throw other errors
+            }
                 
             console.log('Listing conversation created successfully');
         } else {
@@ -1777,7 +1805,17 @@ async function setupListingChat(listingId, listerId, makeOffer = false) {
         
     } catch (error) {
         console.error('Error setting up listing chat:', error);
-        showNotification('Failed to setup listing chat. Please try again.', 'error');
+        
+        // Check if it's a permission error
+        if (error.code === 'permission-denied' || error.message.includes('permission')) {
+            console.log('Permission error detected, showing user-friendly message');
+            showNotification('Unable to create conversation due to system permissions. Please contact support or try again later.', 'error');
+            
+            // Show a fallback UI for the user
+            showEmptyState('Unable to start conversation. Please try again later or contact support.');
+        } else {
+            showNotification('Failed to setup listing chat. Please try again.', 'error');
+        }
     }
 }
 
