@@ -319,16 +319,19 @@
                                     <input type="text" class="form-control" id="lastName" required>
                                 </div>
                             </div>
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label for="phone" class="form-label">Phone Number *</label>
-                                    <input type="tel" class="form-control" id="phone" required>
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label for="email" class="form-label">Email Address *</label>
-                                    <input type="email" class="form-control" id="email" required readonly>
-                                </div>
-                            </div>
+                                                         <div class="row">
+                                 <div class="col-md-6 mb-3">
+                                     <label for="phone" class="form-label">Phone Number *</label>
+                                     <input type="tel" class="form-control" id="phone" required>
+                                     <div class="invalid-feedback">
+                                         Please enter a valid phone number.
+                                     </div>
+                                 </div>
+                                 <div class="col-md-6 mb-3">
+                                     <label for="email" class="form-label">Email Address *</label>
+                                     <input type="email" class="form-control" id="email" required readonly>
+                                 </div>
+                             </div>
                             <div class="mb-3">
                                 <label for="dateOfBirth" class="form-label">Date of Birth</label>
                                 <input type="date" class="form-control" id="dateOfBirth">
@@ -566,12 +569,12 @@
         let userData = {};
         let avatarFile = null;
 
-        // Initialize the page
-        document.addEventListener('DOMContentLoaded', function() {
-            checkAuthStatus();
-            setupEventListeners();
-            populateUserEmail();
-        });
+                 // Initialize the page
+         document.addEventListener('DOMContentLoaded', function() {
+             checkAuthStatus();
+             setupEventListeners();
+             loadUserData();
+         });
 
         function checkAuthStatus() {
             if (!firebase.auth().currentUser) {
@@ -596,12 +599,111 @@
             });
         }
 
-        function populateUserEmail() {
-            const user = firebase.auth().currentUser;
-            if (user && user.email) {
-                document.getElementById('email').value = user.email;
-            }
-        }
+                 async function loadUserData() {
+             const user = firebase.auth().currentUser;
+             if (!user) return;
+             
+             // Show loading state
+             const formContainer = document.querySelector('.form-container');
+             const loadingDiv = document.createElement('div');
+             loadingDiv.className = 'alert alert-info text-center';
+             loadingDiv.innerHTML = '<i class="bi bi-arrow-clockwise spin me-2"></i>Loading your profile data...';
+             formContainer.insertBefore(loadingDiv, formContainer.firstChild);
+             
+             try {
+                 // Get user data from Firestore
+                 const db = firebase.firestore();
+                 const userDoc = await db.collection('users').doc(user.uid).get();
+                 
+                 if (userDoc.exists) {
+                     const userData = userDoc.data();
+                     
+                     // Pre-populate form fields with existing data
+                     if (userData.firstName) {
+                         document.getElementById('firstName').value = userData.firstName;
+                     }
+                     if (userData.lastName) {
+                         document.getElementById('lastName').value = userData.lastName;
+                     }
+                     if (userData.phone) {
+                         document.getElementById('phone').value = userData.phone;
+                     }
+                     if (userData.dateOfBirth) {
+                         document.getElementById('dateOfBirth').value = userData.dateOfBirth;
+                     }
+                     if (userData.district) {
+                         document.getElementById('district').value = userData.district;
+                     }
+                     if (userData.neighborhood) {
+                         document.getElementById('neighborhood').value = userData.neighborhood;
+                     }
+                     if (userData.address) {
+                         document.getElementById('address').value = userData.address;
+                     }
+                     
+                     // Pre-populate interests
+                     if (userData.interests && Array.isArray(userData.interests)) {
+                         userData.interests.forEach(interest => {
+                             const checkbox = document.getElementById(`interest${interest.charAt(0).toUpperCase() + interest.slice(1)}`);
+                             if (checkbox) {
+                                 checkbox.checked = true;
+                             }
+                         });
+                     }
+                     
+                     // Pre-populate contact preferences
+                     if (userData.contactPreferences && Array.isArray(userData.contactPreferences)) {
+                         userData.contactPreferences.forEach(pref => {
+                             const checkbox = document.getElementById(`contact${pref.charAt(0).toUpperCase() + pref.slice(1)}`);
+                             if (checkbox) {
+                                 checkbox.checked = true;
+                             }
+                         });
+                     }
+                     
+                     // Pre-populate notification preferences
+                     if (userData.notificationPreferences && Array.isArray(userData.notificationPreferences)) {
+                         userData.notificationPreferences.forEach(pref => {
+                             const checkbox = document.getElementById(`notify${pref.charAt(0).toUpperCase() + pref.slice(1).replace(/_([a-z])/g, (g) => g[1].toUpperCase())}`);
+                             if (checkbox) {
+                                 checkbox.checked = true;
+                             }
+                         });
+                     }
+                     
+                     // Pre-populate marketing consent
+                     if (userData.marketingConsent !== undefined) {
+                         document.getElementById('agreeMarketing').checked = userData.marketingConsent;
+                     }
+                     
+                     // Load avatar if exists
+                     if (userData.avatarURL) {
+                         const preview = document.getElementById('avatarPreview');
+                         const icon = document.getElementById('avatarIcon');
+                         preview.src = userData.avatarURL;
+                         preview.style.display = 'block';
+                         icon.style.display = 'none';
+                     }
+                 }
+                 
+                 // Always populate email from auth
+                 if (user.email) {
+                     document.getElementById('email').value = user.email;
+                 }
+                 
+             } catch (error) {
+                 console.error('Error loading user data:', error);
+                 // Fallback to just populating email
+                 if (user.email) {
+                     document.getElementById('email').value = user.email;
+                 }
+             } finally {
+                 // Remove loading indicator
+                 if (loadingDiv.parentNode) {
+                     loadingDiv.remove();
+                 }
+             }
+         }
 
         function nextStep() {
             if (validateCurrentStep()) {
@@ -669,14 +771,19 @@
                 }
             });
 
-            // Additional validation for step 1
-            if (currentStep === 1) {
-                const phone = document.getElementById('phone').value;
-                if (phone && !isValidPhone(phone)) {
-                    document.getElementById('phone').classList.add('is-invalid');
-                    isValid = false;
-                }
-            }
+                         // Additional validation for step 1
+             if (currentStep === 1) {
+                 const phone = document.getElementById('phone').value;
+                 if (!phone.trim()) {
+                     document.getElementById('phone').classList.add('is-invalid');
+                     isValid = false;
+                 } else if (!isValidPhone(phone)) {
+                     document.getElementById('phone').classList.add('is-invalid');
+                     isValid = false;
+                 } else {
+                     document.getElementById('phone').classList.remove('is-invalid');
+                 }
+             }
 
             // Additional validation for step 2
             if (currentStep === 2) {
