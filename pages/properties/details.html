@@ -1178,9 +1178,13 @@
 
         async function loadListing() {
             const id = getQueryParam('id');
+            console.log('🔍 Loading listing with ID:', id);
+            console.log('🔍 Current URL:', window.location.href);
+            
             if (!id) {
                 document.getElementById('productTitle').textContent = 'Listing Not Found';
                 document.getElementById('detailsTab').textContent = 'No listing ID provided.';
+                console.error('❌ No listing ID found in URL parameters');
                 return;
             }
 
@@ -1217,18 +1221,20 @@
                 }
                 
                 try {
+                    console.log('🔍 Fetching listing from Firestore with ID:', id);
                     const doc = await window.firebaseDB.collection('listings').doc(id).get();
                     if (!doc.exists) {
                         document.getElementById('productTitle').textContent = 'Listing Not Found';
-                        document.getElementById('detailsTab').textContent = 'This listing does not exist.';
+                        document.getElementById('detailsTab').textContent = `This listing (ID: ${id}) does not exist or has been removed.`;
+                        console.error('❌ Listing not found in Firestore:', id);
                         return;
                     }
                     data = doc.data();
-                    console.log('Loaded listing from Firestore:', data);
+                    console.log('✅ Loaded listing from Firestore:', data);
                 } catch (err) {
                     document.getElementById('productTitle').textContent = 'Error loading listing';
-                    document.getElementById('detailsTab').textContent = 'Could not load listing details.';
-                    console.error('Error loading listing from Firestore:', err);
+                    document.getElementById('detailsTab').textContent = `Could not load listing details. Error: ${err.message}`;
+                    console.error('❌ Error loading listing from Firestore:', err);
                     return;
                 }
             }
@@ -1874,7 +1880,7 @@
             }
             
             // Navigate to the product page
-            const url = `product.html?id=${id}&title=${title}&type=${type}&price=${price}`;
+                            const url = `details.html?id=${id}&title=${title}&type=${type}&price=${price}`;
             window.location.href = url;
         }
 
