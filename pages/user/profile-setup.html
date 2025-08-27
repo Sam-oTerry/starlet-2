@@ -569,40 +569,31 @@
         let userData = {};
         let avatarFile = null;
 
-                 // Initialize the page
+                          // Initialize the page
          document.addEventListener('DOMContentLoaded', function() {
+             console.log('DOM loaded, initializing profile setup...');
              // Wait for Firebase to be initialized
              if (typeof firebase !== 'undefined' && firebase.apps.length > 0) {
+                 console.log('Firebase already initialized, proceeding...');
                  initializePage();
              } else {
+                 console.log('Firebase not ready, waiting...');
                  // Wait a bit for Firebase to initialize
                  setTimeout(() => {
                      if (typeof firebase !== 'undefined' && firebase.apps.length > 0) {
+                         console.log('Firebase initialized after delay, proceeding...');
                          initializePage();
                      } else {
-                         console.error('Firebase not initialized');
+                         console.error('Firebase not initialized after timeout');
                          showError('Failed to initialize application. Please refresh the page.');
                      }
-                 }, 1000);
+                 }, 2000);
              }
          });
 
          function initializePage() {
-             checkAuthStatus();
              setupEventListeners();
              loadUserData();
-         }
-
-                 function checkAuthStatus() {
-             if (typeof firebase === 'undefined' || !firebase.auth) {
-                 console.error('Firebase Auth not available');
-                 return;
-             }
-             
-             if (!firebase.auth().currentUser) {
-                 window.location.href = '../auth/login.html';
-                 return;
-             }
          }
 
         function setupEventListeners() {
@@ -628,7 +619,12 @@
              }
              
              const user = firebase.auth().currentUser;
-             if (!user) return;
+             if (!user) {
+                 console.error('No authenticated user found - this should not happen');
+                 return;
+             }
+             
+             console.log('Loading data for user:', user.email);
              
              // Always populate email from auth first
              if (user.email) {
@@ -902,7 +898,7 @@
                  
                  const user = firebase.auth().currentUser;
                  if (!user) {
-                     throw new Error('User not authenticated');
+                     throw new Error('User not authenticated - this should not happen');
                  }
 
                 // Collect form data
