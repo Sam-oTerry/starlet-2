@@ -350,7 +350,7 @@ function renderConversations(conversations) {
             <div class="conversation-item ${isActive ? 'active' : ''} ${hasUnread ? 'unread' : ''}" 
                  data-chat-id="${conversation.id}" 
                  onclick="openChat('${conversation.id}')">
-                <img src="${otherUser.avatar || '../../img/avatar-placeholder.svg'}" 
+                <img src="${(otherUser.avatar && otherUser.avatar !== '../../img/starlet-logo.png') ? otherUser.avatar : '../../img/favicon.svg'}" 
                      alt="${userName}" 
                      class="conversation-avatar"
                      onerror="this.src='../../img/avatar-placeholder.svg'">
@@ -1481,7 +1481,7 @@ async function setupListingChat(listingId, listerId, makeOffer = false) {
                     displayName: 'Official Store',
                     name: 'Official Store',
                     email: 'official@starlet.co.ug',
-                    photoURL: '../../img/starlet-logo.png',
+                    photoURL: '../../img/favicon.svg',
                     phone: null,
                     type: 'official'
                 };
@@ -1501,6 +1501,10 @@ async function setupListingChat(listingId, listerId, makeOffer = false) {
                     }
                 } catch (error) {
                     console.log('Error checking users collection:', error);
+                    // If it's a permission error, we'll use fallback data
+                    if (error.code === 'permission-denied') {
+                        console.log('Permission denied for users collection, will use fallback data');
+                    }
                 }
                 
                 // If not found in users, try agents collection
@@ -1513,6 +1517,10 @@ async function setupListingChat(listingId, listerId, makeOffer = false) {
                         }
                     } catch (error) {
                         console.log('Error checking agents collection:', error);
+                        // If it's a permission error, we'll use fallback data
+                        if (error.code === 'permission-denied') {
+                            console.log('Permission denied for agents collection, will use fallback data');
+                        }
                     }
                 }
                 
@@ -1532,12 +1540,23 @@ async function setupListingChat(listingId, listerId, makeOffer = false) {
                 if (!listerDoc || !listerDoc.exists) {
                     console.error('Lister not found in any collection:', actualListerId);
                     console.log('Tried collections: users, agents, propertyAgents');
-                    showNotification('Seller information not available. Please try again later.', 'error');
-                    return;
+                    
+                    // Create fallback lister data instead of failing
+                    console.log('Creating fallback lister data for ID:', actualListerId);
+                    listerData = {
+                        displayName: 'Property Seller',
+                        name: 'Property Seller',
+                        email: 'seller@starlet.co.ug',
+                        photoURL: '../../img/avatar-placeholder.svg',
+                        phone: null,
+                        type: 'seller',
+                        uid: actualListerId
+                    };
+                    console.log('Using fallback lister data:', listerData);
+                } else {
+                    listerData = listerDoc.data();
+                    console.log(`Lister data loaded from ${collectionName} collection:`, listerData);
                 }
-                
-                listerData = listerDoc.data();
-                console.log(`Lister data loaded from ${collectionName} collection:`, listerData);
             }
         }
         
@@ -1584,7 +1603,7 @@ async function setupListingChat(listingId, listerId, makeOffer = false) {
                     displayName: 'Official Store',
                     name: 'Official Store',
                     email: listerData.email || listerData.agentEmail || 'official@starlet.co.ug',
-                    photoURL: '../../img/starlet-logo.png',
+                    photoURL: '../../img/favicon.svg',
                     phone: listerData.phone || listerData.phoneNumber || listerData.agentPhone || null,
                     type: 'official'
                 };
@@ -1771,15 +1790,31 @@ async function setupListingChat(listingId, listerId, makeOffer = false) {
             // Update conversation with latest listing info if needed
             const existingData = conversationDoc.data();
             if (existingData.listingQuote?.title !== listingData.title) {
+                // Create a clean listingQuote object without undefined values
+                const listingQuote = {
+                    title: listingData.title || 'Property Inquiry',
+                    price: listingData.price || listingData.askingPrice || null,
+                    image: listingData.images && listingData.images.length > 0 ? listingData.images[0] : 
+                           listingData.image || listingData.media && listingData.media.length > 0 ? listingData.media[0] : null,
+                    type: listingData.type || listingData.listingType || 'property',
+                    location: listingData.location ? {
+                        district: listingData.location.district || null,
+                        town: listingData.location.town || null,
+                        neighborhood: listingData.location.neighborhood || null,
+                        village: listingData.location.village || null
+                    } : null
+                };
+                
+                // Remove any undefined values from the listingQuote object
+                Object.keys(listingQuote).forEach(key => {
+                    if (listingQuote[key] === undefined) {
+                        delete listingQuote[key];
+                    }
+                });
+                
                 await db.collection('conversations').doc(conversationId).update({
                     listingTitle: listingData.title || 'Property Inquiry',
-                    listingQuote: {
-                        title: listingData.title || 'Property Inquiry',
-                        price: listingData.price,
-                        image: listingData.images && listingData.images.length > 0 ? listingData.images[0] : null,
-                        type: listingData.type,
-                        location: listingData.location
-                    },
+                    listingQuote: listingQuote,
                     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
             }
@@ -1803,6 +1838,9 @@ async function setupListingChat(listingId, listerId, makeOffer = false) {
         
         // Show success notification
         showNotification('Conversation opened successfully', 'success');
+        
+        // Log success for debugging
+        console.log('Listing chat setup completed successfully');
         
     } catch (error) {
         console.error('Error setting up listing chat:', error);
