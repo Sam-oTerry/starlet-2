@@ -2109,12 +2109,12 @@ function showListingDetails(listingData) {
         } else if (listingData.media && listingData.media.length > 0) {
             listingImage.src = listingData.media[0];
         } else {
-            listingImage.src = '../../img/placeholder-property.jpg';
+                            listingImage.src = '../../img/placeholder-property.svg';
         }
         
         // Handle image load errors
         listingImage.onerror = function() {
-            this.src = '../../img/placeholder-property.jpg';
+                            this.src = '../../img/placeholder-property.svg';
         };
         
         // Set listing title with responsive truncation
