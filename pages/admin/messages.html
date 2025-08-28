@@ -1011,15 +1011,28 @@
         conversations = [];
         convSnap.forEach(doc => {
           const convData = doc.data();
-          conversations.push({ 
-            id: doc.id, 
+          
+          // Enhanced data processing with better field mapping
+          const conversation = {
+            id: doc.id,
             ...convData,
-            // Ensure we have default values
-            listingTitle: convData.listingTitle || 'Untitled Listing',
-            agentName: convData.agentName || convData.listerName || 'Unknown User',
-            lastMessage: convData.lastMessage || 'No messages yet',
-            unreadCount: convData.unreadCount || 0
-          });
+            // Enhanced user name detection
+            agentName: convData.agentName || convData.listerName || convData.userName || convData.senderName || 
+                      (convData.agent && convData.agent.name) || 
+                      (convData.lister && convData.lister.name) || 'Unknown User',
+            // Enhanced listing title detection
+            listingTitle: convData.listingTitle || convData.title || convData.listingName || 'Untitled Listing',
+            // Enhanced last message detection
+            lastMessage: convData.lastMessage || convData.lastMessageText || 'No messages yet',
+            unreadCount: convData.unreadCount || 0,
+            // Enhanced avatar detection
+            agentAvatar: convData.agentAvatar || convData.listerAvatar || 
+                        (convData.agent && convData.agent.avatar) || 
+                        (convData.lister && convData.lister.avatar) || null
+          };
+          
+          console.log('Processed conversation:', conversation);
+          conversations.push(conversation);
         });
         
         console.log(`Loaded ${conversations.length} conversations for admin:`, conversations);
@@ -1071,18 +1084,57 @@
       
       conversationsList.innerHTML = conversations.map((conv, idx) => {
         const unreadCount = conv.unreadCount || 0;
-        // Handle null or undefined lastMessageAt
+        // Enhanced date handling for lastMessageAt
         let lastMessageTime = '';
         if (conv.lastMessageAt) {
           let messageTime;
-          if (conv.lastMessageAt.seconds) {
-            messageTime = new Date(conv.lastMessageAt.seconds * 1000);
-          } else if (conv.lastMessageAt.toDate && typeof conv.lastMessageAt.toDate === 'function') {
-            messageTime = conv.lastMessageAt.toDate();
-          } else {
-            messageTime = new Date(conv.lastMessageAt);
+          try {
+            // Handle Firestore Timestamp objects
+            if (conv.lastMessageAt.seconds && typeof conv.lastMessageAt.seconds === 'number') {
+              messageTime = new Date(conv.lastMessageAt.seconds * 1000);
+            } else if (conv.lastMessageAt.toDate && typeof conv.lastMessageAt.toDate === 'function') {
+              messageTime = conv.lastMessageAt.toDate();
+            } else if (conv.lastMessageAt._seconds && typeof conv.lastMessageAt._seconds === 'number') {
+              // Handle Firestore Timestamp with _seconds property
+              messageTime = new Date(conv.lastMessageAt._seconds * 1000);
+            } else if (typeof conv.lastMessageAt === 'string') {
+              // Handle string dates
+              messageTime = new Date(conv.lastMessageAt);
+            } else if (typeof conv.lastMessageAt === 'number') {
+              // Handle timestamp numbers
+              messageTime = new Date(conv.lastMessageAt);
+            } else if (conv.lastMessageAt instanceof Date) {
+              // Handle Date objects
+              messageTime = conv.lastMessageAt;
+            } else {
+              console.warn('Unknown date format for lastMessageAt:', conv.lastMessageAt);
+              messageTime = new Date();
+            }
+            
+            // Validate the date
+            if (isNaN(messageTime.getTime())) {
+              console.warn('Invalid date for conversation:', conv.id, conv.lastMessageAt);
+              lastMessageTime = 'Recently';
+            } else {
+              const now = new Date();
+              const diffInHours = (now - messageTime) / (1000 * 60 * 60);
+              
+              if (diffInHours < 1) {
+                lastMessageTime = 'Just now';
+              } else if (diffInHours < 24) {
+                lastMessageTime = messageTime.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+              } else if (diffInHours < 48) {
+                lastMessageTime = 'Yesterday';
+              } else {
+                lastMessageTime = messageTime.toLocaleDateString([], {month: 'short', day: 'numeric'});
+              }
+            }
+          } catch (error) {
+            console.error('Error processing date for conversation:', conv.id, error);
+            lastMessageTime = 'Recently';
           }
-          lastMessageTime = messageTime.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        } else {
+          lastMessageTime = 'Recently';
         }
         const isActive = selectedConversation && selectedConversation.id === conv.id;
         const isUnread = unreadCount > 0;
@@ -1091,14 +1143,14 @@
           <div class="conversation-item ${isActive ? 'active' : ''} ${isUnread ? 'unread' : ''}" 
                data-conversation-id="${conv.id}">
             <div class="d-flex align-items-center">
-              <img src="${conv.agentAvatar || conv.listerAvatar || '../../img/default-avatar.svg'}" 
+              <img src="${conv.agentAvatar || '../../img/default-avatar.svg'}" 
                    class="rounded-circle me-3" width="48" height="48" alt="User"
                    onerror="this.src='../../img/default-avatar.svg'">
               <div class="flex-grow-1">
                 <div class="d-flex justify-content-between align-items-start">
                   <div>
                     <h6 class="mb-1 fw-semibold">${conv.listingTitle || 'Listing'}</h6>
-                    <small class="text-muted">${conv.agentName || conv.listerName || 'User'}</small>
+                    <small class="text-muted">${conv.agentName || 'User'}</small>
                   </div>
                   <small class="text-muted">${lastMessageTime}</small>
                 </div>
@@ -1244,16 +1296,36 @@
       
       // Show all messages (no filtering needed for admin view)
       chat.innerHTML = messages.map(msg => {
-        // Handle null or undefined createdAt
+        // Enhanced date handling for message createdAt
         let messageTime;
-        if (!msg.createdAt) {
+        try {
+          if (!msg.createdAt) {
+            messageTime = new Date();
+          } else if (msg.createdAt.seconds && typeof msg.createdAt.seconds === 'number') {
+            messageTime = new Date(msg.createdAt.seconds * 1000);
+          } else if (msg.createdAt.toDate && typeof msg.createdAt.toDate === 'function') {
+            messageTime = msg.createdAt.toDate();
+          } else if (msg.createdAt._seconds && typeof msg.createdAt._seconds === 'number') {
+            messageTime = new Date(msg.createdAt._seconds * 1000);
+          } else if (typeof msg.createdAt === 'string') {
+            messageTime = new Date(msg.createdAt);
+          } else if (typeof msg.createdAt === 'number') {
+            messageTime = new Date(msg.createdAt);
+          } else if (msg.createdAt instanceof Date) {
+            messageTime = msg.createdAt;
+          } else {
+            console.warn('Unknown date format for message createdAt:', msg.createdAt);
+            messageTime = new Date();
+          }
+          
+          // Validate the date
+          if (isNaN(messageTime.getTime())) {
+            console.warn('Invalid date for message:', msg.id, msg.createdAt);
+            messageTime = new Date();
+          }
+        } catch (error) {
+          console.error('Error processing message date:', error);
           messageTime = new Date();
-        } else if (msg.createdAt.seconds) {
-          messageTime = new Date(msg.createdAt.seconds * 1000);
-        } else if (msg.createdAt.toDate && typeof msg.createdAt.toDate === 'function') {
-          messageTime = msg.createdAt.toDate();
-        } else {
-          messageTime = new Date(msg.createdAt);
         }
         
         const timeString = messageTime.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
@@ -1322,13 +1394,13 @@
         <div class="d-flex align-items-center justify-content-between">
           <div class="d-flex align-items-center">
             <div class="conversation-avatar me-3">
-              <img src="${selectedConversation.agentAvatar || selectedConversation.listerAvatar || '../../img/default-avatar.svg'}" 
+              <img src="${selectedConversation.agentAvatar || '../../img/default-avatar.svg'}" 
                    alt="User" class="rounded-circle" width="48" height="48"
                    onerror="this.src='../../img/default-avatar.svg'">
             </div>
             <div>
               <h5 class="mb-1" id="conversationTitle">${selectedConversation.listingTitle || 'Listing'}</h5>
-              <small class="text-muted" id="conversationSubtitle">${selectedConversation.agentName || selectedConversation.listerName || 'User'}</small>
+              <small class="text-muted" id="conversationSubtitle">${selectedConversation.agentName || 'User'}</small>
             </div>
           </div>
           <div class="chat-actions">
