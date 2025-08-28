@@ -5,6 +5,11 @@ class NotificationService {
   constructor() {
     this.db = window.firebaseDB;
     this.auth = window.firebaseAuth;
+    
+    // Ensure we have the correct Firebase references
+    if (this.db && typeof firebase !== 'undefined') {
+      this.FieldValue = firebase.firestore.FieldValue;
+    }
   }
 
   // Send notification to admin when there are pending listings
@@ -13,6 +18,11 @@ class NotificationService {
       if (!this.db) {
         console.error('Firebase not initialized');
         return;
+      }
+
+      // Ensure FieldValue is available
+      if (!this.FieldValue && typeof firebase !== 'undefined') {
+        this.FieldValue = firebase.firestore.FieldValue;
       }
 
       // Get count of pending listings
@@ -64,6 +74,11 @@ class NotificationService {
         return;
       }
 
+      // Ensure FieldValue is available
+      if (!this.FieldValue && typeof firebase !== 'undefined') {
+        this.FieldValue = firebase.firestore.FieldValue;
+      }
+
       const userId = listingData.createdBy.uid || listingData.createdBy;
       const userEmail = listingData.createdBy.email;
 
@@ -104,6 +119,11 @@ class NotificationService {
       if (!this.db || !listingData.createdBy) {
         console.error('Missing required data for rejection notification');
         return;
+      }
+
+      // Ensure FieldValue is available
+      if (!this.FieldValue && typeof firebase !== 'undefined') {
+        this.FieldValue = firebase.firestore.FieldValue;
       }
 
       const userId = listingData.createdBy.uid || listingData.createdBy;
@@ -155,7 +175,7 @@ class NotificationService {
         });
       });
 
-      // Also include hardcoded admin emails
+      // Also include hardcoded admin emails - try to find them in Firestore
       const hardcodedAdmins = [
         'admin@starletproperties.ug',
         'admin@starlet.co.ug'
@@ -163,10 +183,17 @@ class NotificationService {
 
       for (const email of hardcodedAdmins) {
         try {
-          const userRecord = await this.auth.getUserByEmail(email);
-          if (userRecord) {
+          // Search for admin users by email in Firestore
+          const adminQuery = await this.db.collection('users')
+            .where('email', '==', email)
+            .where('role', '==', 'admin')
+            .limit(1)
+            .get();
+          
+          if (!adminQuery.empty) {
+            const adminDoc = adminQuery.docs[0];
             adminUsers.push({
-              uid: userRecord.uid,
+              uid: adminDoc.id,
               email: email,
               role: 'admin'
             });
@@ -188,7 +215,7 @@ class NotificationService {
     try {
       const notification = {
         ...notificationData,
-        createdAt: this.db.FieldValue.serverTimestamp(),
+        createdAt: this.FieldValue ? this.FieldValue.serverTimestamp() : new Date(),
         read: false,
         id: this.generateNotificationId()
       };
@@ -220,7 +247,7 @@ class NotificationService {
         // Optional: Add metadata for tracking
         metadata: {
           type: emailData.type,
-          createdAt: this.db.FieldValue.serverTimestamp()
+          createdAt: this.FieldValue ? this.FieldValue.serverTimestamp() : new Date()
         }
       });
 
@@ -232,7 +259,7 @@ class NotificationService {
       try {
         await this.db.collection('emailNotifications').add({
           ...emailData,
-          createdAt: this.db.FieldValue.serverTimestamp(),
+          createdAt: this.FieldValue ? this.FieldValue.serverTimestamp() : new Date(),
           status: 'failed',
           error: error.message,
           attempts: 1
@@ -344,24 +371,10 @@ class NotificationService {
   // Get last admin notification of specific type
   async getLastAdminNotification(type) {
     try {
-      const adminUsers = await this.getAdminUsers();
-      if (adminUsers.length === 0) return null;
-
-      const lastNotifications = await Promise.all(
-        adminUsers.map(async (admin) => {
-          const notifSnap = await this.db.collection('users')
-            .doc(admin.uid)
-            .collection('notifications')
-            .where('type', '==', type)
-            .orderBy('createdAt', 'desc')
-            .limit(1)
-            .get();
-
-          return notifSnap.empty ? null : notifSnap.docs[0].data();
-        })
-      );
-
-      return lastNotifications.filter(n => n !== null)[0] || null;
+      // For now, just return null to avoid permission issues
+      // In a production environment, you'd want to set up proper security rules
+      // or use a different approach to track notification frequency
+      return null;
     } catch (error) {
       console.error('Error getting last admin notification:', error);
       return null;
