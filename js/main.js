@@ -419,11 +419,11 @@ function initializeAuthObserver() {
 // Start the auth observer initialization
 initializeAuthObserver();
 
-// Enhanced renderFeaturedListings with mixed priority listings
+// Enhanced renderFeaturedListings with approved listings only
 async function renderFeaturedListings() {
   const container = document.getElementById('featured-listings');
   if (!container) return;
-  container.innerHTML = '<div class="text-center w-100 py-4">Loading featured listings...</div>';
+  container.innerHTML = '<div class="text-center w-100 py-4">Loading approved listings...</div>';
   
   try {
     const db = window.firebaseDB || (window.firebase && firebase.firestore());
@@ -432,30 +432,36 @@ async function renderFeaturedListings() {
       return;
     }
 
-    console.log('Starting mixed listings query...');
+    console.log('Starting approved listings query...');
     
-    // Try to get a mix of official store, featured, and trending listings
+    // Only get approved listings with priority order
     let allListings = [];
-    let queryType = 'mixed';
+    let queryType = 'approved';
     
-    // 1. Get Official Store listings (highest priority)
+    // 1. Get Official Store listings (highest priority) - approved only
     try {
-      console.log('Fetching official store listings...');
-      const officialSnap = await db.collection('listings').where('officialStore', '==', true).limit(6).get();
+      console.log('Fetching approved official store listings...');
+      const officialSnap = await db.collection('listings')
+        .where('officialStore', '==', true)
+        .where('status', '==', 'approved')
+        .limit(6).get();
       if (!officialSnap.empty) {
         officialSnap.forEach(doc => {
           allListings.push({ ...doc.data(), id: doc.id, priority: 1, source: 'official' });
         });
-        console.log(`Found ${officialSnap.size} official store listings`);
+        console.log(`Found ${officialSnap.size} approved official store listings`);
       }
     } catch (err) {
       console.log('Official store listings query failed:', err);
     }
     
-    // 2. Get Featured listings (second priority)
+    // 2. Get Featured listings (second priority) - approved only
     try {
-      console.log('Fetching featured listings...');
-      const featuredSnap = await db.collection('listings').where('featured', '==', true).limit(4).get();
+      console.log('Fetching approved featured listings...');
+      const featuredSnap = await db.collection('listings')
+        .where('featured', '==', true)
+        .where('status', '==', 'approved')
+        .limit(4).get();
       if (!featuredSnap.empty) {
         featuredSnap.forEach(doc => {
           // Avoid duplicates
@@ -463,16 +469,19 @@ async function renderFeaturedListings() {
             allListings.push({ ...doc.data(), id: doc.id, priority: 2, source: 'featured' });
           }
         });
-        console.log(`Found ${featuredSnap.size} featured listings`);
+        console.log(`Found ${featuredSnap.size} approved featured listings`);
       }
     } catch (err) {
       console.log('Featured listings query failed:', err);
     }
     
-    // 3. Get Trending listings (third priority)
+    // 3. Get Trending listings (third priority) - approved only
     try {
-      console.log('Fetching trending listings...');
-      const trendingSnap = await db.collection('listings').where('trending', '==', true).limit(4).get();
+      console.log('Fetching approved trending listings...');
+      const trendingSnap = await db.collection('listings')
+        .where('trending', '==', true)
+        .where('status', '==', 'approved')
+        .limit(4).get();
       if (!trendingSnap.empty) {
         trendingSnap.forEach(doc => {
           // Avoid duplicates
@@ -480,7 +489,7 @@ async function renderFeaturedListings() {
             allListings.push({ ...doc.data(), id: doc.id, priority: 3, source: 'trending' });
           }
         });
-        console.log(`Found ${trendingSnap.size} trending listings`);
+        console.log(`Found ${trendingSnap.size} approved trending listings`);
       }
     } catch (err) {
       console.log('Trending listings query failed:', err);
@@ -490,7 +499,10 @@ async function renderFeaturedListings() {
     if (allListings.length < 8) {
       try {
         console.log('Fetching recent approved listings to fill gaps...');
-        const recentSnap = await db.collection('listings').where('status', '==', 'approved').orderBy('createdAt', 'desc').limit(8).get();
+        const recentSnap = await db.collection('listings')
+          .where('status', '==', 'approved')
+          .orderBy('createdAt', 'desc')
+          .limit(8).get();
         if (!recentSnap.empty) {
           recentSnap.forEach(doc => {
             // Avoid duplicates
@@ -509,7 +521,9 @@ async function renderFeaturedListings() {
     if (allListings.length === 0) {
       try {
         console.log('Trying any approved listings query...');
-        const approvedSnap = await db.collection('listings').where('status', '==', 'approved').limit(12).get();
+        const approvedSnap = await db.collection('listings')
+          .where('status', '==', 'approved')
+          .limit(12).get();
         if (!approvedSnap.empty) {
           approvedSnap.forEach(doc => {
             allListings.push({ ...doc.data(), id: doc.id, priority: 5, source: 'approved' });
@@ -519,23 +533,6 @@ async function renderFeaturedListings() {
         }
       } catch (err) {
         console.log('Approved listings query failed:', err);
-      }
-    }
-    
-    // 6. Final fallback: Any listings
-    if (allListings.length === 0) {
-      try {
-        console.log('Trying any listings query (last resort)...');
-        const anySnap = await db.collection('listings').limit(12).get();
-        if (!anySnap.empty) {
-          anySnap.forEach(doc => {
-            allListings.push({ ...doc.data(), id: doc.id, priority: 6, source: 'any' });
-          });
-          queryType = 'any';
-          console.log(`Found ${anySnap.size} any listings`);
-        }
-      } catch (err) {
-        console.log('Any listings query failed:', err);
       }
     }
 
@@ -548,18 +545,18 @@ async function renderFeaturedListings() {
     // Sort listings by priority (official store first, then featured, then trending, etc.)
     allListings.sort((a, b) => a.priority - b.priority);
     
-    // Limit to 6 listings maximum (2 rows of 3)
-    allListings = allListings.slice(0, 6);
+    // Limit to 8 listings maximum (2 rows of 4)
+    allListings = allListings.slice(0, 8);
     
-    console.log(`Found ${allListings.length} total listings using mixed query approach`);
+    console.log(`Found ${allListings.length} total approved listings`);
     
 
 
-         // Update section header to be more appealing and persuasive
+         // Update section header to reflect approved listings
      const sectionHeader = document.querySelector('.section-header h2');
      if (sectionHeader) {
-       // Use a more appealing and persuasive heading regardless of content type
-       sectionHeader.textContent = 'Recommended for You';
+       // Keep the approved listings heading
+       sectionHeader.textContent = 'Approved Listings';
      }
 
     container.innerHTML = '';
@@ -573,7 +570,7 @@ async function renderFeaturedListings() {
     allListings.forEach(listing => {
       const isSaved = savedIds.has(listing.id);
       const card = document.createElement('div');
-       card.className = 'col-md-6 col-lg-4 mb-4';
+       card.className = 'col-md-6 col-lg-3 mb-3';
       
       // Determine listing type for display
       let typeLabel = listing.type || listing.listingType || '';

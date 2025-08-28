@@ -593,7 +593,21 @@
 
          function initializePage() {
              setupEventListeners();
-             loadUserData();
+             // Wait for auth state to be ready before loading user data
+             if (firebase.auth().currentUser) {
+                 loadUserData();
+             } else {
+                 // Listen for auth state changes
+                 firebase.auth().onAuthStateChanged(function(user) {
+                     if (user) {
+                         loadUserData();
+                     } else {
+                         // No authenticated user - redirect to login
+                         console.log('No authenticated user found, redirecting to login...');
+                         window.location.href = '../auth/login.html?redirect=' + encodeURIComponent(window.location.href);
+                     }
+                 });
+             }
          }
 
         function setupEventListeners() {
