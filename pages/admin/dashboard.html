@@ -575,17 +575,23 @@
           
           const activityContainer = document.getElementById('recentActivity');
           
+          console.log('🔍 Loading recent activity...');
+          
           // Get recent listings
           const recentListings = await dashboardDB.collection('listings')
             .orderBy('createdAt', 'desc')
             .limit(5)
             .get();
           
+          console.log('📋 Recent listings fetched:', recentListings.size);
+          
           // Get recent users
           const recentUsers = await dashboardDB.collection('users')
             .orderBy('createdAt', 'desc')
             .limit(5)
             .get();
+          
+          console.log('👥 Recent users fetched:', recentUsers.size);
           
           let activityHTML = '';
           
@@ -594,6 +600,14 @@
           
           recentListings.forEach(doc => {
             const listing = doc.data();
+            console.log('📋 Listing data:', {
+              id: doc.id,
+              title: listing.title,
+              createdAt: listing.createdAt,
+              createdAtType: typeof listing.createdAt,
+              hasToDate: listing.createdAt && typeof listing.createdAt.toDate === 'function',
+              hasSeconds: listing.createdAt && listing.createdAt.seconds
+            });
             activities.push({
               type: 'listing',
               title: listing.title || 'New Listing',
@@ -605,6 +619,14 @@
           
           recentUsers.forEach(doc => {
             const user = doc.data();
+            console.log('👤 User data:', {
+              id: doc.id,
+              email: user.email,
+              createdAt: user.createdAt,
+              createdAtType: typeof user.createdAt,
+              hasToDate: user.createdAt && typeof user.createdAt.toDate === 'function',
+              hasSeconds: user.createdAt && user.createdAt.seconds
+            });
             activities.push({
               type: 'user',
               title: 'New User Registration',
@@ -614,12 +636,33 @@
             });
           });
           
-          // Sort by time
-          activities.sort((a, b) => b.time - a.time);
+          // Sort by time with error handling
+          activities.sort((a, b) => {
+            try {
+              const timeA = a.time ? (a.time.toDate ? a.time.toDate().getTime() : new Date(a.time).getTime()) : 0;
+              const timeB = b.time ? (b.time.toDate ? b.time.toDate().getTime() : new Date(b.time).getTime()) : 0;
+              return timeB - timeA;
+            } catch (error) {
+              console.error('❌ Error sorting activities:', error);
+              return 0;
+            }
+          });
+          
+          console.log('🕒 Activities to display:', activities.slice(0, 8).map(a => ({
+            type: a.type,
+            title: a.title,
+            time: a.time,
+            timeType: typeof a.time
+          })));
           
           // Display activities
           activities.slice(0, 8).forEach(activity => {
             const timeAgo = getTimeAgo(activity.time);
+            console.log('⏰ Time calculation for activity:', {
+              title: activity.title,
+              originalTime: activity.time,
+              timeAgo: timeAgo
+            });
             const icon = activity.type === 'listing' ? 'bi-list-ul' : 'bi-person-plus';
             const color = activity.type === 'listing' ? 'text-primary' : 'text-success';
             
@@ -902,7 +945,17 @@
 
       // Utility functions
       function getTimeAgo(timestamp) {
-        if (!timestamp) return 'Unknown';
+        console.log('🔍 getTimeAgo called with:', {
+          timestamp: timestamp,
+          type: typeof timestamp,
+          isNull: timestamp === null,
+          isUndefined: timestamp === undefined
+        });
+        
+        if (!timestamp) {
+          console.log('❌ Timestamp is falsy, returning Unknown');
+          return 'Unknown';
+        }
         
         try {
           const now = new Date();
@@ -910,32 +963,41 @@
           
           if (timestamp.toDate && typeof timestamp.toDate === 'function') {
             // Firestore Timestamp
+            console.log('📅 Processing as Firestore Timestamp');
             time = timestamp.toDate();
           } else if (timestamp.seconds) {
             // Firestore Timestamp object with seconds
+            console.log('⏱️ Processing as Firestore Timestamp with seconds:', timestamp.seconds);
             time = new Date(timestamp.seconds * 1000);
           } else if (timestamp instanceof Date) {
             // Already a Date object
+            console.log('📆 Processing as Date object');
             time = timestamp;
           } else if (typeof timestamp === 'string' || typeof timestamp === 'number') {
             // String or timestamp number
+            console.log('🔢 Processing as string/number:', timestamp);
             time = new Date(timestamp);
           } else {
+            console.log('❓ Unknown timestamp format, returning Unknown');
             return 'Unknown';
           }
           
+          console.log('🕐 Converted time:', time);
+          
           if (isNaN(time.getTime())) {
+            console.log('❌ Invalid time, returning Unknown');
             return 'Unknown';
           }
           
           const diffInSeconds = Math.floor((now - time) / 1000);
+          console.log('⏰ Time difference in seconds:', diffInSeconds);
           
           if (diffInSeconds < 60) return 'Just now';
           if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`;
           if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`;
           return `${Math.floor(diffInSeconds / 86400)}d ago`;
         } catch (error) {
-          console.error('Error calculating time ago:', error);
+          console.error('❌ Error calculating time ago:', error);
           return 'Unknown';
         }
       }
