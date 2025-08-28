@@ -421,7 +421,7 @@ form.addEventListener('submit', function(e) {
   // Set createdBy to admin's UID and email if available
   let adminUser = (window.firebaseAuth && window.firebaseAuth.currentUser) ? window.firebaseAuth.currentUser : null;
   listing.createdBy = adminUser ? { uid: adminUser.uid, email: adminUser.email } : { uid: 'admin', email: 'admin@starlet.co.ug' };
-  listing.createdAt = new Date();
+  listing.createdAt = firebase.firestore.FieldValue.serverTimestamp();
   try {
     db.collection('listings').add(listing);
     form.reset();

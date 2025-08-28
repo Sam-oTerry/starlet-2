@@ -502,7 +502,7 @@ function setupFormSubmission() {
     const type = document.getElementById('listingType').value;
     let data = {
       agentId: currentUser.id,
-      createdAt: new Date(),
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
       type
     };
     if (type === 'property') {
