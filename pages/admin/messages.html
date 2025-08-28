@@ -996,25 +996,61 @@
 
     // Load conversations for admin view
     async function loadAdminConversations() {
-      if (!window.currentUser || !window.firebaseDB) return;
+      if (!window.currentUser || !window.firebaseDB) {
+        console.log('User or Firebase DB not available');
+        return;
+      }
       
       try {
+        console.log('Loading conversations for admin...');
+        
         const convSnap = await window.firebaseDB.collection('conversations')
           .orderBy('lastMessageAt', 'desc')
           .limit(50).get();
         
         conversations = [];
         convSnap.forEach(doc => {
-          conversations.push({ id: doc.id, ...doc.data() });
+          const convData = doc.data();
+          conversations.push({ 
+            id: doc.id, 
+            ...convData,
+            // Ensure we have default values
+            listingTitle: convData.listingTitle || 'Untitled Listing',
+            agentName: convData.agentName || convData.listerName || 'Unknown User',
+            lastMessage: convData.lastMessage || 'No messages yet',
+            unreadCount: convData.unreadCount || 0
+          });
         });
         
-        console.log(`Loaded ${conversations.length} conversations for admin`);
+        console.log(`Loaded ${conversations.length} conversations for admin:`, conversations);
         
         // Update UI with conversations
         updateConversationsUI();
         
+        // If no conversations, show a helpful message
+        if (conversations.length === 0) {
+          const conversationsList = document.getElementById('conversationsList');
+          if (conversationsList) {
+            conversationsList.innerHTML = `
+              <div class="text-center text-muted py-5">
+                <i class="bi bi-chat-dots" style="font-size: 2rem;"></i>
+                <p class="mt-2">No conversations found</p>
+                <small>Conversations will appear here when users start messaging</small>
+              </div>`;
+          }
+        }
+        
       } catch (err) {
         console.error('Error loading conversations:', err);
+        const conversationsList = document.getElementById('conversationsList');
+        if (conversationsList) {
+          conversationsList.innerHTML = `
+            <div class="text-center text-muted py-5">
+              <i class="bi bi-exclamation-triangle" style="font-size: 2rem;"></i>
+              <p class="mt-2">Error loading conversations</p>
+              <small>Please refresh the page to try again</small>
+            </div>`;
+        }
       }
     }
 
@@ -1080,9 +1116,13 @@
       conversationsList.querySelectorAll('[data-conversation-id]').forEach(el => {
         el.addEventListener('click', () => {
           const convId = el.dataset.conversationId;
+          console.log('Conversation clicked:', convId);
           const conv = conversations.find(c => c.id === convId);
           if (conv) {
+            console.log('Found conversation:', conv);
             selectConversation(conv);
+          } else {
+            console.error('Conversation not found:', convId);
           }
         });
       });
@@ -1135,17 +1175,27 @@
     async function selectConversation(conv) {
       if (!conv || !window.currentUser) return;
       
+      console.log('Selecting conversation:', conv.id, conv);
+      
       selectedConversation = conv;
       
       // Enable chat input
       const chatInput = document.getElementById('chatInput');
-      const sendButton = document.querySelector('#chatInputForm button');
+      const sendButton = document.querySelector('#chatInputForm button[type="submit"]');
+      const attachBtn = document.getElementById('attachBtn');
+      const emojiBtn = document.getElementById('emojiBtn');
+      
       if (chatInput) chatInput.disabled = false;
       if (sendButton) sendButton.disabled = false;
+      if (attachBtn) attachBtn.disabled = false;
+      if (emojiBtn) emojiBtn.disabled = false;
       
+      // Update UI
       renderChatHeader();
-      loadMessages();
       updateConversationsUI(); // to update active state
+      
+      // Load messages for this conversation
+      await loadMessages();
       
       // Mark all unread messages as read
       try {
@@ -1175,9 +1225,14 @@
 
     function renderMessages(messages) {
       const chat = document.getElementById('chatMessages');
-      if (!chat) return;
+      if (!chat) {
+        console.error('Chat messages container not found');
+        return;
+      }
       
-      if (!messages.length) {
+      console.log('Rendering messages:', messages.length, messages);
+      
+      if (!messages || messages.length === 0) {
         chat.innerHTML = `
           <div class="text-center text-muted py-5">
             <i class="bi bi-chat-dots" style="font-size: 3rem;"></i>
@@ -1187,12 +1242,8 @@
         return;
       }
       
-      const filtered = messages.filter(msg => 
-        msg.senderId === window.currentUser.id || 
-        (selectedConversation && selectedConversation.participants && selectedConversation.participants.includes(window.currentUser.id))
-      );
-      
-      chat.innerHTML = filtered.map(msg => {
+      // Show all messages (no filtering needed for admin view)
+      chat.innerHTML = messages.map(msg => {
         // Handle null or undefined createdAt
         let messageTime;
         if (!msg.createdAt) {
@@ -1223,7 +1274,7 @@
         return `
           <div class="d-flex ${isSent ? 'justify-content-end' : 'justify-content-start'} mb-3">
             <div class="message-bubble ${isSent ? 'sent' : 'received'}">
-              <div class="message-content">${msg.text}</div>
+              <div class="message-content">${msg.text || 'No message content'}</div>
               <div class="message-time">
                 ${isToday ? timeString : messageTime.toLocaleDateString() + ' ' + timeString}
                 ${statusIcon ? `<span class="message-status">${statusIcon}</span>` : ''}
@@ -1233,7 +1284,10 @@
         `;
       }).join('');
       
-      chat.scrollTop = chat.scrollHeight;
+      // Scroll to bottom
+      setTimeout(() => {
+        chat.scrollTop = chat.scrollHeight;
+      }, 100);
     }
 
     function renderChatHeader() {
@@ -1310,19 +1364,76 @@
       }
     }
 
-    function loadMessages() {
-      if (!selectedConversation) return;
-      listenForMessages(selectedConversation.id);
+    async function loadMessages() {
+      if (!selectedConversation) {
+        console.log('No conversation selected');
+        return;
+      }
+      
+      console.log('Loading messages for conversation:', selectedConversation.id);
+      
+      try {
+        // First, try to get existing messages
+        const messagesSnapshot = await window.firebaseDB.collection('conversations')
+          .doc(selectedConversation.id)
+          .collection('messages')
+          .orderBy('createdAt', 'asc')
+          .get();
+        
+        const messages = [];
+        messagesSnapshot.forEach(doc => {
+          const messageData = doc.data();
+          messages.push({
+            id: doc.id,
+            ...messageData
+          });
+        });
+        
+        console.log('Loaded messages:', messages.length);
+        renderMessages(messages);
+        
+        // Then set up real-time listener for new messages
+        listenForMessages(selectedConversation.id);
+        
+      } catch (error) {
+        console.error('Error loading messages:', error);
+        // Show error message in chat area
+        const chat = document.getElementById('chatMessages');
+        if (chat) {
+          chat.innerHTML = `
+            <div class="text-center text-muted py-5">
+              <i class="bi bi-exclamation-triangle" style="font-size: 3rem;"></i>
+              <h5 class="mt-3">Error Loading Messages</h5>
+              <p class="text-muted">Failed to load messages. Please try again.</p>
+            </div>`;
+        }
+      }
     }
 
     function listenForMessages(convId) {
-      if (unsubscribeMessages) unsubscribeMessages();
+      if (unsubscribeMessages) {
+        unsubscribeMessages();
+      }
+      
+      console.log('Setting up real-time listener for conversation:', convId);
+      
       unsubscribeMessages = window.firebaseDB.collection('conversations').doc(convId)
-        .collection('messages').orderBy('createdAt')
+        .collection('messages')
+        .orderBy('createdAt', 'asc')
         .onSnapshot(snap => {
           const messages = [];
-          snap.forEach(doc => messages.push(doc.data()));
+          snap.forEach(doc => {
+            const messageData = doc.data();
+            messages.push({
+              id: doc.id,
+              ...messageData
+            });
+          });
+          
+          console.log('Real-time update - messages count:', messages.length);
           renderMessages(messages);
+        }, error => {
+          console.error('Error in real-time listener:', error);
         });
     }
 

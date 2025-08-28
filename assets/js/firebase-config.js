@@ -37,10 +37,16 @@ function initializeFirebaseServices() {
       
       // Check if storage is available
       let storage;
-      if (typeof firebase.storage === 'function') {
-        storage = firebase.storage();
-      } else {
-        console.warn('Firebase Storage not available, file uploads will be disabled');
+      try {
+        if (typeof firebase.storage === 'function') {
+          storage = firebase.storage();
+          console.log('Firebase Storage initialized successfully');
+        } else {
+          console.warn('Firebase Storage not available, file uploads will be disabled');
+          storage = null;
+        }
+      } catch (error) {
+        console.warn('Firebase Storage initialization failed:', error.message);
         storage = null;
       }
 
