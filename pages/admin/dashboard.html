@@ -904,14 +904,40 @@
       function getTimeAgo(timestamp) {
         if (!timestamp) return 'Unknown';
         
-        const now = new Date();
-        const time = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
-        const diffInSeconds = Math.floor((now - time) / 1000);
-        
-        if (diffInSeconds < 60) return 'Just now';
-        if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`;
-        if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`;
-        return `${Math.floor(diffInSeconds / 86400)}d ago`;
+        try {
+          const now = new Date();
+          let time;
+          
+          if (timestamp.toDate && typeof timestamp.toDate === 'function') {
+            // Firestore Timestamp
+            time = timestamp.toDate();
+          } else if (timestamp.seconds) {
+            // Firestore Timestamp object with seconds
+            time = new Date(timestamp.seconds * 1000);
+          } else if (timestamp instanceof Date) {
+            // Already a Date object
+            time = timestamp;
+          } else if (typeof timestamp === 'string' || typeof timestamp === 'number') {
+            // String or timestamp number
+            time = new Date(timestamp);
+          } else {
+            return 'Unknown';
+          }
+          
+          if (isNaN(time.getTime())) {
+            return 'Unknown';
+          }
+          
+          const diffInSeconds = Math.floor((now - time) / 1000);
+          
+          if (diffInSeconds < 60) return 'Just now';
+          if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`;
+          if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`;
+          return `${Math.floor(diffInSeconds / 86400)}d ago`;
+        } catch (error) {
+          console.error('Error calculating time ago:', error);
+          return 'Unknown';
+        }
       }
 
       function refreshStats() {
