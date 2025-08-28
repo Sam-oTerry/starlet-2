@@ -439,6 +439,9 @@ async function renderFeaturedListings() {
     let seenIds = new Set(); // Track seen listing IDs to prevent duplicates
     let queryType = 'approved';
     
+    // Create a map to store the highest priority for each listing
+    let listingPriorityMap = new Map();
+    
     // 1. Get Official Store listings (highest priority) - approved only
     try {
       console.log('Fetching approved official store listings...');
@@ -448,10 +451,13 @@ async function renderFeaturedListings() {
         .limit(6).get();
       if (!officialSnap.empty) {
         officialSnap.forEach(doc => {
-          // Avoid duplicates using Set for better performance
-          if (!seenIds.has(doc.id)) {
-            seenIds.add(doc.id);
-            allListings.push({ ...doc.data(), id: doc.id, priority: 1, source: 'official' });
+          // Store the highest priority for this listing
+          if (!listingPriorityMap.has(doc.id) || listingPriorityMap.get(doc.id).priority > 1) {
+            listingPriorityMap.set(doc.id, { 
+              data: doc.data(), 
+              priority: 1, 
+              source: 'official' 
+            });
           }
         });
         console.log(`Found ${officialSnap.size} approved official store listings`);
@@ -469,10 +475,13 @@ async function renderFeaturedListings() {
         .limit(4).get();
       if (!featuredSnap.empty) {
         featuredSnap.forEach(doc => {
-          // Avoid duplicates using Set for better performance
-          if (!seenIds.has(doc.id)) {
-            seenIds.add(doc.id);
-            allListings.push({ ...doc.data(), id: doc.id, priority: 2, source: 'featured' });
+          // Store the highest priority for this listing (only if not already official store)
+          if (!listingPriorityMap.has(doc.id) || listingPriorityMap.get(doc.id).priority > 2) {
+            listingPriorityMap.set(doc.id, { 
+              data: doc.data(), 
+              priority: 2, 
+              source: 'featured' 
+            });
           }
         });
         console.log(`Found ${featuredSnap.size} approved featured listings`);
@@ -490,10 +499,13 @@ async function renderFeaturedListings() {
         .limit(4).get();
       if (!trendingSnap.empty) {
         trendingSnap.forEach(doc => {
-          // Avoid duplicates using Set for better performance
-          if (!seenIds.has(doc.id)) {
-            seenIds.add(doc.id);
-            allListings.push({ ...doc.data(), id: doc.id, priority: 3, source: 'trending' });
+          // Store the highest priority for this listing (only if not already higher priority)
+          if (!listingPriorityMap.has(doc.id) || listingPriorityMap.get(doc.id).priority > 3) {
+            listingPriorityMap.set(doc.id, { 
+              data: doc.data(), 
+              priority: 3, 
+              source: 'trending' 
+            });
           }
         });
         console.log(`Found ${trendingSnap.size} approved trending listings`);
@@ -512,10 +524,13 @@ async function renderFeaturedListings() {
           .limit(8).get();
         if (!recentSnap.empty) {
           recentSnap.forEach(doc => {
-            // Avoid duplicates using Set for better performance
-            if (!seenIds.has(doc.id)) {
-              seenIds.add(doc.id);
-              allListings.push({ ...doc.data(), id: doc.id, priority: 4, source: 'recent' });
+            // Store the highest priority for this listing (only if not already higher priority)
+            if (!listingPriorityMap.has(doc.id) || listingPriorityMap.get(doc.id).priority > 4) {
+              listingPriorityMap.set(doc.id, { 
+                data: doc.data(), 
+                priority: 4, 
+                source: 'recent' 
+              });
             }
           });
           console.log(`Found ${recentSnap.size} recent approved listings`);
@@ -534,10 +549,13 @@ async function renderFeaturedListings() {
           .limit(12).get();
         if (!approvedSnap.empty) {
           approvedSnap.forEach(doc => {
-            // Avoid duplicates using Set for better performance
-            if (!seenIds.has(doc.id)) {
-              seenIds.add(doc.id);
-              allListings.push({ ...doc.data(), id: doc.id, priority: 5, source: 'approved' });
+            // Store the highest priority for this listing (only if not already higher priority)
+            if (!listingPriorityMap.has(doc.id) || listingPriorityMap.get(doc.id).priority > 5) {
+              listingPriorityMap.set(doc.id, { 
+                data: doc.data(), 
+                priority: 5, 
+                source: 'approved' 
+              });
             }
           });
           queryType = 'approved';
@@ -548,6 +566,16 @@ async function renderFeaturedListings() {
       }
     }
 
+    // Convert priority map to array and ensure no duplicates
+    for (const [listingId, listingInfo] of listingPriorityMap) {
+      allListings.push({
+        ...listingInfo.data,
+        id: listingId,
+        priority: listingInfo.priority,
+        source: listingInfo.source
+      });
+    }
+    
     if (allListings.length === 0) {
       container.innerHTML = '<div class="text-muted text-center">No listings available at the moment.</div>';
       console.log('No listings found after trying all fallback queries');
@@ -557,21 +585,11 @@ async function renderFeaturedListings() {
     // Sort listings by priority (official store first, then featured, then trending, etc.)
     allListings.sort((a, b) => a.priority - b.priority);
     
-    // Final deduplication step to ensure no duplicates remain
-    const uniqueListings = [];
-    const finalSeenIds = new Set();
-    
-    for (const listing of allListings) {
-      if (!finalSeenIds.has(listing.id)) {
-        finalSeenIds.add(listing.id);
-        uniqueListings.push(listing);
-      }
-    }
-    
     // Limit to 8 listings maximum (2 rows of 4)
-    allListings = uniqueListings.slice(0, 8);
+    allListings = allListings.slice(0, 8);
     
     console.log(`Found ${allListings.length} total approved listings`);
+    console.log('Listing sources:', allListings.map(l => ({ id: l.id, source: l.source, priority: l.priority })));
     
 
 
