@@ -27,7 +27,10 @@ function waitForFirebaseAndInit() {
   // --- Auth State ---
   auth.onAuthStateChanged(async user => {
     if (!user) {
-      window.location.href = '/pages/auth/login.html';
+      // Dynamically detect base path for GitHub Pages subfolder support
+var path = window.location.pathname;
+var base = path.includes('/starlet-2/') ? '/starlet-2' : '';
+window.location.href = base + '/pages/auth/login.html';
       return;
     }
     window.currentUser = user;
@@ -247,6 +250,12 @@ function waitForFirebaseAndInit() {
       authButton.classList.remove('btn-danger');
       authButton.classList.add('btn-outline-primary');
       var loginHref = authButton.getAttribute('data-login-href') || authButton.getAttribute('href') || '/pages/auth/login.html';
+// Dynamically detect base path for GitHub Pages subfolder support
+var path = window.location.pathname;
+var base = path.includes('/starlet-2/') ? '/starlet-2' : '';
+if (loginHref.startsWith('/pages/')) {
+  loginHref = base + loginHref;
+}
       authButton.href = loginHref;
       authButton.onclick = null;
     }

@@ -12,7 +12,10 @@ if (typeof firebase !== 'undefined') {
 // --- Auth ---
 auth.onAuthStateChanged(async user => {
   if (!user) {
-    window.location.href = '/pages/auth/login.html';
+    // Dynamically detect base path for GitHub Pages subfolder support
+var path = window.location.pathname;
+var base = path.includes('/starlet-2/') ? '/starlet-2' : '';
+window.location.href = base + '/pages/auth/login.html';
     return;
   }
   currentUser = user;

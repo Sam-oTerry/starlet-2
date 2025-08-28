@@ -793,7 +793,11 @@ function enforceAuth(loginPath = '/pages/auth/login.html') {
     if (window.firebaseAuth && window.firebaseAuth.currentUser && window.firebaseAuth.currentUser.uid) return;
     // Not logged in, redirect to login with returnUrl
     const returnUrl = encodeURIComponent(window.location.pathname + window.location.search + window.location.hash);
-    window.location.href = loginPath + '?returnUrl=' + returnUrl;
+    // Dynamically detect base path for GitHub Pages subfolder support
+    var path = window.location.pathname;
+    var base = path.includes('/starlet-2/') ? '/starlet-2' : '';
+    var fullLoginPath = base + loginPath;
+    window.location.href = fullLoginPath + '?returnUrl=' + returnUrl;
 }
 
 function setupMyListingsLink(myListingsSelector = '#myListingsLink', loginPath = '/pages/auth/login.html', agentDashboardPath = '/pages/user/my-listings.html', createStorePath = '/pages/user/my-listings.html') {
@@ -803,9 +807,13 @@ function setupMyListingsLink(myListingsSelector = '#myListingsLink', loginPath =
         e.preventDefault();
         let user = getStarletUser();
         if (!user || !user.uid) {
-            // Not logged in, go to login
-            window.location.href = loginPath + '?returnUrl=' + encodeURIComponent(window.location.pathname);
-            return;
+                    // Not logged in, go to login
+        // Dynamically detect base path for GitHub Pages subfolder support
+        var path = window.location.pathname;
+        var base = path.includes('/starlet-2/') ? '/starlet-2' : '';
+        var fullLoginPath = base + loginPath;
+        window.location.href = fullLoginPath + '?returnUrl=' + encodeURIComponent(window.location.pathname);
+        return;
         }
         // User is logged in, go to my-listings page
                     window.location.href = agentDashboardPath;
@@ -836,6 +844,12 @@ function setupMyListingsLink(myListingsSelector = '#myListingsLink', loginPath =
       authButton.classList.add('btn-outline-primary');
       // Try to use the closest login page path
       var loginHref = authButton.getAttribute('data-login-href') || authButton.getAttribute('href') || '/pages/auth/login.html';
+      // Dynamically detect base path for GitHub Pages subfolder support
+      var path = window.location.pathname;
+      var base = path.includes('/starlet-2/') ? '/starlet-2' : '';
+      if (loginHref.startsWith('/pages/')) {
+        loginHref = base + loginHref;
+      }
       authButton.href = loginHref;
       authButton.onclick = null;
     }

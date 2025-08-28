@@ -5092,7 +5092,10 @@ footer.footer {
         if (!user) {
           // No user logged in, redirect to login
           console.log('No user logged in, redirecting to login');
-          window.location.href = '/pages/auth/login.html';
+          // Dynamically detect base path for GitHub Pages subfolder support
+          var path = window.location.pathname;
+          var base = path.includes('/starlet-2/') ? '/starlet-2' : '';
+          window.location.href = base + '/pages/auth/login.html';
         } else {
           // User is logged in, store user info in window object to avoid conflicts
           window.currentUser = user;
@@ -5125,7 +5128,10 @@ footer.footer {
           authButton.onclick = function(e) {
             e.preventDefault();
             firebase.auth().signOut().then(function() {
-              window.location.href = '/pages/auth/login.html';
+              // Dynamically detect base path for GitHub Pages subfolder support
+              var path = window.location.pathname;
+              var base = path.includes('/starlet-2/') ? '/starlet-2' : '';
+              window.location.href = base + '/pages/auth/login.html';
             });
           };
         } else {

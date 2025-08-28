@@ -50,7 +50,10 @@ function requireAdminUser() {
     
     auth.onAuthStateChanged(async user => {
       if (!user || user.isAnonymous) {
-        window.location.href = '../../pages/auth/login.html';
+        // Dynamically detect base path for GitHub Pages subfolder support
+        var path = window.location.pathname;
+        var base = path.includes('/starlet-2/') ? '/starlet-2' : '';
+        window.location.href = base + '/pages/auth/login.html';
         return reject('Not logged in');
       }
       
@@ -174,7 +177,10 @@ function enforceAdminAuth() {
     
     auth.onAuthStateChanged(async user => {
       if (!user || user.isAnonymous) {
-        window.location.href = '../../pages/auth/login.html';
+        // Dynamically detect base path for GitHub Pages subfolder support
+        var path = window.location.pathname;
+        var base = path.includes('/starlet-2/') ? '/starlet-2' : '';
+        window.location.href = base + '/pages/auth/login.html';
         return reject('Not logged in');
       }
       
@@ -198,7 +204,7 @@ function enforceAdminAuth() {
           resolve(user);
         } else {
           alert('You do not have admin access.');
-          window.location.href = '../../index.html';
+          window.location.href = base + '/index.html';
           reject('Not admin');
         }
       } catch (error) {

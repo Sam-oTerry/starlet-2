@@ -928,7 +928,10 @@
         var user = firebase.auth().currentUser;
         if (!user || user.isAnonymous) {
           // Not logged in, go to login
-          window.location.href = '/pages/auth/login.html';
+          // Dynamically detect base path for GitHub Pages subfolder support
+          var path = window.location.pathname;
+          var base = path.includes('/starlet-2/') ? '/starlet-2' : '';
+          window.location.href = base + '/pages/auth/login.html';
           return;
         }
         e.preventDefault();
@@ -980,7 +983,10 @@
           authButton.textContent = 'Login / Signup';
           authButton.classList.remove('btn-danger');
           authButton.classList.add('btn-outline-primary');
-          authButton.href = '/pages/auth/login.html';
+          // Dynamically detect base path for GitHub Pages subfolder support
+          var path = window.location.pathname;
+          var base = path.includes('/starlet-2/') ? '/starlet-2' : '';
+          authButton.href = base + '/pages/auth/login.html';
           authButton.onclick = null;
         }
       });
