@@ -267,6 +267,8 @@
             }
         }
     </style>
+    
+
 </head>
 <body>
     <div class="container-fluid">
@@ -562,6 +564,29 @@
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
          <script src="../../assets/js/firebase-config.js"></script>
+    
+    <!-- Authentication Check Script -->
+    <script>
+        // Check authentication immediately when Firebase is loaded
+        (function() {
+            // Wait for Firebase to be ready
+            function checkAuth() {
+                if (typeof firebase !== 'undefined' && firebase.auth) {
+                    firebase.auth().onAuthStateChanged(function(user) {
+                        if (!user) {
+                            // No authenticated user - redirect to login
+                            console.log('No authenticated user found, redirecting to login...');
+                            window.location.href = '../auth/login.html?redirect=' + encodeURIComponent(window.location.href);
+                        }
+                    });
+                } else {
+                    // Firebase not loaded yet - try again in a moment
+                    setTimeout(checkAuth, 100);
+                }
+            }
+            checkAuth();
+        })();
+    </script>
 
     <script>
         let currentStep = 1;
@@ -572,6 +597,16 @@
                           // Initialize the page
          document.addEventListener('DOMContentLoaded', function() {
              console.log('DOM loaded, initializing profile setup...');
+             
+             // Show loading state
+             const formContainer = document.querySelector('.form-container');
+             if (formContainer) {
+                 const loadingDiv = document.createElement('div');
+                 loadingDiv.className = 'alert alert-info text-center';
+                 loadingDiv.innerHTML = '<i class="bi bi-arrow-clockwise spin me-2"></i>Initializing application...';
+                 formContainer.insertBefore(loadingDiv, formContainer.firstChild);
+             }
+             
              // Wait for Firebase to be initialized
              if (typeof firebase !== 'undefined' && firebase.apps.length > 0) {
                  console.log('Firebase already initialized, proceeding...');
@@ -587,7 +622,7 @@
                          console.error('Firebase not initialized after timeout');
                          showError('Failed to initialize application. Please refresh the page.');
                      }
-                 }, 2000);
+                 }, 3000); // Increased timeout
              }
          });
 
@@ -629,12 +664,14 @@
                  async function loadUserData() {
              if (typeof firebase === 'undefined' || !firebase.auth) {
                  console.error('Firebase not available');
+                 showError('Firebase is not available. Please refresh the page.');
                  return;
              }
              
              const user = firebase.auth().currentUser;
              if (!user) {
-                 console.error('No authenticated user found - this should not happen');
+                 console.error('No authenticated user found - redirecting to login');
+                 window.location.href = '../auth/login.html?redirect=' + encodeURIComponent(window.location.href);
                  return;
              }
              
@@ -645,12 +682,12 @@
                  document.getElementById('email').value = user.email;
              }
              
-             // Show loading state
+             // Update loading state
              const formContainer = document.querySelector('.form-container');
-             const loadingDiv = document.createElement('div');
-             loadingDiv.className = 'alert alert-info text-center';
-             loadingDiv.innerHTML = '<i class="bi bi-arrow-clockwise spin me-2"></i>Loading your profile data...';
-             formContainer.insertBefore(loadingDiv, formContainer.firstChild);
+             const existingLoadingDiv = formContainer.querySelector('.alert-info');
+             if (existingLoadingDiv) {
+                 existingLoadingDiv.innerHTML = '<i class="bi bi-arrow-clockwise spin me-2"></i>Loading your profile data...';
+             }
              
              try {
                  // Get user data from Firestore
@@ -745,8 +782,9 @@
                  // Continue with empty form if there's an error
              } finally {
                  // Remove loading indicator
-                 if (loadingDiv.parentNode) {
-                     loadingDiv.remove();
+                 const existingLoadingDiv = formContainer.querySelector('.alert-info');
+                 if (existingLoadingDiv && existingLoadingDiv.parentNode) {
+                     existingLoadingDiv.remove();
                  }
              }
          }
