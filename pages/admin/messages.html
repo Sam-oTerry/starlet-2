@@ -539,7 +539,7 @@
               Messages & Communications
             </h1>
             <p class="mb-0 opacity-75">Manage all user inquiries, notifications, and official store communications</p>
-          </div>
+      </div>
           <div class="col-md-4 text-md-end">
             <div class="d-flex align-items-center justify-content-md-end gap-3">
               <div class="stat-card bg-white bg-opacity-10 rounded p-3 text-center">
@@ -558,7 +558,7 @@
 
     <!-- Main Content Area -->
     <div class="container-fluid py-4">
-      <div class="row">
+          <div class="row">
         <!-- Conversations Sidebar -->
         <div class="col-lg-4 col-xl-3 mb-4">
           <div class="card shadow-sm h-100">
@@ -587,18 +587,18 @@
                   <input type="text" class="form-control border-start-0" id="conversationSearch" placeholder="Search conversations...">
                 </div>
               </div>
-            </div>
-            <div class="card-body p-0">
+                </div>
+                <div class="card-body p-0">
               <div id="conversationsList" class="conversations-container">
-                <!-- Conversations will be loaded here -->
+                    <!-- Conversations will be loaded here -->
                 <div class="text-center text-muted py-5">
                   <i class="bi bi-chat-dots" style="font-size: 2rem;"></i>
                   <p class="mt-2">Loading conversations...</p>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        </div>
+                </div>
 
         <!-- Chat Area -->
         <div class="col-lg-8 col-xl-9">
@@ -632,14 +632,14 @@
             </div>
 
             <!-- Chat Messages -->
-            <div class="card-body p-0">
+                <div class="card-body p-0">
               <div id="chatMessages" class="chat-messages-container">
-                <div class="text-center text-muted py-5">
-                  <i class="bi bi-chat-dots" style="font-size: 3rem;"></i>
+                    <div class="text-center text-muted py-5">
+                      <i class="bi bi-chat-dots" style="font-size: 3rem;"></i>
                   <h5 class="mt-3">Welcome to Messages</h5>
                   <p class="text-muted">Select a conversation from the sidebar to view and send messages</p>
-                </div>
-              </div>
+                    </div>
+                  </div>
             </div>
 
             <!-- Chat Input -->
@@ -654,19 +654,19 @@
                   <button type="button" class="btn btn-outline-secondary" id="emojiBtn" disabled>
                     <i class="bi bi-emoji-smile"></i>
                   </button>
-                  <button type="submit" class="btn btn-primary" disabled>
-                    <i class="bi bi-send"></i>
-                  </button>
+                      <button type="submit" class="btn btn-primary" disabled>
+                        <i class="bi bi-send"></i>
+                      </button>
                 </div>
-              </form>
+                    </form>
               <!-- Hidden file input for attachments -->
               <input type="file" id="fileInput" style="display: none;" accept="image/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document">
+                </div>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-    </div>
-
+        
     <!-- Quick Actions Section -->
     <div class="container-fluid pb-4">
       <div class="row">
@@ -686,32 +686,32 @@
                     <h6>Broadcast Message</h6>
                     <p class="small text-muted">Send message to all users</p>
                     <button class="btn btn-sm btn-outline-primary">Send Broadcast</button>
-                  </div>
-                </div>
+            </div>
+          </div>
                 <div class="col-md-3">
                   <div class="quick-action-card text-center p-3 border rounded">
                     <i class="bi bi-gear text-success mb-2" style="font-size: 1.5rem;"></i>
                     <h6>Auto-Reply</h6>
                     <p class="small text-muted">Configure automatic responses</p>
                     <button class="btn btn-sm btn-outline-success">Configure</button>
-                  </div>
-                </div>
+        </div>
+            </div>
                 <div class="col-md-3">
                   <div class="quick-action-card text-center p-3 border rounded">
                     <i class="bi bi-graph-up text-info mb-2" style="font-size: 1.5rem;"></i>
                     <h6>Analytics</h6>
                     <p class="small text-muted">View messaging statistics</p>
                     <button class="btn btn-sm btn-outline-info">View Stats</button>
-                  </div>
-                </div>
+            </div>
+          </div>
                 <div class="col-md-3">
                   <div class="quick-action-card text-center p-3 border rounded">
                     <i class="bi bi-download text-warning mb-2" style="font-size: 1.5rem;"></i>
                     <h6>Export</h6>
                     <p class="small text-muted">Export conversation history</p>
                     <button class="btn btn-sm btn-outline-warning">Export</button>
-                  </div>
-                </div>
+        </div>
+            </div>
               </div>
             </div>
           </div>
@@ -805,7 +805,7 @@
         setupMyListingsLink('#myListingsLink', '../../auth/login.html', '../../stores/agent-stores/dashboard.html', '../../stores/agent-stores/create.html');
         // Setup sidebar toggle functionality
         setupSidebarToggle();
-    });
+      });
       
       
       // Setup sidebar toggle functionality
@@ -1100,7 +1100,7 @@
       // Update UI with new avatars
       updateConversationsUI();
     }
-    
+
     // Load conversations for admin view
     async function loadAdminConversations() {
       console.log('=== LOAD ADMIN CONVERSATIONS START ===');
@@ -1690,7 +1690,7 @@
             <div class="message-bubble ${isSent ? 'sent' : 'received'}">
               <div class="message-content">${msg.text || 'No message content'}</div>
               <div class="message-time">
-                ${isToday ? timeString : messageTime.toLocaleDateString() + ' ' + timeString}
+                  ${isToday ? timeString : messageTime.toLocaleDateString() + ' ' + timeString}
                 ${statusIcon ? `<span class="message-status">${statusIcon}</span>` : ''}
               </div>
             </div>
@@ -1705,7 +1705,7 @@
       
       // Scroll to bottom
       setTimeout(() => {
-        chat.scrollTop = chat.scrollHeight;
+      chat.scrollTop = chat.scrollHeight;
         console.log('📜 Scrolled to bottom of chat');
       }, 100);
       
@@ -1742,12 +1742,12 @@
       
       header.innerHTML = `
         <div class="d-flex align-items-center justify-content-between">
-          <div class="d-flex align-items-center">
+        <div class="d-flex align-items-center">
             <div class="conversation-avatar me-3">
               <img src="${selectedConversation.agentAvatar || '../../img/default-avatar.svg'}" 
                    alt="User" class="rounded-circle" width="48" height="48"
                    onerror="this.src='../../img/default-avatar.svg'">
-            </div>
+          </div>
             <div>
               <h5 class="mb-1" id="conversationTitle">${selectedConversation.listingTitle || 'Listing'}</h5>
               <small class="text-muted" id="conversationSubtitle">${selectedConversation.agentName || 'User'}</small>
@@ -1823,7 +1823,7 @@
         
         // Then set up real-time listener for new messages
         console.log('🔗 Setting up real-time listener for new messages...');
-        listenForMessages(selectedConversation.id);
+      listenForMessages(selectedConversation.id);
         
       } catch (error) {
         console.error('❌ Error loading messages:', error);

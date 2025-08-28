@@ -19,7 +19,7 @@ service cloud.firestore {
     function isAdmin() {
       return isAuthenticated() && (
         // Check admin emails
-        request.auth.token.email == 'admin@starletproperties.ug' || 
+        request.auth.token.email == 'admin@starletproperties.ug' ||
         request.auth.token.email == 'admin@starlet.co.ug' ||
         // Check user role in database
         (exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&

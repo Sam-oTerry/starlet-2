@@ -630,7 +630,7 @@
              setupEventListeners();
              // Wait for auth state to be ready before loading user data
              if (firebase.auth().currentUser) {
-                 loadUserData();
+             loadUserData();
              } else {
                  // Listen for auth state changes
                  firebase.auth().onAuthStateChanged(function(user) {
