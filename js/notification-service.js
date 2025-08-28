@@ -37,7 +37,7 @@ class NotificationService {
       
       for (const adminUser of adminUsers) {
         // Create notification in admin's notification collection
-        await this.createNotification({
+        const notificationId = await this.createNotification({
           userId: adminUser.uid,
           type: 'admin_pending_listings',
           title: 'Listings Pending Approval',
@@ -49,14 +49,22 @@ class NotificationService {
           priority: 'high'
         });
 
+        if (notificationId) {
+          console.log(`Created admin notification ${notificationId} for ${adminUser.uid}`);
+        }
+
         // Send email notification if admin has email
         if (adminUser.email) {
-          await this.sendEmailNotification({
-            to: adminUser.email,
-            subject: `Starlet Properties - ${pendingSnap.size} Listing${pendingSnap.size > 1 ? 's' : ''} Pending Approval`,
-            body: this.generatePendingListingsEmail(pendingSnap.size),
-            type: 'admin_pending_listings'
-          });
+          try {
+            await this.sendEmailNotification({
+              to: adminUser.email,
+              subject: `Starlet Properties - ${pendingSnap.size} Listing${pendingSnap.size > 1 ? 's' : ''} Pending Approval`,
+              body: this.generatePendingListingsEmail(pendingSnap.size),
+              type: 'admin_pending_listings'
+            });
+          } catch (emailError) {
+            console.warn(`Failed to send email to admin ${adminUser.email}:`, emailError.message);
+          }
         }
       }
 
@@ -83,7 +91,7 @@ class NotificationService {
       const userEmail = listingData.createdBy.email;
 
       // Create notification for user
-      await this.createNotification({
+      const notificationId = await this.createNotification({
         userId: userId,
         type: 'listing_approved',
         title: 'Listing Approved! 🎉',
@@ -91,11 +99,15 @@ class NotificationService {
         data: {
           listingId: listingId,
           listingTitle: listingData.title,
-          finalPrice: listingData.finalPrice,
+          finalPrice: listingData.finalPrice || listingData.askingPrice || listingData.price || null,
           actionUrl: `/pages/user/my-listings.html`
         },
         priority: 'high'
       });
+
+      if (notificationId) {
+        console.log(`Created notification ${notificationId} for user ${userId}`);
+      }
 
       // Send email notification
       if (userEmail) {
@@ -130,7 +142,7 @@ class NotificationService {
       const userEmail = listingData.createdBy.email;
 
       // Create notification for user
-      await this.createNotification({
+      const notificationId = await this.createNotification({
         userId: userId,
         type: 'listing_rejected',
         title: 'Listing Update Required',
@@ -143,6 +155,10 @@ class NotificationService {
         },
         priority: 'medium'
       });
+
+      if (notificationId) {
+        console.log(`Created notification ${notificationId} for user ${userId}`);
+      }
 
       // Send email notification
       if (userEmail) {
@@ -213,12 +229,25 @@ class NotificationService {
   // Create notification in Firestore
   async createNotification(notificationData) {
     try {
+      // Validate required fields
+      if (!notificationData.userId || !notificationData.title || !notificationData.body) {
+        console.error('Missing required notification data:', notificationData);
+        return null;
+      }
+
       const notification = {
         ...notificationData,
         createdAt: this.FieldValue ? this.FieldValue.serverTimestamp() : new Date(),
         read: false,
         id: this.generateNotificationId()
       };
+
+      // Remove any undefined values that could cause Firestore errors
+      Object.keys(notification).forEach(key => {
+        if (notification[key] === undefined) {
+          delete notification[key];
+        }
+      });
 
       await this.db.collection('users')
         .doc(notificationData.userId)
@@ -229,7 +258,16 @@ class NotificationService {
       return notification.id;
     } catch (error) {
       console.error('Error creating notification:', error);
-      throw error;
+      
+      // Handle permission errors gracefully
+      if (error.code === 'permission-denied') {
+        console.warn('Permission denied for notification creation. This is expected for non-admin users.');
+        return null;
+      }
+      
+      // For other errors, log but don't throw
+      console.warn('Notification creation failed, but continuing:', error.message);
+      return null;
     }
   }
 
@@ -349,6 +387,23 @@ class NotificationService {
   // Check for pending listings and notify admin (called periodically)
   async checkAndNotifyPendingListings() {
     try {
+      // Check if user has admin permissions before proceeding
+      const currentUser = firebase.auth().currentUser;
+      if (!currentUser) {
+        console.log('No authenticated user, skipping notification check');
+        return;
+      }
+
+      // Try to access admin collection to check permissions
+      try {
+        await this.db.collection('users').doc(currentUser.uid).get();
+      } catch (permError) {
+        if (permError.code === 'permission-denied') {
+          console.log('User does not have admin permissions, skipping notification check');
+          return;
+        }
+      }
+
       const pendingSnap = await this.db.collection('listings')
         .where('status', '==', 'pending')
         .get();

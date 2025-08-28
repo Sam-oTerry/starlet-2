@@ -747,7 +747,19 @@
       
       conversationsList.innerHTML = conversations.map((conv, idx) => {
         const unreadCount = conv.unreadCount || 0;
-        const lastMessageTime = conv.lastMessageAt ? new Date(conv.lastMessageAt.seconds ? conv.lastMessageAt.seconds * 1000 : conv.lastMessageAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '';
+        // Handle null or undefined lastMessageAt
+        let lastMessageTime = '';
+        if (conv.lastMessageAt) {
+          let messageTime;
+          if (conv.lastMessageAt.seconds) {
+            messageTime = new Date(conv.lastMessageAt.seconds * 1000);
+          } else if (conv.lastMessageAt.toDate && typeof conv.lastMessageAt.toDate === 'function') {
+            messageTime = conv.lastMessageAt.toDate();
+          } else {
+            messageTime = new Date(conv.lastMessageAt);
+          }
+          lastMessageTime = messageTime.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        }
         const isActive = selectedConversation && selectedConversation.id === conv.id;
         
         return `
@@ -755,8 +767,9 @@
                data-conversation-id="${conv.id}" 
                style="cursor: pointer; border-left: ${unreadCount > 0 ? '4px solid #dc3545' : '4px solid transparent'};">
             <div class="d-flex align-items-center">
-              <img src="${conv.agentAvatar || conv.listerAvatar || 'https://via.placeholder.com/40x40/0d6efd/ffffff?text=U'}" 
-                   class="rounded-circle me-3" width="40" height="40" alt="User">
+              <img src="${conv.agentAvatar || conv.listerAvatar || '../../img/default-avatar.svg'}" 
+                   class="rounded-circle me-3" width="40" height="40" alt="User"
+                   onerror="this.src='../../img/default-avatar.svg'">
               <div class="flex-grow-1">
                 <div class="d-flex justify-content-between align-items-start">
                   <div>
@@ -882,7 +895,18 @@
       );
       
       chat.innerHTML = filtered.map(msg => {
-        const messageTime = new Date(msg.createdAt.seconds ? msg.createdAt.seconds * 1000 : msg.createdAt);
+        // Handle null or undefined createdAt
+        let messageTime;
+        if (!msg.createdAt) {
+          messageTime = new Date();
+        } else if (msg.createdAt.seconds) {
+          messageTime = new Date(msg.createdAt.seconds * 1000);
+        } else if (msg.createdAt.toDate && typeof msg.createdAt.toDate === 'function') {
+          messageTime = msg.createdAt.toDate();
+        } else {
+          messageTime = new Date(msg.createdAt);
+        }
+        
         const timeString = messageTime.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
         const isToday = new Date().toDateString() === messageTime.toDateString();
         
@@ -900,9 +924,10 @@
         return `
           <div class="d-flex ${msg.senderId === window.currentUser.id ? 'justify-content-end' : 'justify-content-start'} mb-3">
             <div class="d-flex align-items-end ${msg.senderId === window.currentUser.id ? 'flex-row-reverse' : ''}" style="max-width: 70%;">
-              <img src="${msg.senderAvatar || 'https://via.placeholder.com/32x32/0d6efd/ffffff?text=U'}" 
+              <img src="${msg.senderAvatar || '../../img/default-avatar.svg'}" 
                    class="rounded-circle ${msg.senderId === window.currentUser.id ? 'ms-2' : 'me-2'}" 
-                   width="32" height="32" alt="User">
+                   width="32" height="32" alt="User"
+                   onerror="this.src='../../img/default-avatar.svg'">
               <div class="bg-${msg.senderId === window.currentUser.id ? 'primary' : 'light'} text-${msg.senderId === window.currentUser.id ? 'white' : 'dark'} rounded p-2">
                 <div class="mb-1">${msg.text}</div>
                 <small class="text-${msg.senderId === window.currentUser.id ? 'white-50' : 'muted'}">
@@ -929,8 +954,9 @@
       
       header.innerHTML = `
         <div class="d-flex align-items-center">
-          <img src="${selectedConversation.agentAvatar || selectedConversation.listerAvatar || 'https://via.placeholder.com/40x40/0d6efd/ffffff?text=U'}" 
-               class="rounded-circle me-3" width="40" height="40" alt="User">
+          <img src="${selectedConversation.agentAvatar || selectedConversation.listerAvatar || '../../img/default-avatar.svg'}" 
+               class="rounded-circle me-3" width="40" height="40" alt="User"
+               onerror="this.src='../../img/default-avatar.svg'">
           <div class="flex-grow-1">
             <h5 class="mb-0">${selectedConversation.listingTitle || 'Listing'}</h5>
             <small class="text-muted">${selectedConversation.agentName || selectedConversation.listerName || 'User'}</small>
