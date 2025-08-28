@@ -299,6 +299,12 @@
                       Backup Data
                     </button>
                   </div>
+                  <div class="col-md-2 col-sm-4 col-6">
+                    <button class="btn btn-outline-warning w-100 quick-action-btn" onclick="fixInvalidTimestamps()">
+                      <i class="bi bi-tools mb-2"></i><br>
+                      Fix Timestamps
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -945,16 +951,13 @@
 
       // Utility functions
       function getTimeAgo(timestamp) {
-        console.log('🔍 getTimeAgo called with:', {
-          timestamp: timestamp,
-          type: typeof timestamp,
-          isNull: timestamp === null,
-          isUndefined: timestamp === undefined
-        });
-        
         if (!timestamp) {
-          console.log('❌ Timestamp is falsy, returning Unknown');
           return 'Unknown';
+        }
+        
+        // Handle Firebase FieldValue objects (serverTimestamp that wasn't set)
+        if (timestamp._methodName === 'FieldValue.serverTimestamp') {
+          return 'Recently';
         }
         
         try {
@@ -963,41 +966,32 @@
           
           if (timestamp.toDate && typeof timestamp.toDate === 'function') {
             // Firestore Timestamp
-            console.log('📅 Processing as Firestore Timestamp');
             time = timestamp.toDate();
           } else if (timestamp.seconds) {
             // Firestore Timestamp object with seconds
-            console.log('⏱️ Processing as Firestore Timestamp with seconds:', timestamp.seconds);
             time = new Date(timestamp.seconds * 1000);
           } else if (timestamp instanceof Date) {
             // Already a Date object
-            console.log('📆 Processing as Date object');
             time = timestamp;
           } else if (typeof timestamp === 'string' || typeof timestamp === 'number') {
             // String or timestamp number
-            console.log('🔢 Processing as string/number:', timestamp);
             time = new Date(timestamp);
           } else {
-            console.log('❓ Unknown timestamp format, returning Unknown');
             return 'Unknown';
           }
           
-          console.log('🕐 Converted time:', time);
-          
           if (isNaN(time.getTime())) {
-            console.log('❌ Invalid time, returning Unknown');
             return 'Unknown';
           }
           
           const diffInSeconds = Math.floor((now - time) / 1000);
-          console.log('⏰ Time difference in seconds:', diffInSeconds);
           
           if (diffInSeconds < 60) return 'Just now';
           if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`;
           if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`;
           return `${Math.floor(diffInSeconds / 86400)}d ago`;
         } catch (error) {
-          console.error('❌ Error calculating time ago:', error);
+          console.error('Error calculating time ago:', error);
           return 'Unknown';
         }
       }
@@ -1078,6 +1072,54 @@
 
       function showError(message) {
         showToast('Error: ' + message);
+      }
+
+      // Utility function to fix invalid timestamps
+      async function fixInvalidTimestamps() {
+        try {
+          console.log('🔧 Starting to fix invalid timestamps...');
+          
+          // Get all listings with invalid timestamps
+          const listingsSnapshot = await dashboardDB.collection('listings')
+            .where('createdAt', '==', { _methodName: 'FieldValue.serverTimestamp' })
+            .get();
+          
+          console.log(`🔧 Found ${listingsSnapshot.size} listings with invalid timestamps`);
+          
+          if (listingsSnapshot.size === 0) {
+            showToast('No listings with invalid timestamps found');
+            return;
+          }
+          
+          // Update each listing with a proper timestamp
+          const batch = dashboardDB.batch();
+          let updatedCount = 0;
+          
+          listingsSnapshot.forEach(doc => {
+            const listing = doc.data();
+            console.log(`🔧 Fixing timestamp for listing: ${listing.title || doc.id}`);
+            
+            // Set to current time (or you could use a default date)
+            batch.update(doc.ref, {
+              createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            updatedCount++;
+          });
+          
+          await batch.commit();
+          console.log(`✅ Successfully updated ${updatedCount} listings`);
+          showToast(`Fixed timestamps for ${updatedCount} listings`);
+          
+          // Refresh the dashboard
+          setTimeout(() => {
+            loadDashboardStats();
+            loadRecentActivity();
+          }, 1000);
+          
+        } catch (error) {
+          console.error('❌ Error fixing timestamps:', error);
+          showToast('Error fixing timestamps: ' + error.message);
+        }
       }
     </script>
   </body>
