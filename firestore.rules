@@ -58,6 +58,11 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
     
+    // Allow admins to read all users for dashboard stats
+    match /users/{userId} {
+      allow read: if isAdmin();
+    }
+    
     // Listings collection
     match /listings/{listingId} {
       // Anyone can read approved listings
@@ -78,6 +83,11 @@ service cloud.firestore {
       
       // Users can delete their own listings, admins can delete any
       allow delete: if (isAuthenticated() && resource.data.userId == request.auth.uid) || isAdmin();
+    }
+    
+    // Allow admins to read all listings for dashboard stats
+    match /listings/{listingId} {
+      allow read: if isAdmin();
     }
     
     // Conversations collection

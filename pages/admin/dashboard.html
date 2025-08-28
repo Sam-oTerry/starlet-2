@@ -493,47 +493,85 @@
             return;
           }
           
-          // Get listings count
-          const listingsSnap = await dashboardDB.collection('listings').get();
-          const totalListings = listingsSnap.size;
+          console.log('📊 Loading dashboard statistics...');
           
-          // Get users count
-          const usersSnap = await dashboardDB.collection('users').get();
-          const totalUsers = usersSnap.size;
+          // Get listings count with error handling
+          let totalListings = 0;
+          try {
+            const listingsSnap = await dashboardDB.collection('listings').get();
+            totalListings = listingsSnap.size;
+            console.log('✅ Listings count loaded:', totalListings);
+          } catch (error) {
+            console.warn('⚠️ Could not load listings count:', error.message);
+          }
           
-          // Get stores count
-          const storesSnap = await dashboardDB.collection('stores').get();
-          const totalStores = storesSnap.size;
+          // Get users count with error handling
+          let totalUsers = 0;
+          try {
+            const usersSnap = await dashboardDB.collection('users').get();
+            totalUsers = usersSnap.size;
+            console.log('✅ Users count loaded:', totalUsers);
+          } catch (error) {
+            console.warn('⚠️ Could not load users count:', error.message);
+          }
           
-          // Get pending approvals
-          const pendingSnap = await dashboardDB.collection('listings').where('status', '==', 'pending').get();
-          const pendingApprovals = pendingSnap.size;
+          // Get stores count with error handling
+          let totalStores = 0;
+          try {
+            const storesSnap = await dashboardDB.collection('stores').get();
+            totalStores = storesSnap.size;
+            console.log('✅ Stores count loaded:', totalStores);
+          } catch (error) {
+            console.warn('⚠️ Could not load stores count:', error.message);
+          }
+          
+          // Get pending approvals with error handling
+          let pendingApprovals = 0;
+          try {
+            const pendingSnap = await dashboardDB.collection('listings').where('status', '==', 'pending').get();
+            pendingApprovals = pendingSnap.size;
+            console.log('✅ Pending approvals loaded:', pendingApprovals);
+          } catch (error) {
+            console.warn('⚠️ Could not load pending approvals:', error.message);
+          }
           
           // Update pending listings badge
           updatePendingListingsBadge(pendingApprovals);
           
-          // Get active conversations (last 24 hours)
-          const yesterday = new Date();
-          yesterday.setDate(yesterday.getDate() - 1);
-          const conversationsSnap = await dashboardDB.collection('conversations')
-            .where('lastMessageAt', '>=', yesterday)
-            .get();
-          const activeConversations = conversationsSnap.size;
+          // Get active conversations (last 24 hours) with error handling
+          let activeConversations = 0;
+          try {
+            const yesterday = new Date();
+            yesterday.setDate(yesterday.getDate() - 1);
+            const conversationsSnap = await dashboardDB.collection('conversations')
+              .where('lastMessageAt', '>=', yesterday)
+              .get();
+            activeConversations = conversationsSnap.size;
+            console.log('✅ Active conversations loaded:', activeConversations);
+          } catch (error) {
+            console.warn('⚠️ Could not load active conversations:', error.message);
+          }
           
           // Get total views (placeholder - would need tracking implementation)
           const totalViews = Math.floor(Math.random() * 10000) + 5000;
           
-          // Get reviews count and average
-          const reviewsSnap = await dashboardDB.collection('reviews').get();
-          const totalReviews = reviewsSnap.size;
+          // Get reviews count and average with error handling
+          let totalReviews = 0;
           let avgRating = 0;
-          if (totalReviews > 0) {
-            let totalRating = 0;
-            reviewsSnap.forEach(doc => {
-              const review = doc.data();
-              totalRating += review.rating || 0;
-            });
-            avgRating = (totalRating / totalReviews).toFixed(1);
+          try {
+            const reviewsSnap = await dashboardDB.collection('reviews').get();
+            totalReviews = reviewsSnap.size;
+            if (totalReviews > 0) {
+              let totalRating = 0;
+              reviewsSnap.forEach(doc => {
+                const review = doc.data();
+                totalRating += review.rating || 0;
+              });
+              avgRating = (totalRating / totalReviews).toFixed(1);
+            }
+            console.log('✅ Reviews loaded:', totalReviews, 'avg rating:', avgRating);
+          } catch (error) {
+            console.warn('⚠️ Could not load reviews:', error.message);
           }
           
           // Get revenue (placeholder - would need payment tracking)
