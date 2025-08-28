@@ -1616,8 +1616,33 @@
     // Utility functions
     function formatDate(date) {
       if (!date) return 'Unknown';
-      const d = new Date(date);
-      return d.toLocaleDateString() + ' ' + d.toLocaleTimeString();
+      
+      try {
+        let d;
+        if (date.toDate && typeof date.toDate === 'function') {
+          // Firestore Timestamp
+          d = date.toDate();
+        } else if (date.seconds) {
+          // Firestore Timestamp object with seconds
+          d = new Date(date.seconds * 1000);
+        } else if (date instanceof Date) {
+          // Already a Date object
+          d = date;
+        } else if (typeof date === 'string' || typeof date === 'number') {
+          // String or timestamp number
+          d = new Date(date);
+        } else {
+          return 'Invalid Date';
+        }
+        
+        if (isNaN(d.getTime())) {
+          return 'Invalid Date';
+        }
+        return d.toLocaleDateString() + ' ' + d.toLocaleTimeString();
+      } catch (error) {
+        console.error('Error formatting date:', error);
+        return 'Invalid Date';
+      }
     }
 
     function formatPrice(price) {

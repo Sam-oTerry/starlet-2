@@ -94,8 +94,33 @@ function requireAdminUser() {
 // Utility: Format date
 function formatDate(ts) {
   if (!ts) return '';
-  if (ts.toDate) ts = ts.toDate();
-  return ts instanceof Date ? ts.toLocaleDateString() : ts;
+  
+  try {
+    let d;
+    if (ts.toDate && typeof ts.toDate === 'function') {
+      // Firestore Timestamp
+      d = ts.toDate();
+    } else if (ts.seconds) {
+      // Firestore Timestamp object with seconds
+      d = new Date(ts.seconds * 1000);
+    } else if (ts instanceof Date) {
+      // Already a Date object
+      d = ts;
+    } else if (typeof ts === 'string' || typeof ts === 'number') {
+      // String or timestamp number
+      d = new Date(ts);
+    } else {
+      return 'Invalid Date';
+    }
+    
+    if (isNaN(d.getTime())) {
+      return 'Invalid Date';
+    }
+    return d.toLocaleDateString();
+  } catch (error) {
+    console.error('Error formatting date:', error);
+    return 'Invalid Date';
+  }
 }
 
 // Utility: Format price
