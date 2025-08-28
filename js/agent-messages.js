@@ -291,7 +291,7 @@ if (chatFooter) {
         type: 'text',
         text,
         senderId: currentUser.uid,
-        createdAt: new Date()
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
       });
       input.value = '';
     }
@@ -304,7 +304,7 @@ if (chatFooter) {
         fileName: uploadName,
         fileSize: parseInt(uploadSize),
         senderId: currentUser.uid,
-        createdAt: new Date()
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
       });
       delete chatFooter.dataset.uploadUrl;
       delete chatFooter.dataset.uploadType;

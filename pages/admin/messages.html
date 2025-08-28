@@ -992,7 +992,7 @@
               senderId: window.currentUser.id,
               senderName: window.currentUser.name,
               senderAvatar: window.currentUser.avatar,
-              createdAt: new Date(),
+              createdAt: firebase.firestore.FieldValue.serverTimestamp(),
               read: false,
               delivered: false
             };
@@ -1004,7 +1004,7 @@
             // Update conversation metadata
             await window.firebaseDB.collection('conversations').doc(selectedConversation.id).update({
               lastMessage: text,
-              lastMessageAt: new Date(),
+              lastMessageAt: firebase.firestore.FieldValue.serverTimestamp(),
               unreadCount: firebase.firestore.FieldValue.increment(1)
             });
             

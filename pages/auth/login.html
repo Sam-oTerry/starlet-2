@@ -849,7 +849,7 @@
                             displayName: user.displayName || '',
                             photoURL: user.photoURL || '',
                             role: 'user',
-                            createdAt: new Date()
+                            createdAt: firebase.firestore.FieldValue.serverTimestamp()
                         });
                         userDoc = await window.firebaseDB.collection('users').doc(user.uid).get();
                     }

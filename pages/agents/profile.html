@@ -815,7 +815,7 @@
         message: document.getElementById('messageContent').value,
         agentId: currentAgent.id,
         agentName: currentAgent.name,
-        createdAt: new Date(),
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
         status: 'unread'
       };
 

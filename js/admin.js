@@ -552,7 +552,7 @@ document.addEventListener('DOMContentLoaded', function() {
         listing.isOfficial = true;
         listing.storeId = officialStoreId;
         listing.status = 'pending';
-        listing.createdAt = new Date();
+        listing.createdAt = firebase.firestore.FieldValue.serverTimestamp();
         try {
           await db.collection('listings').add(listing);
           showToast('Listing added successfully');

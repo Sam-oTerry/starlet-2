@@ -176,7 +176,7 @@ function waitForFirebaseAndInit() {
           type: 'text',
           text,
           senderId: currentUser.uid,
-          createdAt: new Date()
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
         });
         input.value = '';
       };
