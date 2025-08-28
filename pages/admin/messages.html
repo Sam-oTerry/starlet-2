@@ -994,6 +994,113 @@
       });
     }
 
+    // Cache for user names to avoid repeated Firestore queries
+    const userNamesCache = new Map();
+    
+    // Function to extract user IDs from conversation IDs
+    function extractUserIdsFromConversationId(convId) {
+      const userIds = [];
+      
+      // Pattern 1: listing_listingId_userId_agentId
+      if (convId.startsWith('listing_')) {
+        const parts = convId.split('_');
+        if (parts.length >= 3) {
+          userIds.push(parts[2]); // userId
+          if (parts.length >= 4) {
+            userIds.push(parts[3]); // agentId
+          }
+        }
+      }
+      // Pattern 2: support_userId
+      else if (convId.startsWith('support_')) {
+        const parts = convId.split('_');
+        if (parts.length >= 2) {
+          userIds.push(parts[1]); // userId
+        }
+      }
+      // Pattern 3: direct conversation ID (might be user ID)
+      else {
+        userIds.push(convId);
+      }
+      
+      return userIds;
+    }
+    
+    // Cache for user avatars to avoid repeated Firestore queries
+    const userAvatarsCache = new Map();
+    
+    // Function to fetch user name from users collection
+    async function fetchUserName(userId) {
+      // Check cache first
+      if (userNamesCache.has(userId)) {
+        return userNamesCache.get(userId);
+      }
+      
+      try {
+        const userDoc = await window.firebaseDB.collection('users').doc(userId).get();
+        if (userDoc.exists) {
+          const userData = userDoc.data();
+          const userName = userData.displayName || userData.name || userData.email || 'User';
+          // Cache the result
+          userNamesCache.set(userId, userName);
+          console.log(`✅ Fetched user name for ${userId}:`, userName);
+          return userName;
+        } else {
+          console.log(`⚠️ User document not found for ID: ${userId}`);
+          return null;
+        }
+      } catch (error) {
+        console.error(`❌ Error fetching user name for ${userId}:`, error);
+        return null;
+      }
+    }
+    
+    // Function to fetch user avatar from users collection
+    async function fetchUserAvatar(userId) {
+      // Check cache first
+      if (userAvatarsCache.has(userId)) {
+        return userAvatarsCache.get(userId);
+      }
+      
+      try {
+        const userDoc = await window.firebaseDB.collection('users').doc(userId).get();
+        if (userDoc.exists) {
+          const userData = userDoc.data();
+          const userAvatar = userData.avatar || userData.profileImage || userData.photoURL || null;
+          // Cache the result
+          userAvatarsCache.set(userId, userAvatar);
+          console.log(`✅ Fetched user avatar for ${userId}:`, userAvatar);
+          return userAvatar;
+        } else {
+          console.log(`⚠️ User document not found for ID: ${userId}`);
+          return null;
+        }
+      } catch (error) {
+        console.error(`❌ Error fetching user avatar for ${userId}:`, error);
+        return null;
+      }
+    }
+    
+    // Function to fetch missing avatars for conversations
+    async function fetchMissingAvatars() {
+      for (const conversation of conversations) {
+        if (!conversation.agentAvatar && conversation.userIds && conversation.userIds.length > 0) {
+          console.log(`🖼️ Fetching avatar for conversation: ${conversation.id}`);
+          for (const userId of conversation.userIds) {
+            const avatar = await fetchUserAvatar(userId);
+            if (avatar) {
+              conversation.agentAvatar = avatar;
+              console.log(`✅ Updated avatar for conversation ${conversation.id}:`, avatar);
+              break; // Use the first avatar found
+            }
+          }
+        }
+      }
+      
+      // Update UI with new avatars
+      updateConversationsUI();
+    }
+    
     // Load conversations for admin view
     async function loadAdminConversations() {
       console.log('=== LOAD ADMIN CONVERSATIONS START ===');
@@ -1019,7 +1126,9 @@
         console.log('📊 Number of conversations found:', convSnap.size);
         
         conversations = [];
-        convSnap.forEach(doc => {
+        
+        // Process conversations sequentially to fetch user names
+        for (const doc of convSnap.docs) {
           console.log('🔍 Processing conversation document:', doc.id);
           console.log('🔍 Raw conversation data:', doc.data());
           const convData = doc.data();
@@ -1036,43 +1145,114 @@
           console.log('  - senderName:', convData.senderName);
           console.log('  - agent.name:', convData.agent?.name);
           console.log('  - lister.name:', convData.lister?.name);
+          console.log('  - user.name:', convData.user?.name);
+          console.log('  - sender.name:', convData.sender?.name);
+          console.log('  - participantName:', convData.participantName);
+          console.log('  - customerName:', convData.customerName);
+          console.log('  - clientName:', convData.clientName);
           
           console.log('🔍 Listing title detection:');
           console.log('  - listingTitle:', convData.listingTitle);
           console.log('  - title:', convData.title);
           console.log('  - listingName:', convData.listingName);
+          console.log('  - propertyTitle:', convData.propertyTitle);
+          console.log('  - listing.title:', convData.listing?.title);
           
           console.log('🔍 Last message detection:');
           console.log('  - lastMessage:', convData.lastMessage);
           console.log('  - lastMessageText:', convData.lastMessageText);
+          console.log('  - lastMessageContent:', convData.lastMessageContent);
           
           console.log('🔍 Avatar detection:');
           console.log('  - agentAvatar:', convData.agentAvatar);
           console.log('  - listerAvatar:', convData.listerAvatar);
           console.log('  - agent.avatar:', convData.agent?.avatar);
           console.log('  - lister.avatar:', convData.lister?.avatar);
+          console.log('  - user.avatar:', convData.user?.avatar);
+          console.log('  - sender.avatar:', convData.sender?.avatar);
+          console.log('  - participantAvatar:', convData.participantAvatar);
+          
+          // Enhanced user name detection with more field variations
+          let userName = convData.agentName || convData.listerName || convData.userName || convData.senderName || 
+                        convData.participantName || convData.customerName || convData.clientName ||
+                        (convData.agent && convData.agent.name) || 
+                        (convData.lister && convData.lister.name) ||
+                        (convData.user && convData.user.name) ||
+                        (convData.sender && convData.sender.name);
+          
+          // If still no name, try to extract from conversation ID and fetch from users collection
+          if (!userName || userName === 'Unknown User') {
+            const convId = doc.id;
+            console.log('🔍 Attempting to extract user IDs from conversation ID:', convId);
+            
+            // Extract all possible user IDs from conversation ID
+            const userIds = extractUserIdsFromConversationId(convId);
+            console.log('🔍 Extracted user IDs:', userIds);
+            
+            // Try to fetch user name from each user ID
+            for (const userId of userIds) {
+              console.log('🔍 Attempting to fetch user name for ID:', userId);
+              const fetchedUserName = await fetchUserName(userId);
+              if (fetchedUserName) {
+                userName = fetchedUserName;
+                console.log('✅ Found user name:', userName);
+                break; // Use the first valid user name found
+              }
+            }
+            
+            // If still no name, use fallback based on conversation type
+            if (!userName || userName === 'Unknown User') {
+              if (convId.startsWith('listing_')) {
+                userName = 'Property Inquirer';
+              } else if (convId.startsWith('support_')) {
+                userName = 'Support User';
+              } else {
+                userName = 'Chat User';
+              }
+              console.log('⚠️ Using fallback name:', userName);
+            }
+          }
+          
+          // Enhanced listing title detection
+          let listingTitle = convData.listingTitle || convData.title || convData.listingName || 
+                           convData.propertyTitle || (convData.listing && convData.listing.title);
+          
+          // If still no title, try to extract from conversation ID
+          if (!listingTitle || listingTitle === 'Untitled Listing') {
+            const convId = doc.id;
+            if (convId.startsWith('listing_')) {
+              const parts = convId.split('_');
+              if (parts.length > 1) {
+                listingTitle = parts[1] || 'Property Inquiry';
+              }
+            } else if (convId.startsWith('support_')) {
+              listingTitle = 'Support Chat';
+            }
+          }
           
           const conversation = {
             id: doc.id,
             ...convData,
             // Enhanced user name detection
-            agentName: convData.agentName || convData.listerName || convData.userName || convData.senderName || 
-                      (convData.agent && convData.agent.name) || 
-                      (convData.lister && convData.lister.name) || 'Unknown User',
+            agentName: userName || 'Unknown User',
             // Enhanced listing title detection
-            listingTitle: convData.listingTitle || convData.title || convData.listingName || 'Untitled Listing',
+            listingTitle: listingTitle || 'Untitled Listing',
             // Enhanced last message detection
-            lastMessage: convData.lastMessage || convData.lastMessageText || 'No messages yet',
+            lastMessage: convData.lastMessage || convData.lastMessageText || convData.lastMessageContent || 'No messages yet',
             unreadCount: convData.unreadCount || 0,
-            // Enhanced avatar detection
-            agentAvatar: convData.agentAvatar || convData.listerAvatar || 
-                        (convData.agent && convData.agent.avatar) || 
-                        (convData.lister && convData.lister.avatar) || null
+                      // Enhanced avatar detection
+          agentAvatar: convData.agentAvatar || convData.listerAvatar || convData.participantAvatar ||
+                      (convData.agent && convData.agent.avatar) || 
+                      (convData.lister && convData.lister.avatar) ||
+                      (convData.user && convData.user.avatar) ||
+                      (convData.sender && convData.sender.avatar) || null,
+          // Store user IDs for later avatar fetching
+          userIds: extractUserIdsFromConversationId(doc.id)
           };
           
           console.log('✅ Processed conversation:', conversation);
           conversations.push(conversation);
-        });
+        }
         
         console.log(`✅ Loaded ${conversations.length} conversations for admin:`, conversations);
         console.log('=== LOAD ADMIN CONVERSATIONS END ===');
@@ -1080,6 +1260,10 @@
         // Update UI with conversations
         console.log('🎨 Updating UI with conversations...');
         updateConversationsUI();
+        
+        // Fetch avatars for conversations that don't have them
+        console.log('🖼️ Fetching missing avatars...');
+        await fetchMissingAvatars();
         
         // If no conversations, show a helpful message
         if (conversations.length === 0) {
@@ -1156,6 +1340,9 @@
             } else if (conv.lastMessageAt._seconds && typeof conv.lastMessageAt._seconds === 'number') {
               console.log(`    ✅ Using _seconds property: ${conv.lastMessageAt._seconds}`);
               messageTime = new Date(conv.lastMessageAt._seconds * 1000);
+            } else if (conv.lastMessageAt._methodName === 'FieldValue.serverTimestamp') {
+              console.log(`    ⚠️ Server timestamp detected, using current time`);
+              messageTime = new Date();
             } else if (typeof conv.lastMessageAt === 'string') {
               console.log(`    ✅ Using string date: ${conv.lastMessageAt}`);
               messageTime = new Date(conv.lastMessageAt);
