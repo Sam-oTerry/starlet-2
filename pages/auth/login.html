@@ -654,6 +654,25 @@
     <script>
         let currentMode = 'login'; // 'login' or 'register'
         
+        // Debug function to log URL parameters on page load
+        function debugUrlParameters() {
+            const params = new URLSearchParams(window.location.search);
+            const returnUrl = params.get('returnUrl');
+            const referrer = document.referrer;
+            
+            console.log('=== Login Page Debug Info ===');
+            console.log('Current URL:', window.location.href);
+            console.log('ReturnUrl from query param:', returnUrl);
+            console.log('Document referrer:', referrer);
+            console.log('Origin:', window.location.origin);
+            console.log('Pathname:', window.location.pathname);
+            console.log('All query params:', Object.fromEntries(params));
+            console.log('=============================');
+        }
+        
+        // Call debug function when page loads
+        debugUrlParameters();
+        
         function togglePassword() {
             const passwordInput = document.getElementById('password');
             const toggleIcon = document.getElementById('passwordToggleIcon');
@@ -735,6 +754,83 @@
             console.log('Switched to login mode');
         }
         
+        // Handle redirect after successful login
+        function handleLoginRedirect(role) {
+            console.log('Handling login redirect for role:', role);
+            
+            // Get returnUrl from query parameter
+            const params = new URLSearchParams(window.location.search);
+            let returnUrl = params.get('returnUrl');
+            
+            console.log('ReturnUrl from query param:', returnUrl);
+            
+            // If no returnUrl, try to get it from referrer
+            if (!returnUrl) {
+                try {
+                    const ref = document.referrer;
+                    if (ref && ref.startsWith(window.location.origin)) {
+                        returnUrl = ref.replace(window.location.origin, '');
+                        console.log('ReturnUrl from referrer:', returnUrl);
+                    }
+                } catch (e) {
+                    console.log('Error getting referrer:', e);
+                }
+            }
+            
+            // Clean and validate returnUrl
+            if (returnUrl) {
+                // Remove any login-related paths
+                if (returnUrl.includes('login.html') || returnUrl.includes('auth/') || returnUrl.includes('register')) {
+                    console.log('Invalid returnUrl (contains login/auth paths), using fallback');
+                    returnUrl = null;
+                }
+                
+                // Ensure returnUrl starts with a slash
+                if (returnUrl && !returnUrl.startsWith('/')) {
+                    returnUrl = '/' + returnUrl;
+                }
+                
+                // For GitHub Pages, ensure the path includes the base if needed
+                if (returnUrl && window.location.pathname.includes('/starlet-2/') && !returnUrl.includes('/starlet-2/')) {
+                    returnUrl = '/starlet-2' + returnUrl;
+                }
+            }
+            
+            console.log('Final returnUrl after validation:', returnUrl);
+            
+            // For admin users, always redirect to admin dashboard unless they have a specific returnUrl
+            if (role === 'admin') {
+                if (returnUrl) {
+                    console.log('Admin redirecting to returnUrl:', returnUrl);
+                    window.location.href = returnUrl;
+                } else {
+                    console.log('Admin redirecting to admin dashboard');
+                    // Dynamically detect base path for GitHub Pages
+                    var path = window.location.pathname;
+                    var base = path.includes('/starlet-2/') ? '/starlet-2' : '';
+                    window.location.href = base + '/pages/admin/dashboard.html';
+                }
+                return;
+            }
+            
+            // For regular users, use returnUrl or fallback to appropriate dashboard
+            if (returnUrl) {
+                console.log('User redirecting to returnUrl:', returnUrl);
+                window.location.href = returnUrl;
+            } else {
+                // Fallback to appropriate dashboard based on role
+                console.log('User redirecting to fallback dashboard');
+                var path = window.location.pathname;
+                var base = path.includes('/starlet-2/') ? '/starlet-2' : '';
+                
+                if (role === 'agent') {
+                    window.location.href = base + '/pages/stores/agent-stores/dashboard.html';
+                } else {
+                    window.location.href = base + '/pages/user/my-listings.html';
+                }
+            }
+        }
+        
         // Login form submission
         document.getElementById('loginForm').addEventListener('submit', async function(e) {
             e.preventDefault();
@@ -764,27 +860,8 @@
                     uid: user.uid,
                     role: role
                 }));
-                // Redirect based on role
-                if (role === 'admin') {
-                    window.location.href = '../admin/dashboard.html';
-                } else {
-                    // Get returnUrl from query param or fallback to referrer or dashboard
-                    const params = new URLSearchParams(window.location.search);
-                    let returnUrl = params.get('returnUrl');
-                    if (!returnUrl) {
-                        // Use document.referrer if it's from the same origin
-                        try {
-                            const ref = document.referrer;
-                            if (ref && ref.startsWith(window.location.origin)) {
-                                returnUrl = ref.replace(window.location.origin, '');
-                            }
-                        } catch (e) {}
-                    }
-                    if (!returnUrl || returnUrl.includes('login.html')) {
-                        returnUrl = '../dashboard/index.html';
-                    }
-                    window.location.href = returnUrl;
-                }
+                // Handle redirect after successful login
+                handleLoginRedirect(role);
             } catch (error) {
                 alert('Login failed: ' + (error.message || error));
             }
@@ -821,8 +898,9 @@
                 password 
             });
             
-            // For demo purposes, redirect to dashboard
-            window.location.href = '../dashboard/index.html';
+            // For demo purposes, redirect to appropriate dashboard
+            // Note: In a real implementation, you would create the user account first
+            handleLoginRedirect('user');
         });
         
         // Google sign in/up
@@ -862,26 +940,8 @@
                         uid: user.uid,
                         role: role
                     }));
-                    // Redirect based on role
-                    if (role === 'admin') {
-                        window.location.href = '../admin/dashboard.html';
-                    } else {
-                        // Get returnUrl from query param or fallback to referrer or dashboard
-                        const params = new URLSearchParams(window.location.search);
-                        let returnUrl = params.get('returnUrl');
-                        if (!returnUrl) {
-                            try {
-                                const ref = document.referrer;
-                                if (ref && ref.startsWith(window.location.origin)) {
-                                    returnUrl = ref.replace(window.location.origin, '');
-                                }
-                            } catch (e) {}
-                        }
-                        if (!returnUrl || returnUrl.includes('login.html')) {
-                            returnUrl = '../dashboard/index.html';
-                        }
-                        window.location.href = returnUrl;
-                    }
+                    // Handle redirect after successful login
+                    handleLoginRedirect(role);
                 } catch (error) {
                     alert('Google sign-in failed: ' + (error.message || error));
                 }

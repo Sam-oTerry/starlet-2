@@ -793,11 +793,33 @@ function enforceAuth(loginPath = '/pages/auth/login.html') {
     if (window.firebaseAuth && window.firebaseAuth.currentUser && window.firebaseAuth.currentUser.uid) return;
     // Not logged in, redirect to login with returnUrl
     const returnUrl = encodeURIComponent(window.location.pathname + window.location.search + window.location.hash);
+    
     // Dynamically detect base path for GitHub Pages subfolder support
     var path = window.location.pathname;
     var base = path.includes('/starlet-2/') ? '/starlet-2' : '';
-    var fullLoginPath = base + loginPath;
-    window.location.href = fullLoginPath + '?returnUrl=' + returnUrl;
+    
+    // Ensure loginPath starts with the correct base
+    if (loginPath.startsWith('/pages/')) {
+        loginPath = base + loginPath;
+    } else if (loginPath.startsWith('./pages/')) {
+        loginPath = base + loginPath.substring(1); // Remove the leading dot
+    } else if (loginPath.startsWith('../')) {
+        // Handle relative paths by calculating the correct path
+        var currentPath = window.location.pathname;
+        var segments = currentPath.split('/').filter(s => s);
+        var loginSegments = loginPath.split('/').filter(s => s);
+        
+        // Remove the segments that match the relative path
+        for (let i = 0; i < loginSegments.length && loginSegments[i] === '..'; i++) {
+            segments.pop();
+        }
+        
+        // Build the final path
+        loginPath = base + '/' + segments.join('/') + '/' + loginSegments.slice(loginSegments.filter(s => s !== '..').length).join('/');
+    }
+    
+    console.log('Redirecting to login:', loginPath + '?returnUrl=' + returnUrl);
+    window.location.href = loginPath + '?returnUrl=' + returnUrl;
 }
 
 function setupMyListingsLink(myListingsSelector = '#myListingsLink', loginPath = '/pages/auth/login.html', agentDashboardPath = '/pages/user/my-listings.html', createStorePath = '/pages/user/my-listings.html') {
@@ -807,16 +829,37 @@ function setupMyListingsLink(myListingsSelector = '#myListingsLink', loginPath =
         e.preventDefault();
         let user = getStarletUser();
         if (!user || !user.uid) {
-                    // Not logged in, go to login
-        // Dynamically detect base path for GitHub Pages subfolder support
-        var path = window.location.pathname;
-        var base = path.includes('/starlet-2/') ? '/starlet-2' : '';
-        var fullLoginPath = base + loginPath;
-        window.location.href = fullLoginPath + '?returnUrl=' + encodeURIComponent(window.location.pathname);
-        return;
+            // Not logged in, go to login
+            // Dynamically detect base path for GitHub Pages subfolder support
+            var path = window.location.pathname;
+            var base = path.includes('/starlet-2/') ? '/starlet-2' : '';
+            
+            // Ensure loginPath starts with the correct base
+            if (loginPath.startsWith('/pages/')) {
+                loginPath = base + loginPath;
+            } else if (loginPath.startsWith('./pages/')) {
+                loginPath = base + loginPath.substring(1); // Remove the leading dot
+            } else if (loginPath.startsWith('../')) {
+                // Handle relative paths by calculating the correct path
+                var currentPath = window.location.pathname;
+                var segments = currentPath.split('/').filter(s => s);
+                var loginSegments = loginPath.split('/').filter(s => s);
+                
+                // Remove the segments that match the relative path
+                for (let i = 0; i < loginSegments.length && loginSegments[i] === '..'; i++) {
+                    segments.pop();
+                }
+                
+                // Build the final path
+                loginPath = base + '/' + segments.join('/') + '/' + loginSegments.slice(loginSegments.filter(s => s !== '..').length).join('/');
+            }
+            
+            console.log('Redirecting to login from MyListings:', loginPath + '?returnUrl=' + encodeURIComponent(window.location.pathname));
+            window.location.href = loginPath + '?returnUrl=' + encodeURIComponent(window.location.pathname);
+            return;
         }
         // User is logged in, go to my-listings page
-                    window.location.href = agentDashboardPath;
+        window.location.href = agentDashboardPath;
     });
 }
 
@@ -847,9 +890,27 @@ function setupMyListingsLink(myListingsSelector = '#myListingsLink', loginPath =
       // Dynamically detect base path for GitHub Pages subfolder support
       var path = window.location.pathname;
       var base = path.includes('/starlet-2/') ? '/starlet-2' : '';
+      
+      // Ensure loginHref starts with the correct base
       if (loginHref.startsWith('/pages/')) {
         loginHref = base + loginHref;
+      } else if (loginHref.startsWith('./pages/')) {
+        loginHref = base + loginHref.substring(1); // Remove the leading dot
+      } else if (loginHref.startsWith('../')) {
+        // Handle relative paths by calculating the correct path
+        var currentPath = window.location.pathname;
+        var segments = currentPath.split('/').filter(s => s);
+        var loginSegments = loginHref.split('/').filter(s => s);
+        
+        // Remove the segments that match the relative path
+        for (let i = 0; i < loginSegments.length && loginSegments[i] === '..'; i++) {
+          segments.pop();
+        }
+        
+        // Build the final path
+        loginHref = base + '/' + segments.join('/') + '/' + loginSegments.slice(loginSegments.filter(s => s !== '..').length).join('/');
       }
+      
       authButton.href = loginHref;
       authButton.onclick = null;
     }

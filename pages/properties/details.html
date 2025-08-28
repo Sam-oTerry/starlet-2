@@ -931,7 +931,8 @@
           // Dynamically detect base path for GitHub Pages subfolder support
           var path = window.location.pathname;
           var base = path.includes('/starlet-2/') ? '/starlet-2' : '';
-          window.location.href = base + '/pages/auth/login.html';
+          var returnUrl = encodeURIComponent(window.location.pathname + window.location.search + window.location.hash);
+          window.location.href = base + '/pages/auth/login.html?returnUrl=' + returnUrl;
           return;
         }
         e.preventDefault();
@@ -986,7 +987,10 @@
           // Dynamically detect base path for GitHub Pages subfolder support
           var path = window.location.pathname;
           var base = path.includes('/starlet-2/') ? '/starlet-2' : '';
-          authButton.href = base + '/pages/auth/login.html';
+          
+          // Ensure we have the correct login path
+          var loginHref = base + '/pages/auth/login.html';
+          authButton.href = loginHref;
           authButton.onclick = null;
         }
       });
