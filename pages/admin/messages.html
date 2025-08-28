@@ -996,23 +996,62 @@
 
     // Load conversations for admin view
     async function loadAdminConversations() {
+      console.log('=== LOAD ADMIN CONVERSATIONS START ===');
+      console.log('Current user:', window.currentUser);
+      console.log('Firebase DB available:', !!window.firebaseDB);
+      
       if (!window.currentUser || !window.firebaseDB) {
-        console.log('User or Firebase DB not available');
+        console.error('❌ User or Firebase DB not available');
+        console.log('Current user:', window.currentUser);
+        console.log('Firebase DB:', window.firebaseDB);
         return;
       }
       
       try {
-        console.log('Loading conversations for admin...');
+        console.log('🔄 Loading conversations for admin...');
         
+        console.log('📡 Executing Firestore query...');
         const convSnap = await window.firebaseDB.collection('conversations')
           .orderBy('lastMessageAt', 'desc')
           .limit(50).get();
         
+        console.log('📊 Raw Firestore response:', convSnap);
+        console.log('📊 Number of conversations found:', convSnap.size);
+        
         conversations = [];
         convSnap.forEach(doc => {
+          console.log('🔍 Processing conversation document:', doc.id);
+          console.log('🔍 Raw conversation data:', doc.data());
           const convData = doc.data();
           
           // Enhanced data processing with better field mapping
+          console.log('🔧 Processing conversation data...');
+          console.log('🔧 Available fields:', Object.keys(convData));
+          
+          // Log field detection attempts
+          console.log('🔍 User name detection:');
+          console.log('  - agentName:', convData.agentName);
+          console.log('  - listerName:', convData.listerName);
+          console.log('  - userName:', convData.userName);
+          console.log('  - senderName:', convData.senderName);
+          console.log('  - agent.name:', convData.agent?.name);
+          console.log('  - lister.name:', convData.lister?.name);
+          
+          console.log('🔍 Listing title detection:');
+          console.log('  - listingTitle:', convData.listingTitle);
+          console.log('  - title:', convData.title);
+          console.log('  - listingName:', convData.listingName);
+          
+          console.log('🔍 Last message detection:');
+          console.log('  - lastMessage:', convData.lastMessage);
+          console.log('  - lastMessageText:', convData.lastMessageText);
+          
+          console.log('🔍 Avatar detection:');
+          console.log('  - agentAvatar:', convData.agentAvatar);
+          console.log('  - listerAvatar:', convData.listerAvatar);
+          console.log('  - agent.avatar:', convData.agent?.avatar);
+          console.log('  - lister.avatar:', convData.lister?.avatar);
+          
           const conversation = {
             id: doc.id,
             ...convData,
@@ -1031,13 +1070,15 @@
                         (convData.lister && convData.lister.avatar) || null
           };
           
-          console.log('Processed conversation:', conversation);
+          console.log('✅ Processed conversation:', conversation);
           conversations.push(conversation);
         });
         
-        console.log(`Loaded ${conversations.length} conversations for admin:`, conversations);
+        console.log(`✅ Loaded ${conversations.length} conversations for admin:`, conversations);
+        console.log('=== LOAD ADMIN CONVERSATIONS END ===');
         
         // Update UI with conversations
+        console.log('🎨 Updating UI with conversations...');
         updateConversationsUI();
         
         // If no conversations, show a helpful message
@@ -1069,8 +1110,14 @@
 
     // Update conversations UI
     function updateConversationsUI() {
+      console.log('=== UPDATE CONVERSATIONS UI START ===');
+      console.log('📊 Conversations to render:', conversations.length);
+      
       const conversationsList = document.getElementById('conversationsList');
-      if (!conversationsList) return;
+      if (!conversationsList) {
+        console.error('❌ Conversations list container not found');
+        return;
+      }
       
       if (conversations.length === 0) {
         conversationsList.innerHTML = `
@@ -1082,60 +1129,85 @@
         return;
       }
       
+      console.log('🎨 Rendering conversations...');
       conversationsList.innerHTML = conversations.map((conv, idx) => {
+        console.log(`🎨 Rendering conversation ${idx + 1}/${conversations.length}:`, conv.id);
+        
         const unreadCount = conv.unreadCount || 0;
+        console.log(`  📊 Unread count: ${unreadCount}`);
+        
         // Enhanced date handling for lastMessageAt
+        console.log(`  📅 Processing lastMessageAt:`, conv.lastMessageAt);
         let lastMessageTime = '';
         if (conv.lastMessageAt) {
           let messageTime;
           try {
+            console.log(`    📅 Date format detection for conversation ${conv.id}:`);
+            console.log(`    📅 Type: ${typeof conv.lastMessageAt}`);
+            console.log(`    📅 Value:`, conv.lastMessageAt);
+            
             // Handle Firestore Timestamp objects
             if (conv.lastMessageAt.seconds && typeof conv.lastMessageAt.seconds === 'number') {
+              console.log(`    ✅ Using seconds property: ${conv.lastMessageAt.seconds}`);
               messageTime = new Date(conv.lastMessageAt.seconds * 1000);
             } else if (conv.lastMessageAt.toDate && typeof conv.lastMessageAt.toDate === 'function') {
+              console.log(`    ✅ Using toDate() method`);
               messageTime = conv.lastMessageAt.toDate();
             } else if (conv.lastMessageAt._seconds && typeof conv.lastMessageAt._seconds === 'number') {
-              // Handle Firestore Timestamp with _seconds property
+              console.log(`    ✅ Using _seconds property: ${conv.lastMessageAt._seconds}`);
               messageTime = new Date(conv.lastMessageAt._seconds * 1000);
             } else if (typeof conv.lastMessageAt === 'string') {
-              // Handle string dates
+              console.log(`    ✅ Using string date: ${conv.lastMessageAt}`);
               messageTime = new Date(conv.lastMessageAt);
             } else if (typeof conv.lastMessageAt === 'number') {
-              // Handle timestamp numbers
+              console.log(`    ✅ Using number timestamp: ${conv.lastMessageAt}`);
               messageTime = new Date(conv.lastMessageAt);
             } else if (conv.lastMessageAt instanceof Date) {
-              // Handle Date objects
+              console.log(`    ✅ Using Date object`);
               messageTime = conv.lastMessageAt;
             } else {
-              console.warn('Unknown date format for lastMessageAt:', conv.lastMessageAt);
+              console.warn(`    ⚠️ Unknown date format for lastMessageAt:`, conv.lastMessageAt);
               messageTime = new Date();
             }
             
+            console.log(`    📅 Parsed messageTime:`, messageTime);
+            
             // Validate the date
             if (isNaN(messageTime.getTime())) {
-              console.warn('Invalid date for conversation:', conv.id, conv.lastMessageAt);
+              console.warn(`    ❌ Invalid date for conversation: ${conv.id}`, conv.lastMessageAt);
               lastMessageTime = 'Recently';
             } else {
               const now = new Date();
               const diffInHours = (now - messageTime) / (1000 * 60 * 60);
+              console.log(`    📅 Time difference: ${diffInHours.toFixed(2)} hours`);
               
               if (diffInHours < 1) {
                 lastMessageTime = 'Just now';
+                console.log(`    ✅ Display: "Just now"`);
               } else if (diffInHours < 24) {
                 lastMessageTime = messageTime.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                console.log(`    ✅ Display: "${lastMessageTime}"`);
               } else if (diffInHours < 48) {
                 lastMessageTime = 'Yesterday';
+                console.log(`    ✅ Display: "Yesterday"`);
               } else {
                 lastMessageTime = messageTime.toLocaleDateString([], {month: 'short', day: 'numeric'});
+                console.log(`    ✅ Display: "${lastMessageTime}"`);
               }
             }
           } catch (error) {
-            console.error('Error processing date for conversation:', conv.id, error);
+            console.error(`    ❌ Error processing date for conversation: ${conv.id}`, error);
             lastMessageTime = 'Recently';
           }
         } else {
+          console.log(`    📅 No lastMessageAt found, using "Recently"`);
           lastMessageTime = 'Recently';
         }
+        
+        console.log(`    👤 User name: "${conv.agentName}"`);
+        console.log(`    🏠 Listing title: "${conv.listingTitle}"`);
+        console.log(`    💬 Last message: "${conv.lastMessage}"`);
+        console.log(`    🕐 Last message time: "${lastMessageTime}"`);
         const isActive = selectedConversation && selectedConversation.id === conv.id;
         const isUnread = unreadCount > 0;
         
@@ -1164,25 +1236,44 @@
         `;
       }).join('');
       
+      console.log('🔗 Adding click handlers to conversation items...');
       // Add click handlers
       conversationsList.querySelectorAll('[data-conversation-id]').forEach(el => {
         el.addEventListener('click', () => {
           const convId = el.dataset.conversationId;
-          console.log('Conversation clicked:', convId);
+          console.log('🖱️ Conversation clicked:', convId);
           const conv = conversations.find(c => c.id === convId);
           if (conv) {
-            console.log('Found conversation:', conv);
+            console.log('✅ Found conversation:', conv);
             selectConversation(conv);
           } else {
-            console.error('Conversation not found:', convId);
+            console.error('❌ Conversation not found:', convId);
+            console.log('Available conversations:', conversations.map(c => c.id));
           }
         });
       });
 
       // Update stats
-      document.getElementById('totalConversations').textContent = conversations.length;
+      console.log('📊 Updating conversation stats...');
+      const totalConversationsElement = document.getElementById('totalConversations');
+      const unreadCountElement = document.getElementById('unreadCount');
+      
+      if (totalConversationsElement) {
+        totalConversationsElement.textContent = conversations.length;
+        console.log(`📊 Total conversations: ${conversations.length}`);
+      } else {
+        console.error('❌ Total conversations element not found');
+      }
+      
       const totalUnread = conversations.reduce((sum, conv) => sum + (conv.unreadCount || 0), 0);
-      document.getElementById('unreadCount').textContent = totalUnread;
+      if (unreadCountElement) {
+        unreadCountElement.textContent = totalUnread;
+        console.log(`📊 Total unread: ${totalUnread}`);
+      } else {
+        console.error('❌ Unread count element not found');
+      }
+      
+      console.log('=== UPDATE CONVERSATIONS UI END ===');
     }
 
     // Start listening for unread messages
@@ -1225,31 +1316,61 @@
     }
 
     async function selectConversation(conv) {
-      if (!conv || !window.currentUser) return;
+      console.log('=== SELECT CONVERSATION START ===');
+      console.log('🎯 Selecting conversation:', conv?.id);
+      console.log('🎯 Conversation data:', conv);
+      console.log('🎯 Current user:', window.currentUser);
       
-      console.log('Selecting conversation:', conv.id, conv);
+      if (!conv || !window.currentUser) {
+        console.error('❌ Cannot select conversation - missing data');
+        console.log('Conversation:', conv);
+        console.log('Current user:', window.currentUser);
+        return;
+      }
       
       selectedConversation = conv;
       
+      console.log('🔧 Enabling chat input elements...');
       // Enable chat input
       const chatInput = document.getElementById('chatInput');
       const sendButton = document.querySelector('#chatInputForm button[type="submit"]');
       const attachBtn = document.getElementById('attachBtn');
       const emojiBtn = document.getElementById('emojiBtn');
       
-      if (chatInput) chatInput.disabled = false;
-      if (sendButton) sendButton.disabled = false;
-      if (attachBtn) attachBtn.disabled = false;
-      if (emojiBtn) emojiBtn.disabled = false;
+      console.log('🔧 Chat input elements found:');
+      console.log('  - chatInput:', !!chatInput);
+      console.log('  - sendButton:', !!sendButton);
+      console.log('  - attachBtn:', !!attachBtn);
+      console.log('  - emojiBtn:', !!emojiBtn);
+      
+      if (chatInput) {
+        chatInput.disabled = false;
+        console.log('✅ Chat input enabled');
+      }
+      if (sendButton) {
+        sendButton.disabled = false;
+        console.log('✅ Send button enabled');
+      }
+      if (attachBtn) {
+        attachBtn.disabled = false;
+        console.log('✅ Attach button enabled');
+      }
+      if (emojiBtn) {
+        emojiBtn.disabled = false;
+        console.log('✅ Emoji button enabled');
+      }
       
       // Update UI
+      console.log('🎨 Updating UI...');
       renderChatHeader();
       updateConversationsUI(); // to update active state
       
       // Load messages for this conversation
+      console.log('📨 Loading messages for conversation...');
       await loadMessages();
       
       // Mark all unread messages as read
+      console.log('📖 Marking messages as read...');
       try {
         const msgsSnap = await window.firebaseDB.collection('conversations').doc(conv.id)
           .collection('messages')
@@ -1257,32 +1378,43 @@
           .where('senderId', '!=', window.currentUser.id)
           .get();
         
+        console.log(`📖 Found ${msgsSnap.size} unread messages to mark as read`);
+        
         if (!msgsSnap.empty) {
           const batch = window.firebaseDB.batch();
           msgsSnap.forEach(doc => batch.update(doc.ref, { read: true }));
           await batch.commit();
+          console.log('✅ Messages marked as read');
           
           // Update conversation unread count
           await window.firebaseDB.collection('conversations').doc(conv.id).update({
             unreadCount: 0
           });
+          console.log('✅ Conversation unread count reset to 0');
           
           // Clear unread badge when conversation is opened
           clearUnreadBadge();
+        } else {
+          console.log('📖 No unread messages to mark');
         }
       } catch (err) {
-        console.error('Error marking messages as read:', err);
+        console.error('❌ Error marking messages as read:', err);
       }
+      
+      console.log('=== SELECT CONVERSATION END ===');
     }
 
     function renderMessages(messages) {
+      console.log('=== RENDER MESSAGES START ===');
+      console.log(`📨 Rendering ${messages.length} messages`);
+      
       const chat = document.getElementById('chatMessages');
       if (!chat) {
-        console.error('Chat messages container not found');
+        console.error('❌ Chat messages container not found');
         return;
       }
       
-      console.log('Rendering messages:', messages.length, messages);
+      console.log('📨 Messages to render:', messages);
       
       if (!messages || messages.length === 0) {
         chat.innerHTML = `
@@ -1294,37 +1426,52 @@
         return;
       }
       
+      console.log('🎨 Rendering message HTML...');
       // Show all messages (no filtering needed for admin view)
-      chat.innerHTML = messages.map(msg => {
+      chat.innerHTML = messages.map((msg, index) => {
+        console.log(`📨 Processing message ${index + 1}/${messages.length}:`, msg.id);
+        
         // Enhanced date handling for message createdAt
+        console.log(`  📅 Processing message createdAt:`, msg.createdAt);
         let messageTime;
         try {
           if (!msg.createdAt) {
+            console.log(`    📅 No createdAt, using current time`);
             messageTime = new Date();
           } else if (msg.createdAt.seconds && typeof msg.createdAt.seconds === 'number') {
+            console.log(`    📅 Using seconds property: ${msg.createdAt.seconds}`);
             messageTime = new Date(msg.createdAt.seconds * 1000);
           } else if (msg.createdAt.toDate && typeof msg.createdAt.toDate === 'function') {
+            console.log(`    📅 Using toDate() method`);
             messageTime = msg.createdAt.toDate();
           } else if (msg.createdAt._seconds && typeof msg.createdAt._seconds === 'number') {
+            console.log(`    📅 Using _seconds property: ${msg.createdAt._seconds}`);
             messageTime = new Date(msg.createdAt._seconds * 1000);
           } else if (typeof msg.createdAt === 'string') {
+            console.log(`    📅 Using string date: ${msg.createdAt}`);
             messageTime = new Date(msg.createdAt);
           } else if (typeof msg.createdAt === 'number') {
+            console.log(`    📅 Using number timestamp: ${msg.createdAt}`);
             messageTime = new Date(msg.createdAt);
           } else if (msg.createdAt instanceof Date) {
+            console.log(`    📅 Using Date object`);
             messageTime = msg.createdAt;
           } else {
-            console.warn('Unknown date format for message createdAt:', msg.createdAt);
+            console.warn(`    ⚠️ Unknown date format for message createdAt:`, msg.createdAt);
             messageTime = new Date();
           }
           
+          console.log(`    📅 Parsed messageTime:`, messageTime);
+          
           // Validate the date
           if (isNaN(messageTime.getTime())) {
-            console.warn('Invalid date for message:', msg.id, msg.createdAt);
+            console.warn(`    ❌ Invalid date for message: ${msg.id}`, msg.createdAt);
             messageTime = new Date();
+          } else {
+            console.log(`    ✅ Valid date: ${messageTime.toISOString()}`);
           }
         } catch (error) {
-          console.error('Error processing message date:', error);
+          console.error(`    ❌ Error processing message date:`, error);
           messageTime = new Date();
         }
         
@@ -1332,18 +1479,26 @@
         const isToday = new Date().toDateString() === messageTime.toDateString();
         const isSent = msg.senderId === window.currentUser.id;
         
+        console.log(`    🕐 Time string: "${timeString}"`);
+        console.log(`    📅 Is today: ${isToday}`);
+        console.log(`    📤 Is sent by current user: ${isSent}`);
+        console.log(`    👤 Sender ID: ${msg.senderId}, Current user ID: ${window.currentUser.id}`);
+        
         let statusIcon = '';
         if (isSent) {
           if (msg.read) {
             statusIcon = '<i class="bi bi-check2-all text-success"></i>';
+            console.log(`    ✅ Message read`);
           } else if (msg.delivered) {
             statusIcon = '<i class="bi bi-check2 text-primary"></i>';
+            console.log(`    📨 Message delivered`);
           } else {
             statusIcon = '<i class="bi bi-clock text-muted"></i>';
+            console.log(`    ⏳ Message pending`);
           }
         }
         
-        return `
+        const messageHtml = `
           <div class="d-flex ${isSent ? 'justify-content-end' : 'justify-content-start'} mb-3">
             <div class="message-bubble ${isSent ? 'sent' : 'received'}">
               <div class="message-content">${msg.text || 'No message content'}</div>
@@ -1354,12 +1509,20 @@
             </div>
           </div>
         `;
+        
+        console.log(`    ✅ Message ${index + 1} HTML generated`);
+        return messageHtml;
       }).join('');
+      
+      console.log('✅ All messages HTML generated');
       
       // Scroll to bottom
       setTimeout(() => {
         chat.scrollTop = chat.scrollHeight;
+        console.log('📜 Scrolled to bottom of chat');
       }, 100);
+      
+      console.log('=== RENDER MESSAGES END ===');
     }
 
     function renderChatHeader() {
@@ -1437,14 +1600,17 @@
     }
 
     async function loadMessages() {
+      console.log('=== LOAD MESSAGES START ===');
+      
       if (!selectedConversation) {
-        console.log('No conversation selected');
+        console.error('❌ No conversation selected');
         return;
       }
       
-      console.log('Loading messages for conversation:', selectedConversation.id);
+      console.log('📨 Loading messages for conversation:', selectedConversation.id);
       
       try {
+        console.log('📡 Executing Firestore messages query...');
         // First, try to get existing messages
         const messagesSnapshot = await window.firebaseDB.collection('conversations')
           .doc(selectedConversation.id)
@@ -1452,23 +1618,28 @@
           .orderBy('createdAt', 'asc')
           .get();
         
+        console.log(`📊 Found ${messagesSnapshot.size} messages`);
+        
         const messages = [];
         messagesSnapshot.forEach(doc => {
           const messageData = doc.data();
+          console.log(`📨 Processing message ${doc.id}:`, messageData);
           messages.push({
             id: doc.id,
             ...messageData
           });
         });
         
-        console.log('Loaded messages:', messages.length);
+        console.log(`✅ Loaded ${messages.length} messages`);
+        console.log('📨 Messages data:', messages);
         renderMessages(messages);
         
         // Then set up real-time listener for new messages
+        console.log('🔗 Setting up real-time listener for new messages...');
         listenForMessages(selectedConversation.id);
         
       } catch (error) {
-        console.error('Error loading messages:', error);
+        console.error('❌ Error loading messages:', error);
         // Show error message in chat area
         const chat = document.getElementById('chatMessages');
         if (chat) {
@@ -1480,6 +1651,8 @@
             </div>`;
         }
       }
+      
+      console.log('=== LOAD MESSAGES END ===');
     }
 
     function listenForMessages(convId) {
