@@ -255,6 +255,42 @@
             height: 24px !important;
         }
 
+        /* Add margin between screen edge and listings */
+        #featured-listings {
+            margin-left: 1rem;
+            margin-right: 1rem;
+        }
+
+        /* Ensure container has proper spacing */
+        .container {
+            padding-left: 1rem;
+            padding-right: 1rem;
+        }
+
+        /* Ensure proper spacing on mobile */
+        @media (max-width: 768px) {
+            #featured-listings {
+                margin-left: 0.5rem;
+                margin-right: 0.5rem;
+            }
+            
+            .container {
+                padding-left: 0.5rem;
+                padding-right: 0.5rem;
+            }
+        }
+
+        /* Additional spacing improvements */
+        .row {
+            margin-left: -0.5rem;
+            margin-right: -0.5rem;
+        }
+
+        .col-md-6, .col-lg-3 {
+            padding-left: 0.5rem;
+            padding-right: 0.5rem;
+        }
+
         .type-badge {
             position: absolute;
             top: 12px;

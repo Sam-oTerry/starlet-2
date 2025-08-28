@@ -436,6 +436,7 @@ async function renderFeaturedListings() {
     
     // Only get approved listings with priority order
     let allListings = [];
+    let seenIds = new Set(); // Track seen listing IDs to prevent duplicates
     let queryType = 'approved';
     
     // 1. Get Official Store listings (highest priority) - approved only
@@ -447,7 +448,11 @@ async function renderFeaturedListings() {
         .limit(6).get();
       if (!officialSnap.empty) {
         officialSnap.forEach(doc => {
-          allListings.push({ ...doc.data(), id: doc.id, priority: 1, source: 'official' });
+          // Avoid duplicates using Set for better performance
+          if (!seenIds.has(doc.id)) {
+            seenIds.add(doc.id);
+            allListings.push({ ...doc.data(), id: doc.id, priority: 1, source: 'official' });
+          }
         });
         console.log(`Found ${officialSnap.size} approved official store listings`);
       }
@@ -464,8 +469,9 @@ async function renderFeaturedListings() {
         .limit(4).get();
       if (!featuredSnap.empty) {
         featuredSnap.forEach(doc => {
-          // Avoid duplicates
-          if (!allListings.find(listing => listing.id === doc.id)) {
+          // Avoid duplicates using Set for better performance
+          if (!seenIds.has(doc.id)) {
+            seenIds.add(doc.id);
             allListings.push({ ...doc.data(), id: doc.id, priority: 2, source: 'featured' });
           }
         });
@@ -484,8 +490,9 @@ async function renderFeaturedListings() {
         .limit(4).get();
       if (!trendingSnap.empty) {
         trendingSnap.forEach(doc => {
-          // Avoid duplicates
-          if (!allListings.find(listing => listing.id === doc.id)) {
+          // Avoid duplicates using Set for better performance
+          if (!seenIds.has(doc.id)) {
+            seenIds.add(doc.id);
             allListings.push({ ...doc.data(), id: doc.id, priority: 3, source: 'trending' });
           }
         });
@@ -505,8 +512,9 @@ async function renderFeaturedListings() {
           .limit(8).get();
         if (!recentSnap.empty) {
           recentSnap.forEach(doc => {
-            // Avoid duplicates
-            if (!allListings.find(listing => listing.id === doc.id)) {
+            // Avoid duplicates using Set for better performance
+            if (!seenIds.has(doc.id)) {
+              seenIds.add(doc.id);
               allListings.push({ ...doc.data(), id: doc.id, priority: 4, source: 'recent' });
             }
           });
@@ -526,7 +534,11 @@ async function renderFeaturedListings() {
           .limit(12).get();
         if (!approvedSnap.empty) {
           approvedSnap.forEach(doc => {
-            allListings.push({ ...doc.data(), id: doc.id, priority: 5, source: 'approved' });
+            // Avoid duplicates using Set for better performance
+            if (!seenIds.has(doc.id)) {
+              seenIds.add(doc.id);
+              allListings.push({ ...doc.data(), id: doc.id, priority: 5, source: 'approved' });
+            }
           });
           queryType = 'approved';
           console.log(`Found ${approvedSnap.size} approved listings`);
@@ -545,8 +557,19 @@ async function renderFeaturedListings() {
     // Sort listings by priority (official store first, then featured, then trending, etc.)
     allListings.sort((a, b) => a.priority - b.priority);
     
+    // Final deduplication step to ensure no duplicates remain
+    const uniqueListings = [];
+    const finalSeenIds = new Set();
+    
+    for (const listing of allListings) {
+      if (!finalSeenIds.has(listing.id)) {
+        finalSeenIds.add(listing.id);
+        uniqueListings.push(listing);
+      }
+    }
+    
     // Limit to 8 listings maximum (2 rows of 4)
-    allListings = allListings.slice(0, 8);
+    allListings = uniqueListings.slice(0, 8);
     
     console.log(`Found ${allListings.length} total approved listings`);
     
