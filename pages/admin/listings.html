@@ -1009,6 +1009,7 @@
     <script src="../../assets/js/firebase-config.js"></script>
     <script src="../../js/admin.js"></script>
     <script src="../../js/main.js"></script>
+    <script src="../../js/notification-service.js"></script>
     <script>
     // Enforce authentication on this page
     enforceAuth('../../auth/login.html');
@@ -1139,6 +1140,9 @@
               
               // Load listings after authentication
               fetchAndRenderListings();
+              
+              // Initialize notification service and check for pending listings
+              initializeNotificationService();
               
               // Update admin name in navbar
               document.querySelector('#profileDropdown span').textContent = 
@@ -1371,6 +1375,14 @@
           }
         });
         
+        // Send notification to user about approval
+        try {
+          const notificationService = new NotificationService();
+          await notificationService.notifyUserOfApproval(id, listing);
+        } catch (notificationError) {
+          console.error('Error sending approval notification:', notificationError);
+        }
+        
         showToast('Listing approved successfully', 'success');
         fetchAndRenderListings();
         
@@ -1387,6 +1399,8 @@
         
         const reason = prompt('Enter rejection reason (optional):');
         
+        const listing = allListings.find(l => l.id === id);
+        
         await db.collection('listings').doc(id).update({
           status: 'rejected',
           rejectedBy: window.currentUser.uid,
@@ -1400,12 +1414,51 @@
           }
         });
         
+        // Send notification to user about rejection
+        if (listing) {
+          try {
+            const notificationService = new NotificationService();
+            await notificationService.notifyUserOfRejection(id, listing, reason || '');
+          } catch (notificationError) {
+            console.error('Error sending rejection notification:', notificationError);
+          }
+        }
+        
         showToast('Listing rejected successfully', 'success');
         fetchAndRenderListings();
         
       } catch (error) {
         console.error('Error rejecting listing:', error);
         showToast('Error rejecting listing: ' + error.message, 'error');
+      }
+    }
+
+    // Initialize notification service
+    function initializeNotificationService() {
+      try {
+        // Check for pending listings every 30 minutes
+        setInterval(async () => {
+          try {
+            const notificationService = new NotificationService();
+            await notificationService.checkAndNotifyPendingListings();
+          } catch (error) {
+            console.error('Error checking pending listings:', error);
+          }
+        }, 30 * 60 * 1000); // 30 minutes
+        
+        // Also check immediately on page load
+        setTimeout(async () => {
+          try {
+            const notificationService = new NotificationService();
+            await notificationService.checkAndNotifyPendingListings();
+          } catch (error) {
+            console.error('Error checking pending listings on load:', error);
+          }
+        }, 5000); // Check after 5 seconds
+        
+        console.log('Notification service initialized');
+      } catch (error) {
+        console.error('Error initializing notification service:', error);
       }
     }
 
