@@ -669,7 +669,7 @@
           // Create user document if it doesn't exist
           await userDocRef.set({
             email: window.currentUser.email,
-            displayName: window.currentUser.displayName || window.currentUser.email,
+            displayName: window.userService ? window.userService.getDisplayName(window.currentUser) : (window.currentUser.displayName || window.currentUser.email),
             createdAt: firebase.firestore.FieldValue.serverTimestamp(),
             firstName: window.currentUser.displayName ? window.currentUser.displayName.split(' ')[0] : '',
             lastName: window.currentUser.displayName ? window.currentUser.displayName.split(' ').slice(1).join(' ') : '',

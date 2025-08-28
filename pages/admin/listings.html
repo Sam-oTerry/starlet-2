@@ -1144,9 +1144,14 @@
               // Initialize notification service and check for pending listings
               initializeNotificationService();
               
-              // Update admin name in navbar
-              document.querySelector('#profileDropdown span').textContent = 
-                userData?.firstName ? userData.firstName + ' ' + (userData.lastName || '') : user.email;
+              // Update admin name in navbar using UserService
+              let displayName = user.email;
+              if (window.userService) {
+                displayName = window.userService.getDisplayName(userData || user);
+              } else if (userData?.firstName) {
+                displayName = userData.firstName + ' ' + (userData.lastName || '');
+              }
+              document.querySelector('#profileDropdown span').textContent = displayName;
               
             } catch (error) {
               console.error('Error checking admin status:', error);

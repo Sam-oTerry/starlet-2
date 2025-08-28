@@ -1617,7 +1617,7 @@ async function setupListingChat(listingId, listerId, makeOffer = false) {
             } else {
                 // Ensure we have the required fields with fallbacks
                 listerData = {
-                    displayName: listerData.displayName || listerData.name || listerData.fullName || listerData.agentName || 'Seller',
+                    displayName: window.userService ? window.userService.getDisplayName(listerData) : (listerData.displayName || listerData.name || listerData.fullName || listerData.agentName || 'Seller'),
                     name: listerData.name || listerData.displayName || listerData.fullName || listerData.agentName || 'Seller',
                     email: listerData.email || listerData.agentEmail || 'seller@starlet.co.ug',
                     photoURL: listerData.photoURL || listerData.avatar || listerData.agentAvatar || listerData.profilePicture || '../../img/avatar-placeholder.svg',

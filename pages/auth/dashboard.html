@@ -520,13 +520,20 @@
         setupRealtimeListeners();
       }
       
-      // Display user info
-      try {
-        const user = JSON.parse(localStorage.getItem('starletUser'));
-        if (user && (user.displayName || user.firstName || user.email)) {
-          document.getElementById('adminName').textContent = user.displayName || (user.firstName ? user.firstName + ' ' + (user.lastName || '') : user.email);
+              // Display user info using UserService
+        try {
+          const user = JSON.parse(localStorage.getItem('starletUser'));
+          if (user && user.uid && window.userService) {
+            // Use UserService to get display name with fallbacks
+            const displayName = window.userService.getDisplayName(user);
+            document.getElementById('adminName').textContent = displayName;
+          } else if (user && (user.displayName || user.firstName || user.email)) {
+            // Fallback to direct access
+            document.getElementById('adminName').textContent = user.displayName || (user.firstName ? user.firstName + ' ' + (user.lastName || '') : user.email);
+          }
+        } catch (e) {
+          console.warn('Error displaying user info:', e);
         }
-      } catch (e) {}
     });
 
     // Load dashboard statistics
@@ -640,16 +647,25 @@
           });
         });
         
-        recentUsers.forEach(doc => {
+        for (const doc of recentUsers.docs) {
           const user = doc.data();
+          
+          // Use UserService to get display name with fallbacks
+          let displayName = 'Unknown';
+          if (window.userService) {
+            displayName = window.userService.getDisplayName(user);
+          } else {
+            displayName = user.displayName || user.email || 'Unknown';
+          }
+          
           activities.push({
             type: 'user',
             title: 'New User Registration',
             time: user.createdAt,
-            user: user.displayName || user.email || 'Unknown',
+            user: displayName,
             id: doc.id
           });
-        });
+        }
         
         // Sort by time
         activities.sort((a, b) => b.time - a.time);

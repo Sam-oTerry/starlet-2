@@ -640,7 +640,7 @@
           const agentData = agentDoc.data();
           currentAgent = {
             id: agentId,
-            name: `${agentData.firstName || ''} ${agentData.lastName || ''}`.trim() || agentData.email || 'Agent',
+            name: window.userService ? window.userService.getDisplayName(agentData) : `${agentData.firstName || ''} ${agentData.lastName || ''}`.trim() || agentData.email || 'Agent',
             title: agentData.agentTier ? `${agentData.agentTier.charAt(0).toUpperCase() + agentData.agentTier.slice(1)} Tier Agent` : 'Property Agent',
             avatar: agentData.avatar || agentData.photoURL || 'https://randomuser.me/api/portraits/men/32.jpg',
             bio: agentData.bio || agentData.description || 'Experienced real estate professional.',

@@ -614,7 +614,12 @@
           const batchIds = ids.slice(i, i + batchSize);
           const usersSnap = await db.collection('users').where(firebase.firestore.FieldPath.documentId(), 'in', batchIds).get();
           usersSnap.forEach(doc => {
-            names[doc.id] = doc.data().displayName || doc.data().name || doc.data().email || doc.id;
+            // Use UserService to get display name with fallbacks
+            if (window.userService) {
+              names[doc.id] = window.userService.getDisplayName(doc.data());
+            } else {
+              names[doc.id] = doc.data().displayName || doc.data().name || doc.data().email || doc.id;
+            }
           });
           const storesSnap = await db.collection('stores').where(firebase.firestore.FieldPath.documentId(), 'in', batchIds).get();
           storesSnap.forEach(doc => {
