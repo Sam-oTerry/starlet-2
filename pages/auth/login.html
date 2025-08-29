@@ -854,6 +854,17 @@
                 if (userDoc.exists && userDoc.data().role) {
                     role = userDoc.data().role;
                 }
+                
+                // Check if user has admin email (override role if admin email)
+                const isAdminEmail = user.email && (
+                    user.email.toLowerCase() === 'admin@starletproperties.ug' ||
+                    user.email.toLowerCase() === 'admin@starlet.co.ug'
+                );
+                
+                if (isAdminEmail) {
+                    role = 'admin';
+                    console.log('Admin access granted based on email:', user.email);
+                }
                 // Store user info in localStorage
                 localStorage.setItem('starletUser', JSON.stringify({
                     email: user.email,
@@ -933,6 +944,17 @@
                     }
                     if (userDoc.exists && userDoc.data().role) {
                         role = userDoc.data().role;
+                    }
+                    
+                    // Check if user has admin email (override role if admin email)
+                    const isAdminEmail = user.email && (
+                        user.email.toLowerCase() === 'admin@starletproperties.ug' ||
+                        user.email.toLowerCase() === 'admin@starlet.co.ug'
+                    );
+                    
+                    if (isAdminEmail) {
+                        role = 'admin';
+                        console.log('Admin access granted based on email:', user.email);
                     }
                     // Store user info in localStorage
                     localStorage.setItem('starletUser', JSON.stringify({
