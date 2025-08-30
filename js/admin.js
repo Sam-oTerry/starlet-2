@@ -722,5 +722,5 @@ document.addEventListener('DOMContentLoaded', function() {
       document.getElementById('addListingBtn').click();
     };
   }
-  });
+  }
 }); 
