@@ -42,6 +42,8 @@
       overflow-y: auto;
       scrollbar-width: thin;
       scrollbar-color: #dee2e6 #f8f9fa;
+      display: flex;
+      flex-direction: column;
     }
 
     .conversations-container::-webkit-scrollbar {
@@ -61,6 +63,32 @@
       background: #adb5bd;
     }
 
+    /* Ensure conversations list takes full height */
+    #conversationsList {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Empty state styling */
+    .conversations-empty {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 300px;
+      color: #6c757d;
+    }
+
+    .conversations-loading {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 300px;
+      color: #6c757d;
+    }
+
     /* Conversation Items */
     .conversation-item {
       padding: 1rem;
@@ -68,6 +96,10 @@
       transition: all 0.2s ease;
       cursor: pointer;
       position: relative;
+      height: 100px; /* Fixed height for uniform size */
+      display: flex;
+      align-items: center;
+      overflow: hidden;
     }
 
     .conversation-item:hover {
@@ -95,6 +127,92 @@
       background: #dc3545;
       border-radius: 50%;
       animation: pulse 2s infinite;
+    }
+
+    /* Conversation content layout */
+    .conversation-content {
+      display: flex;
+      align-items: center;
+      width: 100%;
+      height: 100%;
+    }
+
+    .conversation-avatar {
+      flex-shrink: 0;
+      margin-right: 0.75rem;
+    }
+
+    .conversation-avatar img {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    .conversation-details {
+      flex: 1;
+      min-width: 0; /* Allow text to truncate */
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      height: 100%;
+    }
+
+    .conversation-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 0.25rem;
+    }
+
+    .conversation-title {
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: #212529;
+      margin: 0;
+      line-height: 1.2;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      max-width: 70%;
+    }
+
+    .conversation-time {
+      font-size: 0.75rem;
+      color: #6c757d;
+      flex-shrink: 0;
+      margin-left: 0.5rem;
+    }
+
+    .conversation-subtitle {
+      font-size: 0.8rem;
+      color: #6c757d;
+      margin: 0 0 0.25rem 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .conversation-message {
+      font-size: 0.8rem;
+      color: #6c757d;
+      margin: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      line-height: 1.3;
+    }
+
+    .conversation-badge {
+      position: absolute;
+      top: 0.75rem;
+      right: 0.75rem;
+      font-size: 0.7rem;
+      min-width: 18px;
+      height: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     /* Chat Messages Container */
@@ -650,7 +768,7 @@
                 <div class="card-body p-0">
               <div id="conversationsList" class="conversations-container">
                     <!-- Conversations will be loaded here -->
-                <div class="text-center text-muted py-5">
+                <div class="conversations-loading">
                   <i class="bi bi-chat-dots" style="font-size: 2rem;"></i>
                   <p class="mt-2">Loading conversations...</p>
                   </div>
@@ -1170,7 +1288,7 @@
         const conversationsList = document.getElementById('conversationsList');
         if (conversationsList) {
           conversationsList.innerHTML = `
-            <div class="text-center text-muted py-5">
+            <div class="conversations-empty">
               <i class="bi bi-exclamation-triangle" style="font-size: 2rem;"></i>
               <p class="mt-2">Firebase not initialized</p>
               <small>Please refresh the page to try again</small>
@@ -1335,7 +1453,7 @@
           const conversationsList = document.getElementById('conversationsList');
           if (conversationsList) {
             conversationsList.innerHTML = `
-              <div class="text-center text-muted py-5">
+              <div class="conversations-empty">
                 <i class="bi bi-chat-dots" style="font-size: 2rem;"></i>
                 <p class="mt-2">No conversations found</p>
                 <small>Conversations will appear here when users start messaging</small>
@@ -1471,23 +1589,22 @@
         return `
           <div class="conversation-item ${isActive ? 'active' : ''} ${isUnread ? 'unread' : ''}" 
                data-conversation-id="${conv.id}">
-            <div class="d-flex align-items-center">
-              <img src="${conv.agentAvatar || '../../img/default-avatar.svg'}" 
-                   class="rounded-circle me-3" width="48" height="48" alt="User"
-                   onerror="this.src='../../img/default-avatar.svg'">
-              <div class="flex-grow-1">
-                <div class="d-flex justify-content-between align-items-start">
-                  <div>
-                    <h6 class="mb-1 fw-semibold">${conv.listingTitle || 'Listing'}</h6>
-                    <small class="text-muted">${conv.agentName || 'User'}</small>
-                  </div>
-                  <small class="text-muted">${lastMessageTime}</small>
+            <div class="conversation-content">
+              <div class="conversation-avatar">
+                <img src="${conv.agentAvatar || '../../img/default-avatar.svg'}" 
+                     alt="User" onerror="this.src='../../img/default-avatar.svg'">
+              </div>
+              <div class="conversation-details">
+                <div class="conversation-header">
+                  <h6 class="conversation-title">${conv.listingTitle || 'Listing'}</h6>
+                  <small class="conversation-time">${lastMessageTime}</small>
                 </div>
-                <p class="mb-1 small text-muted" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                <p class="conversation-subtitle">${conv.agentName || 'User'}</p>
+                <p class="conversation-message">
                   ${conv.lastMessage ? conv.lastMessage.slice(0, 50) : 'No messages yet'}
                 </p>
-                ${unreadCount > 0 ? `<span class="badge bg-danger rounded-pill">${unreadCount}</span>` : ''}
               </div>
+              ${unreadCount > 0 ? `<span class="conversation-badge badge bg-danger rounded-pill">${unreadCount}</span>` : ''}
             </div>
           </div>
         `;
