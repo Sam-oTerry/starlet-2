@@ -570,12 +570,25 @@ async function loadMessages(chatId) {
         return;
     }
 
+    if (!db) {
+        console.error('Database not initialized, retrying...');
+        setTimeout(() => loadMessages(chatId), 100);
+        return;
+    }
+
+    if (!window.currentUser) {
+        console.error('No user authenticated');
+        return;
+    }
+
+    console.log('Loading messages for chat:', chatId);
+
     try {
         // Check cache first
         const cachedMessages = window.MessagingLoader?.getCachedData(`messages_${chatId}`);
         if (cachedMessages && cachedMessages.length > 0) {
             console.log('Using cached messages:', cachedMessages.length);
-            window.MessagingLoader?.renderCachedMessages(chatMessages, cachedMessages);
+            renderMessages(cachedMessages);
         }
 
         // Show progressive loading state
@@ -602,11 +615,12 @@ async function loadMessages(chatId) {
                         // Cache messages
                         window.MessagingLoader?.cacheMessages(chatId, messages);
                         
-                        // Initialize virtual scrolling for large message lists
+                        // Use the existing renderMessages function (same as conversations)
+                        renderMessages(messages);
+                        
+                        // Initialize virtual scrolling for large message lists if needed
                         if (messages.length > 50) {
                             window.MessagingLoader?.initVirtualScrolling(chatMessages, messages);
-                        } else {
-                            window.MessagingLoader?.renderCachedMessages(chatMessages, messages);
                         }
                         
                         resolve(messages);
