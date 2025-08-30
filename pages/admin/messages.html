@@ -211,6 +211,54 @@
       50% { opacity: 1; }
     }
 
+    /* Message Actions */
+    .message-actions {
+      opacity: 0;
+      transition: opacity 0.2s ease;
+      z-index: 10;
+    }
+
+    .message-bubble:hover .message-actions {
+      opacity: 1;
+    }
+
+    .message-actions .dropdown-toggle {
+      background: rgba(255, 255, 255, 0.9);
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      padding: 0.25rem 0.5rem;
+      font-size: 0.75rem;
+    }
+
+    .message-actions .dropdown-toggle:hover {
+      background: rgba(255, 255, 255, 1);
+      border-color: rgba(0, 0, 0, 0.2);
+    }
+
+    .message-bubble.sent .message-actions .dropdown-toggle {
+      background: rgba(13, 110, 253, 0.9);
+      color: white;
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .message-bubble.sent .message-actions .dropdown-toggle:hover {
+      background: rgba(13, 110, 253, 1);
+    }
+
+    /* Message Selection */
+    .message-bubble.selected {
+      outline: 2px solid #0d6efd;
+      outline-offset: 2px;
+    }
+
+    .message-bubble {
+      cursor: pointer;
+      transition: outline 0.2s ease;
+    }
+
+    .message-bubble:hover {
+      outline: 1px solid rgba(13, 110, 253, 0.3);
+    }
+
     /* Unread messages badge styling */
     #unreadMessagesBadge {
       font-size: 0.7rem;
@@ -539,6 +587,12 @@
               Messages & Communications
             </h1>
             <p class="mb-0 opacity-75">Manage all user inquiries, notifications, and official store communications</p>
+            <div class="mt-2">
+              <small class="opacity-75">
+                <i class="bi bi-info-circle me-1"></i>
+                <strong>Tip:</strong> Click on messages to select them, use Ctrl+Delete to delete, or hover for more options
+              </small>
+            </div>
       </div>
           <div class="col-md-4 text-md-end">
             <div class="d-flex align-items-center justify-content-md-end gap-3">
@@ -1113,6 +1167,17 @@
         console.error('❌ User or Firebase DB not available');
         console.log('Current user:', window.currentUser);
         console.log('Firebase DB:', window.firebaseDB);
+        
+        // Show error in conversations list
+        const conversationsList = document.getElementById('conversationsList');
+        if (conversationsList) {
+          conversationsList.innerHTML = `
+            <div class="text-center text-muted py-5">
+              <i class="bi bi-exclamation-triangle" style="font-size: 2rem;"></i>
+              <p class="mt-2">Firebase not initialized</p>
+              <small>Please refresh the page to try again</small>
+            </div>`;
+        }
         return;
       }
       
@@ -1276,6 +1341,11 @@
                 <i class="bi bi-chat-dots" style="font-size: 2rem;"></i>
                 <p class="mt-2">No conversations found</p>
                 <small>Conversations will appear here when users start messaging</small>
+                <div class="mt-3">
+                  <button class="btn btn-outline-primary btn-sm" onclick="createTestConversation()">
+                    <i class="bi bi-plus-circle"></i> Create Test Conversation
+                  </button>
+                </div>
               </div>`;
           }
         }
@@ -1428,16 +1498,26 @@
       console.log('🔗 Adding click handlers to conversation items...');
       // Add click handlers
       conversationsList.querySelectorAll('[data-conversation-id]').forEach(el => {
-        el.addEventListener('click', () => {
+        el.addEventListener('click', async () => {
           const convId = el.dataset.conversationId;
           console.log('🖱️ Conversation clicked:', convId);
+          
+          // Remove active class from all conversations
+          conversationsList.querySelectorAll('.conversation-item').forEach(item => {
+            item.classList.remove('active');
+          });
+          
+          // Add active class to clicked conversation
+          el.classList.add('active');
+          
           const conv = conversations.find(c => c.id === convId);
           if (conv) {
             console.log('✅ Found conversation:', conv);
-            selectConversation(conv);
+            await selectConversation(conv);
           } else {
             console.error('❌ Conversation not found:', convId);
             console.log('Available conversations:', conversations.map(c => c.id));
+            showToast('Conversation not found. Please refresh the page.', 'error');
           }
         });
       });
@@ -1515,6 +1595,12 @@
         console.log('Conversation:', conv);
         console.log('Current user:', window.currentUser);
         return;
+      }
+      
+      // Clear any existing message listener
+      if (unsubscribeMessages) {
+        unsubscribeMessages();
+        unsubscribeMessages = null;
       }
       
       selectedConversation = conv;
@@ -1688,12 +1774,28 @@
         }
         
         const messageHtml = `
-          <div class="d-flex ${isSent ? 'justify-content-end' : 'justify-content-start'} mb-3">
-            <div class="message-bubble ${isSent ? 'sent' : 'received'}">
+          <div class="d-flex ${isSent ? 'justify-content-end' : 'justify-content-start'} mb-3" data-message-id="${msg.id}">
+            <div class="message-bubble ${isSent ? 'sent' : 'received'} position-relative">
               <div class="message-content">${msg.text || 'No message content'}</div>
               <div class="message-time">
                   ${isToday ? timeString : messageTime.toLocaleDateString() + ' ' + timeString}
                 ${statusIcon ? `<span class="message-status">${statusIcon}</span>` : ''}
+              </div>
+              <!-- Message Actions Dropdown -->
+              <div class="message-actions position-absolute top-0 end-0" style="display: none;">
+                <div class="dropdown">
+                  <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="bi bi-three-dots-vertical"></i>
+                  </button>
+                  <ul class="dropdown-menu dropdown-menu-end">
+                    <li><a class="dropdown-item" href="#" onclick="copyMessageText('${msg.id}')">
+                      <i class="bi bi-clipboard me-2"></i>Copy Text
+                    </a></li>
+                    <li><a class="dropdown-item text-danger" href="#" onclick="deleteMessage('${msg.id}')">
+                      <i class="bi bi-trash me-2"></i>Delete Message
+                    </a></li>
+                  </ul>
+                </div>
               </div>
             </div>
           </div>
@@ -1707,9 +1809,12 @@
       
       // Scroll to bottom
       setTimeout(() => {
-      chat.scrollTop = chat.scrollHeight;
+        chat.scrollTop = chat.scrollHeight;
         console.log('📜 Scrolled to bottom of chat');
       }, 100);
+      
+      // Setup message hover effects for actions
+      setupMessageHoverEffects();
       
       console.log('=== RENDER MESSAGES END ===');
     }
@@ -1797,38 +1902,119 @@
       }
       
       console.log('📨 Loading messages for conversation:', selectedConversation.id);
+      console.log('📨 Selected conversation data:', selectedConversation);
+      
+      // Show loading state
+      const chat = document.getElementById('chatMessages');
+      if (chat) {
+        chat.innerHTML = `
+          <div class="text-center text-muted py-5">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-3">Loading messages...</p>
+          </div>`;
+      }
       
       try {
-        console.log('📡 Executing Firestore messages query...');
-        // First, try to get existing messages
-        const messagesSnapshot = await window.firebaseDB.collection('conversations')
+        console.log('📡 Checking Firebase availability...');
+        if (!window.firebaseDB) {
+          throw new Error('Firebase database not initialized');
+        }
+        
+        console.log('📡 Executing Firestore conversation check...');
+        
+        // Check if conversation exists first
+        const conversationDoc = await window.firebaseDB.collection('conversations')
           .doc(selectedConversation.id)
-          .collection('messages')
-          .orderBy('createdAt', 'asc')
           .get();
         
-        console.log(`📊 Found ${messagesSnapshot.size} messages`);
+        console.log('📡 Conversation document exists:', conversationDoc.exists);
+        if (conversationDoc.exists) {
+          console.log('📡 Conversation data:', conversationDoc.data());
+        }
         
-        const messages = [];
-        messagesSnapshot.forEach(doc => {
-          const messageData = doc.data();
-          console.log(`📨 Processing message ${doc.id}:`, messageData);
-          messages.push({
-            id: doc.id,
-            ...messageData
+        if (!conversationDoc.exists) {
+          throw new Error(`Conversation '${selectedConversation.id}' not found in database`);
+        }
+        
+        console.log('📡 Executing Firestore messages query...');
+        
+        // Try different approaches to get messages
+        let messagesSnapshot;
+        let messages = [];
+        
+        try {
+          // First, try the standard subcollection approach
+          messagesSnapshot = await window.firebaseDB.collection('conversations')
+            .doc(selectedConversation.id)
+            .collection('messages')
+            .orderBy('createdAt', 'asc')
+            .get();
+          
+          console.log(`📊 Found ${messagesSnapshot.size} messages in subcollection`);
+          
+          messagesSnapshot.forEach(doc => {
+            const messageData = doc.data();
+            console.log(`📨 Processing message ${doc.id}:`, messageData);
+            messages.push({
+              id: doc.id,
+              ...messageData
+            });
           });
-        });
+          
+        } catch (subcollectionError) {
+          console.log('⚠️ Subcollection approach failed, trying alternative methods...');
+          console.error('Subcollection error:', subcollectionError);
+          
+          // Try to get messages from the conversation document itself
+          const convData = conversationDoc.data();
+          if (convData.messages && Array.isArray(convData.messages)) {
+            console.log('📨 Found messages array in conversation document');
+            messages = convData.messages.map((msg, index) => ({
+              id: `msg_${index}`,
+              ...msg
+            }));
+          } else if (convData.messageHistory && Array.isArray(convData.messageHistory)) {
+            console.log('📨 Found messageHistory array in conversation document');
+            messages = convData.messageHistory.map((msg, index) => ({
+              id: `msg_${index}`,
+              ...msg
+            }));
+          } else {
+            console.log('📨 No messages found in conversation document');
+            console.log('📨 Available fields:', Object.keys(convData));
+          }
+        }
         
         console.log(`✅ Loaded ${messages.length} messages`);
         console.log('📨 Messages data:', messages);
-        renderMessages(messages);
         
-        // Then set up real-time listener for new messages
-        console.log('🔗 Setting up real-time listener for new messages...');
-      listenForMessages(selectedConversation.id);
+        if (messages.length === 0) {
+          // Show empty state
+          const chat = document.getElementById('chatMessages');
+          if (chat) {
+            chat.innerHTML = `
+              <div class="text-center text-muted py-5">
+                <i class="bi bi-chat-dots" style="font-size: 3rem;"></i>
+                <h5 class="mt-3">No messages yet</h5>
+                <p class="text-muted">This conversation has no messages yet.</p>
+                <button class="btn btn-primary btn-sm mt-2" onclick="loadMessages()">
+                  <i class="bi bi-arrow-clockwise"></i> Refresh
+                </button>
+              </div>`;
+          }
+        } else {
+          renderMessages(messages);
+          
+          // Then set up real-time listener for new messages
+          console.log('🔗 Setting up real-time listener for new messages...');
+          listenForMessages(selectedConversation.id);
+        }
         
       } catch (error) {
         console.error('❌ Error loading messages:', error);
+        
         // Show error message in chat area
         const chat = document.getElementById('chatMessages');
         if (chat) {
@@ -1836,9 +2022,19 @@
             <div class="text-center text-muted py-5">
               <i class="bi bi-exclamation-triangle" style="font-size: 3rem;"></i>
               <h5 class="mt-3">Error Loading Messages</h5>
-              <p class="text-muted">Failed to load messages. Please try again.</p>
+              <p class="text-muted">Failed to load messages: ${error.message}</p>
+              <div class="mt-3">
+                <button class="btn btn-primary btn-sm me-2" onclick="loadMessages()">
+                  <i class="bi bi-arrow-clockwise"></i> Try Again
+                </button>
+                <button class="btn btn-outline-secondary btn-sm" onclick="debugConversation()">
+                  <i class="bi bi-bug"></i> Debug Info
+                </button>
+              </div>
             </div>`;
         }
+        
+        showToast('Failed to load messages. Please try again.', 'error');
       }
       
       console.log('=== LOAD MESSAGES END ===');
@@ -1955,6 +2151,7 @@
       setupAnalytics();
       setupExport();
       setupEnhancedMessageFeatures();
+      setupKeyboardShortcuts();
       
       // Clear unread badge when messages page is opened
       clearUnreadBadge();
@@ -1971,6 +2168,33 @@
         });
       }
     });
+
+    // Setup keyboard shortcuts
+    function setupKeyboardShortcuts() {
+      document.addEventListener('keydown', function(e) {
+        // Only handle shortcuts when not typing in input fields
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+          return;
+        }
+        
+        // Ctrl/Cmd + Delete: Delete selected message
+        if ((e.ctrlKey || e.metaKey) && e.key === 'Delete') {
+          e.preventDefault();
+          const selectedMessage = document.querySelector('.message-bubble.selected');
+          if (selectedMessage) {
+            const messageId = selectedMessage.closest('[data-message-id]').dataset.messageId;
+            deleteMessage(messageId);
+          }
+        }
+        
+        // Escape: Clear message selection
+        if (e.key === 'Escape') {
+          document.querySelectorAll('.message-bubble.selected').forEach(el => {
+            el.classList.remove('selected');
+          });
+        }
+      });
+    }
 
     // Setup search and filter functionality
     function setupSearchAndFilter() {
@@ -2858,6 +3082,9 @@
               </div>
               <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-warning" onclick="clearAllMessages()">
+                  <i class="bi bi-trash me-2"></i>Clear All Messages
+                </button>
                 <button type="button" class="btn btn-danger" onclick="deleteConversation()">
                   <i class="bi bi-trash me-2"></i>Delete Conversation
                 </button>
@@ -2921,6 +3148,45 @@
       }
     }
 
+    async function clearAllMessages() {
+      if (!selectedConversation) return;
+      
+      if (confirm('Are you sure you want to clear all messages in this conversation? This action cannot be undone.')) {
+        try {
+          console.log('🗑️ Clearing all messages for conversation:', selectedConversation.id);
+          
+          // Get all messages in the conversation
+          const messagesSnapshot = await window.firebaseDB.collection('conversations')
+            .doc(selectedConversation.id)
+            .collection('messages')
+            .get();
+          
+          if (messagesSnapshot.empty) {
+            showToast('No messages to clear', 'info');
+            return;
+          }
+          
+          // Delete all messages in a batch
+          const batch = window.firebaseDB.batch();
+          messagesSnapshot.docs.forEach(doc => {
+            batch.delete(doc.ref);
+          });
+          
+          await batch.commit();
+          
+          showToast(`Cleared ${messagesSnapshot.size} messages successfully!`, 'success');
+          bootstrap.Modal.getInstance(document.getElementById('conversationInfoModal')).hide();
+          
+          // Refresh the messages display
+          await loadMessages();
+          
+        } catch (error) {
+          console.error('Error clearing messages:', error);
+          showToast('Failed to clear messages', 'error');
+        }
+      }
+    }
+
     async function deleteConversation() {
       if (!selectedConversation) return;
       
@@ -2955,7 +3221,266 @@
       }
     }
 
-    // 6. TOAST NOTIFICATION SYSTEM
+    // 6. DEBUG AND TROUBLESHOOTING
+    function debugConversation() {
+      console.log('=== DEBUG CONVERSATION START ===');
+      console.log('🔍 Current state:');
+      console.log('  - Selected conversation:', selectedConversation);
+      console.log('  - Firebase DB available:', !!window.firebaseDB);
+      console.log('  - Current user:', window.currentUser);
+      console.log('  - All conversations:', conversations);
+      
+      // Show debug info in a modal
+      const debugInfo = `
+        <div class="modal fade" id="debugModal" tabindex="-1">
+          <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title">
+                  <i class="bi bi-bug me-2"></i>
+                  Debug Information
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+              </div>
+              <div class="modal-body">
+                <div class="row">
+                  <div class="col-md-6">
+                    <h6>Selected Conversation</h6>
+                    <pre class="bg-light p-2 rounded" style="font-size: 0.8rem;">${JSON.stringify(selectedConversation, null, 2)}</pre>
+                  </div>
+                  <div class="col-md-6">
+                    <h6>Current User</h6>
+                    <pre class="bg-light p-2 rounded" style="font-size: 0.8rem;">${JSON.stringify(window.currentUser, null, 2)}</pre>
+                  </div>
+                </div>
+                <div class="row mt-3">
+                  <div class="col-12">
+                    <h6>All Conversations (${conversations.length})</h6>
+                    <pre class="bg-light p-2 rounded" style="font-size: 0.7rem; max-height: 200px; overflow-y: auto;">${JSON.stringify(conversations.map(c => ({ id: c.id, title: c.listingTitle, name: c.agentName })), null, 2)}</pre>
+                  </div>
+                </div>
+                <div class="row mt-3">
+                  <div class="col-12">
+                    <h6>Firebase Status</h6>
+                    <ul class="list-unstyled">
+                      <li><strong>Firebase DB:</strong> ${window.firebaseDB ? '✅ Available' : '❌ Not available'}</li>
+                      <li><strong>Firebase Auth:</strong> ${window.firebaseAuth ? '✅ Available' : '❌ Not available'}</li>
+                      <li><strong>Current URL:</strong> ${window.location.href}</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="testFirebaseConnection()">
+                  <i class="bi bi-wifi"></i> Test Firebase Connection
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+      
+      // Remove existing modal if any
+      const existingModal = document.getElementById('debugModal');
+      if (existingModal) {
+        existingModal.remove();
+      }
+      
+      // Add modal to body
+      document.body.insertAdjacentHTML('beforeend', debugInfo);
+      
+      // Show modal
+      const modal = new bootstrap.Modal(document.getElementById('debugModal'));
+      modal.show();
+      
+      console.log('=== DEBUG CONVERSATION END ===');
+    }
+
+    async function createTestConversation() {
+      try {
+        console.log('🧪 Creating test conversation...');
+        
+        const testConversation = {
+          id: 'test_conversation_' + Date.now(),
+          listingTitle: 'Test Property',
+          agentName: 'Test User',
+          lastMessage: 'Hello, this is a test message',
+          lastMessageAt: firebase.firestore.FieldValue.serverTimestamp(),
+          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+          unreadCount: 1,
+          participants: [window.currentUser.id, 'test_user_id']
+        };
+        
+        // Create conversation document
+        await window.firebaseDB.collection('conversations').doc(testConversation.id).set({
+          listingTitle: testConversation.listingTitle,
+          agentName: testConversation.agentName,
+          lastMessage: testConversation.lastMessage,
+          lastMessageAt: testConversation.lastMessageAt,
+          createdAt: testConversation.createdAt,
+          unreadCount: testConversation.unreadCount,
+          participants: testConversation.participants
+        });
+        
+        // Add a test message
+        await window.firebaseDB.collection('conversations').doc(testConversation.id)
+          .collection('messages').add({
+            text: 'Hello, this is a test message from the admin panel!',
+            senderId: 'test_user_id',
+            senderName: 'Test User',
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            read: false,
+            delivered: true
+          });
+        
+        showToast('Test conversation created successfully!', 'success');
+        
+        // Reload conversations
+        await loadAdminConversations();
+        
+      } catch (error) {
+        console.error('❌ Error creating test conversation:', error);
+        showToast('Failed to create test conversation: ' + error.message, 'error');
+      }
+    }
+
+    async function testFirebaseConnection() {
+      try {
+        console.log('🔍 Testing Firebase connection...');
+        
+        // Test basic Firestore access
+        const testDoc = await window.firebaseDB.collection('conversations').limit(1).get();
+        console.log('✅ Firestore read test successful');
+        
+        // Test specific conversation access
+        if (selectedConversation) {
+          const convDoc = await window.firebaseDB.collection('conversations').doc(selectedConversation.id).get();
+          console.log('✅ Conversation access test:', convDoc.exists ? 'Conversation exists' : 'Conversation not found');
+          
+          if (convDoc.exists) {
+            const convData = convDoc.data();
+            console.log('✅ Conversation data keys:', Object.keys(convData));
+            
+            // Test messages subcollection
+            try {
+              const messagesSnapshot = await window.firebaseDB.collection('conversations')
+                .doc(selectedConversation.id)
+                .collection('messages')
+                .limit(5)
+                .get();
+              console.log('✅ Messages subcollection test successful, found', messagesSnapshot.size, 'messages');
+            } catch (msgError) {
+              console.error('❌ Messages subcollection test failed:', msgError);
+            }
+          }
+        }
+        
+        showToast('Firebase connection test completed. Check console for details.', 'success');
+        
+      } catch (error) {
+        console.error('❌ Firebase connection test failed:', error);
+        showToast('Firebase connection test failed: ' + error.message, 'error');
+      }
+    }
+
+    // 7. MESSAGE DELETION AND ACTIONS
+    async function deleteMessage(messageId) {
+      if (!selectedConversation || !messageId) {
+        showToast('Cannot delete message: No conversation or message selected', 'error');
+        return;
+      }
+      
+      if (!confirm('Are you sure you want to delete this message? This action cannot be undone.')) {
+        return;
+      }
+      
+      try {
+        console.log('🗑️ Deleting message:', messageId);
+        
+        // Delete the message from Firestore
+        await window.firebaseDB.collection('conversations')
+          .doc(selectedConversation.id)
+          .collection('messages')
+          .doc(messageId)
+          .delete();
+        
+        showToast('Message deleted successfully!', 'success');
+        console.log('✅ Message deleted successfully');
+        
+      } catch (error) {
+        console.error('❌ Error deleting message:', error);
+        showToast('Failed to delete message. Please try again.', 'error');
+      }
+    }
+
+    function copyMessageText(messageId) {
+      const messageElement = document.querySelector(`[data-message-id="${messageId}"]`);
+      if (!messageElement) {
+        showToast('Message not found', 'error');
+        return;
+      }
+      
+      const messageContent = messageElement.querySelector('.message-content').textContent;
+      
+      // Copy to clipboard
+      navigator.clipboard.writeText(messageContent).then(() => {
+        showToast('Message text copied to clipboard!', 'success');
+      }).catch(() => {
+        // Fallback for older browsers
+        const textArea = document.createElement('textarea');
+        textArea.value = messageContent;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+        showToast('Message text copied to clipboard!', 'success');
+      });
+    }
+
+    function setupMessageHoverEffects() {
+      const messageElements = document.querySelectorAll('[data-message-id]');
+      
+      messageElements.forEach(element => {
+        const messageBubble = element.querySelector('.message-bubble');
+        const messageActions = element.querySelector('.message-actions');
+        
+        if (messageBubble && messageActions) {
+          // Show actions on hover
+          messageBubble.addEventListener('mouseenter', () => {
+            messageActions.style.display = 'block';
+          });
+          
+          messageBubble.addEventListener('mouseleave', () => {
+            messageActions.style.display = 'none';
+          });
+          
+          // Click to select message
+          messageBubble.addEventListener('click', (e) => {
+            // Don't select if clicking on dropdown
+            if (e.target.closest('.dropdown')) {
+              return;
+            }
+            
+            // Remove selection from other messages
+            document.querySelectorAll('.message-bubble.selected').forEach(el => {
+              el.classList.remove('selected');
+            });
+            
+            // Toggle selection on clicked message
+            messageBubble.classList.toggle('selected');
+            
+            // Show selection info
+            if (messageBubble.classList.contains('selected')) {
+              const messageId = element.dataset.messageId;
+              showToast(`Message selected. Press Ctrl+Delete to delete or Escape to deselect.`, 'info');
+            }
+          });
+        }
+      });
+    }
+
+    // 7. TOAST NOTIFICATION SYSTEM
     function showToast(message, type = 'info') {
       const toastHtml = `
         <div class="toast align-items-center text-bg-${type === 'error' ? 'danger' : type === 'success' ? 'success' : type === 'warning' ? 'warning' : 'primary'} border-0 position-fixed bottom-0 end-0 m-3" style="z-index: 9999;">

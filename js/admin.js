@@ -5,22 +5,67 @@
 let db, auth;
 
 function initializeFirebase() {
+  console.log('🔧 Initializing Firebase...');
+  
   if (typeof firebase === 'undefined') {
-    console.error('Firebase SDK not loaded');
+    console.error('❌ Firebase SDK not loaded');
     return false;
   }
   
-  // Check if Firebase is already initialized by firebase-config.js
-  if (window.firebaseDB && window.firebaseAuth) {
-    db = window.firebaseDB;
-    auth = window.firebaseAuth;
-    return true;
-  } else if (firebase.apps && firebase.apps.length > 0) {
-    db = firebase.firestore();
-    auth = firebase.auth();
-    return true;
-  } else {
-    // Don't log error repeatedly, just return false
+  try {
+    // Check if Firebase is already initialized by firebase-config.js
+    if (window.firebaseDB && window.firebaseAuth) {
+      console.log('✅ Using existing Firebase instances from firebase-config.js');
+      db = window.firebaseDB;
+      auth = window.firebaseAuth;
+      return true;
+    } 
+    
+    // Check if Firebase apps are available
+    if (firebase.apps && firebase.apps.length > 0) {
+      console.log('✅ Firebase apps available, initializing Firestore and Auth');
+      db = firebase.firestore();
+      auth = firebase.auth();
+      
+      // Also set global references for consistency
+      window.firebaseDB = db;
+      window.firebaseAuth = auth;
+      return true;
+    }
+    
+    // Check if we can initialize Firebase manually
+    if (firebase.initializeApp) {
+      console.log('⚠️ No Firebase apps found, attempting manual initialization');
+      try {
+        // Use the same config as firebase-config.js
+        const firebaseConfig = {
+          apiKey: "AIzaSyDH1sMk2NwceMAEfvH07azxaoPXpOI1Sek",
+          authDomain: "starlet-properties-41509.firebaseapp.com",
+          projectId: "starlet-properties-41509",
+          storageBucket: "starlet-properties-41509.appspot.com",
+          messagingSenderId: "393372988481",
+          appId: "1:393372988481:web:c92584d7408296457b02c0",
+          measurementId: "G-F02K9SP07C"
+        };
+        
+        const app = firebase.initializeApp(firebaseConfig);
+        db = firebase.firestore();
+        auth = firebase.auth();
+        window.firebaseDB = db;
+        window.firebaseAuth = auth;
+        console.log('✅ Firebase manually initialized');
+        return true;
+      } catch (initError) {
+        console.error('❌ Failed to manually initialize Firebase:', initError);
+        return false;
+      }
+    }
+    
+    console.log('⚠️ Firebase not ready yet');
+    return false;
+    
+  } catch (error) {
+    console.error('❌ Error in initializeFirebase:', error);
     return false;
   }
 }
@@ -170,19 +215,35 @@ function logout() {
 // Enforce admin authentication
 function enforceAdminAuth() {
   return new Promise((resolve, reject) => {
+    console.log('🔐 Starting admin authentication...');
+    
     if (!auth) {
-      reject('Firebase not initialized');
+      console.error('❌ Auth not available');
+      reject(new Error('Firebase not initialized'));
       return;
     }
     
+    if (!db) {
+      console.error('❌ Database not available');
+      reject(new Error('Firebase database not initialized'));
+      return;
+    }
+    
+    console.log('🔐 Setting up auth state listener...');
+    
     auth.onAuthStateChanged(async user => {
+      console.log('🔐 Auth state changed:', user ? 'User logged in' : 'No user');
+      
       if (!user || user.isAnonymous) {
+        console.log('❌ No user or anonymous user');
         // Dynamically detect base path for GitHub Pages subfolder support
         var path = window.location.pathname;
         var base = path.includes('/starlet-2/') ? '/starlet-2' : '';
         window.location.href = base + '/pages/auth/login.html';
-        return reject('Not logged in');
+        return reject(new Error('Not logged in'));
       }
+      
+      console.log('🔐 User found:', user.email);
       
       // Check if user has admin email (primary check)
       const isAdminEmail = user.email && (
@@ -191,30 +252,34 @@ function enforceAdminAuth() {
       );
       
       if (isAdminEmail) {
-        console.log('Admin access granted based on email:', user.email);
+        console.log('✅ Admin access granted based on email:', user.email);
         resolve(user);
         return;
       }
+      
+      console.log('🔐 Checking Firestore for admin role...');
       
       // Fallback: Check Firestore document for admin role
       try {
         const userDoc = await db.collection('users').doc(user.uid).get();
         if (userDoc.exists && userDoc.data().role === 'admin') {
-          console.log('Admin access granted based on Firestore role');
+          console.log('✅ Admin access granted based on Firestore role');
           resolve(user);
         } else {
+          console.log('❌ User does not have admin role');
           alert('You do not have admin access.');
+          const base = window.location.pathname.includes('/starlet-2/') ? '/starlet-2' : '';
           window.location.href = base + '/index.html';
-          reject('Not admin');
+          reject(new Error('Not admin'));
         }
       } catch (error) {
-        console.error('Error checking admin role:', error);
+        console.error('❌ Error checking admin role:', error);
         // If there's an error checking Firestore, still allow admin email access
         if (isAdminEmail) {
-          console.log('Admin access granted despite Firestore error');
+          console.log('✅ Admin access granted despite Firestore error');
           resolve(user);
         } else {
-          reject('Error checking permissions');
+          reject(new Error('Error checking permissions: ' + error.message));
         }
       }
     });
@@ -223,22 +288,12 @@ function enforceAdminAuth() {
 
 // Initialize when DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
-  // Wait for Firebase to be available
-  const checkFirebase = () => {
-    if (initializeFirebase()) {
-      // Expose utilities globally for use in inline event handlers
-      window.showLoading = showLoading;
-      window.showError = showError;
-      window.firebaseDB = db;
-      window.firebaseAuth = auth;
-      window.showToast = showToast;
-    } else {
-      // Retry after a short delay
-      setTimeout(checkFirebase, 100);
-    }
-  };
+  console.log('🚀 DOM loaded, initializing admin system...');
   
-  checkFirebase();
+  // Expose utilities globally for use in inline event handlers
+  window.showLoading = showLoading;
+  window.showError = showError;
+  window.showToast = showToast;
   window.requireAdminUser = requireAdminUser;
   window.formatDate = formatDate;
   window.formatPrice = formatPrice;
@@ -255,21 +310,89 @@ document.addEventListener('DOMContentLoaded', function() {
   });
   
   // Enforce admin authentication with retry mechanism
+  let authRetryCount = 0;
+  const MAX_AUTH_RETRIES = 50; // 5 seconds max
+  
   const enforceAuthWithRetry = () => {
+    console.log(`🔄 Auth retry attempt ${authRetryCount + 1}/${MAX_AUTH_RETRIES}`);
+    
     if (initializeFirebase()) {
+      console.log('✅ Firebase initialized, proceeding with admin auth');
+      
+      // Set global references
+      window.firebaseDB = db;
+      window.firebaseAuth = auth;
+      
       enforceAdminAuth().then(user => {
-        console.log('Admin authenticated:', user);
+        console.log('✅ Admin authenticated:', user);
         // ... existing admin page logic ...
       }).catch(error => {
-        console.error('Admin auth failed:', error);
+        console.error('❌ Admin auth failed:', error);
+        
+        // Show user-friendly error message
+        const errorMessage = document.createElement('div');
+        errorMessage.className = 'alert alert-danger position-fixed top-0 start-50 translate-middle-x mt-3';
+        errorMessage.style.zIndex = '9999';
+        errorMessage.innerHTML = `
+          <i class="bi bi-exclamation-triangle"></i>
+          <strong>Authentication Error:</strong> ${error.message || error}
+          <br><small>Redirecting to login page...</small>
+        `;
+        document.body.appendChild(errorMessage);
+        
+        // Redirect to login after delay
+        setTimeout(() => {
+          const base = window.location.pathname.includes('/starlet-2/') ? '/starlet-2' : '';
+          window.location.href = base + '/pages/auth/login.html';
+        }, 3000);
       });
     } else {
+      authRetryCount++;
+      
+      if (authRetryCount >= MAX_AUTH_RETRIES) {
+        console.error('❌ Max auth retries reached, showing error');
+        
+        // Show error message to user
+        const errorMessage = document.createElement('div');
+        errorMessage.className = 'alert alert-danger position-fixed top-0 start-50 translate-middle-x mt-3';
+        errorMessage.style.zIndex = '9999';
+        errorMessage.innerHTML = `
+          <i class="bi bi-exclamation-triangle"></i>
+          <strong>Firebase Initialization Failed</strong>
+          <br><small>Please refresh the page or check your internet connection.</small>
+          <br><button class="btn btn-sm btn-outline-danger mt-2" onclick="location.reload()">Refresh Page</button>
+        `;
+        document.body.appendChild(errorMessage);
+        return;
+      }
+      
       // Retry after a short delay if Firebase isn't ready
       setTimeout(enforceAuthWithRetry, 100);
     }
   };
   
+  // Start the auth process
   enforceAuthWithRetry();
+  
+  // Add a test function to check Firebase status
+  window.testFirebaseStatus = function() {
+    console.log('🧪 Testing Firebase status...');
+    console.log('  - Firebase SDK loaded:', typeof firebase !== 'undefined');
+    console.log('  - Firebase apps:', firebase.apps ? firebase.apps.length : 'N/A');
+    console.log('  - window.firebaseDB:', !!window.firebaseDB);
+    console.log('  - window.firebaseAuth:', !!window.firebaseAuth);
+    console.log('  - Local db variable:', !!db);
+    console.log('  - Local auth variable:', !!auth);
+    
+    if (window.firebaseDB && window.firebaseAuth) {
+      console.log('✅ Firebase appears to be properly initialized');
+      return true;
+    } else {
+      console.log('❌ Firebase not properly initialized');
+      return false;
+    }
+  };
+});
 
   // --- Official Store Add/Edit Listing Modal Logic (Advanced) ---
   if (window.location.pathname.includes('official-store.html')) {
