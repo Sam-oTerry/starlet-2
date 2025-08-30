@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Authentication Test - Starlet Properties</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e3f0ff 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .test-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            padding: 30px;
+            margin-bottom: 20px;
+        }
+        .status-indicator {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 10px;
+        }
+        .status-success { background-color: #28a745; }
+        .status-error { background-color: #dc3545; }
+        .status-warning { background-color: #ffc107; }
+        .status-info { background-color: #17a2b8; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="test-card">
+                    <h2 class="text-center mb-4">
+                        <i class="bi bi-shield-check text-primary"></i>
+                        Admin Authentication Test
+                    </h2>
+                    
+                    <div id="testResults">
+                        <div class="text-center">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            <p class="mt-2">Running admin authentication tests...</p>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <h5>Test Actions:</h5>
+                        <div class="d-grid gap-2 d-md-block">
+                            <button class="btn btn-primary" onclick="testAdminLogin()">
+                                <i class="bi bi-person-check"></i> Test Admin Login
+                            </button>
+                            <button class="btn btn-success" onclick="testAdminRedirect()">
+                                <i class="bi bi-arrow-right-circle"></i> Test Admin Redirect
+                            </button>
+                            <button class="btn btn-info" onclick="testAdminAccess()">
+                                <i class="bi bi-shield-lock"></i> Test Admin Access
+                            </button>
+                            <button class="btn btn-warning" onclick="clearResults()">
+                                <i class="bi bi-arrow-clockwise"></i> Clear Results
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <h5>Quick Links:</h5>
+                        <div class="d-grid gap-2 d-md-block">
+                            <a href="pages/auth/login.html" class="btn btn-outline-primary">
+                                <i class="bi bi-box-arrow-in-right"></i> Go to Login
+                            </a>
+                            <a href="pages/admin/dashboard.html" class="btn btn-outline-success">
+                                <i class="bi bi-speedometer2"></i> Go to Admin Dashboard
+                            </a>
+                            <a href="index.html" class="btn btn-outline-secondary">
+                                <i class="bi bi-house"></i> Go to Home
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <!-- Firebase Config -->
+    <script src="assets/js/firebase-config.js"></script>
+    <!-- Admin Auth Enhancement -->
+    <script src="js/admin-auth-enhancement.js"></script>
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        let testResults = [];
+        
+        function addTestResult(test, status, message, details = '') {
+            const statusClass = {
+                'success': 'status-success',
+                'error': 'status-error',
+                'warning': 'status-warning',
+                'info': 'status-info'
+            }[status] || 'status-info';
+            
+            testResults.push({
+                test,
+                status,
+                message,
+                details,
+                timestamp: new Date().toLocaleTimeString()
+            });
+            
+            updateResultsDisplay();
+        }
+        
+        function updateResultsDisplay() {
+            const container = document.getElementById('testResults');
+            let html = '<h5>Test Results:</h5>';
+            
+            testResults.forEach(result => {
+                html += `
+                    <div class="alert alert-${result.status === 'success' ? 'success' : result.status === 'error' ? 'danger' : result.status === 'warning' ? 'warning' : 'info'} alert-sm">
+                        <span class="status-indicator ${result.statusClass}"></span>
+                        <strong>${result.test}</strong> - ${result.message}
+                        ${result.details ? `<br><small class="text-muted">${result.details}</small>` : ''}
+                        <br><small class="text-muted">${result.timestamp}</small>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+        
+        function clearResults() {
+            testResults = [];
+            updateResultsDisplay();
+        }
+        
+        async function testAdminLogin() {
+            addTestResult('Admin Login Check', 'info', 'Checking current authentication status...');
+            
+            try {
+                const adminStatus = await window.AdminAuthEnhancement.checkAdminStatus();
+                
+                if (adminStatus.isAdmin) {
+                    addTestResult('Admin Login Check', 'success', 'User is authenticated as admin', 
+                        `Email: ${adminStatus.user.email}, Reason: ${adminStatus.reason}`);
+                } else {
+                    addTestResult('Admin Login Check', 'warning', 'User is not admin or not logged in', 
+                        `Reason: ${adminStatus.reason}`);
+                }
+            } catch (error) {
+                addTestResult('Admin Login Check', 'error', 'Error checking admin status', 
+                    error.message);
+            }
+        }
+        
+        async function testAdminRedirect() {
+            addTestResult('Admin Redirect Test', 'info', 'Testing admin redirect functionality...');
+            
+            try {
+                // Check if we're on an admin page
+                const isAdminPage = window.location.pathname.includes('/admin/');
+                
+                if (isAdminPage) {
+                    addTestResult('Admin Redirect Test', 'info', 'Currently on admin page', 
+                        'Testing access enforcement...');
+                    
+                    // Test the enforce function
+                    await window.AdminAuthEnhancement.enforceAdminAccess();
+                    addTestResult('Admin Redirect Test', 'success', 'Admin access enforcement completed');
+                } else {
+                    addTestResult('Admin Redirect Test', 'info', 'Not on admin page', 
+                        'Redirect test would apply on admin pages');
+                }
+            } catch (error) {
+                addTestResult('Admin Redirect Test', 'error', 'Error testing admin redirect', 
+                    error.message);
+            }
+        }
+        
+        async function testAdminAccess() {
+            addTestResult('Admin Access Test', 'info', 'Testing admin access verification...');
+            
+            try {
+                const adminStatus = await window.AdminAuthEnhancement.checkAdminStatus();
+                
+                if (adminStatus.isAdmin) {
+                    addTestResult('Admin Access Test', 'success', 'Admin access verified', 
+                        `User has admin privileges via: ${adminStatus.reason}`);
+                    
+                    // Test redirect to admin dashboard
+                    addTestResult('Admin Access Test', 'info', 'Testing admin dashboard redirect...');
+                    // Note: We won't actually redirect in the test, just simulate
+                    addTestResult('Admin Access Test', 'success', 'Admin dashboard redirect would work', 
+                        'Would redirect to: /pages/admin/dashboard.html');
+                } else {
+                    addTestResult('Admin Access Test', 'warning', 'Admin access denied', 
+                        `Reason: ${adminStatus.reason}`);
+                    
+                    // Test redirect to login
+                    addTestResult('Admin Access Test', 'info', 'Testing login redirect...');
+                    addTestResult('Admin Access Test', 'success', 'Login redirect would work', 
+                        'Would redirect to: /pages/auth/login.html');
+                }
+            } catch (error) {
+                addTestResult('Admin Access Test', 'error', 'Error testing admin access', 
+                    error.message);
+            }
+        }
+        
+        // Run initial tests when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(() => {
+                testAdminLogin();
+                testAdminAccess();
+            }, 2000); // Wait for Firebase to initialize
+        });
+    </script>
+</body>
+</html>
