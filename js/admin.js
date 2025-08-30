@@ -721,6 +721,4 @@ document.addEventListener('DOMContentLoaded', function() {
     window.showAddEditListingModal = function() {
       document.getElementById('addListingBtn').click();
     };
-  }
-  }
-}); 
+  }; 

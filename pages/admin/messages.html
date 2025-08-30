@@ -38,7 +38,8 @@
 
     /* Conversations Container */
     .conversations-container {
-      max-height: 600px;
+      max-height: 800px;
+      min-height: 600px;
       overflow-y: auto;
       scrollbar-width: thin;
       scrollbar-color: #dee2e6 #f8f9fa;
@@ -96,10 +97,11 @@
       transition: all 0.2s ease;
       cursor: pointer;
       position: relative;
-      height: 100px; /* Fixed height for uniform size */
+      height: 110px; /* Adjusted height to ensure avatar fits */
       display: flex;
       align-items: center;
       overflow: hidden;
+      box-sizing: border-box;
     }
 
     .conversation-item:hover {
@@ -135,18 +137,24 @@
       align-items: center;
       width: 100%;
       height: 100%;
+      padding: 0.5rem 0;
+      box-sizing: border-box;
     }
 
     .conversation-avatar {
       flex-shrink: 0;
       margin-right: 0.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     .conversation-avatar img {
-      width: 48px;
-      height: 48px;
+      width: 50px;
+      height: 50px;
       border-radius: 50%;
       object-fit: cover;
+      border: 2px solid #e9ecef;
     }
 
     .conversation-details {
@@ -156,6 +164,7 @@
       flex-direction: column;
       justify-content: center;
       height: 100%;
+      margin-left: 0.5rem;
     }
 
     .conversation-header {
@@ -167,7 +176,7 @@
 
     .conversation-title {
       font-weight: 600;
-      font-size: 0.9rem;
+      font-size: 1rem;
       color: #212529;
       margin: 0;
       line-height: 1.2;
@@ -178,14 +187,14 @@
     }
 
     .conversation-time {
-      font-size: 0.75rem;
+      font-size: 0.8rem;
       color: #6c757d;
       flex-shrink: 0;
       margin-left: 0.5rem;
     }
 
     .conversation-subtitle {
-      font-size: 0.8rem;
+      font-size: 0.85rem;
       color: #6c757d;
       margin: 0 0 0.25rem 0;
       overflow: hidden;
@@ -194,7 +203,7 @@
     }
 
     .conversation-message {
-      font-size: 0.8rem;
+      font-size: 0.85rem;
       color: #6c757d;
       margin: 0;
       overflow: hidden;
@@ -213,6 +222,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      z-index: 10;
     }
 
     /* Chat Messages Container */
@@ -1471,7 +1481,7 @@
         const conversationsList = document.getElementById('conversationsList');
         if (conversationsList) {
           conversationsList.innerHTML = `
-            <div class="text-center text-muted py-5">
+            <div class="conversations-empty">
               <i class="bi bi-exclamation-triangle" style="font-size: 2rem;"></i>
               <p class="mt-2">Error loading conversations</p>
               <small>Please refresh the page to try again</small>

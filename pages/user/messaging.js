@@ -17,6 +17,39 @@ let typingTimeout = null;  // Will hold the typing timeout for debouncing
 
 // Firebase services - will use global services from firebase-config.js
 
+// Toast notification system
+function showToast(message, type = 'info') {
+    const toast = document.createElement('div');
+    toast.className = `toast-notification toast-${type}`;
+    toast.innerHTML = `
+        <div class="toast-content">
+            <i class="bi bi-${type === 'error' ? 'exclamation-triangle' : type === 'success' ? 'check-circle' : 'info-circle'}"></i>
+            <span>${message}</span>
+        </div>
+        <button class="toast-close" onclick="this.parentElement.remove()">
+            <i class="bi bi-x"></i>
+        </button>
+    `;
+    
+    // Add to page
+    document.body.appendChild(toast);
+    
+    // Show toast
+    setTimeout(() => toast.classList.add('show'), 100);
+    
+    // Auto-remove after 5 seconds
+    setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 300);
+    }, 5000);
+    
+    // Remove on click
+    toast.addEventListener('click', () => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 300);
+    });
+}
+
 // Initialize messaging system
 document.addEventListener('DOMContentLoaded', function() {
     console.log('DOM loaded, initializing messaging...');
@@ -139,7 +172,7 @@ function initializeMessaging() {
     });
 }
 
-// Load conversations
+// Load conversations with enhanced loading system
 async function loadConversations() {
     const conversationsList = document.getElementById('conversationsList');
     const conversationCount = document.querySelector('.conversation-count');
@@ -163,57 +196,57 @@ async function loadConversations() {
     console.log('Loading conversations for user:', window.currentUser.uid);
 
     try {
-        // Show loading state
-        conversationsList.innerHTML = `
-            <div class="text-center py-4">
-                <div class="spinner-border text-primary" role="status">
-                    <span class="visually-hidden">Loading...</span>
-                </div>
-                <p class="mt-2 text-muted">Loading conversations...</p>
-            </div>
-        `;
+        // Check cache first
+        const cachedConversations = window.MessagingLoader?.getCachedData('conversations');
+        if (cachedConversations && cachedConversations.length > 0) {
+            console.log('Using cached conversations:', cachedConversations.length);
+            renderConversations(cachedConversations);
+            updateConversationCount(cachedConversations.length);
+        }
 
-        // Listen for conversations in real-time
-        conversationsUnsub = db.collection('conversations')
-            .where('participants', 'array-contains', window.currentUser.uid)
-            .orderBy('lastMessageAt', 'desc')
-            .onSnapshot(snapshot => {
-                console.log('Conversations snapshot received:', snapshot.size, 'conversations');
-                conversations = []; // Use global conversations array
-                snapshot.forEach(doc => {
-                    const data = doc.data();
-                    console.log('Raw conversation data:', doc.id, data);
-                    conversations.push({
-                        id: doc.id,
-                        ...data
+        // Show progressive loading state
+        window.MessagingLoader?.showConversationsLoading(conversationsList);
+
+        // Load conversations with retry mechanism
+        const loadOperation = async () => {
+            return new Promise((resolve, reject) => {
+                // Listen for conversations in real-time
+                conversationsUnsub = db.collection('conversations')
+                    .where('participants', 'array-contains', window.currentUser.uid)
+                    .orderBy('lastMessageAt', 'desc')
+                    .onSnapshot(snapshot => {
+                        console.log('Conversations snapshot received:', snapshot.size, 'conversations');
+                        conversations = []; // Use global conversations array
+                        snapshot.forEach(doc => {
+                            const data = doc.data();
+                            console.log('Raw conversation data:', doc.id, data);
+                            conversations.push({
+                                id: doc.id,
+                                ...data
+                            });
+                        });
+
+                        console.log('Processed conversations:', conversations);
+                        
+                        // Cache conversations
+                        window.MessagingLoader?.cacheConversations(conversations);
+                        
+                        renderConversations(conversations);
+                        updateConversationCount(conversations.length);
+                        resolve(conversations);
+                    }, error => {
+                        console.error('Error loading conversations:', error);
+                        reject(error);
                     });
-                });
-
-                console.log('Processed conversations:', conversations);
-                renderConversations(conversations);
-                updateConversationCount(conversations.length);
-            }, error => {
-                console.error('Error loading conversations:', error);
-                conversationsList.innerHTML = `
-                    <div class="conversations-empty">
-                        <i class="bi bi-exclamation-triangle text-warning"></i>
-                        <h4>Failed to load conversations</h4>
-                        <p class="small text-muted">Error: ${error.message}</p>
-                        <button class="btn btn-primary btn-sm" onclick="loadConversations()">Retry</button>
-                    </div>
-                `;
             });
+        };
+
+        // Use retry mechanism
+        await window.MessagingLoader?.retryWithBackoff(loadOperation);
 
     } catch (error) {
-        console.error('Error setting up conversations listener:', error);
-        conversationsList.innerHTML = `
-            <div class="conversations-empty">
-                <i class="bi bi-exclamation-triangle text-warning"></i>
-                <h4>Failed to load conversations</h4>
-                <p class="small text-muted">Error: ${error.message}</p>
-                <button class="btn btn-primary btn-sm" onclick="loadConversations()">Retry</button>
-            </div>
-        `;
+        console.error('Error loading conversations:', error);
+        window.MessagingLoader?.showErrorState(conversationsList, error, loadConversations);
     }
 }
 
@@ -528,44 +561,69 @@ function updateChatHeader(otherUser, chatData) {
     }
 }
 
-// Load messages
-function loadMessages(chatId) {
+// Load messages with enhanced loading system
+async function loadMessages(chatId) {
     const chatMessages = document.getElementById('chatMessages');
     
-    // Show loading
-    chatMessages.innerHTML = `
-        <div class="text-center py-4">
-            <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Loading messages...</span>
-            </div>
-        </div>
-      `;
+    if (!chatMessages) {
+        console.error('Chat messages container not found');
+        return;
+    }
 
-    // Use global db variable
-    
-    // Listen for messages in real-time
-    chatUnsub = db.collection('conversations').doc(chatId)
-        .collection('messages')
-        .orderBy('timestamp', 'asc')
-        .onSnapshot(snapshot => {
-            const messages = [];
-            snapshot.forEach(doc => {
-                messages.push({
-                    id: doc.id,
-                    ...doc.data()
-      });
-    });
+    try {
+        // Check cache first
+        const cachedMessages = window.MessagingLoader?.getCachedData(`messages_${chatId}`);
+        if (cachedMessages && cachedMessages.length > 0) {
+            console.log('Using cached messages:', cachedMessages.length);
+            window.MessagingLoader?.renderCachedMessages(chatMessages, cachedMessages);
+        }
 
-            renderMessages(messages);
-        }, error => {
-            console.error('Error loading messages:', error);
-            chatMessages.innerHTML = `
-                <div class="text-center py-4">
-                    <i class="bi bi-exclamation-triangle text-warning" style="font-size: 2rem;"></i>
-                    <p class="mt-2 text-muted">Failed to load messages</p>
-                </div>
-            `;
-        });
+        // Show progressive loading state
+        window.MessagingLoader?.showMessagesLoading(chatMessages, chatId);
+
+        // Load messages with retry mechanism
+        const loadOperation = async () => {
+            return new Promise((resolve, reject) => {
+                // Listen for messages in real-time
+                chatUnsub = db.collection('conversations').doc(chatId)
+                    .collection('messages')
+                    .orderBy('timestamp', 'asc')
+                    .onSnapshot(snapshot => {
+                        const messages = [];
+                        snapshot.forEach(doc => {
+                            messages.push({
+                                id: doc.id,
+                                ...doc.data()
+                            });
+                        });
+
+                        console.log('Messages loaded:', messages.length);
+                        
+                        // Cache messages
+                        window.MessagingLoader?.cacheMessages(chatId, messages);
+                        
+                        // Initialize virtual scrolling for large message lists
+                        if (messages.length > 50) {
+                            window.MessagingLoader?.initVirtualScrolling(chatMessages, messages);
+                        } else {
+                            window.MessagingLoader?.renderCachedMessages(chatMessages, messages);
+                        }
+                        
+                        resolve(messages);
+                    }, error => {
+                        console.error('Error loading messages:', error);
+                        reject(error);
+                    });
+            });
+        };
+
+        // Use retry mechanism
+        await window.MessagingLoader?.retryWithBackoff(loadOperation);
+
+    } catch (error) {
+        console.error('Error loading messages:', error);
+        window.MessagingLoader?.showErrorState(chatMessages, error, () => loadMessages(chatId));
+    }
 }
 
 // Function to render a single message
@@ -703,7 +761,7 @@ function initializeCharts() {
   });
 }
 
-// Send message
+// Send message with optimistic updates
 async function sendMessage() {
     const messageInput = document.getElementById('messageInput');
     const content = messageInput.value.trim();
@@ -716,40 +774,61 @@ async function sendMessage() {
         return;
     }
     
-    try {
-        // Use global db variable
-        // Disable input temporarily
-        messageInput.disabled = true;
-        const sendBtn = document.getElementById('sendBtn');
-        sendBtn.disabled = true;
+    // Create message object
+    const message = {
+        content: content,
+        type: 'text',
+        senderId: window.currentUser.uid,
+        senderName: window.currentUser.displayName || window.currentUser.email,
+        senderAvatar: window.currentUser.photoURL,
+        timestamp: new Date() // Use local timestamp for optimistic update
+    };
 
-        // Create message object
-        const message = {
-            content: content,
-            type: 'text',
-            senderId: window.currentUser.uid,
-            senderName: window.currentUser.displayName || window.currentUser.email,
-            senderAvatar: window.currentUser.photoURL,
+    // Disable input temporarily
+    messageInput.disabled = true;
+    const sendBtn = document.getElementById('sendBtn');
+    sendBtn.disabled = true;
+
+    // Add optimistic message to UI
+    const chatMessages = document.getElementById('chatMessages');
+    const optimisticMessageElement = window.MessagingLoader?.addOptimisticMessage(chatMessages, message);
+    
+    // Clear input and reset height
+    messageInput.value = '';
+    messageInput.style.height = 'auto';
+    messageInput.focus();
+
+    try {
+        // Create server message object with server timestamp
+        const serverMessage = {
+            ...message,
             timestamp: firebase.firestore.FieldValue.serverTimestamp()
         };
 
-        // Add message to Firestore
-        await db.collection('conversations').doc(currentChatId)
-            .collection('messages').add(message);
+        // Add message to Firestore with retry mechanism
+        const sendOperation = async () => {
+            const docRef = await db.collection('conversations').doc(currentChatId)
+                .collection('messages').add(serverMessage);
 
-        // Update chat's last message
-        await db.collection('conversations').doc(currentChatId).update({
-            lastMessage: content,
-            lastMessageAt: firebase.firestore.FieldValue.serverTimestamp(),
-            lastMessageSenderId: window.currentUser.uid,
-            lastMessageDelivered: true,
-            lastMessageRead: false
-        });
+            // Update chat's last message
+            await db.collection('conversations').doc(currentChatId).update({
+                lastMessage: content,
+                lastMessageAt: firebase.firestore.FieldValue.serverTimestamp(),
+                lastMessageSenderId: window.currentUser.uid,
+                lastMessageDelivered: true,
+                lastMessageRead: false
+            });
 
-        // Clear input and reset height
-        messageInput.value = '';
-        messageInput.style.height = 'auto';
-        messageInput.focus();
+            return docRef;
+        };
+
+        // Use retry mechanism for sending
+        await window.MessagingLoader?.retryWithBackoff(sendOperation);
+
+        // Update optimistic message status to sent
+        if (optimisticMessageElement) {
+            window.MessagingLoader?.updateMessageStatus(optimisticMessageElement.dataset.messageId, 'sent');
+        }
 
         // Re-enable input and update send button
         messageInput.disabled = false;
@@ -759,20 +838,19 @@ async function sendMessage() {
 
         // Hide typing indicator when message is sent
         if (window.hideTypingIndicator) {
-          window.hideTypingIndicator();
-        }
-        
-        // Auto-scroll to bottom
-        const chatMessages = document.getElementById('chatMessages');
-        if (chatMessages) {
-          setTimeout(() => {
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-          }, 100);
+            window.hideTypingIndicator();
         }
 
     } catch (error) {
         console.error('Error sending message:', error);
-        alert('Failed to send message. Please try again.');
+        
+        // Update optimistic message status to error
+        if (optimisticMessageElement) {
+            window.MessagingLoader?.updateMessageStatus(optimisticMessageElement.dataset.messageId, 'error');
+        }
+        
+        // Show error toast
+        showToast('Failed to send message. Please try again.', 'error');
         
         // Re-enable input
         messageInput.disabled = false;
