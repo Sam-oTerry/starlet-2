@@ -74,9 +74,21 @@ function initializeMessaging() {
         return;
     }
     
+    // Add initialization attempt counter to prevent infinite loops
+    if (!window.messagingInitAttempts) {
+        window.messagingInitAttempts = 0;
+    }
+    window.messagingInitAttempts++;
+    
+    // Prevent infinite retry loops
+    if (window.messagingInitAttempts > 50) {
+        console.error('Too many initialization attempts, stopping to prevent infinite loop');
+        return;
+    }
+    
     // Wait for Firebase to be available
     if (typeof firebase === 'undefined') {
-        console.log('Firebase not available, retrying...');
+        console.log('Firebase not available, retrying... (attempt ' + window.messagingInitAttempts + ')');
         setTimeout(initializeMessaging, 100);
         return;
     }
@@ -101,19 +113,45 @@ function initializeMessaging() {
 
     console.log('Firebase services initialized from global scope');
 
+    // Prevent multiple auth state listeners
+    if (window.authStateListenerSet) {
+        console.log('Auth state listener already set, skipping...');
+        return;
+    }
+    window.authStateListenerSet = true;
+
     // Check authentication
     auth.onAuthStateChanged(function(user) {
         console.log('Auth state changed:', user ? 'User logged in' : 'No user');
         
         if (!user) {
-            console.log('No user authenticated, redirecting to login');
-            window.location.href = '../auth/login.html';
+            console.log('No user authenticated, checking current page...');
+            
+            // Check if we're already on a login page to prevent redirect loops
+            const currentPath = window.location.pathname;
+            if (currentPath.includes('/login.html') || currentPath.includes('/auth/')) {
+                console.log('Already on login page, not redirecting to prevent loop');
+                return;
+            }
+            
+            console.log('Redirecting to login page...');
+            // Use dynamic path detection to avoid redirect loops
+            const path = window.location.pathname;
+            const base = path.includes('/starlet-2/') ? '/starlet-2' : '';
+            window.location.href = base + '/pages/auth/login.html';
             return;
         }
         
         // Use window.currentUser to avoid conflicts with other scripts
         window.currentUser = user;
         console.log('User authenticated:', user.email, 'UID:', user.uid);
+        
+        // Prevent multiple initializations when user is already authenticated
+        if (window.messagingFeaturesInitialized) {
+            console.log('Messaging features already initialized, skipping...');
+            return;
+        }
+        window.messagingFeaturesInitialized = true;
         
         // Check for URL parameters
         const urlParams = new URLSearchParams(window.location.search);
@@ -167,6 +205,7 @@ function initializeMessaging() {
         
         // Mark messaging as initialized
         window.messagingInitialized = true;
+        console.log('✅ Messaging system fully initialized');
         
 
     });
@@ -174,6 +213,8 @@ function initializeMessaging() {
 
 // Load conversations with enhanced loading system
 async function loadConversations() {
+    console.log('🔄 loadConversations called');
+    
     const conversationsList = document.getElementById('conversationsList');
     const conversationCount = document.querySelector('.conversation-count');
     
@@ -210,6 +251,12 @@ async function loadConversations() {
         // Load conversations with retry mechanism
         const loadOperation = async () => {
             return new Promise((resolve, reject) => {
+                // Clean up previous listener if exists
+                if (conversationsUnsub) {
+                    console.log('Cleaning up previous conversations listener');
+                    conversationsUnsub();
+                }
+                
                 // Listen for conversations in real-time
                 conversationsUnsub = db.collection('conversations')
                     .where('participants', 'array-contains', window.currentUser.uid)
@@ -563,6 +610,8 @@ function updateChatHeader(otherUser, chatData) {
 
 // Load messages with enhanced loading system
 async function loadMessages(chatId) {
+    console.log('🔄 loadMessages called for chat:', chatId);
+    
     const chatMessages = document.getElementById('chatMessages');
     
     if (!chatMessages) {
@@ -597,6 +646,12 @@ async function loadMessages(chatId) {
         // Load messages with retry mechanism
         const loadOperation = async () => {
             return new Promise((resolve, reject) => {
+                // Clean up previous listener if exists
+                if (chatUnsub) {
+                    console.log('Cleaning up previous chat listener');
+                    chatUnsub();
+                }
+                
                 // Listen for messages in real-time
                 chatUnsub = db.collection('conversations').doc(chatId)
                     .collection('messages')
@@ -2442,3 +2497,19 @@ window.sendOfferMessage = sendOfferMessage;
 window.showListingDetails = showListingDetails;
 window.hideListingDetails = hideListingDetails;
 window.showContactInfo = showContactInfo;
+
+// Debug function to check messaging system status
+window.debugMessagingStatus = function() {
+    console.log('🔍 Messaging System Debug Info:');
+    console.log('  - Firebase available:', typeof firebase !== 'undefined');
+    console.log('  - Database initialized:', !!db);
+    console.log('  - Auth initialized:', !!auth);
+    console.log('  - Current user:', window.currentUser ? window.currentUser.email : 'None');
+    console.log('  - Messaging initialized:', window.messagingInitialized);
+    console.log('  - Auth listener set:', window.authStateListenerSet);
+    console.log('  - Features initialized:', window.messagingFeaturesInitialized);
+    console.log('  - Init attempts:', window.messagingInitAttempts || 0);
+    console.log('  - Current path:', window.location.pathname);
+    console.log('  - Chat unsub:', !!chatUnsub);
+    console.log('  - Conversations unsub:', !!conversationsUnsub);
+};
