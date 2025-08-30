@@ -795,12 +795,24 @@
                 if (returnUrl && window.location.pathname.includes('/starlet-2/') && !returnUrl.includes('/starlet-2/')) {
                     returnUrl = '/starlet-2' + returnUrl;
                 }
+                
+                // Additional validation for admin pages
+                if (returnUrl && returnUrl.includes('/admin/') && role !== 'admin') {
+                    console.log('Non-admin user trying to access admin page, redirecting to home');
+                    returnUrl = null;
+                }
             }
             
             console.log('Final returnUrl after validation:', returnUrl);
             
             // For admin users, always redirect to admin dashboard unless they have a specific returnUrl
             if (role === 'admin') {
+                if (returnUrl && !returnUrl.includes('/admin/')) {
+                    // If admin has a returnUrl that's not an admin page, redirect to admin dashboard
+                    console.log('Admin has non-admin returnUrl, redirecting to admin dashboard');
+                    returnUrl = null;
+                }
+                
                 if (returnUrl) {
                     console.log('Admin redirecting to returnUrl:', returnUrl);
                     window.location.href = returnUrl;
@@ -839,16 +851,29 @@
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
             const remember = document.getElementById('remember').checked;
+            const submitButton = e.target.querySelector('button[type="submit"]');
+            const originalButtonText = submitButton.textContent;
+            
+            // Show loading state
+            submitButton.disabled = true;
+            submitButton.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Signing in...';
             
             if (!window.firebaseAuth || !window.firebaseDB) {
-                alert('Firebase not initialized. Please try again later.');
+                showLoginError('Firebase not initialized. Please try again later.');
+                resetButton();
                 return;
             }
+            
             try {
+                console.log('🔐 Attempting login for:', email);
+                
                 // Sign in with Firebase Auth
                 const userCredential = await window.firebaseAuth.signInWithEmailAndPassword(email, password);
                 const user = userCredential.user;
                 if (!user) throw new Error('No user returned from Firebase.');
+                
+                console.log('✅ Firebase Auth successful for:', user.email);
+                
                 // Fetch user role from Firestore
                 const userDoc = await window.firebaseDB.collection('users').doc(user.uid).get();
                 let role = 'user';
@@ -864,20 +889,75 @@
                 
                 if (isAdminEmail) {
                     role = 'admin';
-                    console.log('Admin access granted based on email:', user.email);
+                    console.log('✅ Admin access granted based on email:', user.email);
                 }
+                
                 // Store user info in localStorage
                 localStorage.setItem('starletUser', JSON.stringify({
                     email: user.email,
                     uid: user.uid,
                     role: role
                 }));
+                
+                console.log('✅ User data stored, role:', role);
+                
+                // Show success message
+                showLoginSuccess(role);
+                
                 // Handle redirect after successful login
-                handleLoginRedirect(role);
+                setTimeout(() => {
+                    handleLoginRedirect(role);
+                }, 1000);
+                
             } catch (error) {
-                alert('Login failed: ' + (error.message || error));
+                console.error('❌ Login failed:', error);
+                showLoginError('Login failed: ' + (error.message || error));
+                resetButton();
+            }
+            
+            function resetButton() {
+                submitButton.disabled = false;
+                submitButton.textContent = originalButtonText;
             }
         });
+        
+        // Show login success message
+        function showLoginSuccess(role) {
+            const message = document.createElement('div');
+            message.className = 'alert alert-success position-fixed top-0 start-50 translate-middle-x mt-3';
+            message.style.zIndex = '9999';
+            message.innerHTML = `
+                <i class="bi bi-check-circle"></i>
+                <strong>Login Successful!</strong> 
+                ${role === 'admin' ? 'Welcome Admin! Redirecting to admin dashboard...' : 'Redirecting to dashboard...'}
+            `;
+            document.body.appendChild(message);
+            
+            setTimeout(() => {
+                if (message.parentNode) {
+                    message.remove();
+                }
+            }, 3000);
+        }
+        
+        // Show login error message
+        function showLoginError(errorMessage) {
+            const message = document.createElement('div');
+            message.className = 'alert alert-danger position-fixed top-0 start-50 translate-middle-x mt-3';
+            message.style.zIndex = '9999';
+            message.innerHTML = `
+                <i class="bi bi-exclamation-triangle"></i>
+                <strong>Login Error:</strong> ${errorMessage}
+                <button type="button" class="btn-close ms-2" onclick="this.closest('.alert').remove()"></button>
+            `;
+            document.body.appendChild(message);
+            
+            setTimeout(() => {
+                if (message.parentNode) {
+                    message.remove();
+                }
+            }, 5000);
+        }
         
         // Registration form submission
         document.getElementById('registerForm').addEventListener('submit', function(e) {
@@ -918,22 +998,37 @@
         // Google sign in/up
         document.addEventListener('click', async function(e) {
             if (e.target.closest('.btn-outline') && e.target.closest('.btn-outline').textContent.includes('Google')) {
+                const googleButton = e.target.closest('.btn-outline');
+                const originalButtonText = googleButton.innerHTML;
+                
                 console.log('Google sign ' + (currentMode === 'login' ? 'in' : 'up') + ' clicked');
+                
                 if (!window.firebaseAuth || !window.firebaseDB) {
-                    alert('Firebase not initialized. Please try again later.');
+                    showLoginError('Firebase not initialized. Please try again later.');
                     return;
                 }
+                
+                // Show loading state
+                googleButton.disabled = true;
+                googleButton.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Signing in with Google...';
+                
                 try {
+                    console.log('🔐 Attempting Google sign-in...');
+                    
                     // Use Firebase Auth Google provider
                     const provider = new firebase.auth.GoogleAuthProvider();
                     const result = await window.firebaseAuth.signInWithPopup(provider);
                     const user = result.user;
                     if (!user) throw new Error('No user returned from Google sign-in.');
+                    
+                    console.log('✅ Google sign-in successful for:', user.email);
+                    
                     // Fetch user role from Firestore
                     let role = 'user';
                     let userDoc = await window.firebaseDB.collection('users').doc(user.uid).get();
                     if (!userDoc.exists) {
                         // If user doc doesn't exist, create it (first time Google login)
+                        console.log('📝 Creating new user document for Google user');
                         await window.firebaseDB.collection('users').doc(user.uid).set({
                             email: user.email,
                             displayName: user.displayName || '',
@@ -955,18 +1050,33 @@
                     
                     if (isAdminEmail) {
                         role = 'admin';
-                        console.log('Admin access granted based on email:', user.email);
+                        console.log('✅ Admin access granted based on email:', user.email);
                     }
+                    
                     // Store user info in localStorage
                     localStorage.setItem('starletUser', JSON.stringify({
                         email: user.email,
                         uid: user.uid,
                         role: role
                     }));
+                    
+                    console.log('✅ User data stored, role:', role);
+                    
+                    // Show success message
+                    showLoginSuccess(role);
+                    
                     // Handle redirect after successful login
-                    handleLoginRedirect(role);
+                    setTimeout(() => {
+                        handleLoginRedirect(role);
+                    }, 1000);
+                    
                 } catch (error) {
-                    alert('Google sign-in failed: ' + (error.message || error));
+                    console.error('❌ Google sign-in failed:', error);
+                    showLoginError('Google sign-in failed: ' + (error.message || error));
+                    
+                    // Reset button
+                    googleButton.disabled = false;
+                    googleButton.innerHTML = originalButtonText;
                 }
             }
         });

@@ -108,20 +108,31 @@
         if (adminStatus.isAdmin) {
             console.log('✅ Admin detected on login page, redirecting to dashboard');
             
-            // Show redirect message
-            const message = document.createElement('div');
-            message.className = 'alert alert-info position-fixed top-0 start-50 translate-middle-x mt-3';
-            message.style.zIndex = '9999';
-            message.innerHTML = `
-                <i class="bi bi-person-check"></i>
-                <strong>Welcome Admin!</strong> Redirecting to admin dashboard...
-            `;
-            document.body.appendChild(message);
+            // Check if there's a returnUrl that's an admin page
+            const params = new URLSearchParams(window.location.search);
+            const returnUrl = params.get('returnUrl');
             
-            // Redirect to admin dashboard
-            setTimeout(() => {
-                redirectToPage('/pages/admin/dashboard.html');
-            }, 1500);
+            if (returnUrl && returnUrl.includes('/admin/')) {
+                console.log('✅ Admin has admin returnUrl, redirecting to:', returnUrl);
+                setTimeout(() => {
+                    window.location.href = returnUrl;
+                }, 1500);
+            } else {
+                // Show redirect message
+                const message = document.createElement('div');
+                message.className = 'alert alert-info position-fixed top-0 start-50 translate-middle-x mt-3';
+                message.style.zIndex = '9999';
+                message.innerHTML = `
+                    <i class="bi bi-person-check"></i>
+                    <strong>Welcome Admin!</strong> Redirecting to admin dashboard...
+                `;
+                document.body.appendChild(message);
+                
+                // Redirect to admin dashboard
+                setTimeout(() => {
+                    redirectToPage('/pages/admin/dashboard.html');
+                }, 1500);
+            }
         }
     }
     
