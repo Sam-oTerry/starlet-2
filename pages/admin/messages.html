@@ -11,7 +11,7 @@
   <!-- Google Fonts: Inter -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <!-- Custom Styles -->
-  <link rel="stylesheet" href="/starlet-2/css/style.css">
+  <link rel="stylesheet" href="../../css/style.css">
   <style>
     /* Modern Messages Page Styles */
     .admin-main-content {
@@ -592,6 +592,11 @@
                 <i class="bi bi-info-circle me-1"></i>
                 <strong>Tip:</strong> Click on messages to select them, use Ctrl+Delete to delete, or hover for more options
               </small>
+              <div class="mt-2">
+                <button class="btn btn-sm btn-outline-light" onclick="requestNotificationPermission()">
+                  <i class="bi bi-bell"></i> Enable Notifications
+                </button>
+              </div>
             </div>
       </div>
           <div class="col-md-4 text-md-end">
@@ -1026,15 +1031,8 @@
             await window.firebaseDB.collection('users').doc(window.currentUser.id).update({ fcmToken: token });
             console.log('FCM token obtained successfully');
           } else if (Notification.permission === 'default') {
-            // Only request permission if not already blocked
-            const permission = await Notification.requestPermission();
-            if (permission === 'granted') {
-              const token = await window.firebaseMessaging.getToken({ vapidKey: 'YOUR_PUBLIC_VAPID_KEY' });
-              await window.firebaseDB.collection('users').doc(window.currentUser.id).update({ fcmToken: token });
-              console.log('FCM token obtained after permission request');
-            } else {
-              console.log('Notification permission denied by user');
-            }
+            // Don't request permission automatically - wait for user interaction
+            console.log('Notification permission not granted, will request on user interaction');
           } else {
             console.log('Notification permission blocked by browser or user');
           }
@@ -2167,6 +2165,22 @@
           clearUnreadBadge();
         });
       }
+      
+      // Request notification permission on first user interaction
+      let notificationRequested = false;
+      const requestNotificationOnInteraction = () => {
+        if (!notificationRequested && Notification.permission === 'default') {
+          notificationRequested = true;
+          requestNotificationPermission();
+          // Remove the event listeners after first interaction
+          document.removeEventListener('click', requestNotificationOnInteraction);
+          document.removeEventListener('keydown', requestNotificationOnInteraction);
+        }
+      };
+      
+      // Add listeners for user interaction
+      document.addEventListener('click', requestNotificationOnInteraction);
+      document.addEventListener('keydown', requestNotificationOnInteraction);
     });
 
     // Setup keyboard shortcuts
@@ -3221,7 +3235,55 @@
       }
     }
 
-    // 6. DEBUG AND TROUBLESHOOTING
+    // 6. NOTIFICATION PERMISSION HANDLING
+    async function requestNotificationPermission() {
+      try {
+        console.log('🔔 Requesting notification permission...');
+        
+        if (Notification.permission === 'granted') {
+          console.log('✅ Notifications already granted');
+          showToast('Notifications are already enabled!', 'success');
+          return;
+        }
+        
+        if (Notification.permission === 'denied') {
+          console.log('❌ Notifications blocked by user');
+          showToast('Notifications are blocked. Please enable them in your browser settings.', 'warning');
+          return;
+        }
+        
+        // Request permission (this must be triggered by user interaction)
+        const permission = await Notification.requestPermission();
+        
+        if (permission === 'granted') {
+          console.log('✅ Notification permission granted');
+          
+          // Get FCM token
+          if (window.firebaseMessaging) {
+            try {
+              const token = await window.firebaseMessaging.getToken({ vapidKey: 'YOUR_PUBLIC_VAPID_KEY' });
+              if (window.currentUser && window.firebaseDB) {
+                await window.firebaseDB.collection('users').doc(window.currentUser.id).update({ fcmToken: token });
+                console.log('✅ FCM token saved successfully');
+              }
+            } catch (tokenError) {
+              console.warn('⚠️ Could not get FCM token:', tokenError);
+            }
+          }
+          
+          showToast('Notifications enabled successfully!', 'success');
+        } else {
+          console.log('❌ Notification permission denied');
+          showToast('Notification permission denied. You can enable them later in browser settings.', 'info');
+        }
+        
+      } catch (error) {
+        console.error('❌ Error requesting notification permission:', error);
+        showToast('Failed to request notification permission', 'error');
+      }
+    }
+
+    // 7. DEBUG AND TROUBLESHOOTING
     function debugConversation() {
       console.log('=== DEBUG CONVERSATION START ===');
       console.log('🔍 Current state:');
