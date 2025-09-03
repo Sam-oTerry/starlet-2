@@ -264,12 +264,22 @@ class MessagingLoader {
             return null;
         }
         
-        const messageElement = this.renderMessage({
+        const messageHtml = this.renderMessage({
             ...message,
             id: `temp_${Date.now()}`,
             status: 'sending',
             timestamp: new Date()
         });
+        
+        // Convert HTML string to DOM element
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = messageHtml;
+        const messageElement = tempDiv.firstElementChild;
+        
+        if (!messageElement) {
+            console.error('Failed to create message element from HTML');
+            return null;
+        }
         
         container.appendChild(messageElement);
         container.scrollTop = container.scrollHeight;
@@ -378,7 +388,24 @@ class MessagingLoader {
      * Render a single message
      */
     renderMessage(message) {
-        const isCurrentUser = message.senderId === window.currentUser?.uid;
+        if (!window.currentUser || !window.currentUser.uid) {
+            console.warn('Current user not available, using default message rendering');
+            return `
+                <div class="message received" data-message-id="${message.id}">
+                    <div class="message-content">
+                        ${message.content}
+                        <div class="message-meta">
+                            <span class="message-time">${this.formatTime(message.timestamp)}</span>
+                            <span class="message-status ${message.status || 'sent'}">
+                                ${this.getStatusIcon(message.status || 'sent')}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        const isCurrentUser = message.senderId === window.currentUser.uid;
         const messageClass = isCurrentUser ? 'message sent' : 'message received';
         const statusClass = message.status || 'sent';
         
