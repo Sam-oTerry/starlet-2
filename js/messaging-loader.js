@@ -259,6 +259,11 @@ class MessagingLoader {
      * Add optimistic message to UI
      */
     addOptimisticMessage(container, message) {
+        if (!container) {
+            console.error('Container is null or undefined in addOptimisticMessage');
+            return null;
+        }
+        
         const messageElement = this.renderMessage({
             ...message,
             id: `temp_${Date.now()}`,

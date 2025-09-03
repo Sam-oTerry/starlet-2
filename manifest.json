@@ -1,0 +1,36 @@
+{
+  "name": "Starlet Properties",
+  "short_name": "Starlet",
+  "description": "Uganda's Premier Real Estate & Vehicle Marketplace",
+  "start_url": "/starlet-2/",
+  "display": "standalone",
+  "background_color": "#03254c",
+  "theme_color": "#ffd700",
+  "orientation": "portrait-primary",
+  "scope": "/starlet-2/",
+  "lang": "en",
+  "icons": [
+    {
+      "src": "/starlet-2/assets/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/starlet-2/assets/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Search Properties",
+      "url": "/starlet-2/pages/properties/index.html"
+    },
+    {
+      "name": "Search Vehicles", 
+      "url": "/starlet-2/pages/vehicles/index.html"
+    }
+  ]
+}

@@ -5152,8 +5152,6 @@ footer.footer {
   </script>
   
   <!-- Load messaging.js after DOM is ready -->
-  <script src="messaging.js"></script>
-  
   <script>
               // Sidebar toggle functionality (works on both mobile and desktop)
           document.addEventListener('DOMContentLoaded', function() {
@@ -5259,7 +5257,7 @@ footer.footer {
           
           // Typing indicator functionality
           const typingIndicator = document.getElementById('typingIndicator');
-          let typingTimeout;
+          let inlineTypingTimeout;
           
           // Function to show typing indicator
           function showTypingIndicator() {
@@ -5292,8 +5290,8 @@ footer.footer {
                 showTypingIndicator();
                 
                 // Hide typing indicator after 2 seconds
-                clearTimeout(typingTimeout);
-                typingTimeout = setTimeout(() => {
+                clearTimeout(inlineTypingTimeout);
+                inlineTypingTimeout = setTimeout(() => {
                   hideTypingIndicator();
                 }, 2000);
               }

@@ -860,6 +860,10 @@ async function sendMessage() {
 
     // Add optimistic message to UI
     const chatMessages = document.getElementById('chatMessages');
+    if (!chatMessages) {
+        console.error('Chat messages container not found');
+        return;
+    }
     const optimisticMessageElement = window.MessagingLoader?.addOptimisticMessage(chatMessages, message);
     
     // Clear input and reset height
